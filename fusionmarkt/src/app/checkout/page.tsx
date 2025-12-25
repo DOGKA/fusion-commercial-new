@@ -143,11 +143,9 @@ export default function CheckoutPage() {
         }
       } catch (error) {
         console.error("Error fetching shipping options:", error);
-        // Fallback options
-        setShippingOptions([
-          { id: "free-shipping", name: "Ücretsiz Kargo", description: "1-2 iş günü", cost: 0, isFree: true, estimatedDays: "1-2 iş günü", type: "FREE_SHIPPING" },
-          { id: "standard-shipping", name: "Aynı Gün Kargo", description: "Bugün kargoya verilir", cost: 49, isFree: false, estimatedDays: "Aynı gün", type: "FLAT_RATE" },
-        ]);
+        // Hata durumunda boş bırak - API'den veri gelmeden devam etme
+        setShippingOptions([]);
+        setShippingMessage("Kargo seçenekleri yüklenemedi. Lütfen sayfayı yenileyin.");
       } finally {
         setLoadingShipping(false);
       }

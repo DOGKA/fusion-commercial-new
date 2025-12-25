@@ -11,6 +11,12 @@ const nextConfig = {
         hostname: "fusionmarkt.s3.eu-central-1.amazonaws.com",
         port: "",
       },
+      // AWS S3 - Secondary bucket (mybucketajax)
+      {
+        protocol: "https",
+        hostname: "mybucketajax.s3.eu-north-1.amazonaws.com",
+        port: "",
+      },
       // Google SSO avatars
       {
         protocol: "https",

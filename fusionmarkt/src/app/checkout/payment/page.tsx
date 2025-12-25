@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
   ChevronRight, ChevronLeft, Check, Loader2, ShieldCheck,
   CreditCard, Building2, FileText, Package, Trash2, Heart,
-  Edit2, Minus, Plus, ChevronDown, Tag
+  Edit2, Minus, Plus, ChevronDown, Tag, ExternalLink
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCheckout } from "@/context/CheckoutContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { formatPrice } from "@/lib/utils";
+import ContractModal from "@/components/checkout/ContractModal";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PAYMENT PAGE - STEP 2
@@ -56,6 +57,17 @@ export default function PaymentPage() {
   // Hover states
   const [hoverConfirm, setHoverConfirm] = useState(false);
   const [hoverBack, setHoverBack] = useState(false);
+
+  // Contract modal states
+  const [contractModalOpen, setContractModalOpen] = useState(false);
+  const [activeContractType, setActiveContractType] = useState<"termsAndConditions" | "distanceSalesContract">("termsAndConditions");
+
+  // Generate order reference number (pre-order reference)
+  const orderRefNumber = useMemo(() => {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `FM-${timestamp.slice(-4)}-${random}`;
+  }, []);
 
   // Coupon state from checkout page
   const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -128,8 +140,49 @@ export default function PaymentPage() {
     );
   }
 
-  // Calculate totals
-  const shippingCost = state.shippingMethod === "free" ? 0 : 500;
+  // Kargo ücretini API'den çek
+  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchShippingCost = async () => {
+      if (items.length === 0) return;
+      
+      setShippingLoading(true);
+      try {
+        const res = await fetch("/api/public/shipping/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: items.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+          }),
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          // API'den gelen kargo ücretini kullan
+          if (data.hasFreeShipping) {
+            setShippingCost(0);
+          } else if (data.options?.length > 0) {
+            setShippingCost(data.options[0].cost || 0);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching shipping cost:", error);
+        // Hata durumunda 0 bırak, API'siz devam etme
+        setShippingCost(0);
+      } finally {
+        setShippingLoading(false);
+      }
+    };
+    
+    fetchShippingCost();
+  }, [items]);
+
   const couponDiscount = appliedCoupon?.discount || 0;
   const total = subtotal + shippingCost - couponDiscount;
 
@@ -195,7 +248,12 @@ export default function PaymentPage() {
         couponId: appliedCoupon?.id,
         couponCode: appliedCoupon?.code,
         total,
-        newsletter: state.contractsAccepted.newsletter,
+        // Sözleşme onayları - API'ye gönderilecek
+        contracts: {
+          termsAndConditions: state.contractsAccepted.termsAndConditions,
+          distanceSalesContract: state.contractsAccepted.distanceSalesContract,
+          newsletter: state.contractsAccepted.newsletter,
+        },
       };
 
       const res = await fetch("/api/orders", {
@@ -570,80 +628,151 @@ export default function PaymentPage() {
             </div>
 
             {/* Contracts */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
-              <h3 style={{ fontSize: "15px", fontWeight: "500", color: "#fff", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-                <FileText size={16} /> Sözleşmeler
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "16px", marginBottom: "16px" }}>
+              <h3 style={{ fontSize: "13px", fontWeight: "500", color: "#fff", marginBottom: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <FileText size={13} /> Sözleşmeler
               </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <label style={{ display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }}>
-                  <div
-                    onClick={() => setContractAccepted({ termsAndConditions: !state.contractsAccepted.termsAndConditions })}
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      borderRadius: "6px",
-                      border: state.contractsAccepted.termsAndConditions ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.3)",
-                      backgroundColor: state.contractsAccepted.termsAndConditions ? "#10b981" : "transparent",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                      marginTop: "2px"
-                    }}
-                  >
-                    {state.contractsAccepted.termsAndConditions && <Check size={12} color="#fff" strokeWidth={3} />}
-                  </div>
-                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>
-                    Kullanıcı Sözleşmesi ve Şartlar&apos;ı okudum ve kabul ediyorum. *
-                  </span>
-                </label>
-                <label style={{ display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }}>
-                  <div
-                    onClick={() => setContractAccepted({ distanceSalesContract: !state.contractsAccepted.distanceSalesContract })}
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      borderRadius: "6px",
-                      border: state.contractsAccepted.distanceSalesContract ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.3)",
-                      backgroundColor: state.contractsAccepted.distanceSalesContract ? "#10b981" : "transparent",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                      marginTop: "2px"
-                    }}
-                  >
-                    {state.contractsAccepted.distanceSalesContract && <Check size={12} color="#fff" strokeWidth={3} />}
-                  </div>
-                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>
-                    Mesafeli Satış Sözleşmesi&apos;ni okudum ve kabul ediyorum. *
-                  </span>
-                </label>
-                <label style={{ display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }}>
-                  <div
-                    onClick={() => setContractAccepted({ newsletter: !state.contractsAccepted.newsletter })}
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      borderRadius: "6px",
-                      border: state.contractsAccepted.newsletter ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.3)",
-                      backgroundColor: state.contractsAccepted.newsletter ? "#10b981" : "transparent",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                      marginTop: "2px"
-                    }}
-                  >
-                    {state.contractsAccepted.newsletter && <Check size={12} color="#fff" strokeWidth={3} />}
-                  </div>
-                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>
-                    Kampanya ve fırsatlardan haberdar olmak istiyorum. (İsteğe bağlı)
-                  </span>
-                </label>
+              
+              {/* Terms and Conditions */}
+              <div 
+                style={{ 
+                  display: "flex", 
+                  flexDirection: "row",
+                  alignItems: "center", 
+                  gap: "8px",
+                  marginBottom: "12px",
+                  flexWrap: "nowrap",
+                }}
+              >
+                <div
+                  onClick={() => {
+                    if (!state.contractsAccepted.termsAndConditions) {
+                      setActiveContractType("termsAndConditions");
+                      setContractModalOpen(true);
+                    } else {
+                      setContractAccepted({ termsAndConditions: false });
+                    }
+                  }}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    minWidth: "16px",
+                    maxWidth: "16px",
+                    minHeight: "16px",
+                    maxHeight: "16px",
+                    borderRadius: "3px",
+                    border: state.contractsAccepted.termsAndConditions ? "none" : "2px solid rgba(255,255,255,0.4)",
+                    backgroundColor: state.contractsAccepted.termsAndConditions ? "#10b981" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {state.contractsAccepted.termsAndConditions && <Check size={10} color="#fff" strokeWidth={3} />}
+                </div>
+                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", lineHeight: "1.3" }}>
+                  <span
+                    onClick={() => { setActiveContractType("termsAndConditions"); setContractModalOpen(true); }}
+                    style={{ color: "#10b981", cursor: "pointer", textDecoration: "underline" }}
+                  >Kullanıcı Sözleşmesi ve Şartlar</span>&apos;ı okudum ve kabul ediyorum. *
+                </span>
               </div>
+
+              {/* Distance Sales Contract */}
+              <div 
+                style={{ 
+                  display: "flex", 
+                  flexDirection: "row",
+                  alignItems: "center", 
+                  gap: "8px",
+                  marginBottom: "12px",
+                  flexWrap: "nowrap",
+                }}
+              >
+                <div
+                  onClick={() => {
+                    if (!state.contractsAccepted.distanceSalesContract) {
+                      setActiveContractType("distanceSalesContract");
+                      setContractModalOpen(true);
+                    } else {
+                      setContractAccepted({ distanceSalesContract: false });
+                    }
+                  }}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    minWidth: "16px",
+                    maxWidth: "16px",
+                    minHeight: "16px",
+                    maxHeight: "16px",
+                    borderRadius: "3px",
+                    border: state.contractsAccepted.distanceSalesContract ? "none" : "2px solid rgba(255,255,255,0.4)",
+                    backgroundColor: state.contractsAccepted.distanceSalesContract ? "#10b981" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {state.contractsAccepted.distanceSalesContract && <Check size={10} color="#fff" strokeWidth={3} />}
+                </div>
+                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", lineHeight: "1.3" }}>
+                  <span
+                    onClick={() => { setActiveContractType("distanceSalesContract"); setContractModalOpen(true); }}
+                    style={{ color: "#10b981", cursor: "pointer", textDecoration: "underline" }}
+                  >Mesafeli Satış Sözleşmesi</span>&apos;ni okudum ve kabul ediyorum. *
+                </span>
+              </div>
+
+              {/* Newsletter */}
+              <div 
+                style={{ 
+                  display: "flex", 
+                  flexDirection: "row",
+                  alignItems: "center", 
+                  gap: "8px",
+                  marginBottom: "8px",
+                  flexWrap: "nowrap",
+                }}
+              >
+                <div
+                  onClick={() => setContractAccepted({ newsletter: !state.contractsAccepted.newsletter })}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    minWidth: "16px",
+                    maxWidth: "16px",
+                    minHeight: "16px",
+                    maxHeight: "16px",
+                    borderRadius: "3px",
+                    border: state.contractsAccepted.newsletter ? "none" : "2px solid rgba(255,255,255,0.4)",
+                    backgroundColor: state.contractsAccepted.newsletter ? "#10b981" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {state.contractsAccepted.newsletter && <Check size={10} color="#fff" strokeWidth={3} />}
+                </div>
+                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", lineHeight: "1.3" }}>
+                  Kampanya ve fırsatlardan haberdar olmak istiyorum. (İsteğe bağlı)
+                </span>
+              </div>
+              {(errors.termsAndConditions || errors.distanceSalesContract) && (
+                <div style={{ marginTop: "12px", padding: "10px", backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", fontSize: "11px", color: "rgb(248,113,113)" }}>
+                  {errors.termsAndConditions || errors.distanceSalesContract}
+                </div>
+              )}
               {errors.general && (
-                <div style={{ marginTop: "16px", padding: "12px", backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "12px", fontSize: "12px", color: "rgb(248,113,113)" }}>
+                <div style={{ marginTop: "12px", padding: "10px", backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", fontSize: "11px", color: "rgb(248,113,113)" }}>
                   {errors.general}
                 </div>
               )}
@@ -716,6 +845,35 @@ export default function PaymentPage() {
           </div>
         </div>
       </div>
+
+      {/* Contract Modal */}
+      <ContractModal
+        isOpen={contractModalOpen}
+        onClose={() => setContractModalOpen(false)}
+        onAccept={() => {
+          if (activeContractType === "termsAndConditions") {
+            setContractAccepted({ termsAndConditions: true });
+          } else {
+            setContractAccepted({ distanceSalesContract: true });
+          }
+        }}
+        contractType={activeContractType}
+        billingAddress={state.billingAddress}
+        items={items.map(item => ({
+          title: item.title,
+          sku: undefined,
+          variant: item.variant,
+          price: item.price,
+          quantity: item.quantity
+        }))}
+        totals={{
+          subtotal,
+          shipping: shippingCost,
+          discount: couponDiscount,
+          grandTotal: total
+        }}
+        orderRefNumber={orderRefNumber}
+      />
     </div>
   );
 }

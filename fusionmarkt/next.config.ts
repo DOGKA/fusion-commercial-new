@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
         hostname: "fusionmarkt.s3.eu-central-1.amazonaws.com",
         pathname: "/**",
       },
+      // AWS S3 - Stockholm (eu-north-1) - mybucketajax
+      {
+        protocol: "https",
+        hostname: "mybucketajax.s3.eu-north-1.amazonaws.com",
+        pathname: "/**",
+      },
       // Cloudflare CDN (if using Cloudflare Images or R2)
       {
         protocol: "https",

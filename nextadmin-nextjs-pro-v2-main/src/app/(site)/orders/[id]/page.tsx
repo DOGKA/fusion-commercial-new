@@ -7,7 +7,7 @@ import Image from "next/image";
 import {
   ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock,
   RefreshCw, User, MapPin, FileText, Save, Upload, Trash2,
-  Copy, Check, AlertCircle, ChevronDown, ExternalLink
+  Copy, Check, AlertCircle, ChevronDown, ExternalLink, ScrollText, X
 } from "lucide-react";
 
 // Frontend URL for avatar images (cross-app)
@@ -170,6 +170,10 @@ export default function OrderDetailPage() {
 
   // Copy state
   const [copiedTracking, setCopiedTracking] = useState(false);
+
+  // Contract modal state
+  const [contractModalOpen, setContractModalOpen] = useState(false);
+  const [contractType, setContractType] = useState<"distanceSales" | "terms">("distanceSales");
 
   // Fetch order
   useEffect(() => {
@@ -700,6 +704,111 @@ export default function OrderDetailPage() {
               <p className="text-gray-600 italic dark:text-gray-400">"{order.customerNote}"</p>
             </div>
           )}
+
+          {/* Contract Acceptances */}
+          {(() => {
+            // Extract contract info from statusHistory
+            const contractHistory = order.statusHistory?.find(
+              (h: any) => h.type === "CONTRACT_ACCEPTANCE"
+            );
+            const contracts = contractHistory?.contracts;
+
+            return contracts ? (
+              <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-dark dark:text-white">
+                  <ScrollText size={18} />
+                  Kabul Edilen Sözleşmeler
+                </h2>
+                
+                <div className="space-y-3">
+                  {/* Terms and Conditions */}
+                  <div className="flex items-center justify-between rounded-lg border border-stroke p-3 dark:border-dark-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                        contracts.termsAndConditions 
+                          ? "bg-green-100 dark:bg-green-500/20" 
+                          : "bg-red-100 dark:bg-red-500/20"
+                      }`}>
+                        {contracts.termsAndConditions ? (
+                          <Check size={14} className="text-green-600" />
+                        ) : (
+                          <XCircle size={14} className="text-red-600" />
+                        )}
+                      </div>
+                      <span className="text-sm text-dark dark:text-white">
+                        Kullanıcı Sözleşmesi ve Şartlar
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setContractType("terms");
+                        setContractModalOpen(true);
+                      }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Görüntüle
+                    </button>
+                  </div>
+
+                  {/* Distance Sales Contract */}
+                  <div className="flex items-center justify-between rounded-lg border border-stroke p-3 dark:border-dark-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                        contracts.distanceSalesContract 
+                          ? "bg-green-100 dark:bg-green-500/20" 
+                          : "bg-red-100 dark:bg-red-500/20"
+                      }`}>
+                        {contracts.distanceSalesContract ? (
+                          <Check size={14} className="text-green-600" />
+                        ) : (
+                          <XCircle size={14} className="text-red-600" />
+                        )}
+                      </div>
+                      <span className="text-sm text-dark dark:text-white">
+                        Mesafeli Satış Sözleşmesi
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setContractType("distanceSales");
+                        setContractModalOpen(true);
+                      }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Görüntüle
+                    </button>
+                  </div>
+
+                  {/* Newsletter */}
+                  {contracts.newsletter !== undefined && (
+                    <div className="flex items-center gap-3 rounded-lg border border-stroke p-3 dark:border-dark-3">
+                      <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                        contracts.newsletter 
+                          ? "bg-blue-100 dark:bg-blue-500/20" 
+                          : "bg-gray-100 dark:bg-gray-500/20"
+                      }`}>
+                        {contracts.newsletter ? (
+                          <Check size={14} className="text-blue-600" />
+                        ) : (
+                          <XCircle size={14} className="text-gray-400" />
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Bülten ve Kampanya Bildirimleri
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Acceptance Date */}
+                  {contracts.acceptedAt && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Onay Tarihi: {formatDate(contracts.acceptedAt)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : null;
+          })()}
         </div>
 
         {/* Right Column - Customer & Address */}
@@ -831,6 +940,500 @@ export default function OrderDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Contract Modal */}
+      {contractModalOpen && (
+        <ContractViewModal
+          isOpen={contractModalOpen}
+          onClose={() => setContractModalOpen(false)}
+          contractType={contractType}
+          order={order}
+          formatPrice={formatPrice}
+          formatDate={formatDate}
+        />
+      )}
     </div>
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTRACT VIEW MODAL
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface ContractViewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  contractType: "distanceSales" | "terms";
+  order: Order;
+  formatPrice: (price: number) => string;
+  formatDate: (dateString: string | null) => string;
+}
+
+function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, formatDate: formatDateFn }: ContractViewModalProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  // Build buyer info from order
+  const buyerName = order.user?.name || 
+    (order.billingAddress ? 
+      `${order.billingAddress.firstName || ""} ${order.billingAddress.lastName || ""}`.trim() || 
+      order.billingAddress.fullName || "Belirtilmedi" 
+    : "Belirtilmedi");
+
+  const buyerAddress = order.billingAddress 
+    ? `${order.billingAddress.address || order.billingAddress.addressLine1 || ""}, ${order.billingAddress.district || ""}, ${order.billingAddress.city || ""} ${order.billingAddress.postalCode || ""}`.replace(/,\s*,/g, ",").trim()
+    : "Belirtilmedi";
+
+  const buyerPhone = order.billingAddress?.phone || order.user?.phone || "Belirtilmedi";
+  const buyerEmail = order.user?.email || "Belirtilmedi";
+
+  const contractContent = contractType === "distanceSales" 
+    ? generateDistanceSalesContract({
+        orderNumber: order.orderNumber,
+        orderDate: formatDateFn(order.createdAt),
+        buyer: {
+          fullName: buyerName,
+          address: buyerAddress,
+          phone: buyerPhone,
+          email: buyerEmail,
+        },
+        products: order.items.map(item => ({
+          name: item.product.name,
+          sku: item.product.sku || undefined,
+          variant: item.variantInfo ? JSON.parse(item.variantInfo)?.value : undefined,
+          price: Number(item.price),
+          quantity: item.quantity,
+        })),
+        totals: {
+          subtotal: Number(order.subtotal),
+          shipping: Number(order.shippingCost),
+          discount: Number(order.discount),
+          total: Number(order.total),
+        },
+        formatPrice,
+      })
+    : generateTermsContract({
+        orderNumber: order.orderNumber,
+        orderDate: formatDateFn(order.createdAt),
+        buyer: {
+          fullName: buyerName,
+          email: buyerEmail,
+        },
+      });
+
+  const title = contractType === "distanceSales" 
+    ? "Mesafeli Satış Sözleşmesi" 
+    : "Kullanıcı Sözleşmesi ve Şartlar";
+
+  return (
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className={`flex flex-col bg-white dark:bg-gray-dark ${
+        isMobile 
+          ? "w-full h-full rounded-none" 
+          : "w-full max-w-4xl h-[90vh] rounded-2xl"
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-stroke px-4 py-3 md:px-6 md:py-4 dark:border-dark-3 flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg md:rounded-xl bg-primary/10 flex-shrink-0">
+              <ScrollText size={isMobile ? 16 : 20} className="text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-sm md:text-lg font-semibold text-dark dark:text-white truncate">{title}</h2>
+              <p className="text-xs md:text-sm text-gray-500">#{order.orderNumber}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg border border-stroke hover:bg-gray-50 dark:border-dark-3 dark:hover:bg-dark-2 flex-shrink-0"
+          >
+            <X size={isMobile ? 18 : 20} className="text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-3 md:p-6" style={{ WebkitOverflowScrolling: "touch" }}>
+          <pre className="whitespace-pre-wrap break-words rounded-lg md:rounded-xl border border-stroke bg-gray-50 p-3 md:p-6 font-mono text-[10px] md:text-xs leading-relaxed text-gray-700 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300">
+            {contractContent}
+          </pre>
+        </div>
+
+        {/* Footer */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 border-t border-stroke px-4 py-3 md:px-6 md:py-4 dark:border-dark-3 flex-shrink-0">
+          <p className="text-xs md:text-sm text-green-600 flex items-center justify-center md:justify-start gap-2">
+            <Check size={16} />
+            <span className="hidden md:inline">Bu sözleşme elektronik ortamda kabul edilmiştir.</span>
+            <span className="md:hidden">Elektronik olarak onaylandı</span>
+          </p>
+          <button
+            onClick={onClose}
+            className="rounded-lg bg-primary px-6 py-2.5 md:py-2 text-sm font-medium text-white hover:bg-primary/90 w-full md:w-auto"
+          >
+            Kapat
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTRACT GENERATORS
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface DistanceSalesContractData {
+  orderNumber: string;
+  orderDate: string;
+  buyer: {
+    fullName: string;
+    address: string;
+    phone: string;
+    email: string;
+  };
+  products: {
+    name: string;
+    sku?: string;
+    variant?: string;
+    price: number;
+    quantity: number;
+  }[];
+  totals: {
+    subtotal: number;
+    shipping: number;
+    discount: number;
+    total: number;
+  };
+  formatPrice: (price: number) => string;
+}
+
+function generateDistanceSalesContract(data: DistanceSalesContractData): string {
+  const { orderNumber, orderDate, buyer, products, totals, formatPrice } = data;
+
+  const productRows = products
+    .map(p => `• ${p.name}${p.variant ? ` (${p.variant})` : ""} - Adet: ${p.quantity} - Fiyat: ${formatPrice(p.price * p.quantity)}`)
+    .join("\n");
+
+  return `
+══════════════════════════════════════════════════════════════════════
+                    MESAFELİ SATIŞ SÖZLEŞMESİ
+══════════════════════════════════════════════════════════════════════
+
+Sipariş No: ${orderNumber}
+Sözleşme Tarihi: ${orderDate}
+
+══════════════════════════════════════════════════════════════════════
+                            TARAFLAR
+══════════════════════════════════════════════════════════════════════
+
+SATICI BİLGİLERİ
+────────────────────────────────────────────────────────────────────────
+Ticaret Unvanı    : ASDTC MÜHENDİSLİK TİCARET A.Ş. / FUSIONMARKT LLC
+Genel Merkez      : Turan Güneş Bulvarı, Cezayir Cd. No.6/7, 
+                    Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE
+İade Adresi       : Turan Güneş Bulvarı, Cezayir Cd. No.6/7, 
+                    Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE
+Telefon           : +90 850 840 6160
+E-posta           : sales@fusionmarkt.com
+
+ALICI BİLGİLERİ
+────────────────────────────────────────────────────────────────────────
+Ad/Soyad          : ${buyer.fullName}
+Adres             : ${buyer.address}
+Telefon           : ${buyer.phone}
+E-posta           : ${buyer.email}
+
+══════════════════════════════════════════════════════════════════════
+                              KONU
+══════════════════════════════════════════════════════════════════════
+
+İşbu Mesafeli Satış Sözleşmesi'nin konusu, SATICI'ya ait 
+www.fusionmarkt.com ve işbu sözleşme kapsamında ALICI tarafından 
+online olarak verilen siparişe karşılık, satış bedelinin ALICI 
+tarafından ödenmesi, ürünlerin teslimi ve tarafların 27.11.2014 
+tarihli Resmi Gazete'de yayınlanan Mesafeli Satışlar Yönetmeliği 
+ve 6502 sayılı Tüketicinin Korunması Hakkında Kanun kapsamındaki 
+diğer hak ve yükümlülükleri kapsamaktadır.
+
+Not: Montaj hizmeti işbu Sözleşme'nin konu ve kapsamı dışında 
+tutulmuş olup, talep edilmesi halinde ayrı bir sözleşme ile 
+düzenlenecektir.
+
+══════════════════════════════════════════════════════════════════════
+                    SÖZLEŞME KAPSAMINDAKİ ÜRÜNLER
+══════════════════════════════════════════════════════════════════════
+
+${productRows}
+
+────────────────────────────────────────────────────────────────────────
+Ara Toplam        : ${formatPrice(totals.subtotal)}
+Kargo Ücreti      : ${totals.shipping === 0 ? "Ücretsiz" : formatPrice(totals.shipping)}
+${totals.discount > 0 ? `İndirim           : -${formatPrice(totals.discount)}` : ""}
+────────────────────────────────────────────────────────────────────────
+TOPLAM (KDV Dahil): ${formatPrice(totals.total)}
+════════════════════════════════════════════════════════════════════════
+
+══════════════════════════════════════════════════════════════════════
+                              ÖDEME
+══════════════════════════════════════════════════════════════════════
+
+Minimum Sipariş: İnternet mağazasında minimum sipariş tutarı 150 TL'dir.
+
+ALICI, işbu Sözleşme kapsamında sipariş verdiği ürün(ler) için KDV 
+dahil satış bedelini ve kargo ücretlerini Sözleşme'de belirtilen 
+ödeme koşullarına uygun olarak ödeyecektir.
+
+Kabul Edilen Kartlar: Visa, Amex, MasterCard kredi kartları
+Ön Provizyon: Siparişler banka onayı sonrası işleme alınır
+
+Promosyonlar ve indirimler, ürünün sipariş tarihinde geçerli ise 
+uygulanacaktır. SATICI, bankaların kesintileri veya ücretlerinden 
+sorumlu değildir.
+
+══════════════════════════════════════════════════════════════════════
+                            TESLİMAT
+══════════════════════════════════════════════════════════════════════
+
+ALICI tarafından internet üzerinden siparişi verilen ürün/ürünler, 
+verilen 30 (otuz) günlük yasal süre içerisinde SATICI'nın anlaşmalı 
+kargo şirketi tarafından ALICI'ya veya ALICI'nın belirttiği adreste 
+bulunan kişilere teslim edilir.
+
+• Aynı Gün Teslimat: Ürünler siparişin verildiği gün teslim edilir.
+• Randevulu Teslimat: ALICI'nın belirlediği tarihte teslim edilir.
+
+Not: ALICI'nın teslimat sırasında adreste bulunmaması halinde dahi 
+SATICI edimini eksiksiz olarak yerine getirmiş sayılacaktır.
+
+══════════════════════════════════════════════════════════════════════
+                          CAYMA HAKKI
+══════════════════════════════════════════════════════════════════════
+
+ALICI, Sözleşme kapsamındaki ürünlerin kendisine veya gösterdiği 
+adresteki kişiye tesliminden itibaren 14 (on dört) gün içinde 
+cayma hakkını kullanabilir.
+
+CAYMA HAKKI ŞARTLARI:
+• Ürünler tekrar satılabilir durumda, hasarsız ve orijinal 
+  ambalajında olmalıdır
+• SATICI'ya yazılı veya müşteri hizmetleri aracılığıyla 
+  bildirimde bulunulmalıdır
+• İade masrafları SATICI tarafından karşılanacaktır
+
+CAYMA HAKKI KAPSAMI DIŞINDAKİ ÜRÜNLER:
+• Fiyatı finansal piyasalardaki dalgalanmalara bağlı olarak 
+  değişen ürünler
+• Sağlık ve hijyen nedenleriyle iade edilemeyen ürünler
+• Kişisel ihtiyaçlara göre hazırlanan ürünler
+
+İade Süresi: Cayma hakkının kullanılması halinde, ürünlerin 
+iadesi sonrası 14 gün içinde ödenen tutar ALICI'ya iade edilir.
+
+══════════════════════════════════════════════════════════════════════
+                      GARANTİ VE SORUMLULUK
+══════════════════════════════════════════════════════════════════════
+
+• 2 Yıl Garanti süresi, ürünün teslimat tarihinden itibaren geçerlidir.
+• Değişim Durumu: Garanti kapsamında değiştirilen ürünler için süre, 
+  ilk ürünün kalan garanti süresi ile sınırlıdır.
+• SATICI, garanti koşullarına uymayan veya yetkisiz müdahaleye 
+  uğramış ürünler için sorumluluk kabul etmez.
+• ALICI, ürünlerin kullanım talimatlarına uygun olarak kullanılmaması 
+  durumunda doğacak zararlardan kendisinin sorumlu olduğunu kabul eder.
+
+══════════════════════════════════════════════════════════════════════
+                   KİŞİSEL VERİLERİN KORUNMASI
+══════════════════════════════════════════════════════════════════════
+
+SATICI, ALICI'ya ait kişisel bilgileri ilgili mevzuat kapsamında 
+işleyebilir ve saklayabilir. ALICI, kişisel verilerinin işlenmesi 
+ile ilgili her türlü talebi SATICI'ya iletebilir.
+
+KVKK Kapsamında Haklarınız:
+• Kişisel verilerinizin işlenip işlenmediğini öğrenme
+• Eksik veya hatalı işlenmişse düzeltilmesini isteme
+• İşlenme amacının ortadan kalkması durumunda silinmesini talep etme
+
+══════════════════════════════════════════════════════════════════════
+              UYUŞMAZLIKLARIN ÇÖZÜMÜ VE YETKİLİ MAHKEMELER
+══════════════════════════════════════════════════════════════════════
+
+İşbu Sözleşme'nin uygulanmasından ve yorumlanmasından doğabilecek 
+her türlü uyuşmazlıkların çözümünde Türk Hukuku uygulanacaktır.
+
+• Tüketici Hakem Heyetleri: 6502 sayılı Kanun kapsamında başvuru 
+  yapılabilir.
+• Tüketici Mahkemeleri: Hakem heyeti sınırlarını aşan uyuşmazlıklar 
+  için yetkilidir.
+
+Dil: ALICI ve SATICI arasında farklı dillerde yapılan sözleşmelerde 
+çelişki olması halinde Türkçe versiyon geçerli olacaktır.
+
+══════════════════════════════════════════════════════════════════════
+                          MÜCBİR SEBEP
+══════════════════════════════════════════════════════════════════════
+
+Mücbir sebep halleri (doğal afetler, savaş, ayaklanma, grev, 
+salgın hastalıklar vb.) tarafların kontrolü dışında gelişen ve 
+tarafların yükümlülüklerini yerine getirmesini engelleyen 
+durumlardır.
+
+Mücbir sebep halinde SATICI, ALICI'ya durumu bildirir ve teslimat 
+süresi ertelenebilir veya sipariş iptal edilerek iade yapılabilir.
+
+══════════════════════════════════════════════════════════════════════
+                    SÖZLEŞME TARİHİ VE ONAYI
+══════════════════════════════════════════════════════════════════════
+
+Bu sözleşme, ALICI tarafından elektronik ortamda onaylanmıştır.
+
+SATICI                              ALICI
+────────────────────────            ────────────────────────
+ASDTC MÜHENDİSLİK                   ${buyer.fullName}
+TİCARET A.Ş.
+FUSIONMARKT LLC
+
+══════════════════════════════════════════════════════════════════════
+`;
+}
+
+interface TermsContractData {
+  orderNumber: string;
+  orderDate: string;
+  buyer: {
+    fullName: string;
+    email: string;
+  };
+}
+
+function generateTermsContract(data: TermsContractData): string {
+  const { orderNumber, orderDate, buyer } = data;
+
+  return `
+══════════════════════════════════════════════════════════════════════
+                    KULLANICI SÖZLEŞMESİ VE ŞARTLAR
+══════════════════════════════════════════════════════════════════════
+
+Sözleşme Tarihi: ${orderDate}
+Kullanıcı: ${buyer.fullName}
+E-posta: ${buyer.email}
+Referans: ${orderNumber}
+
+══════════════════════════════════════════════════════════════════════
+                          1. GENEL HÜKÜMLER
+══════════════════════════════════════════════════════════════════════
+
+Bu web sitesini (www.fusionmarkt.com) kullanarak, işbu kullanım 
+koşullarını kabul etmiş sayılırsınız. Site üzerinden alışveriş 
+yapmanız halinde Mesafeli Satış Sözleşmesi hükümleri de geçerli 
+olacaktır.
+
+LÜTFEN BU SİTEYİ KULLANMADAN ÖNCE AŞAĞIDAKİ HÜKÜM VE KOŞULLARI 
+DİKKATLİCE OKUYUN.
+
+══════════════════════════════════════════════════════════════════════
+                         2. HİZMET TANIMI
+══════════════════════════════════════════════════════════════════════
+
+FusionMarkt, teknoloji ürünleri satan bir e-ticaret platformudur. 
+Sitede sunulan ürünler stok durumuna göre değişebilir ve fiyatlar 
+önceden haber verilmeksizin güncellenebilir.
+
+══════════════════════════════════════════════════════════════════════
+                        3. ÜYELİK KOŞULLARI
+══════════════════════════════════════════════════════════════════════
+
+• Üyelik için 18 yaşından büyük olmak veya yasal veli iznine sahip 
+  olmak gerekmektedir
+• Sağlanan bilgilerin doğruluğundan kullanıcı sorumludur
+• Hesap güvenliği kullanıcının sorumluluğundadır
+• Şifrenizin üçüncü kişilerle paylaşılmaması gerekmektedir
+
+══════════════════════════════════════════════════════════════════════
+                    4. FİKRİ MÜLKİYET HAKLARI
+══════════════════════════════════════════════════════════════════════
+
+Site içeriği, logoları, tasarımları ve diğer tüm materyaller 
+FusionMarkt'ın mülkiyetindedir. İzinsiz kullanımı yasaktır.
+
+Bu kapsamda:
+• Site tasarımının kopyalanması yasaktır
+• Ürün görsellerinin izinsiz kullanımı yasaktır
+• Marka ve logoların üçüncü taraflarca kullanımı yasaktır
+
+══════════════════════════════════════════════════════════════════════
+                           5. GİZLİLİK
+══════════════════════════════════════════════════════════════════════
+
+Kişisel verileriniz Gizlilik Politikamız ve KVKK kapsamında 
+işlenmektedir.
+
+• Verileriniz yalnızca hizmet amaçlı kullanılır
+• Yasal zorunluluklar dışında üçüncü taraflarla paylaşılmaz
+• 256-bit SSL şifreleme ile korunmaktadır
+
+══════════════════════════════════════════════════════════════════════
+                       6. SORUMLULUK REDDİ
+══════════════════════════════════════════════════════════════════════
+
+FusionMarkt, site kullanımından kaynaklanabilecek doğrudan veya 
+dolaylı zararlardan sorumlu tutulamaz.
+
+Ancak şu durumlarda sorumluluk kabul eder:
+• Sipariş edilen ürünlerin teslimi
+• Garanti kapsamındaki ürün arızaları
+• Yasal cayma hakkı süresinde iadeler
+
+══════════════════════════════════════════════════════════════════════
+                         7. DEĞİŞİKLİKLER
+══════════════════════════════════════════════════════════════════════
+
+Bu sözleşme şartları önceden haber verilmeksizin değiştirilebilir. 
+Güncel versiyon her zaman sitede yayınlanacaktır.
+
+Değişikliklerden haberdar olmak için:
+• E-posta bültenimize abone olabilirsiniz
+• Siteyi düzenli olarak ziyaret edebilirsiniz
+
+══════════════════════════════════════════════════════════════════════
+                      8. UYGULANACAK HUKUK
+══════════════════════════════════════════════════════════════════════
+
+Bu sözleşme Türkiye Cumhuriyeti kanunlarına tabidir. 
+Uyuşmazlıklarda Ankara Mahkemeleri ve İcra Daireleri yetkilidir.
+
+══════════════════════════════════════════════════════════════════════
+                            ONAY
+══════════════════════════════════════════════════════════════════════
+
+Bu sözleşme elektronik ortamda kabul edilmiştir.
+
+ASDTC MÜHENDİSLİK TİCARET A.Ş. | FUSIONMARKT LLC
+
+══════════════════════════════════════════════════════════════════════
+`;
 }

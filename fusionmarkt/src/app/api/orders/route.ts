@@ -69,7 +69,17 @@ export async function POST(request: NextRequest) {
       total: directTotal,
       createAccount,
       accountPassword,
+      contracts, // Sözleşme onayları
+      newsletter, // Legacy newsletter field
     } = body;
+
+    // Sözleşme onay bilgilerini hazırla
+    const contractsAccepted = {
+      termsAndConditions: contracts?.termsAndConditions || false,
+      distanceSalesContract: contracts?.distanceSalesContract || false,
+      newsletter: contracts?.newsletter || newsletter || false,
+      acceptedAt: new Date().toISOString(),
+    };
 
     // Handle both frontend formats (totals object or direct values)
     const orderSubtotal = totals?.subtotal ?? directSubtotal ?? 0;
@@ -169,6 +179,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Initial status history with contract acceptance
+    const initialStatusHistory = [
+      {
+        status: "PENDING",
+        date: new Date().toISOString(),
+        note: "Sipariş oluşturuldu",
+      },
+      {
+        type: "CONTRACT_ACCEPTANCE",
+        date: new Date().toISOString(),
+        contracts: contractsAccepted,
+        note: "Sözleşmeler elektronik ortamda onaylandı",
+      },
+    ];
+
     // Create order in database
     const order = await prisma.order.create({
       data: {
@@ -187,6 +212,7 @@ export async function POST(request: NextRequest) {
         billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
         shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
         customerNote: billingAddress?.orderNotes || null,
+        statusHistory: initialStatusHistory, // Sözleşme onaylarını dahil et
         // Create order items
         items: {
           create: items.map((item: { productId: string; variant?: { id: string }; price: number; quantity: number }) => ({

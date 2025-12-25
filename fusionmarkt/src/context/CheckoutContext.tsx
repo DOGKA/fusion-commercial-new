@@ -26,7 +26,8 @@ import type {
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-const FREE_SHIPPING_MIN = 3000; // TL
+const FREE_SHIPPING_MIN = 2000; // TL - 2000 TL ve üzeri ücretsiz kargo
+const STANDARD_SHIPPING_COST = 100; // TL - standart kargo ücreti
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INITIAL STATE
@@ -201,10 +202,9 @@ function checkoutReducer(state: CheckoutState, action: CheckoutAction): Checkout
       const subtotal = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const discount = state.appliedCoupon?.calculatedDiscount || 0;
       
-      // Auto-select free shipping if threshold is met
+      // Auto-select free shipping if threshold is met (2000 TL ve üzeri)
       const qualifiesForFreeShipping = subtotal >= FREE_SHIPPING_MIN;
-      const shipping = qualifiesForFreeShipping && state.shippingMethod === "free" ? 0 : 
-                       (state.shippingMethod === "standard" ? 500 : 0);
+      const shipping = qualifiesForFreeShipping ? 0 : STANDARD_SHIPPING_COST;
       
       const grandTotal = subtotal - discount + shipping;
       const taxIncluded = grandTotal * 0.20; // 20% KDV dahil
