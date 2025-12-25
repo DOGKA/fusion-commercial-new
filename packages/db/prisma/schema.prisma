@@ -1,0 +1,1537 @@
+// ============================================
+// FusionMarkt E-commerce + NextAdmin Pro
+// Unified Database Schema (Single Source of Truth)
+// ============================================
+// 
+// Bu şema hem frontend (fusionmarkt) hem de admin panel
+// (nextadmin) tarafından ortak kullanılır.
+//
+// Migration: Sadece admin panelden yapılır
+// Generate: Her iki projede de çalıştırılır
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION & USER MANAGEMENT (NextAuth)
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Admin API Keys (NextAdmin için)
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String
+  name      String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+// Kullanıcı Modeli (packages/db - en kapsamlı versiyon)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+
+  // Profil Görselleri
+  image      String? // Legacy field (URL) - NextAuth uyumluluğu için
+  coverImage String? // Profil kapak görseli
+
+  // Avatar (LOCAL storage - yeni sistem)
+  avatarPath    String? // Local path (./storage/users/<id>/avatar.webp)
+  avatarMediaId String? // Media table reference (opsiyonel)
+
+  // Şifre & Reset
+  password              String?
+  passwordResetToken    String?   @unique
+  passwordResetTokenExp DateTime?
+
+  // Email Aktivasyon (Kayıt sonrası doğrulama)
+  activationCode    String? // F-XXXXXX format
+  activationCodeExp DateTime? // 5 dakika geçerlilik
+
+  // Rol & Yetki
+  role UserRole @default(CUSTOMER)
+
+  // Kişisel Bilgiler
+  phone     String?
+  birthDate String? // Format: YYYY-MM-DD
+
+  // Zaman Damgaları
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // NextAdmin Relations (Admin için)
+  accounts Account[]
+  sessions Session[]
+  apiKeys  ApiKey[]
+
+  // E-commerce Relations (Frontend için)
+  orders    Order[]
+  reviews   Review[]
+  addresses Address[]
+  cart      Cart?
+  wishlist  Wishlist?
+
+  @@map("users")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ============================================
+// E-COMMERCE - CATEGORIES
+// ============================================
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  image       String?
+
+  // Hiyerarşi
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryHierarchy")
+
+  // Görünüm
+  icon       String? @db.Text // SVG string for category icon
+  themeColor String? // Hex renk kodu (örn: #F59E0B) - shimmer ve banner için
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // Zaman Damgaları
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // İlişkiler
+  products         Product[]
+  categoryFeatures CategoryFeature[]
+  filters          Filter[]          @relation("CategoryFilters")
+
+  @@map("categories")
+}
+
+// ============================================
+// E-COMMERCE - PRODUCTS
+// ============================================
+
+model Product {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  // Açıklamalar
+  description      String? @db.Text
+  shortDescription String? @db.Text
+
+  // Fiyatlandırma
+  price        Decimal   @db.Decimal(10, 2)
+  comparePrice Decimal?  @db.Decimal(10, 2) // İndirimli fiyat hesaplaması için orijinal fiyat
+  costPrice    Decimal?  @db.Decimal(10, 2) // Maliyet fiyatı
+  saleEndDate  DateTime? // İndirim bitiş tarihi
+
+  // Stok & SKU
+  sku           String? @unique
+  barcode       String?
+  stock         Int     @default(0)
+  lowStockAlert Int     @default(5)
+
+  // Görseller
+  images    String[] // Ürün görselleri array
+  thumbnail String? // Ana thumbnail
+  videoUrl  String? // Ürün videosu URL'si
+
+  // Ürün Detayları
+  brand      String?
+  weight     Decimal? @db.Decimal(10, 2)
+  dimensions String? // örn: "10x20x30 cm"
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  metaKeywords    String[]
+
+  // Durum Bayrakları
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+  isNew      Boolean @default(false)
+
+  // Kargo
+  freeShipping     Boolean        @default(false)
+  shippingClass    String? // Legacy field (geriye dönük uyumluluk)
+  shippingClassId  String? // Yeni relation
+  shippingClassRef ShippingClass? @relation("ProductShippingClass", fields: [shippingClassId], references: [id], onDelete: SetNull)
+
+  // Ürün Tipi
+  productType ProductType @default(SIMPLE)
+
+  // Yayın
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Kategori İlişkisi
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  // Alt Modeller
+  variants             ProductVariant[]
+  reviews              Review[]
+  orderItems           OrderItem[]
+  cartItems            CartItem[]
+  wishlistItems        WishlistItem[]
+  keyFeatures          KeyFeature[]
+  technicalSpecs       TechnicalSpec[]
+  productAttributes    ProductAttribute[]
+  productBadges        ProductBadge[]
+  productFeatureValues ProductFeatureValue[]
+
+  // İlişkili Ürünler
+  relatedFrom RelatedProduct[] @relation("RelatedFrom")
+  relatedTo   RelatedProduct[] @relation("RelatedTo")
+
+  @@map("products")
+}
+
+enum ProductType {
+  SIMPLE // Basit ürün
+  VARIABLE // Varyantlı ürün
+  GROUPED // Gruplu ürün
+  DIGITAL // Dijital ürün
+}
+
+// ============================================
+// E-COMMERCE - PRODUCT VARIANTS
+// ============================================
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Kombinasyon anahtarı (örn: "color:black|size:m") - geriye dönük uyumluluk
+  combinationKey String?
+
+  // Görünüm Alanları
+  name      String? // Başlık (örn: "Kırmızı - Large")
+  type      String? // Tip: "color" veya "size"
+  value     String? // Squircle'da gösterilecek değer (örn: "XL", "08", "Beyaz")
+  colorCode String? // Renk hex kodu (örn: "#FFFFFF") - renk tipinde dolacak
+
+  // Varyant Özellikleri
+  sku       String?  @unique
+  barcode   String?
+  price     Decimal? @db.Decimal(10, 2) // Override price
+  salePrice Decimal? @db.Decimal(10, 2)
+  stock     Int      @default(0)
+  weight    Decimal? @db.Decimal(10, 2)
+  image     String? // Varyanta özel görsel
+
+  // Durum
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Varyant Seçenekleri
+  variantOptions ProductVariantOption[]
+
+  @@map("product_variants")
+}
+
+// Varyant - Attribute - AttributeValue pivot tablosu
+model ProductVariantOption {
+  id        String         @id @default(cuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  attributeId String
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([variantId, attributeId])
+  @@map("product_variant_options")
+}
+
+// ============================================
+// E-COMMERCE - KEY FEATURES & SPECS
+// ============================================
+
+// Öne Çıkan Özellikler (ürün sayfası carousel)
+model KeyFeature {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  title     String
+  icon      String?  @db.Text // SVG string
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("key_features")
+}
+
+// Teknik Özellikler
+model TechnicalSpec {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  label     String // örn: "Batarya Kapasitesi"
+  value     String // örn: "3600Wh"
+  group     String? // örn: "Genel", "Teknik"
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("technical_specs")
+}
+
+// ============================================
+// E-COMMERCE - PRODUCT ATTRIBUTES
+// ============================================
+
+// Özellik Tanımları (Beden, Renk, Malzeme vb.)
+model Attribute {
+  id          String        @id @default(cuid())
+  name        String        @unique // Beden, Renk, Malzeme
+  slug        String        @unique
+  type        AttributeType @default(SELECT)
+  isVariation Boolean       @default(false) // Varyasyon özelliği mi?
+
+  // Görünüm Ayarları
+  displayType       AttributeDisplay @default(DROPDOWN)
+  showInFilters     Boolean          @default(true)
+  showInProductPage Boolean          @default(true)
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // İlişkiler
+  values            AttributeValue[]
+  productAttributes ProductAttribute[]
+  variantOptions    ProductVariantOption[]
+  filters           Filter[]               @relation("FilterAttribute")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("attributes")
+}
+
+// Özellik Değerleri (S, M, L veya Kırmızı, Mavi vb.)
+model AttributeValue {
+  id          String    @id @default(cuid())
+  attributeId String
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  name  String // "S", "M", "L" veya "Kırmızı", "Mavi"
+  slug  String
+  value String? // Ek değer (renk kodu vb.)
+
+  // Görünüm
+  color String? // Renk kodu (#FF0000)
+  image String? // Görsel URL
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // İlişkiler
+  productAttributes ProductAttribute[]
+  variantOptions    ProductVariantOption[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([attributeId, slug])
+  @@map("attribute_values")
+}
+
+// Ürün-Özellik Eşleştirmesi
+model ProductAttribute {
+  id               String         @id @default(cuid())
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId      String
+  attribute        Attribute      @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([productId, attributeId, attributeValueId])
+  @@map("product_attributes")
+}
+
+enum AttributeType {
+  SELECT // Tek seçim
+  MULTI_SELECT // Çoklu seçim
+  COLOR // Renk
+  IMAGE // Görsel
+  TEXT // Metin
+  NUMBER // Sayı
+  BOOLEAN // Evet/Hayır
+}
+
+enum AttributeDisplay {
+  DROPDOWN // Açılır menü
+  BUTTONS // Butonlar
+  COLOR_SWATCH // Renk kutuları
+  IMAGE_SWATCH // Görsel kutular
+}
+
+// ============================================
+// E-COMMERCE - PRODUCT BADGES (Rozetler)
+// ============================================
+
+model Badge {
+  id       String  @id @default(cuid())
+  label    String // Rozet metni (örn: "Yeni Ürün", "İndirimde")
+  slug     String  @unique
+  color    String // Yazı rengi (#FFFFFF)
+  bgColor  String // Arka plan rengi (#22C55E)
+  icon     String? @db.Text // SVG icon (opsiyonel)
+  priority Int     @default(0) // Sıralama önceliği
+  isActive Boolean @default(true)
+
+  // Otomatik Atama Kuralları
+  autoApply     Boolean @default(false)
+  autoApplyRule String? // JSON: {"type": "isNew", "days": 30}
+
+  // İlişkiler
+  productBadges ProductBadge[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("badges")
+}
+
+model ProductBadge {
+  id        String @id @default(cuid())
+  productId String
+  badgeId   String
+  position  Int    @default(0) // Rozet sırası (0 = en üstte)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  badge   Badge   @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([productId, badgeId])
+  @@index([productId])
+  @@index([badgeId])
+  @@map("product_badges")
+}
+
+// ============================================
+// E-COMMERCE - REVIEWS
+// ============================================
+
+model Review {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating  Int // 1-5
+  title   String?
+  comment String   @db.Text
+  images  String[] // Review görselleri
+
+  isVerified Boolean @default(false) // Doğrulanmış satın alma
+  isApproved Boolean @default(false) // Admin onayı
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+// ============================================
+// E-COMMERCE - RELATED PRODUCTS
+// ============================================
+
+model RelatedProduct {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation("RelatedFrom", fields: [productId], references: [id], onDelete: Cascade)
+
+  relatedProductId String
+  relatedProduct   Product @relation("RelatedTo", fields: [relatedProductId], references: [id], onDelete: Cascade)
+
+  // İlişki Türü
+  relationType RelationType
+
+  // AI tarafından mı yoksa manuel mi
+  isAutoGenerated Boolean @default(true)
+
+  // Görüntüleme önceliği
+  priority Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, relatedProductId, relationType])
+  @@map("related_products")
+}
+
+enum RelationType {
+  FREQUENTLY_BOUGHT // Birlikte Sıkça Alınan
+  ALSO_VIEWED // Kullanıcılar Bunlara da Baktı
+  UPSELL // Yukarı Satış
+  CROSS_SELL // Çapraz Satış (Sepette Öner)
+}
+
+// ============================================
+// E-COMMERCE - ORDERS
+// ============================================
+
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+
+  // Fiyatlandırma
+  subtotal     Decimal @db.Decimal(10, 2)
+  shippingCost Decimal @default(0) @db.Decimal(10, 2)
+  tax          Decimal @default(0) @db.Decimal(10, 2)
+  discount     Decimal @default(0) @db.Decimal(10, 2)
+  total        Decimal @db.Decimal(10, 2)
+
+  // Durum
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod String? // "credit_card", "bank_transfer" vb.
+
+  // Adresler
+  shippingAddressId String?
+  shippingAddress   Address? @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddressId  String?
+  billingAddress    Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
+
+  // Kargo Takip
+  trackingNumber String?
+  carrierName    String?
+
+  // Kupon
+  couponId   String?
+  coupon     Coupon? @relation(fields: [couponId], references: [id])
+  couponCode String? // Kullanılan kupon kodu (kayıt için)
+
+  // Notlar
+  customerNote String? @db.Text
+  adminNote    String? @db.Text
+
+  // Fatura
+  invoiceUrl        String? // Fatura dosyası URL'si (S3)
+  invoiceUploadedAt DateTime? // Fatura yüklenme tarihi
+
+  // Durum Geçmişi [{status, date, note, updatedBy}]
+  statusHistory Json? @db.Json
+
+  // Tarih Alanları
+  paidAt      DateTime? // Ödeme onay tarihi
+  confirmedAt DateTime? // Sipariş onay tarihi
+  preparingAt DateTime? // Hazırlanmaya başlama
+  shippedAt   DateTime? // Kargoya verilme
+  deliveredAt DateTime? // Teslim tarihi
+  cancelledAt DateTime? // İptal tarihi
+  refundedAt  DateTime? // İade tarihi
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Sipariş Kalemleri
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING // Beklemede
+  PROCESSING // İşleniyor
+  SHIPPED // Kargoda
+  DELIVERED // Teslim Edildi
+  CANCELLED // İptal Edildi
+  REFUNDED // İade Edildi
+}
+
+enum PaymentStatus {
+  PENDING // Beklemede
+  PAID // Ödendi
+  FAILED // Başarısız
+  REFUNDED // İade Edildi
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity Int
+  price    Decimal @db.Decimal(10, 2) // Sipariş anındaki fiyat
+  subtotal Decimal @db.Decimal(10, 2)
+
+  variantInfo String? // JSON string - varyant detayları
+
+  createdAt DateTime @default(now())
+
+  @@map("order_items")
+}
+
+// ============================================
+// E-COMMERCE - CART
+// ============================================
+
+model Cart {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  quantity    Int     @default(1)
+  variantInfo String? // JSON string - seçilen varyant
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+// ============================================
+// E-COMMERCE - WISHLIST
+// ============================================
+
+model Wishlist {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items WishlistItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([wishlistId, productId])
+  @@map("wishlist_items")
+}
+
+// ============================================
+// E-COMMERCE - ADDRESS (packages/db - Türkiye formatı)
+// ============================================
+
+model Address {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Yeni Alanlar (Türkiye adres formatı)
+  title    String? // Ev, İş vb.
+  fullName String? // Kullanıcı adı
+  district String? // İlçe
+  address  String? // Açık adres
+
+  // Legacy Alanlar (geriye dönük uyumluluk)
+  firstName    String?
+  lastName     String?
+  company      String?
+  addressLine1 String?
+  addressLine2 String?
+  state        String?
+
+  // Ortak Alanlar
+  phone      String
+  city       String
+  postalCode String?
+  country    String  @default("TR")
+
+  isDefault Boolean     @default(false)
+  type      AddressType @default(BOTH)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Sipariş İlişkileri
+  shippingOrders Order[] @relation("ShippingAddress")
+  billingOrders  Order[] @relation("BillingAddress")
+
+  @@map("addresses")
+}
+
+enum AddressType {
+  SHIPPING // Teslimat adresi
+  BILLING // Fatura adresi
+  BOTH // Her ikisi
+}
+
+// ============================================
+// E-COMMERCE - COUPONS
+// ============================================
+
+model Coupon {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  description String?
+
+  // İndirim Tipi
+  discountType  DiscountType @default(PERCENTAGE)
+  discountValue Decimal      @db.Decimal(10, 2) // Yüzde veya sabit tutar
+
+  // Kullanım Limitleri
+  minOrderAmount Decimal? @db.Decimal(10, 2) // Minimum sipariş tutarı
+  maxDiscount    Decimal? @db.Decimal(10, 2) // Maksimum indirim tutarı
+  usageLimit     Int? // Toplam kullanım limiti
+  usageCount     Int      @default(0) // Kullanım sayısı
+  perUserLimit   Int      @default(1) // Kullanıcı başına limit
+
+  // Geçerlilik
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+
+  // Mystery Box - Sürpriz kutu kampanyası için
+  inMysteryBox Boolean @default(false) // Kutuya gönderildi mi?
+
+  // İlişkiler
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coupons")
+}
+
+enum DiscountType {
+  PERCENTAGE // Yüzde indirim
+  FIXED // Sabit tutar indirim
+}
+
+// ============================================
+// PRODUCT FILTERS (YITH Style)
+// ============================================
+
+// Filter Preset - Birden fazla filtre içeren grup
+model FilterPreset {
+  id          String  @id @default(cuid())
+  name        String // "All Filters", "Sidebar Filters" vb.
+  slug        String  @unique
+  description String?
+
+  // Nerede Gösterilecek
+  location String @default("sidebar") // sidebar, shop, category
+
+  // Hangi Kategorilerde
+  showInAll   Boolean  @default(true)
+  categoryIds String[]
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // İlişkiler
+  filters Filter[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("filter_presets")
+}
+
+// Tek Bir Filtre - Bir Attribute'a veya Kategoriye bağlı
+model Filter {
+  id       String        @id @default(cuid())
+  presetId String?
+  preset   FilterPreset? @relation(fields: [presetId], references: [id], onDelete: SetNull)
+
+  name String // Filtre görünen adı
+
+  // Hangi kategoriye ait (opsiyonel - kategori bazlı filtreler için)
+  categoryId String?
+  category   Category? @relation("CategoryFilters", fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Hangi özelliğe/taxonomy'ye bağlı
+  sourceType  FilterSource @default(ATTRIBUTE)
+  attributeId String?
+  attribute   Attribute?   @relation("FilterAttribute", fields: [attributeId], references: [id], onDelete: SetNull)
+
+  // Tüm terimleri otomatik çek mi?
+  autoPopulate    Boolean  @default(true)
+  selectedTermIds String[] // Manuel seçilen terimler
+
+  // Özel filtre seçenekleri (CUSTOM sourceType için)
+  customOptions Json? // [{name: "...", value: "..."}]
+
+  // Filtre Tipi ve Görünüm
+  filterType   FilterType    @default(CHECKBOX)
+  displayStyle FilterDisplay @default(LIST)
+
+  // Ayarlar
+  showCount     Boolean       @default(true) // Ürün sayısını göster
+  showHierarchy HierarchyType @default(FLAT) // Hiyerarşi gösterimi
+  allowMultiple Boolean       @default(true) // Çoklu seçim
+  isCollapsible Boolean       @default(true)
+  isCollapsed   Boolean       @default(false)
+
+  // Range Filtresi için (fiyat vs.)
+  minValue Decimal? @db.Decimal(10, 2)
+  maxValue Decimal? @db.Decimal(10, 2)
+  step     Decimal? @db.Decimal(10, 2)
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("filters")
+}
+
+enum FilterSource {
+  ATTRIBUTE // Ürün özelliği (Beden, Renk vb.)
+  CATEGORY // Kategori
+  TAG // Etiket
+  BRAND // Marka
+  PRICE // Fiyat aralığı
+  STOCK // Stok durumu
+  RATING // Değerlendirme
+  CUSTOM // Özel tanımlı filtre seçenekleri
+}
+
+enum FilterType {
+  CHECKBOX // Çoklu seçim (checkbox)
+  RADIO // Tekli seçim (radio)
+  COLOR_SWATCH // Renk paletleri
+  IMAGE_SWATCH // Görsel seçenekler
+  RANGE // Fiyat/değer aralığı (slider)
+  DROPDOWN // Açılır menü
+  LABEL // Etiket/buton
+}
+
+enum FilterDisplay {
+  LIST // Liste görünümü
+  INLINE // Yan yana
+  GRID // Izgara
+  DROPDOWN // Açılır menü
+}
+
+enum HierarchyType {
+  FLAT // Düz liste, hiyerarşi yok
+  PARENT_ONLY // Sadece üst kategoriler
+  FULL // Tam hiyerarşi
+}
+
+// ============================================
+// CMS - BANNERS
+// ============================================
+
+model Banner {
+  id   String @id @default(cuid())
+  name String // Yönetim için isim
+
+  // Tip
+  bannerType BannerType @default(SINGLE)
+
+  // Yayın Yeri
+  placement BannerPlacement @default(HOME_CATEGORY)
+
+  // Banner Kartları (grid için)
+  cards BannerCard[]
+
+  // Tek Banner için (SINGLE tip)
+  title           String?
+  subtitle        String?
+  description     String?
+  buttonText      String?
+  buttonLink      String?
+  desktopImage    String?
+  mobileImage     String?
+  backgroundColor String?
+  gradientFrom    String? // Gradient başlangıç rengi
+  gradientTo      String? // Gradient bitiş rengi
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banners")
+}
+
+// Banner Kartları (grid içindeki her bir kart)
+model BannerCard {
+  id       String @id @default(cuid())
+  bannerId String
+  banner   Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+
+  // İçerik
+  title      String
+  subtitle   String?
+  badge      String? // "24 Ürün" gibi
+  buttonText String? @default("Keşfet")
+  buttonLink String
+
+  // Görsel
+  desktopImage String?
+  mobileImage  String?
+  icon         String? // Lucide icon adı
+
+  // Stil
+  gradientFrom String? // ör: "emerald-500/20"
+  gradientTo   String? // ör: "cyan-500/20"
+
+  // Grid Boyutu (Masaüstü)
+  desktopColSpan Int @default(1) // 1 veya 2
+  desktopRowSpan Int @default(1) // 1 veya 2
+
+  // Grid Boyutu (Mobil)
+  mobileColSpan Int @default(1)
+  mobileRowSpan Int @default(1)
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banner_cards")
+}
+
+enum BannerType {
+  SINGLE // Tek banner
+  GRID // Kategori grid (4'lü yapı)
+  CAROUSEL // Karusel
+  HERO // Hero banner
+  CATEGORY // Kategori banner
+  CATEGORY_GRID // Kategori grid
+}
+
+enum BannerPlacement {
+  HOME_HERO // Ana sayfa hero (slider altı)
+  HOME_CATEGORY // Ana sayfa kategori grid
+  HOME_PROMO // Ana sayfa promosyon
+  HOME_BOTTOM // Ana sayfa alt
+  CATEGORY_TOP // Kategori sayfası üst
+  CATEGORY_BOTTOM // Kategori sayfası alt
+  PRODUCT_RELATED // Ürün sayfası ilgili
+  CHECKOUT // Ödeme sayfası
+  CUSTOM // Özel konum
+  SHOP_HEADER // Mağaza üst banner
+  SHOP_CATEGORY_ENDUSTRIYEL_ELDIVENLER
+  SHOP_CATEGORY_TELESKOPIK_MERDIVENLER
+  SHOP_CATEGORY_TASINABILIR_GUC_KAYNAKLARI
+  SHOP_CATEGORY_GUNES_PANELLERI
+}
+
+// ============================================
+// CMS - SLIDERS (fusionmarkt - en kapsamlı versiyon)
+// ============================================
+
+model Slider {
+  id   String @id @default(cuid())
+  name String // Yönetim için slider adı
+
+  // İçerik
+  badge          String? // Rozet metni (ör: "Yeni Ürün")
+  badgeIcon      String? // Rozet ikonu (SVG veya lucide icon adı)
+  title          String // Ana başlık
+  titleHighlight String? // Vurgulu başlık (gradient ile)
+  subtitle       String? @db.Text // Alt açıklama
+
+  // Ana Buton
+  buttonText  String? // Buton metni
+  buttonLink  String? // Buton linki
+  buttonStyle ButtonStyle @default(PRIMARY)
+
+  // İkinci Buton (opsiyonel)
+  button2Text  String?
+  button2Link  String?
+  button2Style ButtonStyle @default(SECONDARY)
+
+  // Görseller
+  desktopImage    String? // Masaüstü görsel (1920x1080 16:9)
+  mobileImage     String? // Mobil görsel (1080x1920 9:16)
+  backgroundVideo String? // Arka plan video URL (opsiyonel)
+
+  // Stil - Gradient
+  gradientFrom String? // Gradient başlangıç
+  gradientTo   String? // Gradient bitiş
+
+  // Stil - Overlay
+  overlayColor   String? // Overlay rengi (ör: rgba(0,0,0,0.5))
+  overlayOpacity Int     @default(50) // 0-100
+
+  // Stil - Genel
+  textAlign TextAlign   @default(LEFT)
+  theme     SliderTheme @default(DARK)
+
+  // Efektler
+  effect      SliderEffect @default(FADE)
+  effectSpeed Int          @default(500) // ms
+
+  // Animasyon
+  animation      String? // CSS animasyon sınıfı
+  animationDelay Int     @default(0)
+
+  // Otomatik Oynatma
+  autoplay      Boolean @default(true)
+  autoplayDelay Int     @default(5000) // ms
+  loop          Boolean @default(true)
+
+  // Görünürlük
+  showOnMobile  Boolean @default(true)
+  showOnDesktop Boolean @default(true)
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // Zamanlanmış Yayın
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sliders")
+}
+
+enum ButtonStyle {
+  PRIMARY // Beyaz arka plan
+  SECONDARY // Şeffaf border
+  OUTLINE // Sadece border
+  GHOST // Hover'da görünür
+  LINK // Link stili
+}
+
+enum TextAlign {
+  LEFT
+  CENTER
+  RIGHT
+}
+
+enum SliderTheme {
+  DARK // Koyu arka plan, açık yazı
+  LIGHT // Açık arka plan, koyu yazı
+  GRADIENT // Gradient arka plan
+  CUSTOM // Özel tema
+}
+
+enum SliderEffect {
+  NONE // Efekt yok
+  FADE // Fade geçişi
+  SLIDE // Kayma geçişi
+  PARALLAX // Parallax efekti
+  ZOOM // Zoom efekti
+  CUBE // Küp geçişi
+}
+
+// ============================================
+// MEDIA LIBRARY
+// ============================================
+
+model Media {
+  id String @id @default(cuid())
+
+  // Storage Provider
+  provider MediaProvider @default(S3) // LOCAL or S3
+
+  // Dosya Bilgileri
+  filename String // Orijinal dosya adı
+  key      String @unique // S3 key veya local relative path
+  url      String // Tam public URL
+
+  // Metadata
+  mimeType String // image/jpeg, image/png vs.
+  size     Int // Byte cinsinden dosya boyutu
+  width    Int? // Görsel genişliği (px)
+  height   Int? // Görsel yüksekliği (px)
+
+  // Klasör (API uyumluluğu)
+  folder MediaFolder @default(GENERAL)
+
+  // SEO
+  alt         String? // Alt text - SEO için
+  title       String? // Başlık (opsiyonel)
+  description String? @db.Text // Açıklama
+
+  // Kullanım Amacı
+  usage MediaUsage @default(OTHER)
+
+  // İlişkiler
+  ownerUserId String? // User avatar ise user ID
+  uploadedBy  String? // Yükleyen admin user ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("media")
+}
+
+enum MediaProvider {
+  LOCAL // Server disk (user photos)
+  S3 // AWS S3 (all other media)
+}
+
+enum MediaFolder {
+  PRODUCTS // Ürün görselleri
+  BANNERS // Banner görselleri
+  SLIDERS // Slider görselleri
+  CATEGORIES // Kategori görselleri
+  USERS // Kullanıcı profil fotoğrafları
+  GENERAL // Genel medya
+}
+
+enum MediaUsage {
+  USER_PHOTO // User profile avatar (LOCAL only)
+  BANNER // Banner images
+  SLIDER // Slider images
+  PRODUCT // Product images
+  CATEGORY // Category images
+  OTHER // General media library
+}
+
+// ============================================
+// MYSTERY BOX CLAIMS (Sürpriz Kutu Açma Kayıtları)
+// ============================================
+
+model MysteryBoxClaim {
+  id String @id @default(cuid())
+
+  // Kullanıcı Tanımlama
+  userId      String? // Giriş yapmış kullanıcı (null = anonim)
+  fingerprint String // Cihaz parmak izi (her zaman doldurulur)
+
+  // Kupon Bilgileri
+  couponId   String // Açılan kupon
+  couponCode String // Kupon kodu (hızlı erişim için)
+
+  // Geçerlilik
+  claimedAt DateTime @default(now()) // Açılma zamanı
+  expiresAt DateTime // Geçerlilik bitiş (24 saat sonra)
+
+  // İstatistik
+  ipAddress String? // IP adresi (opsiyonel)
+  userAgent String? // Tarayıcı bilgisi (opsiyonel)
+
+  createdAt DateTime @default(now())
+
+  @@index([fingerprint])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("mystery_box_claims")
+}
+
+// ============================================
+// FEATURE DEFINITIONS (Teknik Özellik Tanımları)
+// Kategoriye bağlı özellik sistemi
+// ============================================
+
+enum FeatureInputType {
+  TEXT // Serbest metin girişi
+  NUMBER // Sayısal değer (birim ile)
+  SELECT // Önceden tanımlı değerlerden seçim
+}
+
+// Özellik Tanımları (Kapasite, Çıkış Gücü, Malzeme vb.)
+model FeatureDefinition {
+  id          String           @id @default(cuid())
+  name        String           @unique // "Kapasite", "Çıkış Gücü", "Malzeme"
+  slug        String           @unique
+  inputType   FeatureInputType @default(TEXT)
+  unit        String? // "Wh", "W", "kg", "m" vb.
+  description String? // Admin için açıklama
+  placeholder String? // Input placeholder
+
+  isActive Boolean @default(true)
+  order    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // İlişkiler
+  categories    CategoryFeature[]
+  presetValues  FeaturePresetValue[]
+  productValues ProductFeatureValue[]
+
+  @@map("feature_definitions")
+}
+
+// Kategori - Özellik Pivot Tablosu
+model CategoryFeature {
+  id String @id @default(cuid())
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  featureId String
+  feature   FeatureDefinition @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  sortOrder  Int     @default(0) // Bu kategorideki sıralama
+  isRequired Boolean @default(false) // Zorunlu özellik mi?
+  isDefault  Boolean @default(false) // Otomatik eklensin mi?
+
+  createdAt DateTime @default(now())
+
+  @@unique([categoryId, featureId])
+  @@map("category_features")
+}
+
+// SELECT tipi özellikler için önceden tanımlı değerler
+model FeaturePresetValue {
+  id String @id @default(cuid())
+
+  featureId String
+  feature   FeatureDefinition @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  value String // "LiFePO4", "Li-ion"
+  label String? // Görünen isim
+  order Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([featureId, value])
+  @@map("feature_preset_values")
+}
+
+// Ürün için girilen teknik özellik değerleri
+model ProductFeatureValue {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  featureId String
+  feature   FeatureDefinition @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  // Değer Alanları (inputType'a göre biri dolu olacak)
+  valueText   String? // TEXT ve SELECT için
+  valueNumber Decimal? @db.Decimal(10, 2) // NUMBER için
+  unit        String? // Özellik birimini override etmek için
+
+  displayOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, featureId])
+  @@map("product_feature_values")
+}
+
+// ============================================
+// SHIPPING SYSTEM (Kargo Yönetimi)
+// ============================================
+
+// Kargo Sınıfları (Ağır Sınıf, Standart, Ücretsiz Kargo vb.)
+model ShippingClass {
+  id          String  @id @default(cuid())
+  name        String  @unique // "Ağır Sınıf Kargo", "Standart Kargo", "Ücretsiz Kargo"
+  slug        String  @unique // "agir-sinif-kargo", "standart-kargo", "ucretsiz-kargo"
+  description String? @db.Text
+
+  // Fiyatlandırma
+  cost Decimal @default(0) @db.Decimal(10, 2) // Kargo ücreti (ücretsiz kargo limiti altında uygulanır)
+
+  // Davranış
+  alwaysFree Boolean @default(false) // Bu sınıftaki ürünler her zaman ücretsiz kargo
+
+  // Sıralama & Durum
+  priority Int     @default(0)
+  isActive Boolean @default(true)
+
+  // İlişkiler
+  products    Product[]                 @relation("ProductShippingClass")
+  methodCosts ShippingMethodClassCost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shipping_classes")
+}
+
+// Kargo Bölgeleri (Yurtiçi, Yurtdışı vb.)
+model ShippingZone {
+  id   String @id @default(cuid())
+  name String // "Yurtiçi", "Avrupa", "Amerika"
+
+  // Bölge Tanımları
+  regions     Json? // ["TR", "DE", "FR"] veya ["Türkiye", "Almanya"]
+  postalCodes Json? // {"includes": ["34*", "35*"], "excludes": ["34100"]}
+
+  // Sıralama & Durum
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // İlişkiler
+  methods ShippingZoneMethod[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shipping_zones")
+}
+
+// Kargo Yöntemleri (Ücretsiz Gönderim, Standart Kargo, Mağazadan Teslim)
+model ShippingMethod {
+  id   String             @id @default(cuid())
+  name String // "Ücretsiz Gönderim", "Standart Kargo", "Mağazadan Teslim"
+  type ShippingMethodType @default(FLAT_RATE)
+
+  // Açıklama & Süre
+  description String? // "1-2 iş günü", "Aynı gün kargo"
+
+  // Fiyatlandırma
+  cost Decimal @default(0) @db.Decimal(10, 2)
+
+  // Ücretsiz Kargo Koşulları (type = FREE_SHIPPING için)
+  freeShippingRequirement FreeShippingRequirement @default(NONE)
+  minOrderAmount          Decimal?                @db.Decimal(10, 2) // Minimum sipariş tutarı
+
+  // Vergi
+  taxStatus TaxStatus @default(TAXABLE)
+
+  // Sıralama & Durum
+  order     Int     @default(0)
+  isEnabled Boolean @default(true)
+
+  // İlişkiler
+  zones ShippingZoneMethod[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shipping_methods")
+}
+
+// Zone-Method Pivot (Hangi bölgede hangi yöntemler var)
+model ShippingZoneMethod {
+  id String @id @default(cuid())
+
+  zoneId String
+  zone   ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  methodId String
+  method   ShippingMethod @relation(fields: [methodId], references: [id], onDelete: Cascade)
+
+  // Bu zone için özel fiyat (override)
+  costOverride Decimal? @db.Decimal(10, 2)
+
+  // Sıralama
+  order     Int     @default(0)
+  isEnabled Boolean @default(true)
+
+  // Shipping Class bazlı ek maliyetler
+  classCosts ShippingMethodClassCost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([zoneId, methodId])
+  @@map("shipping_zone_methods")
+}
+
+// Shipping Class bazlı ek maliyetler
+model ShippingMethodClassCost {
+  id String @id @default(cuid())
+
+  zoneMethodId String
+  zoneMethod   ShippingZoneMethod @relation(fields: [zoneMethodId], references: [id], onDelete: Cascade)
+
+  shippingClassId String
+  shippingClass   ShippingClass @relation(fields: [shippingClassId], references: [id], onDelete: Cascade)
+
+  // Ek maliyet (bu class için)
+  additionalCost Decimal @default(0) @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+
+  @@unique([zoneMethodId, shippingClassId])
+  @@map("shipping_method_class_costs")
+}
+
+// Genel Kargo Ayarları (Singleton)
+model ShippingSettings {
+  id String @id @default("default")
+
+  // Ücretsiz Kargo Limiti
+  freeShippingLimit Decimal @default(2000) @db.Decimal(10, 2) // 2000 TL üzeri ücretsiz
+
+  // Ağır Sınıf için minimum (bu üzeri ücretsiz)
+  heavyClassFreeLimit Decimal @default(0) @db.Decimal(10, 2) // 0 = her zaman ücretsiz
+
+  // KDV Oranı
+  taxRate Decimal @default(20) @db.Decimal(5, 2) // %20
+
+  // Varsayılan Kargo Sınıfı
+  defaultShippingClassId String?
+
+  // Aktif Kargo Hesaplama
+  enableShippingCalc Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shipping_settings")
+}
+
+enum ShippingMethodType {
+  FREE_SHIPPING // Ücretsiz Gönderim
+  FLAT_RATE // Sabit Ücret
+  LOCAL_PICKUP // Mağazadan Teslim
+}
+
+enum FreeShippingRequirement {
+  NONE // Koşul yok (her zaman ücretsiz)
+  MIN_AMOUNT // Minimum sipariş tutarı
+  COUPON // Geçerli kupon
+  MIN_OR_COUPON // Min tutar VEYA kupon
+  MIN_AND_COUPON // Min tutar VE kupon
+}
+
+enum TaxStatus {
+  TAXABLE // KDV dahil
+  NONE // KDV hariç
+}
+
+// ============================================
+// BLOG SYSTEM
+// ============================================
+
+model BlogPost {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  // Icerik
+  title   String
+  content String @db.Text
+  excerpt String? @db.Text // Kisa ozet (liste gorunumu icin)
+
+  // Gorsel
+  featuredImage String? // Kapak gorseli URL
+
+  // Kategori / Etiket
+  category String? // Blog kategorisi (ornek: "Enerji", "Guvenlik")
+  tags     String[] // Etiketler
+
+  // SEO
+  metaTitle       String?
+  metaDescription String? @db.Text
+  metaKeywords    String[]
+
+  // Yazar
+  authorId   String?
+  authorName String? @default("FusionMarkt")
+
+  // Durum
+  status BlogPostStatus @default(DRAFT)
+
+  // Tarihler
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+  @@index([publishedAt])
+  @@index([category])
+  @@map("blog_posts")
+}
+
+enum BlogPostStatus {
+  DRAFT // Taslak
+  PUBLISHED // Yayinda
+  ARCHIVED // Arsivlenmis
+}

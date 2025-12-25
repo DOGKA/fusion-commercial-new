@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - Global Styles Entry Point
+   Apple-Style Glassmorphism Design System - 2025 UI/UX
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* Design System Imports */
+@import "../styles/variables.css";
+@import "../styles/base.css";
+@import "../styles/typography.css";
+@import "../styles/glass.css";
+@import "../styles/gradients.css";
+@import "../styles/animations.css";
+@import "../styles/buttons.css";
+@import "../styles/layout.css";
+@import "../styles/effects.css";
+@import "../styles/mobile.css";
+@import "../styles/blog.css";
+
+/* Tailwind Theme Inline */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sf-pro);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Kampanya Sayfası - Kupon Grid
+═══════════════════════════════════════════════════════════════════════════ */
+.coupon-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .coupon-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Product Description Content - Dark Theme
+═══════════════════════════════════════════════════════════════════════════ */
+.product-description-content {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Görseller */
+.product-description-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+/* Başlıklar - hepsi beyaz, arka plan yok */
+.product-description-content strong {
+  color: white;
+  font-weight: 600;
+}
+
+/* Listeler */
+.product-description-content ol,
+.product-description-content ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 12px 0;
+}
+
+.product-description-content li {
+  margin: 8px 0;
+  padding-left: 4px;
+}
+
+/* Quill UI elementlerini gizle */
+.product-description-content .ql-ui {
+  display: none !important;
+}
+
+/* data-list bullet özelliği için */
+.product-description-content li[data-list="bullet"] {
+  list-style-type: disc;
+}
+
+/* Linkler */
+.product-description-content a {
+  color: #10B981;
+}
+
+/* Paragraflar */
+.product-description-content p {
+  margin: 10px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Scrollbar Hide Utility
+═══════════════════════════════════════════════════════════════════════════ */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}

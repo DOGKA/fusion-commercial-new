@@ -1,0 +1,406 @@
+/**
+ * Orders API
+ * POST /api/orders - Create new order
+ * GET /api/orders - Get user orders (authenticated)
+ * 
+ * Rate Limited: 10 orders per minute per IP
+ */
+
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { prisma } from "@repo/db";
+import { authOptions } from "@/lib/auth";
+import { 
+  sendOrderConfirmationEmail, 
+  sendOrderPendingPaymentEmail,
+  sendAdminNewOrderNotification 
+} from "@/lib/email";
+import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
+
+// Generate order number
+function generateOrderNumber(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const random = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
+  return `FM-${year}-${random}`;
+}
+
+// POST - Create new order
+export async function POST(request: NextRequest) {
+  try {
+    // ─────────────────────────────────────────────────────────────────────────
+    // Rate Limiting (Prevent order spam)
+    // ─────────────────────────────────────────────────────────────────────────
+    const clientIP = getClientIP(request.headers);
+    const rateLimit = checkRateLimit(`order:${clientIP}`, RATE_LIMITS.order);
+    
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { 
+          error: "Çok fazla sipariş denemesi. Lütfen biraz bekleyin.",
+          retryAfter: rateLimit.resetIn 
+        },
+        { status: 429 }
+      );
+    }
+
+    const session = await getServerSession(authOptions);
+    
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      console.error("Invalid JSON in request body:", e);
+      return NextResponse.json({ error: "Geçersiz istek verisi" }, { status: 400 });
+    }
+
+    const {
+      items,
+      billingAddress,
+      shippingAddress,
+      shippingMethod,
+      paymentMethod,
+      couponCode,
+      couponId: directCouponId,
+      totals,
+      subtotal: directSubtotal,
+      shippingCost: directShippingCost,
+      discount: directDiscount,
+      total: directTotal,
+      createAccount,
+      accountPassword,
+    } = body;
+
+    // Handle both frontend formats (totals object or direct values)
+    const orderSubtotal = totals?.subtotal ?? directSubtotal ?? 0;
+    const orderShipping = totals?.shipping ?? directShippingCost ?? 0;
+    const orderDiscount = totals?.discount ?? directDiscount ?? 0;
+    const orderTotal = totals?.grandTotal ?? directTotal ?? (orderSubtotal + orderShipping - orderDiscount);
+
+    // Validate required fields
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "Sepet boş" }, { status: 400 });
+    }
+
+    if (!billingAddress) {
+      return NextResponse.json({ error: "Fatura adresi gerekli" }, { status: 400 });
+    }
+    
+    // Validate billing address has minimum required fields
+    if (!billingAddress.firstName || !billingAddress.email) {
+      return NextResponse.json({ error: "Fatura adresi eksik bilgi içeriyor" }, { status: 400 });
+    }
+
+    // Generate order number
+    const orderNumber = generateOrderNumber();
+
+    // Determine payment status
+    const paymentStatus = "PENDING" as const;
+    const orderStatus = "PENDING" as const;
+
+    // Use guest user ID if not logged in
+    const userId = session?.user?.id || "guest";
+    
+    // Handle billing address - use existing if ID provided, else create new only if saveToAddresses is true
+    let billingAddressId: string;
+    
+    if (billingAddress.id) {
+      // Kayıtlı adres seçilmiş - mevcut adresi kullan
+      billingAddressId = billingAddress.id;
+    } else if (billingAddress.saveToAddresses && userId !== "guest") {
+      // Yeni adres ve "Kayıtlı adreslerime ekle" seçilmiş - yeni adres oluştur
+      const createdBillingAddress = await (prisma.address.create as any)({
+        data: {
+          userId,
+          title: billingAddress.title || "Sipariş Adresi",
+          firstName: billingAddress.firstName,
+          lastName: billingAddress.lastName,
+          phone: billingAddress.phone || "",
+          city: billingAddress.city,
+          district: billingAddress.district || "",
+          postalCode: billingAddress.postalCode || "",
+          addressLine1: billingAddress.addressLine1,
+          address: billingAddress.addressLine1,
+          country: billingAddress.country || "Türkiye",
+          type: "BILLING",
+          isDefault: false,
+        },
+      });
+      billingAddressId = createdBillingAddress.id;
+    } else {
+      // Guest veya kaydetme seçilmemiş - geçici adres ID'si (sipariş bilgilerinde saklanacak)
+      // Adresi order tablosunda JSON olarak saklayacağız
+      billingAddressId = "temp";
+    }
+
+    // Handle shipping address
+    let shippingAddressId = billingAddressId;
+    if (shippingAddress && shippingAddress.id) {
+      shippingAddressId = shippingAddress.id;
+    } else if (shippingAddress && shippingAddress.firstName && shippingAddress.saveToAddresses && userId !== "guest") {
+      const createdShippingAddress = await (prisma.address.create as any)({
+        data: {
+          userId,
+          title: "Teslimat Adresi",
+          firstName: shippingAddress.firstName,
+          lastName: shippingAddress.lastName,
+          phone: shippingAddress.phone || "",
+          city: shippingAddress.city,
+          district: shippingAddress.district || "",
+          postalCode: shippingAddress.postalCode || "",
+          addressLine1: shippingAddress.addressLine1,
+          address: shippingAddress.addressLine1,
+          country: shippingAddress.country || "Türkiye",
+          type: "SHIPPING",
+          isDefault: false,
+        },
+      });
+      shippingAddressId = createdShippingAddress.id;
+    }
+
+    // Find coupon if provided
+    let couponId = null;
+    if (couponCode) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: couponCode },
+      });
+      if (coupon) {
+        couponId = coupon.id;
+      }
+    }
+
+    // Create order in database
+    const order = await prisma.order.create({
+      data: {
+        orderNumber,
+        userId: session?.user?.id || "guest",
+        status: orderStatus,
+        paymentStatus,
+        paymentMethod: paymentMethod === "credit_card" || paymentMethod === "card_sipay" ? "CREDIT_CARD" : "BANK_TRANSFER",
+        subtotal: orderSubtotal,
+        shippingCost: orderShipping,
+        discount: orderDiscount,
+        tax: totals?.taxIncluded || 0,
+        total: orderTotal,
+        couponId: directCouponId || couponId,
+        couponCode: couponCode || null,
+        billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
+        shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
+        customerNote: billingAddress?.orderNotes || null,
+        // Create order items
+        items: {
+          create: items.map((item: { productId: string; variant?: { id: string }; price: number; quantity: number }) => ({
+            productId: item.productId,
+            price: item.price,
+            quantity: item.quantity,
+            subtotal: item.price * item.quantity,
+            variantInfo: item.variant ? JSON.stringify(item.variant) : null,
+          })),
+        },
+      },
+    });
+
+    // Reduce stock for each item (for all orders - stock is reserved when order is created)
+    if (true) {
+      for (const item of items) {
+        try {
+          // Check if variant exists
+          if (item.variant?.id) {
+            // Update variant stock
+            await prisma.productVariant.updateMany({
+              where: {
+                id: item.variant.id,
+                stock: { gte: item.quantity }, // Only update if stock is sufficient
+              },
+              data: {
+                stock: { decrement: item.quantity },
+              },
+            });
+          } else {
+            // Update main product stock
+            await prisma.product.updateMany({
+              where: {
+                id: item.productId,
+                stock: { gte: item.quantity }, // Only update if stock is sufficient
+              },
+              data: {
+                stock: { decrement: item.quantity },
+              },
+            });
+          }
+        } catch (error) {
+          console.error(`Failed to reduce stock for product ${item.productId}:`, error);
+          // Continue with other items even if one fails
+        }
+      }
+    }
+
+    // Create guest account if requested
+    if (!session?.user && createAccount && accountPassword && billingAddress.email) {
+      try {
+        const bcrypt = require("bcryptjs");
+        const hashedPassword = await bcrypt.hash(accountPassword, 12);
+        
+        await prisma.user.create({
+          data: {
+            email: billingAddress.email,
+            name: `${billingAddress.firstName} ${billingAddress.lastName}`,
+            password: hashedPassword,
+            phone: billingAddress.phone,
+            role: "CUSTOMER",
+          },
+        });
+      } catch (e) {
+        // Ignore if user already exists
+        console.log("User creation skipped:", e);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // EMAIL NOTIFICATIONS
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    const customerEmail = billingAddress.email;
+    const customerName = `${billingAddress.firstName} ${billingAddress.lastName}`;
+    const customerPhone = billingAddress.phone;
+
+    // Send customer confirmation email
+    if (customerEmail) {
+      // Check if payment method is bank transfer (handle both formats)
+      const isBankTransfer = paymentMethod === "BANK_TRANSFER" || 
+                              paymentMethod === "bank_transfer" || 
+                              order.paymentMethod === "BANK_TRANSFER";
+      
+      if (isBankTransfer) {
+        // Havale/EFT - ödeme bekleniyor maili
+        sendOrderPendingPaymentEmail(customerEmail, order.orderNumber, customerName, orderTotal)
+          .catch(err => console.error("Customer email error:", err));
+      } else {
+        // Kredi kartı - sipariş onayı maili
+        sendOrderConfirmationEmail(customerEmail, order.orderNumber, customerName, orderTotal)
+          .catch(err => console.error("Customer email error:", err));
+      }
+      console.log(`📧 Customer email queued: ${customerEmail}`);
+    }
+
+    // Send admin notification
+    sendAdminNewOrderNotification({
+      orderNumber: order.orderNumber,
+      customerName,
+      customerEmail: customerEmail || "Belirtilmedi",
+      customerPhone,
+      total: orderTotal,
+      itemCount: items.length,
+      paymentMethod: paymentMethod || "BANK_TRANSFER",
+    }).catch(err => console.error("Admin notification error:", err));
+    console.log(`📧 Admin notification queued for new order: ${order.orderNumber}`);
+
+    return NextResponse.json({
+      success: true,
+      orderNumber: order.orderNumber,
+      orderId: order.id,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error("Create order error:", error);
+    return NextResponse.json(
+      { error: "Sipariş oluşturulamadı" },
+      { status: 500 }
+    );
+  }
+}
+
+// GET - Get user orders with full details
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Yetkilendirme gerekli" }, { status: 401 });
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                thumbnail: true,
+                images: true,
+              },
+            },
+          },
+        },
+        shippingAddress: true,
+        billingAddress: true,
+      },
+    });
+
+    // Format orders for frontend
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      
+      // Totals
+      subtotal: Number(order.subtotal),
+      shippingCost: Number(order.shippingCost),
+      discount: Number(order.discount),
+      tax: Number(order.tax),
+      total: Number(order.total),
+      
+      // Tracking
+      trackingNumber: order.trackingNumber,
+      carrierName: order.carrierName,
+      
+      // Invoice
+      invoiceUrl: order.invoiceUrl,
+      invoiceUploadedAt: order.invoiceUploadedAt,
+      
+      // Dates
+      createdAt: order.createdAt,
+      paidAt: order.paidAt,
+      confirmedAt: order.confirmedAt,
+      preparingAt: order.preparingAt,
+      shippedAt: order.shippedAt,
+      deliveredAt: order.deliveredAt,
+      cancelledAt: order.cancelledAt,
+      
+      // Items
+      items: order.items.map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        price: Number(item.price),
+        subtotal: Number(item.subtotal),
+        variantInfo: item.variantInfo ? JSON.parse(item.variantInfo) : null,
+        product: item.product,
+      })),
+      
+      // Addresses
+      shippingAddress: order.shippingAddress,
+      billingAddress: order.billingAddress,
+      
+      // Notes
+      customerNote: order.customerNote,
+    }));
+
+    return NextResponse.json(formattedOrders);
+
+  } catch (error) {
+    console.error("Get orders error:", error);
+    return NextResponse.json(
+      { error: "Siparişler alınamadı" },
+      { status: 500 }
+    );
+  }
+}

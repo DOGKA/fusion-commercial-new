@@ -1,0 +1,296 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - Typography System
+   Apple-style tipografi - responsive ve fluid
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HEADINGS - @layer base ile Tailwind class'larına izin ver
+───────────────────────────────────────────────────────────────────────── */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DISPLAY TYPOGRAPHY - Hero & Large Text
+───────────────────────────────────────────────────────────────────────── */
+.text-hero {
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.text-display-xl {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+.text-display-lg {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.text-display {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.text-display-sm {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HEADLINE TYPOGRAPHY
+───────────────────────────────────────────────────────────────────────── */
+.text-headline-lg {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.text-headline {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.text-headline-sm {
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TITLE TYPOGRAPHY
+───────────────────────────────────────────────────────────────────────── */
+.text-title-lg {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.text-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.text-title-sm {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BODY TYPOGRAPHY
+───────────────────────────────────────────────────────────────────────── */
+.text-body-lg {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--foreground-secondary);
+}
+
+.text-body {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--foreground-secondary);
+}
+
+.text-body-sm {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--foreground-secondary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SUBTITLE & LEAD TEXT
+───────────────────────────────────────────────────────────────────────── */
+.text-lead {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--foreground-secondary);
+}
+
+.text-subtitle {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--foreground-secondary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CAPTION & SMALL TEXT
+───────────────────────────────────────────────────────────────────────── */
+.text-caption {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--foreground-tertiary);
+}
+
+.text-caption-sm {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--foreground-tertiary);
+}
+
+.text-overline {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--foreground-tertiary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SPECIAL TEXT STYLES
+───────────────────────────────────────────────────────────────────────── */
+.text-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--foreground-secondary);
+}
+
+.text-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fusion-primary);
+}
+
+.text-quote {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--foreground-secondary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GRADIENT TEXT
+───────────────────────────────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--fusion-accent) 0%, var(--fusion-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cool {
+  background: linear-gradient(135deg, var(--fusion-secondary) 0%, var(--fusion-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TEXT COLORS
+───────────────────────────────────────────────────────────────────────── */
+.text-primary { color: var(--foreground); }
+.text-secondary { color: var(--foreground-secondary); }
+.text-tertiary { color: var(--foreground-tertiary); }
+.text-muted { color: var(--foreground-muted); }
+.text-accent { color: var(--fusion-primary); }
+.text-accent-secondary { color: var(--fusion-secondary); }
+.text-accent-warm { color: var(--fusion-accent); }
+.text-success { color: var(--fusion-success); }
+.text-warning { color: var(--fusion-warning); }
+.text-error { color: var(--fusion-error); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TEXT UTILITIES
+───────────────────────────────────────────────────────────────────────── */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PARAGRAPH STYLES
+───────────────────────────────────────────────────────────────────────── */
+p {
+  color: var(--foreground-secondary);
+  line-height: 1.6;
+}
+
+p + p {
+  margin-top: var(--space-4);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LINK STYLES IN TEXT
+───────────────────────────────────────────────────────────────────────── */
+.prose a {
+  color: var(--fusion-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity var(--transition-fast);
+}
+
+.prose a:hover {
+  opacity: 0.8;
+}
+

@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - CSS Variables / Design Tokens
+   Logo Uyumlu Renk Paleti: Kırmızı, Siyah, Altın
+═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─────────────────────────────────────────────────────────────────────────
+     PRIMARY - Kırmızı (Logo üst halka)
+  ───────────────────────────────────────────────────────────────────────── */
+  --fusion-primary: #E31E24;
+  --fusion-primary-light: #FF4449;
+  --fusion-primary-dark: #B8181D;
+  --fusion-primary-rgb: 227, 30, 36;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     SECONDARY - Altın/Sarı (Logo alt halka)
+  ───────────────────────────────────────────────────────────────────────── */
+  --fusion-secondary: #FFB800;
+  --fusion-secondary-light: #FFC933;
+  --fusion-secondary-dark: #CC9300;
+  --fusion-secondary-rgb: 255, 184, 0;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     ACCENT - Koyu Gri / Antrasit (alternatif vurgu)
+  ───────────────────────────────────────────────────────────────────────── */
+  --fusion-accent: #2D2D2D;
+  --fusion-accent-light: #404040;
+  --fusion-accent-dark: #1A1A1A;
+  --fusion-accent-rgb: 45, 45, 45;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     SEMANTIC COLORS
+  ───────────────────────────────────────────────────────────────────────── */
+  --fusion-success: #22C55E;
+  --fusion-warning: #F59E0B;
+  --fusion-error: #EF4444;
+  --fusion-info: #3B82F6;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     BACKGROUND SYSTEM - Dark Theme
+  ───────────────────────────────────────────────────────────────────────── */
+  --background: #0A0A0A;
+  --background-secondary: #111111;
+  --background-tertiary: #171717;
+  --background-elevated: #1F1F1F;
+  --background-hover: #262626;
+  
+  /* Light sections için */
+  --background-light: #FAFAFA;
+  --background-light-secondary: #FFFFFF;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     FOREGROUND SYSTEM
+  ───────────────────────────────────────────────────────────────────────── */
+  --foreground: #FAFAFA;
+  --foreground-secondary: rgba(250, 250, 250, 0.75);
+  --foreground-tertiary: rgba(250, 250, 250, 0.5);
+  --foreground-muted: rgba(250, 250, 250, 0.3);
+  --foreground-disabled: rgba(250, 250, 250, 0.15);
+  
+  /* Light background için */
+  --foreground-dark: #0A0A0A;
+  --foreground-dark-secondary: rgba(10, 10, 10, 0.7);
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     GLASS EFFECTS
+  ───────────────────────────────────────────────────────────────────────── */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  --glass-bg-active: rgba(255, 255, 255, 0.1);
+  --glass-bg-solid: rgba(31, 31, 31, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-border-active: rgba(255, 255, 255, 0.2);
+  --glass-blur: 20px;
+  --glass-blur-heavy: 40px;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     SHADOWS
+  ───────────────────────────────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 24px 80px rgba(0, 0, 0, 0.7);
+  
+  /* Glow Shadows */
+  --shadow-glow-primary: 0 0 40px rgba(var(--fusion-primary-rgb), 0.25);
+  --shadow-glow-secondary: 0 0 40px rgba(var(--fusion-secondary-rgb), 0.25);
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     SPACING SYSTEM
+  ───────────────────────────────────────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  
+  --section-padding: clamp(4rem, 8vw, 7rem);
+  --section-padding-sm: clamp(2rem, 4vw, 4rem);
+  --container-padding: clamp(1rem, 4vw, 2rem);
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     TRANSITIONS
+  ───────────────────────────────────────────────────────────────────────── */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 700ms;
+  --duration-slowest: 1000ms;
+  
+  --transition-fast: var(--duration-fast) var(--ease-default);
+  --transition-base: var(--duration-base) var(--ease-default);
+  --transition-slow: var(--duration-slow) var(--ease-default);
+  --transition-smooth: var(--duration-slower) var(--ease-smooth);
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     BORDER RADIUS
+  ───────────────────────────────────────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Z-INDEX SCALE
+  ───────────────────────────────────────────────────────────────────────── */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-toast: 800;
+  --z-max: 999;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     CONTAINER WIDTHS
+  ───────────────────────────────────────────────────────────────────────── */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1440px;
+  --container-3xl: 1600px;
+  --container-full: 100%;
+}

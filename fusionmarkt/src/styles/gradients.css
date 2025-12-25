@@ -1,0 +1,185 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - Gradient System
+   Logo Uyumlu: Kırmızı, Siyah, Altın
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PRIMARY GRADIENTS (Kırmızı -> Altın)
+───────────────────────────────────────────────────────────────────────── */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+}
+
+.gradient-primary-vertical {
+  background: linear-gradient(180deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+}
+
+.gradient-primary-radial {
+  background: radial-gradient(circle at center, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BRAND GRADIENTS
+───────────────────────────────────────────────────────────────────────── */
+.gradient-brand {
+  background: linear-gradient(135deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+}
+
+.gradient-warm {
+  background: linear-gradient(135deg, var(--fusion-secondary) 0%, var(--fusion-primary) 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, var(--background) 0%, var(--background-elevated) 100%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MESH GRADIENTS - Subtle background
+───────────────────────────────────────────────────────────────────────── */
+.mesh-gradient {
+  background: 
+    radial-gradient(at 0% 0%, rgba(var(--fusion-primary-rgb), 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(var(--fusion-secondary-rgb), 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(var(--fusion-primary-rgb), 0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(var(--fusion-secondary-rgb), 0.05) 0px, transparent 50%);
+}
+
+.mesh-gradient-subtle {
+  background: 
+    radial-gradient(at 20% 30%, rgba(var(--fusion-primary-rgb), 0.04) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(var(--fusion-secondary-rgb), 0.04) 0px, transparent 50%);
+}
+
+.mesh-gradient-intense {
+  background: 
+    radial-gradient(at 0% 0%, rgba(var(--fusion-primary-rgb), 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(var(--fusion-secondary-rgb), 0.15) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(var(--fusion-primary-rgb), 0.1) 0px, transparent 50%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HERO SECTION GRADIENTS
+───────────────────────────────────────────────────────────────────────── */
+.hero-gradient {
+  background: 
+    radial-gradient(ellipse 60% 40% at 10% 20%, rgba(var(--fusion-primary-rgb), 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 30% at 90% 80%, rgba(var(--fusion-secondary-rgb), 0.1) 0%, transparent 50%),
+    var(--background);
+}
+
+.hero-gradient-top {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(var(--fusion-primary-rgb), 0.1) 0%, transparent 60%),
+    var(--background);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SECTION BACKGROUND GRADIENTS
+───────────────────────────────────────────────────────────────────────── */
+.section-gradient-dark {
+  background: linear-gradient(180deg, var(--background) 0%, var(--background-secondary) 100%);
+}
+
+.section-gradient-light {
+  background: linear-gradient(180deg, var(--background-secondary) 0%, var(--background) 100%);
+}
+
+.section-gradient-elevated {
+  background: linear-gradient(180deg, var(--background) 0%, var(--background-tertiary) 50%, var(--background) 100%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GRADIENT BORDERS
+───────────────────────────────────────────────────────────────────────── */
+.gradient-border {
+  position: relative;
+  background: var(--background);
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--fusion-primary), var(--fusion-secondary));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GRADIENT TEXT
+───────────────────────────────────────────────────────────────────────── */
+.gradient-text,
+.text-gradient {
+  background: linear-gradient(135deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warm,
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--fusion-secondary) 0%, var(--fusion-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   OVERLAY GRADIENTS
+───────────────────────────────────────────────────────────────────────── */
+.overlay-gradient-bottom {
+  background: linear-gradient(to top, var(--background) 0%, transparent 100%);
+}
+
+.overlay-gradient-top {
+  background: linear-gradient(to bottom, var(--background) 0%, transparent 100%);
+}
+
+.overlay-gradient-left {
+  background: linear-gradient(to right, var(--background) 0%, transparent 100%);
+}
+
+.overlay-gradient-right {
+  background: linear-gradient(to left, var(--background) 0%, transparent 100%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   VIGNETTE EFFECTS
+───────────────────────────────────────────────────────────────────────── */
+.vignette {
+  position: relative;
+}
+
+.vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, var(--background) 100%);
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLOW GRADIENTS
+───────────────────────────────────────────────────────────────────────── */
+.glow-gradient {
+  background: radial-gradient(
+    circle at center,
+    rgba(var(--fusion-primary-rgb), 0.2) 0%,
+    rgba(var(--fusion-primary-rgb), 0.05) 40%,
+    transparent 70%
+  );
+}
+
+.glow-gradient-secondary {
+  background: radial-gradient(
+    circle at center,
+    rgba(var(--fusion-secondary-rgb), 0.2) 0%,
+    rgba(var(--fusion-secondary-rgb), 0.05) 40%,
+    transparent 70%
+  );
+}

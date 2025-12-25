@@ -1,0 +1,373 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - Button System
+   Apple-style butonlar - tüm varyantlar
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BASE BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  outline: none;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PRIMARY BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--fusion-primary);
+  color: var(--background);
+}
+
+.btn-primary:hover {
+  background: var(--fusion-primary-light);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SECONDARY BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-secondary {
+  background: var(--fusion-secondary);
+  color: var(--foreground);
+}
+
+.btn-secondary:hover {
+  background: var(--fusion-secondary-light);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-glow-secondary);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-glass {
+  background: var(--glass-bg);
+  color: var(--foreground);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.btn-glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  transform: scale(1.02);
+}
+
+.btn-glass:active {
+  background: var(--glass-bg-active);
+  transform: scale(0.98);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   OUTLINE BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-outline {
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--foreground-muted);
+}
+
+.btn-outline:hover {
+  background: var(--glass-bg);
+  border-color: var(--foreground-secondary);
+}
+
+.btn-outline:active {
+  background: var(--glass-bg-active);
+}
+
+.btn-outline-primary {
+  background: transparent;
+  color: var(--fusion-primary);
+  border: 1px solid var(--fusion-primary);
+}
+
+.btn-outline-primary:hover {
+  background: rgba(var(--fusion-primary-rgb), 0.1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GHOST BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-ghost {
+  background: transparent;
+  color: var(--foreground);
+  border: none;
+}
+
+.btn-ghost:hover {
+  background: var(--glass-bg);
+}
+
+.btn-ghost:active {
+  background: var(--glass-bg-active);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LINK BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-link {
+  background: transparent;
+  color: var(--fusion-primary);
+  border: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GRADIENT BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+  color: var(--foreground);
+  border: none;
+}
+
+.btn-gradient:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 30px rgba(var(--fusion-primary-rgb), 0.4);
+}
+
+.btn-gradient:active {
+  transform: scale(0.98);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BUTTON SIZES
+───────────────────────────────────────────────────────────────────────── */
+.btn-xs {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.75rem;
+  gap: var(--space-1);
+}
+
+.btn-sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+}
+
+.btn-md {
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.125rem;
+}
+
+.btn-xl {
+  padding: var(--space-5) var(--space-10);
+  font-size: 1.25rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BUTTON SHAPES
+───────────────────────────────────────────────────────────────────────── */
+.btn-rounded {
+  border-radius: var(--radius-lg);
+}
+
+.btn-square {
+  border-radius: var(--radius-md);
+}
+
+.btn-pill {
+  border-radius: var(--radius-full);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ICON BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-icon {
+  padding: var(--space-3);
+  aspect-ratio: 1;
+}
+
+.btn-icon-sm {
+  padding: var(--space-2);
+}
+
+.btn-icon-lg {
+  padding: var(--space-4);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   FULL WIDTH BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.btn-full {
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BUTTON WITH ICON
+───────────────────────────────────────────────────────────────────────── */
+.btn-icon-left {
+  flex-direction: row;
+}
+
+.btn-icon-right {
+  flex-direction: row-reverse;
+}
+
+.btn svg,
+.btn .icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LOADING STATE
+───────────────────────────────────────────────────────────────────────── */
+.btn-loading {
+  pointer-events: none;
+  position: relative;
+  color: transparent !important;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 1.25em;
+  height: 1.25em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spin 0.6s linear infinite;
+}
+
+.btn-loading.btn-primary::after {
+  border-color: var(--background);
+  border-right-color: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BUTTON GROUP
+───────────────────────────────────────────────────────────────────────── */
+.btn-group {
+  display: inline-flex;
+}
+
+.btn-group .btn {
+  border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+
+.btn-group .btn:last-child {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.btn-group .btn:not(:last-child) {
+  border-right: 1px solid var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SPECIAL BUTTON STYLES
+───────────────────────────────────────────────────────────────────────── */
+
+/* Apple-style CTA */
+.btn-cta {
+  background: var(--fusion-primary);
+  color: var(--background);
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.btn-cta:hover {
+  background: var(--fusion-primary-light);
+  transform: scale(1.02);
+  box-shadow: 
+    0 10px 40px rgba(var(--fusion-primary-rgb), 0.3),
+    0 0 0 1px rgba(var(--fusion-primary-rgb), 0.5);
+}
+
+/* Cart Button */
+.btn-cart {
+  background: var(--fusion-primary);
+  color: var(--background);
+  font-weight: 600;
+}
+
+.btn-cart:hover {
+  background: var(--fusion-primary-light);
+  transform: scale(1.02);
+}
+
+/* Buy Now Button */
+.btn-buy {
+  background: linear-gradient(135deg, var(--fusion-primary) 0%, var(--fusion-secondary) 100%);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.btn-buy:hover {
+  transform: scale(1.02);
+  box-shadow: 
+    0 10px 40px rgba(var(--fusion-primary-rgb), 0.3),
+    0 10px 40px rgba(var(--fusion-secondary-rgb), 0.2);
+}
+
+/* Wishlist Button */
+.btn-wishlist {
+  background: var(--glass-bg);
+  color: var(--foreground);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.btn-wishlist:hover {
+  background: rgba(255, 100, 100, 0.1);
+  border-color: rgba(255, 100, 100, 0.3);
+  color: #ff6b6b;
+}
+
+.btn-wishlist.active {
+  background: rgba(255, 100, 100, 0.15);
+  border-color: rgba(255, 100, 100, 0.4);
+  color: #ff6b6b;
+}
+

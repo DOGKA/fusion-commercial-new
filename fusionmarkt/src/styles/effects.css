@@ -1,0 +1,219 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - Special Effects
+   Noise, shine, glow ve diğer özel efektler
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   NOISE TEXTURE
+───────────────────────────────────────────────────────────────────────── */
+.noise {
+  position: relative;
+}
+
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.noise > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLOW EFFECTS
+───────────────────────────────────────────────────────────────────────── */
+.glow {
+  filter: drop-shadow(0 0 20px rgba(var(--fusion-primary-rgb), 0.4));
+}
+
+.glow-blue {
+  filter: drop-shadow(0 0 20px rgba(var(--fusion-secondary-rgb), 0.4));
+}
+
+.glow-accent {
+  filter: drop-shadow(0 0 20px rgba(var(--fusion-accent-rgb), 0.4));
+}
+
+.glow-white {
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+.glow-strong {
+  filter: drop-shadow(0 0 40px rgba(var(--fusion-primary-rgb), 0.6));
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BOX GLOW
+───────────────────────────────────────────────────────────────────────── */
+.box-glow {
+  box-shadow: 0 0 40px rgba(var(--fusion-primary-rgb), 0.3);
+}
+
+.box-glow-blue {
+  box-shadow: 0 0 40px rgba(var(--fusion-secondary-rgb), 0.3);
+}
+
+.box-glow-intense {
+  box-shadow: 
+    0 0 20px rgba(var(--fusion-primary-rgb), 0.3),
+    0 0 40px rgba(var(--fusion-primary-rgb), 0.2),
+    0 0 60px rgba(var(--fusion-primary-rgb), 0.1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SHINE EFFECT
+───────────────────────────────────────────────────────────────────────── */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left var(--duration-slow) ease;
+}
+
+.shine:hover::after {
+  left: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SPOTLIGHT EFFECT
+───────────────────────────────────────────────────────────────────────── */
+.spotlight {
+  position: relative;
+}
+
+.spotlight::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(var(--fusion-primary-rgb), 0.1) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BLUR EFFECTS
+───────────────────────────────────────────────────────────────────────── */
+.blur-sm { filter: blur(4px); }
+.blur { filter: blur(8px); }
+.blur-md { filter: blur(12px); }
+.blur-lg { filter: blur(16px); }
+.blur-xl { filter: blur(24px); }
+.blur-2xl { filter: blur(40px); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GRAYSCALE & SATURATION
+───────────────────────────────────────────────────────────────────────── */
+.grayscale { filter: grayscale(100%); }
+.grayscale-hover:hover { filter: grayscale(0%); }
+
+.saturate-0 { filter: saturate(0); }
+.saturate-50 { filter: saturate(0.5); }
+.saturate-100 { filter: saturate(1); }
+.saturate-150 { filter: saturate(1.5); }
+.saturate-200 { filter: saturate(2); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   OPACITY
+───────────────────────────────────────────────────────────────────────── */
+.opacity-0 { opacity: 0; }
+.opacity-25 { opacity: 0.25; }
+.opacity-50 { opacity: 0.5; }
+.opacity-75 { opacity: 0.75; }
+.opacity-100 { opacity: 1; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CURSOR
+───────────────────────────────────────────────────────────────────────── */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+.cursor-grab { cursor: grab; }
+.cursor-grabbing { cursor: grabbing; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   POINTER EVENTS
+───────────────────────────────────────────────────────────────────────── */
+.pointer-events-none { pointer-events: none; }
+.pointer-events-auto { pointer-events: auto; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   USER SELECT
+───────────────────────────────────────────────────────────────────────── */
+.select-none { user-select: none; }
+.select-text { user-select: text; }
+.select-all { user-select: all; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   IMAGE OBJECT FIT
+───────────────────────────────────────────────────────────────────────── */
+.object-cover { object-fit: cover; }
+.object-contain { object-fit: contain; }
+.object-fill { object-fit: fill; }
+.object-center { object-position: center; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BORDER RADIUS UTILITIES
+───────────────────────────────────────────────────────────────────────── */
+.rounded-none { border-radius: 0; }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded { border-radius: var(--radius-md); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: var(--radius-2xl); }
+.rounded-3xl { border-radius: var(--radius-3xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   RING / FOCUS RING
+───────────────────────────────────────────────────────────────────────── */
+.ring {
+  box-shadow: 0 0 0 3px rgba(var(--fusion-primary-rgb), 0.3);
+}
+
+.ring-offset {
+  box-shadow: 
+    0 0 0 2px var(--background),
+    0 0 0 4px rgba(var(--fusion-primary-rgb), 0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BACKDROP
+───────────────────────────────────────────────────────────────────────── */
+.backdrop-blur { backdrop-filter: blur(8px); }
+.backdrop-blur-sm { backdrop-filter: blur(4px); }
+.backdrop-blur-md { backdrop-filter: blur(12px); }
+.backdrop-blur-lg { backdrop-filter: blur(16px); }
+.backdrop-blur-xl { backdrop-filter: blur(24px); }
+

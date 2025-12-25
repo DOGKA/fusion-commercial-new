@@ -1,0 +1,276 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FUSIONMARKT - Glassmorphism System
+   Apple-style cam efektleri ve blur stilleri
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BASIC GLASS
+───────────────────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-hover:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+
+.glass-active:active {
+  background: var(--glass-bg-active);
+  border-color: var(--glass-border-active);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS INTENSITY VARIANTS
+───────────────────────────────────────────────────────────────────────── */
+.glass-light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-medium {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-heavy {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.glass-solid {
+  background: var(--glass-bg-solid);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS CARD
+───────────────────────────────────────────────────────────────────────── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-base);
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.glass-card-sm {
+  border-radius: var(--radius-lg);
+}
+
+.glass-card-lg {
+  border-radius: var(--radius-2xl);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS CARD - NO ANIMATION VARIANT
+───────────────────────────────────────────────────────────────────────── */
+.glass-card-static {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS PANEL - Sidebar / Large Areas
+───────────────────────────────────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS BUTTON
+───────────────────────────────────────────────────────────────────────── */
+.glass-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-3) var(--space-6);
+  color: var(--foreground);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.glass-button:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  transform: scale(1.02);
+}
+
+.glass-button:active {
+  background: var(--glass-bg-active);
+  transform: scale(0.98);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS INPUT - Sadece .glass-input class'ı ile kullanılır
+───────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .glass-input {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    color: var(--foreground);
+    width: 100%;
+    transition: all var(--transition-fast);
+  }
+
+  .glass-input:focus {
+    background: var(--glass-bg-hover);
+    border-color: var(--fusion-primary);
+    box-shadow: 0 0 0 3px rgba(var(--fusion-primary-rgb), 0.15);
+  }
+
+  .glass-input::placeholder {
+    color: var(--foreground-muted);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS BADGE / TAG
+───────────────────────────────────────────────────────────────────────── */
+.glass-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground-secondary);
+}
+
+.glass-badge-accent {
+  background: rgba(var(--fusion-primary-rgb), 0.15);
+  border-color: rgba(var(--fusion-primary-rgb), 0.3);
+  color: var(--fusion-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS NAVBAR
+───────────────────────────────────────────────────────────────────────── */
+.glass-navbar {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS MODAL / DIALOG
+───────────────────────────────────────────────────────────────────────── */
+.glass-modal {
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+}
+
+.glass-modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS DROPDOWN
+───────────────────────────────────────────────────────────────────────── */
+.glass-dropdown {
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.glass-dropdown-item {
+  padding: var(--space-3) var(--space-4);
+  color: var(--foreground-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.glass-dropdown-item:hover {
+  background: var(--glass-bg-hover);
+  color: var(--foreground);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLASS TOOLTIP
+───────────────────────────────────────────────────────────────────────── */
+.glass-tooltip {
+  background: rgba(40, 40, 40, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   FROSTED OVERLAY
+───────────────────────────────────────────────────────────────────────── */
+.frosted-overlay {
+  position: relative;
+}
+
+.frosted-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1;
+}
+
+.frosted-overlay > * {
+  position: relative;
+  z-index: 2;
+}
+

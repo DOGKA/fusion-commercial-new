@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 60" fill="none">
+  <!-- FUSI text -->
+  <text x="0" y="45" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="900" fill="currentColor">FUSI</text>
+  
+  <!-- Atom/Energy Symbol (replacing O) -->
+  <g transform="translate(100, 8)">
+    <!-- Red orbit (top) -->
+    <ellipse cx="22" cy="22" rx="20" ry="7" 
+      stroke="#E31E24" stroke-width="3.5" fill="none"
+      transform="rotate(-35, 22, 22)"/>
+    <!-- Black orbit (middle) -->
+    <ellipse cx="22" cy="22" rx="20" ry="7" 
+      stroke="currentColor" stroke-width="3.5" fill="none"
+      transform="rotate(35, 22, 22)"/>
+    <!-- Yellow/Gold orbit (bottom) -->
+    <ellipse cx="22" cy="22" rx="20" ry="7" 
+      stroke="#FFB800" stroke-width="3.5" fill="none"
+      transform="rotate(90, 22, 22)"/>
+    <!-- Center dot -->
+    <circle cx="22" cy="22" r="4" fill="currentColor"/>
+  </g>
+  
+  <!-- NMARKT text -->
+  <text x="145" y="45" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="900" fill="currentColor">NMARKT</text>
+</svg>

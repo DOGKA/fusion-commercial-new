@@ -1,0 +1,28 @@
+{
+  "name": "fusion-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "fusionmarkt",
+    "nextadmin-nextjs-pro-v2-main"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=fusionmarkt",
+    "dev:admin": "npm run dev --workspace=nextadmin-nextjs-pro-v2-main",
+    "dev:all": "npm run dev --workspace=fusionmarkt & npm run dev --workspace=nextadmin-nextjs-pro-v2-main",
+    "db:generate": "npm run db:generate --workspace=@repo/db",
+    "db:migrate:dev": "npm run db:migrate:dev --workspace=@repo/db",
+    "db:migrate:deploy": "npm run db:migrate:deploy --workspace=@repo/db",
+    "db:studio": "npm run db:studio --workspace=@repo/db"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3"
+  }
+}
