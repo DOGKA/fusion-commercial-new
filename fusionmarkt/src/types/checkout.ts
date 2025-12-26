@@ -45,7 +45,9 @@ export interface AddressFormData {
   orderNotes?: string;
   
   // For logged-in users
+  id?: string;                // Saved address ID
   saveAddress?: boolean;
+  saveToAddresses?: boolean;  // Alias for saveAddress
   isDefaultAddress?: boolean;
 }
 

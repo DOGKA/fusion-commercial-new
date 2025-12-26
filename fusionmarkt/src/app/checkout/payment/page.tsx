@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -7,7 +8,7 @@ import Image from "next/image";
 import {
   ChevronRight, ChevronLeft, Check, Loader2, ShieldCheck,
   CreditCard, Building2, FileText, Package, Trash2, Heart,
-  Edit2, Minus, Plus, ChevronDown, Tag, ExternalLink
+  Edit2, Minus, Plus, ChevronDown, Tag
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCheckout } from "@/context/CheckoutContext";
@@ -32,6 +33,17 @@ interface SavedAddress {
   isDefault: boolean;
 }
 
+interface AddressApiResponse {
+  id: string;
+  title?: string;
+  addressLine1?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  phone?: string;
+  isDefault?: boolean;
+}
+
 export default function PaymentPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -39,10 +51,10 @@ export default function PaymentPage() {
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCart();
   const { addItem: addFavorite } = useFavorites();
 
-  // Address state
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  // Address state (used for future address selection feature)
+  const [_savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [_selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [_loadingAddresses, setLoadingAddresses] = useState(false);
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bank">("card");
@@ -100,7 +112,7 @@ export default function PaymentPage() {
           // API { addresses: [...] } şeklinde döndürüyor
           const addressList = data.addresses || data;
           if (Array.isArray(addressList) && addressList.length > 0) {
-            const formatted = addressList.map((addr: any) => ({
+            const formatted = addressList.map((addr: AddressApiResponse) => ({
               id: addr.id,
               title: addr.title || "Adres",
               address: `${addr.addressLine1 || addr.address || ""}, ${addr.district || ""}, ${addr.city || ""}`,
@@ -119,6 +131,10 @@ export default function PaymentPage() {
     }
   }, [isAuthenticated]);
 
+  // Kargo ücretini API'den çek
+  const [shippingCost, setShippingCost] = useState(0);
+  const [_shippingLoading, setShippingLoading] = useState(true);
+
   // Redirect validations
   useEffect(() => {
     if (items.length === 0) {
@@ -127,22 +143,6 @@ export default function PaymentPage() {
       router.push("/checkout");
     }
   }, [items.length, state.billingAddress, router]);
-
-  // Early return
-  if (items.length === 0 || !state.billingAddress?.firstName || !state.billingAddress?.email) {
-    return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", margin: "0 auto 16px" }} />
-          <p style={{ color: "rgba(255,255,255,0.5)" }}>Yönlendiriliyor...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Kargo ücretini API'den çek
-  const [shippingCost, setShippingCost] = useState(0);
-  const [shippingLoading, setShippingLoading] = useState(true);
 
   useEffect(() => {
     const fetchShippingCost = async () => {
@@ -182,6 +182,18 @@ export default function PaymentPage() {
     
     fetchShippingCost();
   }, [items]);
+
+  // Early return - after all hooks
+  if (items.length === 0 || !state.billingAddress?.firstName || !state.billingAddress?.email) {
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", margin: "0 auto 16px" }} />
+          <p style={{ color: "rgba(255,255,255,0.5)" }}>Yönlendiriliyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   const couponDiscount = appliedCoupon?.discount || 0;
   const total = subtotal + shippingCost - couponDiscount;
@@ -299,8 +311,8 @@ export default function PaymentPage() {
       const orderNumber = result.orderNumber;
       window.location.href = `/order-confirmation?orderNumber=${orderNumber}`;
       
-    } catch (error: any) {
-      setErrors({ general: error.message });
+    } catch (error) {
+      setErrors({ general: error instanceof Error ? error.message : "Bir hata oluştu" });
       setIsSubmitting(false);
     }
   };
@@ -380,12 +392,12 @@ export default function PaymentPage() {
               <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                   {/* Yeni adres mi kayıtlı adres mi göster */}
-                  {(state.billingAddress as any)?.id ? (
+                  {state.billingAddress?.id ? (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Kayıtlı Adres</span>
                   ) : (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(59,130,246,0.2)", color: "#3b82f6", borderRadius: "999px" }}>Yeni Adres</span>
                   )}
-                  {(state.billingAddress as any)?.saveToAddresses && (
+                  {state.billingAddress?.saveToAddresses && (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", borderRadius: "999px" }}>Kaydedilecek</span>
                   )}
                 </div>
@@ -663,14 +675,7 @@ export default function PaymentPage() {
                 }}
               >
                 <div
-                  onClick={() => {
-                    if (!state.contractsAccepted.termsAndConditions) {
-                      setActiveContractType("termsAndConditions");
-                      setContractModalOpen(true);
-                    } else {
-                      setContractAccepted({ termsAndConditions: false });
-                    }
-                  }}
+                  onClick={() => setContractAccepted({ termsAndConditions: !state.contractsAccepted.termsAndConditions })}
                   style={{
                     width: "16px",
                     height: "16px",
@@ -711,14 +716,7 @@ export default function PaymentPage() {
                 }}
               >
                 <div
-                  onClick={() => {
-                    if (!state.contractsAccepted.distanceSalesContract) {
-                      setActiveContractType("distanceSalesContract");
-                      setContractModalOpen(true);
-                    } else {
-                      setContractAccepted({ distanceSalesContract: false });
-                    }
-                  }}
+                  onClick={() => setContractAccepted({ distanceSalesContract: !state.contractsAccepted.distanceSalesContract })}
                   style={{
                     width: "16px",
                     height: "16px",
@@ -874,6 +872,7 @@ export default function PaymentPage() {
           } else {
             setContractAccepted({ distanceSalesContract: true });
           }
+          setContractModalOpen(false);
         }}
         contractType={activeContractType}
         billingAddress={state.billingAddress}

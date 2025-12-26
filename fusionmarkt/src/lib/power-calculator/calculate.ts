@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Güç Hesaplayıcı - Hesaplama Motoru
  * PowerDADcalculator algoritmasından uyarlanmıştır

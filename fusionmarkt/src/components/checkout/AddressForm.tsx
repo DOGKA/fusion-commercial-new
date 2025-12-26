@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/static-components */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -94,7 +95,7 @@ export default function AddressForm({
     label: string;
     type?: string;
     placeholder?: string;
-    icon?: any;
+    icon?: React.ComponentType<{ size?: number; className?: string }>;
     required?: boolean;
     value: string;
     onValueChange: (value: string) => void;

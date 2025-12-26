@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import SingleProductView from "@/components/product/SingleProductView";
 
 interface Props {

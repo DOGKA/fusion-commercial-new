@@ -368,7 +368,6 @@ export default function FilterSidePanel({
                                 style={{
                                   backgroundColor: opt.color || "#ccc",
                                   borderColor: isSelected ? themeColor : undefined,
-                                  // @ts-ignore - ring color via CSS variable
                                   "--tw-ring-color": isSelected ? themeColor : undefined,
                                 } as React.CSSProperties}
                                 title={opt.name}

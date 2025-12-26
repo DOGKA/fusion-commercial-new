@@ -69,7 +69,7 @@ export default function CerezPolitikasiPage() {
                 Çerezleri kullanmanın amacı, web tarama deneyiminizi iyileştirmek, sitenin güvenliğini artırmak ve pazarlama ve tanıtım amaçları için kullanmaktır. Çerezler, tercihlerinizi (örneğin tercih edilen dil ve ülke gibi) hatırlamanıza, kullanım şekillerini tahmin etmenize ve daha iyi arama sonuçları sunmamıza olanak sağlar.
               </p>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                Bilgisayarınızdan IP adresiniz ve referans web sitesinin adresi gibi bazı teknik bilgileri de topluyoruz. Bu bilgiler, sitemizi tercihlerinize uygun hale getirmemize olanak tanır. Bu bilgiler yalnızca yetkili ortaklarımız ve siz, müşterimiz FusionMarkt LLC'nin yararına kullanılır.
+                Bilgisayarınızdan IP adresiniz ve referans web sitesinin adresi gibi bazı teknik bilgileri de topluyoruz. Bu bilgiler, sitemizi tercihlerinize uygun hale getirmemize olanak tanır. Bu bilgiler yalnızca yetkili ortaklarımız ve siz, müşterimiz FusionMarkt LLC&apos;nin yararına kullanılır.
               </p>
             </motion.div>
 

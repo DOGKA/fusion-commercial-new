@@ -16,7 +16,7 @@ import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { formatPrice } from "@/lib/utils";
 import { CITIES, getDistricts } from "@/lib/turkey-cities";
-import type { AddressFormData, InvoiceType, ShippingMethod } from "@/types/checkout";
+import type { AddressFormData, InvoiceType } from "@/types/checkout";
 import KargoTimer from "@/components/product/KargoTimer";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -39,10 +39,27 @@ interface SavedAddress {
   isDefault: boolean;
 }
 
+interface AddressApiItem {
+  id: string;
+  title?: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  addressLine1?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  postalCode?: string;
+  phone?: string;
+  email?: string;
+  isDefault?: boolean;
+  invoiceType?: string;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuth();
-  const { state, setBillingAddress } = useCheckout();
+  const { isAuthenticated, user: _user } = useAuth();
+  const { state: _state, setBillingAddress } = useCheckout();
   const { items, updateQuantity, removeItem, subtotal } = useCart();
   const { addItem: addFavorite } = useFavorites();
   
@@ -69,7 +86,7 @@ export default function CheckoutPage() {
   const [postalCode, setPostalCode] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, _setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCoupon, setShowCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -95,7 +112,7 @@ export default function CheckoutPage() {
     estimatedDays: string;
     type: string;
   }[]>([]);
-  const [shippingMessage, setShippingMessage] = useState<string | null>(null);
+  const [_shippingMessage, setShippingMessage] = useState<string | null>(null);
   const [amountToFreeShipping, setAmountToFreeShipping] = useState<number>(0);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(2000);
   const [loadingShipping, setLoadingShipping] = useState(false);
@@ -186,7 +203,7 @@ export default function CheckoutPage() {
         // Payment sayfası için sessionStorage'a kaydet
         sessionStorage.setItem("appliedCoupon", JSON.stringify(data.coupon));
       }
-    } catch (error) {
+    } catch (_error) {
       setCouponError("Kupon doğrulanamadı");
       setAppliedCoupon(null);
     } finally {
@@ -238,7 +255,7 @@ export default function CheckoutPage() {
           // API { addresses: [...] } şeklinde döndürüyor
           const addressList = data.addresses || data;
           if (Array.isArray(addressList) && addressList.length > 0) {
-            const formatted = addressList.map((addr: any) => {
+            const formatted = addressList.map((addr: AddressApiItem) => {
               // fullName'den firstName ve lastName çıkar
               const fullName = addr.fullName || "";
               const nameParts = fullName.split(" ");

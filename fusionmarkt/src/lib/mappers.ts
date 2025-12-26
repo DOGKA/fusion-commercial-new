@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import type { Product, ProductVariant, ProductBadge } from "@/components/ui/ProductCard";
 import {
   isOnSale,

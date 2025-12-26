@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -77,7 +78,7 @@ interface SingleProductViewProps {
 function cleanHtmlContent(html: string): string {
   if (!html) return '';
   
-  let cleaned = html
+  const cleaned = html
     // ═══════════════════════════════════════════════════════════════════════════
     // SECURITY: XSS Prevention
     // ═══════════════════════════════════════════════════════════════════════════

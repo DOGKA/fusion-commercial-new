@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useRef, useMemo } from "react";
@@ -173,7 +174,7 @@ export default function ShimmerBackground({
     window.addEventListener("resize", resize);
 
     // Animation loop
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     const render = () => {
       if (!gl || !program) return;

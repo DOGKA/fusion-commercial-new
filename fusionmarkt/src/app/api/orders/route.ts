@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
+import bcrypt from "bcryptjs";
 import { 
   sendOrderConfirmationEmail, 
   sendOrderPendingPaymentEmail,
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       items,
       billingAddress,
       shippingAddress,
-      shippingMethod,
+      shippingMethod: _shippingMethod,
       paymentMethod,
       couponCode,
       couponId: directCouponId,
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
       billingAddressId = billingAddress.id;
     } else if (billingAddress.saveToAddresses && userId !== "guest") {
       // Yeni adres ve "Kayıtlı adreslerime ekle" seçilmiş - yeni adres oluştur
-      const createdBillingAddress = await (prisma.address.create as any)({
+      const createdBillingAddress = await prisma.address.create({
         data: {
           userId,
           title: billingAddress.title || "Sipariş Adresi",
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
     if (shippingAddress && shippingAddress.id) {
       shippingAddressId = shippingAddress.id;
     } else if (shippingAddress && shippingAddress.firstName && shippingAddress.saveToAddresses && userId !== "guest") {
-      const createdShippingAddress = await (prisma.address.create as any)({
+      const createdShippingAddress = await prisma.address.create({
         data: {
           userId,
           title: "Teslimat Adresi",
@@ -264,7 +265,6 @@ export async function POST(request: NextRequest) {
     // Create guest account if requested
     if (!session?.user && createAccount && accountPassword && billingAddress.email) {
       try {
-        const bcrypt = require("bcryptjs");
         const hashedPassword = await bcrypt.hash(accountPassword, 12);
         
         await prisma.user.create({

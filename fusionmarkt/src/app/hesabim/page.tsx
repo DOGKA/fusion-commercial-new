@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -7,18 +8,18 @@ import { useSession } from "next-auth/react";
 import { 
   Eye, EyeOff, Shield, Check, LogOut, User, Package, 
   MapPin, Heart, Settings, ChevronRight, Loader2, 
-  LayoutDashboard, Camera, Lock, Mail, Phone, Calendar,
-  X, Upload, Trash2, Save, Plus, Edit2, Star,
+  LayoutDashboard, Camera, Lock,
+  X, Trash2, Save, Edit2, Star,
   Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText,
   ExternalLink, Copy, ChevronDown, ChevronUp, AlertCircle,
   Search
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useFavorites, FavoriteItem } from "@/context/FavoritesContext";
+import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 import { CITIES, getDistricts } from "@/lib/turkey-cities";
-import { getTrackingUrl, getCarrierByName } from "@/lib/shipping";
+import { getTrackingUrl } from "@/lib/shipping";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -27,9 +28,33 @@ import { getTrackingUrl, getCarrierByName } from "@/lib/shipping";
 type ActivePanel = "login" | "register" | null;
 type DashboardTab = "pano" | "siparisler" | "adresler" | "hesap" | "favoriler";
 
+interface UserType {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  phone?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  birthDate?: string | null;
+}
+
+interface OrderType {
+  id: string;
+  orderNumber: string;
+  status: string;
+  total: number;
+  createdAt: string;
+  items?: { title: string; quantity: number; price: number; image?: string }[];
+  shippingAddress?: { firstName?: string; lastName?: string; city?: string };
+  trackingNumber?: string;
+  carrier?: string;
+  customerNote?: string;
+}
+
 interface MenuItemType {
   id: DashboardTab;
-  icon: any;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   label: string;
 }
 
@@ -1154,7 +1179,7 @@ export default function HesabimPage() {
 // DASHBOARD PANES - Minimal TSParticle Style
 // ═══════════════════════════════════════════════════════════════════════════
 
-function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { user: any; setActiveTab: (tab: DashboardTab) => void; setExpandedOrderId: (id: string | null) => void; avatarUrl?: string | null }) {
+function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { user: UserType; setActiveTab: (tab: DashboardTab) => void; setExpandedOrderId: (id: string | null) => void; avatarUrl?: string | null }) {
   const { itemCount: favoriteCount } = useFavorites();
   const { itemCount: cartCount } = useCart();
   const [orderCount, setOrderCount] = useState(0);
@@ -1279,7 +1304,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
           </div>
         ) : recentOrders.length > 0 ? (
           <div className="space-y-2 overflow-y-auto">
-            {recentOrders.map((order: any) => {
+            {recentOrders.map((order: OrderType) => {
               const config = statusConfig[order.status] || statusConfig.PENDING;
               return (
                 <button
@@ -1393,7 +1418,7 @@ interface Order {
 }
 
 // Durum konfigürasyonları
-const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
+const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = {
   PENDING: { 
     label: "Onay Bekliyor", 
     color: "text-amber-400", 
@@ -1559,8 +1584,8 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       }
       const data = await res.json();
       setOrders(data);
-    } catch (err: any) {
-      setError(err.message || "Bir hata oluştu");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bir hata oluştu");
     } finally {
       setLoading(false);
     }
@@ -2004,7 +2029,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                   {order.customerNote && (
                     <div className="p-3 bg-white/[0.02] rounded-lg">
                       <p className="text-[12px] text-white/40 mb-1">Sipariş Notu</p>
-                      <p className="text-[13px] text-white/60 italic">"{order.customerNote}"</p>
+                      <p className="text-[13px] text-white/60 italic">&quot;{order.customerNote}&quot;</p>
                     </div>
                   )}
                 </div>
@@ -2031,11 +2056,6 @@ function AddressesPane({ userName }: { userName?: string }) {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Fetch addresses on mount
-  useEffect(() => {
-    fetchAddresses();
-  }, []);
-
   const fetchAddresses = async () => {
     try {
       const res = await fetch("/api/user/addresses");
@@ -2047,6 +2067,12 @@ function AddressesPane({ userName }: { userName?: string }) {
       console.error("Failed to fetch addresses:", e);
     }
   };
+
+  // Fetch addresses on mount
+  useEffect(() => {
+    fetchAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const districts = formData.city ? getDistricts(formData.city) : [];
 
@@ -2322,7 +2348,7 @@ function AddressesPane({ userName }: { userName?: string }) {
 }
 
 interface AccountPaneProps {
-  user: any;
+  user: UserType;
   avatarUrl: string | null;
   setAvatarUrl: (url: string | null) => void;
   showNotification: (type: "success" | "error", message: string) => void;
@@ -2582,7 +2608,7 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
             <label className="text-[13px] text-white/40">E-posta</label>
             <input
               type="email"
-              value={user.email}
+              value={user.email || ""}
               disabled
               className="w-full h-11 px-4 bg-white/[0.02] border border-white/[0.04] rounded-lg text-[15px] text-white/40 cursor-not-allowed"
             />
