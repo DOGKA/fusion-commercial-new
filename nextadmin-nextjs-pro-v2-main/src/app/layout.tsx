@@ -8,7 +8,6 @@ import "nouislider/dist/nouislider.css";
 import "@/css/style.css";
 import type { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
-import type { PropsWithChildren } from "react";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
     "FusionMarkt e-ticaret yönetim paneli. Ürünler, siparişler ve müşteri yönetimi.",
 };
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
