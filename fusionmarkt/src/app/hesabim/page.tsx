@@ -42,7 +42,8 @@ interface OrderType {
   id: string;
   orderNumber: string;
   status: string;
-  total: number;
+  total?: number;
+  grandTotal?: number;
   createdAt: string;
   items?: { title: string; quantity: number; price: number; image?: string }[];
   shippingAddress?: { firstName?: string; lastName?: string; city?: string };
@@ -96,8 +97,9 @@ export default function HesabimPage() {
     if (user.image.startsWith("data:")) {
       return user.image;
     }
+    // Cache buster için random değer
     const separator = user.image.includes("?") ? "&" : "?";
-    return `${user.image}${separator}t=${Date.now()}`;
+    return `${user.image}${separator}t=${Math.random().toString(36).substring(2, 9)}`;
   }, [user?.image]);
   
   // Sync computed avatar to state (for manual updates)
@@ -1198,7 +1200,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
   const { itemCount: cartCount } = useCart();
   const [orderCount, setOrderCount] = useState(0);
   const [addressCount, setAddressCount] = useState(0);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<OrderType[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
 
   // Fetch stats on mount
@@ -1345,7 +1347,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
                   </div>
                   <div className="text-right">
                     <span className="text-[14px] font-medium text-white">
-                      {new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(order.total)}
+                      {new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(order.grandTotal ?? order.total ?? 0)}
                     </span>
                   </div>
                 </button>
@@ -2056,9 +2058,19 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   );
 }
 
+interface AddressData {
+  id: string;
+  title: string;
+  phone: string;
+  city: string;
+  district: string;
+  address: string;
+  isDefault: boolean;
+}
+
 function AddressesPane({ userName }: { userName?: string }) {
   const [showForm, setShowForm] = useState(false);
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<AddressData[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",

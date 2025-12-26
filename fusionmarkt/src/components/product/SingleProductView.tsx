@@ -32,10 +32,61 @@ interface ApiKeyFeature {
 }
 
 interface ApiProductFeatureValue {
+  id?: string;
   feature?: {
     name?: string;
+    unit?: string;
   } | null;
   value?: string;
+  valueText?: string;
+  valueNumber?: number;
+  unit?: string;
+}
+
+interface TechnicalSpec {
+  id: string;
+  name: string;
+  value: string;
+  label?: string;
+}
+
+interface RelatedProduct {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  comparePrice?: number | null;
+  thumbnail?: string;
+  images?: string[];
+  brand?: string;
+  stock?: number;
+  freeShipping?: boolean;
+  shortDescription?: string;
+}
+
+interface ProductData {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  comparePrice?: number | null;
+  images?: string[];
+  thumbnail?: string;
+  brand?: string;
+  description?: string;
+  shortDescription?: string;
+  stock?: number;
+  freeShipping?: boolean;
+  variants?: ProductVariant[];
+  keyFeatures?: ApiKeyFeature[];
+  technicalSpecs?: TechnicalSpec[];
+  productFeatureValues?: ApiProductFeatureValue[];
+  reviews?: ApiReview[];
+  frequentlyBought?: RelatedProduct[];
+  alsoViewed?: RelatedProduct[];
+  category?: { id: string; name: string; slug: string };
+  videoUrl?: string;
+  sku?: string;
 }
 
 // Yorum tipi
@@ -184,7 +235,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [techSpecsExpanded, setTechSpecsExpanded] = useState(false);
   const INITIAL_SPECS_COUNT = 6; // Başlangıçta gösterilecek özellik sayısı
   // countdown artık KargoTimer component'inden geliyor
-  const [productData, setProductData] = useState<any>(null);
+  const [productData, setProductData] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(!!slug);
   
   // Varyant seçimi
@@ -393,18 +444,16 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     );
   }
 
-  // Product data - API'den gelen veya mock için fallback
-  const product = productData || {
-    name: "Taşınabilir Güç İstasyonu Premium 3600W",
-    brand: "POWERTECH PRO",
-    shortDescription: "LiFePO4 - 3600W tepe - saf sinüs inverter",
-    price: 28000,
-    comparePrice: 35000,
-    stock: 3,
-    category: { name: "Güç İstasyonları" },
-    images: [],
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  };
+  // Ürün verisi yoksa gösterme
+  if (!productData) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-white/50">Ürün bulunamadı</p>
+      </div>
+    );
+  }
+  
+  const product = productData;
 
   // Galeri görselleri - images string array
   const galleryImages = product.images || [];
@@ -647,7 +696,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                     %{Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)} İNDİRİM
                   </span>
                 )}
-                {product.stock <= 5 && product.stock > 0 && (
+                {(product.stock ?? 0) <= 5 && (product.stock ?? 0) > 0 && (
                   <span style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -739,7 +788,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             <div style={{ marginBottom: '12px' }}>
               <KargoTimer 
                 variant="siparis" 
-                inStock={product?.stock > 0 || productData?.stock > 0}
+                inStock={(product?.stock ?? 0) > 0 || (productData?.stock ?? 0) > 0}
               />
             </div>
 
@@ -821,10 +870,10 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               fontSize: '11px', 
               marginBottom: '10px' 
             }}>
-              <span style={{ color: (selectedVariant ? selectedVariant.stock : product.stock) > 0 ? 'rgba(255,255,255,0.45)' : '#EF4444' }}>
+              <span style={{ color: (selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 ? 'rgba(255,255,255,0.45)' : '#EF4444' }}>
                 {selectedVariant 
                   ? (selectedVariant.stock > 0 ? `Stok: ${selectedVariant.stock} adet` : 'Stokta Yok')
-                  : (product.stock > 0 ? `Stok: ${product.stock} adet` : 'Stokta Yok')
+                  : ((product.stock ?? 0) > 0 ? `Stok: ${product.stock} adet` : 'Stokta Yok')
                 }
               </span>
               <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>
@@ -1470,7 +1519,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                               borderCollapse: 'collapse',
                             }}>
                               <tbody>
-                                {displaySpecs.map((pfv: any, index: number) => (
+                                {displaySpecs.map((pfv: ApiProductFeatureValue, index: number) => (
                                   <tr 
                                     key={pfv.id || index}
                                     style={{
@@ -1557,6 +1606,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         </div>
                       );
                     } else if (hasTechSpecs) {
+                      const techDisplaySpecs = displaySpecs as TechnicalSpec[];
                       return (
                         <div style={{ position: 'relative' }}>
                           <div style={{
@@ -1569,7 +1619,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                               borderCollapse: 'collapse',
                             }}>
                               <tbody>
-                                {displaySpecs.map((spec: any, index: number) => (
+                                {techDisplaySpecs.map((spec: TechnicalSpec, index: number) => (
                                   <tr 
                                     key={spec.id}
                                     style={{
@@ -1581,7 +1631,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                                       fontWeight: '500',
                                       color: 'rgba(255,255,255,0.7)',
                                       width: '40%',
-                                      borderBottom: index < displaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                                      borderBottom: index < techDisplaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                                     }}>
                                       {spec.name || spec.label}
                                     </td>
@@ -1589,7 +1639,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                                       padding: '14px 16px',
                                       fontWeight: '600',
                                       color: 'white',
-                                      borderBottom: index < displaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                                      borderBottom: index < techDisplaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                                     }}>
                                       {spec.value}
                                     </td>
@@ -1696,7 +1746,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             </h2>
 
             <div className="frequently-bought-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {product.frequentlyBought.map((relatedProduct: any) => {
+              {product.frequentlyBought.map((relatedProduct: RelatedProduct) => {
                 const savings = relatedProduct.comparePrice ? relatedProduct.comparePrice - relatedProduct.price : 0;
                 const productImage = relatedProduct.thumbnail || relatedProduct.images?.[0];
                 
@@ -1772,7 +1822,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         {savings > 0 && (
                           <div className="related-product-discount" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
                             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>
-                              {formatPrice(relatedProduct.comparePrice)} TL
+                              {formatPrice(relatedProduct.comparePrice ?? 0)} TL
                             </span>
                             <span className="related-savings-badge" style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>
                               {formatPrice(savings)} TL kazanç
@@ -1875,7 +1925,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             </h2>
 
             <div className="also-viewed-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {product.alsoViewed.map((relatedProduct: any) => {
+              {product.alsoViewed.map((relatedProduct: RelatedProduct) => {
                 const savings = relatedProduct.comparePrice ? relatedProduct.comparePrice - relatedProduct.price : 0;
                 const productImage = relatedProduct.thumbnail || relatedProduct.images?.[0];
                 
@@ -1951,7 +2001,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         {savings > 0 && (
                           <div className="related-product-discount" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
                             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>
-                              {formatPrice(relatedProduct.comparePrice)} TL
+                              {formatPrice(relatedProduct.comparePrice ?? 0)} TL
                             </span>
                             <span className="related-savings-badge" style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>
                               {formatPrice(savings)} TL kazanç

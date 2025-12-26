@@ -387,7 +387,7 @@ export default function StorePage() {
       // Arama filtresi
       if (searchQuery) {
         products = products.filter((p) => {
-          const title = p.title || (p as any).name || "";
+          const title = p.title || "";
           return title.toLowerCase().includes(searchQuery.toLowerCase());
         });
       }

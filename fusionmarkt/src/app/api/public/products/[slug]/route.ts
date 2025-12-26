@@ -168,9 +168,11 @@ export async function GET(
       return aVal.localeCompare(bVal);
     });
 
-    // Decimal değerleri number'a çevir
+    // Decimal değerleri number'a çevir, relatedFrom'u hariç tut
+    const { relatedFrom: _relatedFrom, ...productWithoutRelations } = product as typeof product & { relatedFrom?: unknown };
+    
     const productData = {
-      ...product,
+      ...productWithoutRelations,
       variants: sortedVariants,
       price: product.price ? Number(product.price) : 0,
       comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
@@ -180,9 +182,6 @@ export async function GET(
       frequentlyBought,
       alsoViewed,
     };
-
-    // relatedFrom'u response'dan kaldır
-    delete (productData as any).relatedFrom;
 
     // Return product with all details
     return NextResponse.json(productData);

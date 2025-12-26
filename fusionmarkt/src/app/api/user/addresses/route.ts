@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const newAddress = await (prisma.address.create as any)({
+    const newAddress = await prisma.address.create({
       data: {
         userId: session.user.id,
         title: title?.trim() || "Adres",

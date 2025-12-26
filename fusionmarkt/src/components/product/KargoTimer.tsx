@@ -114,7 +114,8 @@ export function KargoTimer({
     }
 
     // İlk hesaplama
-    setTimer(calculateTimer());
+    const initialTimer = calculateTimer();
+    queueMicrotask(() => setTimer(initialTimer));
 
     // Her saniye güncelle
     const interval = setInterval(() => {

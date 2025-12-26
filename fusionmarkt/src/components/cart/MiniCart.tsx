@@ -135,8 +135,10 @@ export default function MiniCart() {
   useEffect(() => {
     if (prevIsOpenRef.current && !isOpen) {
       // Cart was just closed externally (not via closeCart)
-      setSelectedItems(new Set());
-      setIsSelectionMode(false);
+      queueMicrotask(() => {
+        setSelectedItems(new Set());
+        setIsSelectionMode(false);
+      });
     }
     prevIsOpenRef.current = isOpen;
   }, [isOpen]);

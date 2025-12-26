@@ -279,7 +279,7 @@ export default function PowerCalculator() {
   // Otomatik hesaplama - tercihler değişince (sonuçlar sayfasında)
   useEffect(() => {
     if (currentStep === 'results' && dailyEnergy > 0 && maxPower > 0) {
-      handleCalculate();
+      queueMicrotask(() => handleCalculate());
     }
   }, [portability, chargeSpeed, currentStep, dailyEnergy, maxPower, handleCalculate]);
 

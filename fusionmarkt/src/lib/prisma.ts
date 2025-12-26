@@ -6,4 +6,4 @@
  * No local Prisma client instantiation
  */
 
-export { prisma } from "@repo/db";
+export { prisma, Prisma } from "@repo/db";
