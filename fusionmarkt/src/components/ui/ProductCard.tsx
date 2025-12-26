@@ -97,7 +97,6 @@ export default function ProductCard({ product, className, priority = false }: Pr
     brand,
     price,
     originalPrice,
-    discountPercent,
     stockStatus,
     stockQuantity,
     ratingAverage,
