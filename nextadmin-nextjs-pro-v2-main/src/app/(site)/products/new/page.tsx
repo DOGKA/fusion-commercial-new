@@ -10,27 +10,14 @@ import VariantTable from "@/components/VariantTable";
 
 // Kategoriler API'den çekilecek - state'te tutulacak
 
-const brands = [
-  { id: "1", name: "Initial Entropy Energy" },
-  { id: "2", name: "JawayDC" },
-  { id: "3", name: "Metric Gloves" },
-  { id: "4", name: "Telescopics" },
-  { id: "5", name: "Traffi Gloves" },
-];
-
-// Mevcut ürünler listesi (Bağlantılı ürünler için)
-const allProducts = [
-  { id: "p1", name: "POWERTECH PRO 3600W Taşınabilir Güç İstasyonu", category: "Taşınabilir Güç Kaynakları", price: 45999, image: "/images/products/powertech-3600w.jpg" },
-  { id: "p2", name: "POWERTECH Solar Panel 200W", category: "Güneş Enerjisi Panelleri", price: 8999, image: "/images/products/solar-panel.jpg" },
-  { id: "p3", name: "EcoFlow Delta 2 Max", category: "Taşınabilir Güç Kaynakları", price: 52999, image: "/images/products/ecoflow-delta.jpg" },
-  { id: "p4", name: "LiFePO4 Batarya 48V 100Ah", category: "Aküler LiFePO4", price: 32999, image: "/images/products/lifepo4.jpg" },
-  { id: "p5", name: "Duvar Tipi Batarya 10kWh", category: "Duvar Tipi Bataryalar", price: 89999, image: "/images/products/wall-battery.jpg" },
-  { id: "p6", name: "Teleskopik Merdiven 5m", category: "Teleskopik Merdivenler", price: 2999, image: "/images/products/ladder.jpg" },
-  { id: "p7", name: "Traffi TG525 Endüstriyel Eldiven", category: "Endüstriyel Eldivenler", price: 249, image: "/images/products/gloves.jpg" },
-  { id: "p8", name: "Solar Şarj Kontrol Cihazı 60A", category: "Güneş Enerjisi Panelleri", price: 1599, image: "/images/products/charge-controller.jpg" },
-  { id: "p9", name: "MC4 Konnektör Seti", category: "Güneş Enerjisi Panelleri", price: 199, image: "/images/products/mc4.jpg" },
-  { id: "p10", name: "Inverter 3000W Pure Sine", category: "Enerji Depolama Sistemleri", price: 4999, image: "/images/products/inverter.jpg" },
-];
+// Bağlantılı ürünler için interface
+interface LinkedProduct {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  image: string;
+}
 
 const defaultFeatureIcons = [
   { name: "Garanti", svg: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>` },
@@ -89,6 +76,7 @@ export default function NewProductPage() {
   const [productVideo, setProductVideo] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [brands, setBrands] = useState<Array<{ id: string; name: string }>>([]);
   const [tags, setTags] = useState("");
   const [brand, setBrand] = useState("");
   const [features, setFeatures] = useState<Feature[]>([
@@ -136,6 +124,7 @@ export default function NewProductPage() {
   const [upsellProducts, setUpsellProducts] = useState<string[]>([]);
   const [crossSellProducts, setCrossSellProducts] = useState<string[]>([]);
   const [linkedProductSearch, setLinkedProductSearch] = useState("");
+  const [allProducts, setAllProducts] = useState<LinkedProduct[]>([]);
 
   // Teknik Özellikler State'leri
   const [availableTechFeatures, setAvailableTechFeatures] = useState<CategoryFeatureDefinition[]>([]);
@@ -156,6 +145,45 @@ export default function NewProductPage() {
       }
     };
     fetchCategories();
+  }, []);
+
+  // Tüm ürünleri API'den çek (Bağlantılı ürünler için)
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const res = await fetch("/api/products?limit=1000");
+        if (res.ok) {
+          const data = await res.json();
+          const products = data.products || data || [];
+          setAllProducts(products.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category?.name || "Kategori Yok",
+            price: Number(p.price) || 0,
+            image: p.thumbnail || p.images?.[0] || "",
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching all products:", error);
+      }
+    };
+    fetchAllProducts();
+  }, []);
+
+  // Markaları API'den çek
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const res = await fetch("/api/brands");
+        if (res.ok) {
+          const data = await res.json();
+          setBrands(data.brands || data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    };
+    fetchBrands();
   }, []);
 
   // Kategori değiştiğinde teknik özellikleri çek

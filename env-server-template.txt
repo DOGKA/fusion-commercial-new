@@ -1,0 +1,74 @@
+# =====================================================
+# FUSIONMARKT SERVER ENVIRONMENT VARIABLES
+# =====================================================
+# Bu dosyayı sunucuda .env olarak kaydedin
+# =====================================================
+
+# Mode
+NODE_ENV=production
+
+# =====================================================
+# DATABASE
+# =====================================================
+DATABASE_URL="postgresql://shopuser:!L6=+QohUFD=3W<N@127.0.0.1:5432/shopdb?schema=public"
+
+# =====================================================
+# NEXTAUTH (Her iki uygulama için de gerekli)
+# =====================================================
+# Güçlü bir secret oluşturun: openssl rand -base64 32
+NEXTAUTH_SECRET="BURAYA_GUCLU_SECRET_GIRIN"
+
+# Frontend URL (müşteri sitesi)
+NEXTAUTH_URL="https://fusionmarkt.com"
+
+# Admin URL
+ADMIN_URL="https://admin.fusionmarkt.com"
+
+# =====================================================
+# FRONTEND <-> ADMIN REVALIDATION
+# =====================================================
+# Güçlü bir secret: openssl rand -hex 32
+REVALIDATE_SECRET="BURAYA_REVALIDATE_SECRET_GIRIN"
+FRONTEND_URL="https://fusionmarkt.com"
+NEXT_PUBLIC_FRONTEND_URL="https://fusionmarkt.com"
+
+# =====================================================
+# EMAIL (Resend API - Frontend)
+# =====================================================
+RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+EMAIL_FROM="FusionMarkt <noreply@fusionmarkt.com>"
+ADMIN_EMAIL="info@fusionmarkt.com"
+
+# =====================================================
+# EMAIL (SMTP - Admin Panel)
+# =====================================================
+EMAIL_USER="noreplyfusionmarkt@gmail.com"
+EMAIL_PASS="dxmd zpvc xwzs fujx"
+EMAIL_SERVER_HOST="smtp.gmail.com"
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER="noreplyfusionmarkt@gmail.com"
+EMAIL_SERVER_PASSWORD="dxmd zpvc xwzs fujx"
+
+# =====================================================
+# AWS S3 (Görsel Depolama)
+# =====================================================
+AWS_REGION="eu-central-1"
+AWS_ACCESS_KEY_ID="AKIAXXXXXXXXXXXXXXXX"
+AWS_SECRET_ACCESS_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+AWS_S3_BUCKET="fusionmarkt"
+S3_PREFIX="fusionmarkt"
+AWS_CLOUDFRONT_URL="https://d1xxxxxxxx.cloudfront.net"
+S3_PUBLIC_BASE_URL="https://d1xxxxxxxx.cloudfront.net"
+
+# =====================================================
+# GOOGLE OAuth (Opsiyonel)
+# =====================================================
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# =====================================================
+# GITHUB OAuth (Opsiyonel - sadece admin için)
+# =====================================================
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+
