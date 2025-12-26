@@ -38,15 +38,12 @@ export async function POST(request: NextRequest) {
     
     if (secret !== expectedSecret) {
       console.warn('⚠️  Revalidation attempt with invalid secret from IP:', 
-        request.headers.get("x-forwarded-for") || request.ip || "unknown");
+        request.headers.get("x-forwarded-for") || "unknown");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Rate limit by IP
-    const ip =
-      request.headers.get("x-forwarded-for") ||
-      request.ip ||
-      "unknown";
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
     const now = Date.now();
     const entry = rateLimitMap.get(ip);
     if (!entry || now - entry.ts > RATE_LIMIT_WINDOW_MS) {
