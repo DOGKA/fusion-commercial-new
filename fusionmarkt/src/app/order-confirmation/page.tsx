@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -56,7 +56,28 @@ interface OrderData {
   } | null;
 }
 
+// Loading fallback component
+function OrderConfirmationLoading() {
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", margin: "0 auto 16px" }} className="animate-pulse" />
+        <div style={{ height: "24px", width: "192px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "8px", margin: "0 auto" }} className="animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+// Wrapper component with Suspense
 export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={<OrderConfirmationLoading />}>
+      <OrderConfirmationContent />
+    </Suspense>
+  );
+}
+
+function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("orderNumber");
   const { data: session, status: sessionStatus } = useSession();
