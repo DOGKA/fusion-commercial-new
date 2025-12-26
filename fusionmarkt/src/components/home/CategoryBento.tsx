@@ -191,7 +191,7 @@ const itemVariants = {
 
 export default function CategoryBento() {
   const [categories, setCategories] = useState<BannerCard[]>(fallbackCategories);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBanners = async () => {

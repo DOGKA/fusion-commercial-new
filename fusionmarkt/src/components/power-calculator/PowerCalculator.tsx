@@ -46,7 +46,6 @@ import {
   Ship,
   Wrench,
   Store,
-  Settings,
   Smartphone,
   Tv,
   Lightbulb,
@@ -301,7 +300,7 @@ export default function PowerCalculator() {
   }, []);
 
   // Sonuçlara git
-  const goToResults = useCallback(() => {
+  const _goToResults = useCallback(() => {
     const calcResult = handleCalculate();
     if (calcResult) {
       setCurrentStep('results');

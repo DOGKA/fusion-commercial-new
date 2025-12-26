@@ -7,7 +7,7 @@ import { selectCategoryPublic } from "@/server/dto";
  * Public endpoint for frontend consumption
  * Returns only active categories with product counts
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const categories = await prisma.category.findMany({
       where: { isActive: true },

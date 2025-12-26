@@ -110,10 +110,10 @@ export default function ProductCard({ product, className, priority = false }: Pr
     videoLabel,
   } = product;
 
-  const hasDiscount = discountPercent && discountPercent > 0;
+  const _hasDiscount = discountPercent && discountPercent > 0;
   const savingAmount = originalPrice ? originalPrice - price : 0;
   const isOutOfStock = stockStatus === "out_of_stock";
-  const isLowStock = stockStatus === "low_stock";
+  const _isLowStock = stockStatus === "low_stock";
 
   // Variants ve videoLabel birlikte olabilir
   const hasVariants = variants && variants.length > 0;

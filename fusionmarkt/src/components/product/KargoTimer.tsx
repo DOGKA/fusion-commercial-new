@@ -44,7 +44,7 @@ interface TimerState {
 export function KargoTimer({ 
   variant = "siparis", 
   inStock = true,
-  isFreeShipping = false,
+  isFreeShipping: _isFreeShipping = false,
   className = "" 
 }: KargoTimerProps) {
   const [timer, setTimer] = useState<TimerState | null>(null);

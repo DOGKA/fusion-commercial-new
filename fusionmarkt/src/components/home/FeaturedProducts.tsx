@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { mapApiProductsToCards } from "@/lib/mappers";

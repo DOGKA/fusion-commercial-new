@@ -2100,7 +2100,6 @@ function AddressesPane({ userName }: { userName?: string }) {
   // Fetch addresses on mount
   useEffect(() => {
     fetchAddresses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const districts = formData.city ? getDistricts(formData.city) : [];

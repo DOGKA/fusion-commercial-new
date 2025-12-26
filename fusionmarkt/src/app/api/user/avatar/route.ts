@@ -12,7 +12,7 @@ import { existsSync } from "fs";
 import path from "path";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@repo/db";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Storage path for user avatars
 const AVATAR_STORAGE_PATH = "./public/storage/users";

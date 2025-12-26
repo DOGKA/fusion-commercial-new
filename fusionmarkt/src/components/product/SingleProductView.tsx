@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Heart, ChevronRight, Truck, RotateCcw, Shield, MessageCircle, Star, CheckCircle, AlertCircle, User, ShoppingBag, Minus, Plus } from "lucide-react";
+import { Heart, Truck, MessageCircle, Star, CheckCircle, AlertCircle, User, Minus, Plus } from "lucide-react";
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -225,7 +225,7 @@ const SQUIRCLE = {
 export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [favoriteHover, setFavoriteHover] = useState(false);
-  const [cartHover, setCartHover] = useState(false);
+  const [_cartHover, _setCartHover] = useState(false);
   const [activeTab, setActiveTab] = useState("Açıklama");
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
@@ -293,7 +293,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const featuresRef = useRef<HTMLDivElement>(null);
-  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const _scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const dragStartX = useRef(0);
   const scrollStartX = useRef(0);
   const animationRef = useRef<number | null>(null);
@@ -305,8 +305,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [isVerifiedPurchaser, setIsVerifiedPurchaser] = useState(true); // Normalde backend'ten gelecek
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Normalde backend'ten gelecek
+  const [isVerifiedPurchaser, _setIsVerifiedPurchaser] = useState(true); // Normalde backend'ten gelecek
+  const [isLoggedIn, _setIsLoggedIn] = useState(true); // Normalde backend'ten gelecek
   
   // Ortalama puan hesapla
   const averageRating = reviews.length > 0 
@@ -324,7 +324,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     
     // Simüle edilmiş API çağrısı
     setTimeout(() => {
-      const newReview: Review = {
+      const _newReview: Review = {
         id: `new-${Date.now()}`,
         userName: "Siz",
         userEmail: "si***@gmail.com",
@@ -420,7 +420,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
   // Hover'da durdur
   const handleMouseEnter = () => setIsPaused(true);
-  const handleMouseLeave = () => {
+  const _handleMouseLeave = () => {
     if (!isDragging) {
       setIsPaused(false);
     }
@@ -458,7 +458,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   // Galeri görselleri - images string array
   const galleryImages = product.images || [];
   
-  const galleryLabels = galleryImages.length > 0 
+  const _galleryLabels = galleryImages.length > 0 
     ? galleryImages.map((_: string, idx: number) => `Görsel ${idx + 1}`)
     : ['On', 'Yan', 'Port', 'Ekran', 'Detay', 'Kutu'];
 

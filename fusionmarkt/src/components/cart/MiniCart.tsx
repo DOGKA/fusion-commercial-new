@@ -85,7 +85,7 @@ export default function MiniCart() {
             message: data.message,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         // Fallback hesaplama
         setShippingInfo({
           hasFreeShipping: subtotal >= FREE_SHIPPING_LIMIT,

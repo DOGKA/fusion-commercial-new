@@ -171,10 +171,10 @@ interface OrderSummaryContentProps {
 function OrderSummaryContent({
   items,
   totals,
-  shippingMethod,
+  shippingMethod: _shippingMethod,
   shippingMessage,
   appliedCoupon,
-  couponState,
+  couponState: _couponState,
   couponError,
   couponCode,
   setCouponCode,
