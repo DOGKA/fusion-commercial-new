@@ -225,7 +225,6 @@ const SQUIRCLE = {
 export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [favoriteHover, setFavoriteHover] = useState(false);
-  const [_cartHover, _setCartHover] = useState(false);
   const [activeTab, setActiveTab] = useState("Açıklama");
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
@@ -293,7 +292,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const featuresRef = useRef<HTMLDivElement>(null);
-  const _scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const dragStartX = useRef(0);
   const scrollStartX = useRef(0);
   const animationRef = useRef<number | null>(null);
@@ -305,8 +303,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [isVerifiedPurchaser, _setIsVerifiedPurchaser] = useState(true); // Normalde backend'ten gelecek
-  const [isLoggedIn, _setIsLoggedIn] = useState(true); // Normalde backend'ten gelecek
+  const [isVerifiedPurchaser] = useState(true); // Normalde backend'ten gelecek
+  const [isLoggedIn] = useState(true); // Normalde backend'ten gelecek
   
   // Ortalama puan hesapla
   const averageRating = reviews.length > 0 
@@ -324,17 +322,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     
     // Simüle edilmiş API çağrısı
     setTimeout(() => {
-      const _newReview: Review = {
-        id: `new-${Date.now()}`,
-        userName: "Siz",
-        userEmail: "si***@gmail.com",
-        rating: reviewRating,
-        title: reviewTitle,
-        comment: reviewComment,
-        createdAt: new Date().toISOString().split('T')[0],
-        isVerifiedPurchase: true,
-      };
-      
       // Yorum başarılı gönderildi bildirimi (normalde onay bekleyecek)
       alert("Yorumunuz gönderildi! Onaylandıktan sonra görüntülenecektir.");
       
@@ -420,11 +407,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
   // Hover'da durdur
   const handleMouseEnter = () => setIsPaused(true);
-  const _handleMouseLeave = () => {
-    if (!isDragging) {
-      setIsPaused(false);
-    }
-  };
 
   // Loading state
   if (loading) {
@@ -457,10 +439,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
   // Galeri görselleri - images string array
   const galleryImages = product.images || [];
-  
-  const _galleryLabels = galleryImages.length > 0 
-    ? galleryImages.map((_: string, idx: number) => `Görsel ${idx + 1}`)
-    : ['On', 'Yan', 'Port', 'Ekran', 'Detay', 'Kutu'];
 
   // Features - API'den gelecek (keyFeatures olarak geliyor)
   // Renk paleti - her feature için sırayla renk atanır

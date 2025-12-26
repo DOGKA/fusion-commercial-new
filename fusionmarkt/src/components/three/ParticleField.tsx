@@ -26,8 +26,8 @@ export default function ParticleField({
     });
   }, []);
 
-  const particlesLoaded = useCallback(async (_container: Container | undefined) => {
-    // Particles loaded callback - container available for future use
+  const particlesLoaded = useCallback(async () => {
+    // Particles loaded callback
   }, []);
 
   const options: ISourceOptions = {

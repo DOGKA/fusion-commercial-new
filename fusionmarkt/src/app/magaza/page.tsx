@@ -806,16 +806,6 @@ function CategoryCarousel({
     return () => clearInterval(autoScroll);
   }, [category.products, isPaused]);
 
-  const _scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 300;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
-
   const displayProducts = [...category.products, ...category.products];
 
   return (

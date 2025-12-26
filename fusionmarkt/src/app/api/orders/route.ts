@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       items,
       billingAddress,
       shippingAddress,
-      shippingMethod: _shippingMethod,
+      // shippingMethod is received but not used directly - stored in order
       paymentMethod,
       couponCode,
       couponId: directCouponId,

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { 
   ChargeMode, 
   Season, 
@@ -298,14 +299,6 @@ export default function PowerCalculator() {
     setResult(null);
     setCurrentStep('scenario');
   }, []);
-
-  // Sonuçlara git
-  const _goToResults = useCallback(() => {
-    const calcResult = handleCalculate();
-    if (calcResult) {
-      setCurrentStep('results');
-    }
-  }, [handleCalculate]);
 
   // Step navigation (Tercihler ve Sonuçlar birleştirildi)
   const steps: { id: Step; label: string; icon: LucideIcon }[] = [
@@ -883,17 +876,13 @@ export default function PowerCalculator() {
                   <>
                     {/* Ürün Görseli - 1:1 */}
                     <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-                      <img
+                      <Image
                         src={result.powerStation.station.image || `/images/products/${result.powerStation.station.slug}.webp`}
                         alt={result.powerStation.station.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (!target.dataset.fallback) {
-                            target.dataset.fallback = 'true';
-                            target.src = '/images/placeholder-product.svg';
-                          }
-                        }}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        className="object-cover"
+                        unoptimized
                       />
                       {/* Yeterlilik Badge */}
                       <div className="absolute top-3 right-3 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
@@ -979,17 +968,13 @@ export default function PowerCalculator() {
                   <>
                     {/* Panel Görseli - 1:1 */}
                     <div className="relative aspect-square bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20">
-                      <img
-                        src={result.solarPanel.panel?.image || `/images/products/${result.solarPanel.panel?.slug}.webp`}
+                      <Image
+                        src={result.solarPanel.panel?.image || `/images/products/${result.solarPanel.panel?.slug || 'placeholder'}.webp`}
                         alt={result.solarPanel.panel?.name || 'Solar Panel'}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (!target.dataset.fallback) {
-                            target.dataset.fallback = 'true';
-                            target.src = '/images/placeholder-product.svg';
-                          }
-                        }}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        className="object-cover"
+                        unoptimized
                       />
                       {/* Karşılama Badge */}
                       <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">

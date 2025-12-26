@@ -41,12 +41,8 @@ interface TimerState {
  * - Cuma 16:00 sonrası: Yarın Sabah kargoda (Cumartesi)
  * - Cumartesi 13:00 sonrası: Pazartesi Sabah kargoda
  */
-export function KargoTimer({ 
-  variant = "siparis", 
-  inStock = true,
-  isFreeShipping: _isFreeShipping = false,
-  className = "" 
-}: KargoTimerProps) {
+export function KargoTimer(props: KargoTimerProps) {
+  const { variant = "siparis", inStock = true, className = "" } = props;
   const [timer, setTimer] = useState<TimerState | null>(null);
   const mounted = useHydrated();
 

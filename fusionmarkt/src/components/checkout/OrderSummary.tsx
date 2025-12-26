@@ -168,22 +168,21 @@ interface OrderSummaryContentProps {
   formatPriceCtx: (price: number) => string;
 }
 
-function OrderSummaryContent({
-  items,
-  totals,
-  shippingMethod: _shippingMethod,
-  shippingMessage,
-  appliedCoupon,
-  couponState: _couponState,
-  couponError,
-  couponCode,
-  setCouponCode,
-  couponLoading,
-  handleApplyCoupon,
-  updateItemQuantity,
-  removeItem,
-  formatPriceCtx,
-}: OrderSummaryContentProps) {
+function OrderSummaryContent(props: OrderSummaryContentProps) {
+  const {
+    items,
+    totals,
+    shippingMessage,
+    appliedCoupon,
+    couponError,
+    couponCode,
+    setCouponCode,
+    couponLoading,
+    handleApplyCoupon,
+    updateItemQuantity,
+    removeItem,
+    formatPriceCtx,
+  } = props;
   const [showCouponInput, setShowCouponInput] = useState(false);
   
   return (

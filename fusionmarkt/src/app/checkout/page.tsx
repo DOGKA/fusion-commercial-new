@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,10 +58,14 @@ interface AddressApiItem {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { isAuthenticated, user: _user } = useAuth();
-  const { state: _state, setBillingAddress } = useCheckout();
+  const { isAuthenticated } = useAuth();
+  const { setBillingAddress } = useCheckout();
   const { items, updateQuantity, removeItem, subtotal } = useCart();
   const { addItem: addFavorite } = useFavorites();
+  
+  // Refs to prevent re-fetching
+  const hasFetchedProfile = useRef(false);
+  const hasFetchedAddresses = useRef(false);
   
   // Saved addresses
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -86,7 +90,7 @@ export default function CheckoutPage() {
   const [postalCode, setPostalCode] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   
-  const [isSubmitting, _setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCoupon, setShowCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -112,7 +116,7 @@ export default function CheckoutPage() {
     estimatedDays: string;
     type: string;
   }[]>([]);
-  const [_shippingMessage, setShippingMessage] = useState<string | null>(null);
+  const [, setShippingMessage] = useState<string | null>(null);
   const [amountToFreeShipping, setAmountToFreeShipping] = useState<number>(0);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(2000);
   const [loadingShipping, setLoadingShipping] = useState(false);
@@ -203,7 +207,7 @@ export default function CheckoutPage() {
         // Payment sayfası için sessionStorage'a kaydet
         sessionStorage.setItem("appliedCoupon", JSON.stringify(data.coupon));
       }
-    } catch (_error) {
+    } catch {
       setCouponError("Kupon doğrulanamadı");
       setAppliedCoupon(null);
     } finally {
@@ -221,32 +225,34 @@ export default function CheckoutPage() {
 
   // Auto-fill user info - API'den güncel bilgileri çek
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasFetchedProfile.current) {
+      hasFetchedProfile.current = true;
       // Güncel kullanıcı bilgilerini API'den çek
       fetch("/api/user/profile")
         .then(res => res.json())
         .then(data => {
           if (data.user) {
             const u = data.user;
-            // Ad/Soyad
-            if (u.name && !firstName && !lastName) {
+            // Ad/Soyad - setter ile kontrol
+            if (u.name) {
               const nameParts = u.name.split(" ");
-              setFirstName(nameParts[0] || "");
-              setLastName(nameParts.slice(1).join(" ") || "");
+              setFirstName(prev => prev || nameParts[0] || "");
+              setLastName(prev => prev || nameParts.slice(1).join(" ") || "");
             }
             // Email
-            if (u.email && !email) setEmail(u.email);
+            if (u.email) setEmail(prev => prev || u.email);
             // Telefon
-            if (u.phone && !phone) setPhone(u.phone);
+            if (u.phone) setPhone(prev => prev || u.phone);
           }
         })
         .catch(err => console.error("Failed to fetch user profile:", err));
     }
-  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // Fetch saved addresses
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasFetchedAddresses.current) {
+      hasFetchedAddresses.current = true;
       setLoadingAddresses(true);
       fetch("/api/user/addresses")
         .then(res => res.json())
@@ -286,11 +292,11 @@ export default function CheckoutPage() {
               setDistrict(defaultAddr.district);
               setAddressLine1(defaultAddr.addressLine1);
               setPostalCode(defaultAddr.postalCode);
-              // Telefon varsa doldur
-              if (defaultAddr.phone && !phone) setPhone(defaultAddr.phone);
-              // Ad/soyad yoksa adresten al
-              if (!firstName && defaultAddr.firstName) setFirstName(defaultAddr.firstName);
-              if (!lastName && defaultAddr.lastName) setLastName(defaultAddr.lastName);
+              // Telefon varsa doldur - functional update
+              if (defaultAddr.phone) setPhone(prev => prev || defaultAddr.phone);
+              // Ad/soyad yoksa adresten al - functional update
+              if (defaultAddr.firstName) setFirstName(prev => prev || defaultAddr.firstName);
+              if (defaultAddr.lastName) setLastName(prev => prev || defaultAddr.lastName);
             }
           } else {
             setShowNewAddressForm(true);
@@ -301,7 +307,7 @@ export default function CheckoutPage() {
           setShowNewAddressForm(true);
         })
         .finally(() => setLoadingAddresses(false));
-    } else {
+    } else if (!isAuthenticated) {
       setShowNewAddressForm(true);
     }
   }, [isAuthenticated]);

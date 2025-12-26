@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import { selectCategoryPublic } from "@/server/dto";
 
@@ -7,7 +7,7 @@ import { selectCategoryPublic } from "@/server/dto";
  * Public endpoint for frontend consumption
  * Returns only active categories with product counts
  */
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const categories = await prisma.category.findMany({
       where: { isActive: true },

@@ -168,11 +168,12 @@ export async function GET(
       return aVal.localeCompare(bVal);
     });
 
-    // Decimal değerleri number'a çevir, relatedFrom'u hariç tut
-    const { relatedFrom: _relatedFrom, ...productWithoutRelations } = product as typeof product & { relatedFrom?: unknown };
+    // Decimal değerleri number'a çevir
+    const productCopy = { ...product } as Record<string, unknown>;
+    delete productCopy.relatedFrom; // relatedFrom'u hariç tut
     
     const productData = {
-      ...productWithoutRelations,
+      ...productCopy,
       variants: sortedVariants,
       price: product.price ? Number(product.price) : 0,
       comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
