@@ -5,10 +5,10 @@ import { Sidebar } from "@/components/Layouts/sidebar";
 import { SidebarProvider } from "@/components/Layouts/sidebar/sidebar-context";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { type PropsWithChildren, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import ToastContext from "../context/ToastContext";
 
-export default function Layout({ children }: PropsWithChildren) {
+export default function Layout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
