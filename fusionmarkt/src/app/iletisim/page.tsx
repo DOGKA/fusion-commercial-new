@@ -169,10 +169,10 @@ export default function IletisimPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6"
             >
-              <MessageCircle className="w-4 h-4 text-[var(--fusion-primary)]" />
-              <span className="text-sm font-medium text-[var(--fusion-primary)]">7/24 Destek</span>
+              <MessageCircle className="w-4 h-4 text-[var(--fusion-primary)] flex-shrink-0" />
+              <span className="text-sm font-medium text-[var(--fusion-primary)] whitespace-nowrap">7/24 Destek</span>
             </motion.div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
@@ -378,7 +378,7 @@ export default function IletisimPage() {
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="lg:col-span-2 space-y-6"
+                className="lg:col-span-2 space-y-6 w-full"
               >
                 {/* WhatsApp Card */}
                 <div className="glass-card p-8 rounded-3xl relative overflow-hidden">
@@ -413,23 +413,23 @@ export default function IletisimPage() {
                 </div>
 
                 {/* Quick Links */}
-                <div className="glass-card p-6 rounded-2xl">
+                <div className="glass-card p-6 rounded-2xl w-full">
                   <h3 className="font-bold mb-4">Hızlı Bağlantılar</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-3 w-full">
                     {quickLinks.map((link, index) => (
                       <Link
                         key={index}
                         href={link.href}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--glass-bg-hover)] hover:border-[var(--glass-border-hover)] transition-all group"
+                        className="flex items-center gap-3 p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--glass-bg-hover)] hover:border-[var(--glass-border-hover)] transition-all group w-full"
                       >
                         <div 
-                          className="w-10 h-10 rounded-lg flex items-center justify-center"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: `${link.color}15` }}
                         >
                           <link.icon className="w-5 h-5" style={{ color: link.color }} />
                         </div>
                         <span className="font-medium flex-1">{link.title}</span>
-                        <ArrowRight className="w-4 h-4 text-[var(--foreground-tertiary)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-4 h-4 text-[var(--foreground-tertiary)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </Link>
                     ))}
                   </div>

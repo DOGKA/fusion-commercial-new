@@ -118,6 +118,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
                   src={partner.logo}
                   alt={partner.name}
                   fill
+                  sizes="160px"
                   className="object-contain brightness-0 invert opacity-70 transition-all duration-300"
                   style={{ 
                     filter: isFlipped 

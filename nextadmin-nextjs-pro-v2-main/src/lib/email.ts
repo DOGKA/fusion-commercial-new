@@ -1,21 +1,24 @@
 /**
  * Email Service for Admin Panel
  * Sends order status notifications to customers
+ * 
+ * Uses Resend API (https://resend.com)
+ * Domain: fusionmarkt.com (verified, eu-west-1)
  */
 
-import nodemailer from "nodemailer";
-
 // ═══════════════════════════════════════════════════════════════════════════
-// TRANSPORTER CONFIG
+// RESEND CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER || "noreplyfusionmarkt@gmail.com",
-    pass: process.env.EMAIL_PASS || "dxmd zpvc xwzs fujx",
-  },
-});
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || "FusionMarkt <noreply@fusionmarkt.com>";
+
+// Email feature toggle
+const EMAIL_ENABLED = !!RESEND_API_KEY;
+
+if (!EMAIL_ENABLED && process.env.NODE_ENV === "production") {
+  console.warn("⚠️  Email disabled! Set RESEND_API_KEY to enable email sending.");
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SVG ICONS
@@ -95,7 +98,7 @@ const baseTemplate = (content: string) => `
 `;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// EMAIL SEND FUNCTION
+// EMAIL SEND FUNCTION (Resend API)
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface SendEmailParams {
@@ -105,15 +108,38 @@ interface SendEmailParams {
 }
 
 async function sendEmail({ to, subject, html }: SendEmailParams) {
+  // Check if email is enabled
+  if (!EMAIL_ENABLED) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("📧 [DEV] Email would be sent to:", to, "Subject:", subject);
+    }
+    return { success: true, messageId: "email-disabled" };
+  }
+
   try {
-    const info = await transporter.sendMail({
-      from: '"FusionMarkt" <noreplyfusionmarkt@gmail.com>',
-      to,
-      subject,
-      html,
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [to],
+        subject,
+        html,
+      }),
     });
-    console.log("📧 Email sent:", info.messageId);
-    return { success: true, messageId: info.messageId };
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("❌ Resend API error:", error);
+      return { success: false, error: error.message || "Email send failed" };
+    }
+
+    const data = await response.json();
+    console.log("📧 Email sent via Resend:", data.id);
+    return { success: true, messageId: data.id };
   } catch (error) {
     console.error("❌ Email error:", error);
     return { success: false, error };

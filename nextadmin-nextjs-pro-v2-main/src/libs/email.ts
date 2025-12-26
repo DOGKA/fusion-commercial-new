@@ -1,4 +1,9 @@
-import nodemailer from "nodemailer";
+/**
+ * Email Service - Resend Integration
+ * 
+ * Uses Resend API (https://resend.com)
+ * Domain: fusionmarkt.com (verified, eu-west-1)
+ */
 
 type EmailPayload = {
   to: string;
@@ -6,25 +11,49 @@ type EmailPayload = {
   html: string;
 };
 
-const smtpOptions = {
-  host: process.env.EMAIL_SERVER_HOST,
-  port: parseInt(process.env.EMAIL_SERVER_PORT || "2525"),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_SERVER_USER,
-    pass: process.env.EMAIL_SERVER_PASSWORD,
-  },
-};
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || "FusionMarkt <noreply@fusionmarkt.com>";
+
+// Email feature toggle
+const EMAIL_ENABLED = !!RESEND_API_KEY;
 
 export const sendEmail = async (data: EmailPayload) => {
-  const transporter = nodemailer.createTransport({
-    ...smtpOptions,
-  });
+  // Check if email is enabled
+  if (!EMAIL_ENABLED) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("📧 [DEV] Email would be sent to:", data.to, "Subject:", data.subject);
+    }
+    return { success: true, messageId: "email-disabled" };
+  }
 
-  return await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    ...data,
-  });
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [data.to],
+        subject: data.subject,
+        html: data.html,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("❌ Resend API error:", error);
+      throw new Error(error.message || "Email send failed");
+    }
+
+    const result = await response.json();
+    console.log("📧 Email sent via Resend:", result.id);
+    return { success: true, messageId: result.id };
+  } catch (error) {
+    console.error("❌ Email error:", error);
+    throw error;
+  }
 };
 
 export const formatEmail = (email: string) => {
