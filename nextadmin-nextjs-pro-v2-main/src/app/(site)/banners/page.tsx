@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import ListWithPreview, { ListItem, FilterConfig } from "@/components/templates/ListWithPreview";
 import { PreviewFrame } from "@/components/preview";
 import { PRESET_ICONS } from "@/components/style/IconPicker";
@@ -306,10 +307,12 @@ function BannerPreview({ banner, viewMode }: { banner: Banner; viewMode: "web" |
             }}
           >
             {hasImage && (
-              <img
+              <Image
                 src={banner.desktopImage || banner.mobileImage || ""}
                 alt={banner.name}
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             )}
 
@@ -360,10 +363,12 @@ function BannerPreview({ banner, viewMode }: { banner: Banner; viewMode: "web" |
       >
         {/* Background Image */}
         {hasImage && (
-          <img
+          <Image
             src={viewMode === "mobile" && banner.mobileImage ? banner.mobileImage : banner.desktopImage || ""}
             alt={banner.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
           />
         )}
 

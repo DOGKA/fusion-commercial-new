@@ -146,11 +146,14 @@ export default function BrandsPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="h-16 w-16 rounded-lg bg-gray-100 dark:bg-dark-2 flex items-center justify-center p-2 overflow-hidden">
                   {brand.logo ? (
-                    <img 
+                    <Image 
                       src={brand.logo} 
-                      alt={brand.name} 
+                      alt={brand.name}
+                      width={64}
+                      height={64}
                       className="max-w-full max-h-full object-contain dark:invert"
                       style={{ filter: 'brightness(0)' }}
+                      unoptimized
                     />
                   ) : (
                     <span className="text-2xl font-bold text-primary">{brand.name.charAt(0)}</span>

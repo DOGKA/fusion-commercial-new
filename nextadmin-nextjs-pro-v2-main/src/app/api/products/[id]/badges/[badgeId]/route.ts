@@ -6,7 +6,7 @@ import { authOptions } from "@/libs/auth";
 // DELETE - Üründen rozet kaldır
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; badgeId: string } }
+  { params }: { params: Promise<{ id: string; badgeId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,12 +17,14 @@ export async function DELETE(
       );
     }
 
+    const { id, badgeId } = await params;
+
     // Rozet atamasını sil
     await prisma.productBadge.delete({
       where: {
         productId_badgeId: {
-          productId: params.id,
-          badgeId: params.badgeId,
+          productId: id,
+          badgeId: badgeId,
         },
       },
     });

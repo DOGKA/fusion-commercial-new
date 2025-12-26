@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { 
   User, Mail, Phone, Shield, Key, Save, RefreshCw, 
@@ -274,11 +275,14 @@ export default function AccountSettingsPage() {
           <div className="relative group">
             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary overflow-hidden ring-4 ring-primary/20">
               {avatarUrl ? (
-                <img 
+                <Image 
                   src={avatarUrl} 
-                  alt="" 
+                  alt="Profil fotoğrafı" 
+                  width={96}
+                  height={96}
                   className="h-24 w-24 rounded-full object-cover"
                   key={avatarUrl}
+                  unoptimized
                 />
               ) : (
                 (session?.user?.name?.[0] || session?.user?.email?.[0] || "A").toUpperCase()

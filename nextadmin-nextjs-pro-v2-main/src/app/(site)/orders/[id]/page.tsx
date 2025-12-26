@@ -820,10 +820,13 @@ export default function OrderDetailPage() {
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
                 {getAvatarUrl(order.user?.image) ? (
-                  <img
+                  <Image
                     src={getAvatarUrl(order.user?.image)!}
                     alt={order.user?.name || ""}
+                    width={48}
+                    height={48}
                     className="h-12 w-12 rounded-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   <User size={24} className="text-primary" />

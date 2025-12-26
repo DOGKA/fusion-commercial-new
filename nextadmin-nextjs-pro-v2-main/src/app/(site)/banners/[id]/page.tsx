@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import EditorWithPreview, { FormField, FormSection, FormDivider } from "@/components/templates/EditorWithPreview";
 import { PreviewFrame } from "@/components/preview";
 import GradientPicker, { GradientValue, createGradientFromPreset, getGradientCSS } from "@/components/style/GradientPicker";
@@ -580,7 +581,7 @@ export default function EditBannerPage() {
         <FormField label="Masaüstü Görsel" hint="Önerilen: 1920x1080">
           {formData.desktopImage ? (
             <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-2 dark:bg-dark-2">
-              <img src={formData.desktopImage} alt="" className="w-full h-full object-contain" />
+              <Image src={formData.desktopImage} alt="" fill className="object-contain" unoptimized />
               <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button onClick={() => openMediaLibrary("desktop")} className="px-3 py-1.5 bg-white text-dark rounded text-sm">Değiştir</button>
                 <button onClick={() => updateField("desktopImage", "")} className="px-3 py-1.5 bg-red text-white rounded text-sm">Kaldır</button>
@@ -858,10 +859,12 @@ export default function EditBannerPage() {
           >
             {/* Background Image */}
             {(formData.desktopImage || formData.mobileImage) && (
-              <img
+              <Image
                 src={isMobile && formData.mobileImage ? formData.mobileImage : formData.desktopImage || formData.mobileImage || ""}
                 alt={formData.name}
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             )}
 

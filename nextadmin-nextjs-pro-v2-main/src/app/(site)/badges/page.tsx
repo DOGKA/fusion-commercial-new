@@ -1175,7 +1175,7 @@ export default function BadgesPage() {
                     <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {product.thumbnail && (
-                            <img src={product.thumbnail} alt={product.name} className="w-10 h-10 rounded object-cover" />
+                            <Image src={product.thumbnail} alt={product.name} width={40} height={40} className="w-10 h-10 rounded object-cover" unoptimized />
                           )}
                           <div>
                             <span className="font-medium text-dark dark:text-white block">{product.name}</span>

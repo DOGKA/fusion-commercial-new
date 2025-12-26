@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import {
   Users, Shield, ShieldCheck, User, Search, RefreshCw,
   ChevronDown, Check, Trash2, Plus, X, Mail, Phone,
@@ -393,7 +394,7 @@ export default function UsersPage() {
                         <div className="flex items-center gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-medium overflow-hidden">
                             {getAvatarUrl(user.image) ? (
-                              <img src={getAvatarUrl(user.image)!} alt="" className="h-10 w-10 rounded-full object-cover" />
+                              <Image src={getAvatarUrl(user.image)!} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" unoptimized />
                             ) : (
                               (user.name?.[0] || user.email?.[0] || "?").toUpperCase()
                             )}

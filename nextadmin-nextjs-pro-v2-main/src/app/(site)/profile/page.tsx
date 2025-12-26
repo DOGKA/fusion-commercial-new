@@ -206,14 +206,12 @@ export default function Page() {
 
       <div className="overflow-hidden rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card">
         <div className="relative z-20 h-35 md:h-65">
-          <img
-            src={data?.coverPhoto}
+          <Image
+            src={data?.coverPhoto || "/images/cover/cover-01.jpg"}
             alt="profile cover"
-            className="h-full w-full rounded-tl-[10px] rounded-tr-[10px] object-cover object-center"
-            style={{
-              width: "100%",
-              height: "100%",
-            }}
+            fill
+            className="rounded-tl-[10px] rounded-tr-[10px] object-cover object-center"
+            unoptimized
           />
           <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
             <label
@@ -240,12 +238,13 @@ export default function Page() {
             <div className="relative drop-shadow-2">
               {data?.profilePhoto && (
                 <>
-                  <img
+                  <Image
                     src={data?.profilePhoto}
                     width={160}
                     height={160}
                     className="overflow-hidden rounded-full"
                     alt="profile"
+                    unoptimized
                   />
 
                   <label

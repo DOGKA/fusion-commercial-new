@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import EditorWithPreview, { FormField, FormSection, FormDivider } from "@/components/templates/EditorWithPreview";
 import { PreviewFrame } from "@/components/preview";
 import IconPicker, { IconValue, renderIcon } from "@/components/style/IconPicker";
@@ -245,7 +246,7 @@ export default function EditSliderPage() {
         <FormField label="Masaüstü Görsel">
           {formData.desktopImage ? (
             <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-2 dark:bg-dark-2">
-              <img src={formData.desktopImage} alt="" className="w-full h-full object-cover" />
+              <Image src={formData.desktopImage} alt="" fill className="object-cover" unoptimized />
               <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button onClick={() => openMediaLibrary("desktop")} className="px-3 py-1.5 bg-white text-dark rounded text-sm">Değiştir</button>
                 <button onClick={() => updateField("desktopImage", "")} className="px-3 py-1.5 bg-red text-white rounded text-sm">Kaldır</button>
@@ -258,7 +259,7 @@ export default function EditSliderPage() {
         <FormField label="Mobil Görsel">
           {formData.mobileImage ? (
             <div className="relative aspect-square max-w-[200px] rounded-lg overflow-hidden bg-gray-2 dark:bg-dark-2">
-              <img src={formData.mobileImage} alt="" className="w-full h-full object-cover" />
+              <Image src={formData.mobileImage} alt="" fill className="object-cover" unoptimized />
               <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button onClick={() => openMediaLibrary("mobile")} className="px-3 py-1.5 bg-white text-dark rounded text-sm">Değiştir</button>
                 <button onClick={() => updateField("mobileImage", "")} className="px-3 py-1.5 bg-red text-white rounded text-sm">Kaldır</button>
