@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
         await access(avatarFullPath);
         const fileBuffer = await readFile(avatarFullPath);
 
-        return new NextResponse(fileBuffer, {
+        return new NextResponse(new Uint8Array(fileBuffer), {
           headers: {
             "Content-Type": "image/webp",
             "Cache-Control": "private, max-age=3600", // 1 hour, private
