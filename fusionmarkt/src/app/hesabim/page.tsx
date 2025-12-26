@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -103,14 +103,16 @@ export default function HesabimPage() {
       // Yeni cache buster oluştur
       cacheBusterRef.current = Math.random().toString(36).substring(2, 9);
       
-      if (!user?.image) {
-        setAvatarUrl(null);
-      } else if (user.image.startsWith("data:")) {
-        setAvatarUrl(user.image);
-      } else {
-        const separator = user.image.includes("?") ? "&" : "?";
-        setAvatarUrl(`${user.image}${separator}t=${cacheBusterRef.current}`);
-      }
+      queueMicrotask(() => {
+        if (!user?.image) {
+          setAvatarUrl(null);
+        } else if (user.image.startsWith("data:")) {
+          setAvatarUrl(user.image);
+        } else {
+          const separator = user.image.includes("?") ? "&" : "?";
+          setAvatarUrl(`${user.image}${separator}t=${cacheBusterRef.current}`);
+        }
+      });
     }
   }, [user?.image]);
   
