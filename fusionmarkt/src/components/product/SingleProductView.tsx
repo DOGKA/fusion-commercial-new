@@ -1747,6 +1747,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                     }}
                   >
                     <div style={{
+                      position: 'relative',
                       width: '120px',
                       height: '120px',
                       backgroundColor: '#0a0a0a',
@@ -1762,7 +1763,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                           alt={relatedProduct.name}
                           fill
                           className="object-cover"
-                          sizes="72px"
+                          sizes="120px"
                         />
                       ) : (
                         <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>
@@ -1926,6 +1927,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                     }}
                   >
                     <div style={{
+                      position: 'relative',
                       width: '120px',
                       height: '120px',
                       backgroundColor: '#0a0a0a',
@@ -1941,7 +1943,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                           alt={relatedProduct.name}
                           fill
                           className="object-cover"
-                          sizes="72px"
+                          sizes="120px"
                         />
                       ) : (
                         <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>

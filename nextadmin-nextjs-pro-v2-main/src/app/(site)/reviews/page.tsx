@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Review {
   id: string;
@@ -44,11 +44,7 @@ export default function ReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // all, pending, approved
 
-  useEffect(() => {
-    fetchReviews();
-  }, [filter]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const url = filter === "all" ? "/api/reviews" : `/api/reviews?status=${filter}`;
       const res = await fetch(url);
@@ -61,7 +57,11 @@ export default function ReviewsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   const handleApprove = async (id: string, approve: boolean) => {
     try {

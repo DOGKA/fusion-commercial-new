@@ -3,7 +3,7 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { NAV_DATA } from "./data";
 import { ChevronUp } from "./icons";
 import { MenuItem } from "./menu-item";
@@ -14,14 +14,9 @@ export function Sidebar() {
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  const toggleExpanded = (title: string) => {
+  const toggleExpanded = useCallback((title: string) => {
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
-
-    // Uncomment the following line to enable multiple expanded items
-    // setExpandedItems((prev) =>
-    //   prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title],
-    // );
-  };
+  }, []);
 
   useEffect(() => {
     // Keep collapsible open, when it's subpage is active
@@ -29,11 +24,13 @@ export function Sidebar() {
       return section.items.some((item) => {
         return item.items.some((subItem) => {
           if (subItem.url === pathname) {
-            if (!expandedItems.includes(item.title)) {
-              toggleExpanded(item.title);
-            }
-
-            // Break the loop
+            // Functional update to check current state
+            setExpandedItems((prev) => {
+              if (!prev.includes(item.title)) {
+                return [item.title];
+              }
+              return prev;
+            });
             return true;
           }
         });
