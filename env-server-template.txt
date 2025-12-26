@@ -36,7 +36,8 @@ NEXT_PUBLIC_FRONTEND_URL="https://fusionmarkt.com"
 # EMAIL (Resend API - Frontend & Admin)
 # =====================================================
 # Domain: fusionmarkt.com (verified, eu-west-1)
-RESEND_API_KEY="re_Jv9Vsq9R_EGDZfmC3byThY5f8My2othDp"
+# Resend dashboard'dan yeni API key alın: https://resend.com/api-keys
+RESEND_API_KEY="re_XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 EMAIL_FROM="FusionMarkt <noreply@fusionmarkt.com>"
 ADMIN_EMAIL="info@fusionmarkt.com"
 
