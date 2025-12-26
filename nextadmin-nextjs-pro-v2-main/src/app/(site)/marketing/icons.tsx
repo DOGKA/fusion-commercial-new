@@ -1,6 +1,6 @@
-import type { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-export function SquareArrowOutUpRight(props: SVGProps<SVGSVGElement>) {
+export function SquareArrowOutUpRight(props: SVGPropsType) {
   return (
     <svg
       width="16"

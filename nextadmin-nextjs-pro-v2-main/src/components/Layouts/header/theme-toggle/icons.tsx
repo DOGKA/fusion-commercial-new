@@ -1,6 +1,6 @@
-import type { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-export function Sun(props: SVGProps<SVGSVGElement>) {
+export function Sun(props: SVGPropsType) {
   return (
     <svg
       width={20}
@@ -14,7 +14,7 @@ export function Sun(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function Moon(props: SVGProps<SVGSVGElement>) {
+export function Moon(props: SVGPropsType) {
   return (
     <svg
       width={20}

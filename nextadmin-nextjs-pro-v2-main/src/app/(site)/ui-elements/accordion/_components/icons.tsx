@@ -1,6 +1,6 @@
-import { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-type IconProps = SVGProps<SVGSVGElement>;
+type IconProps = SVGPropsType;
 
 export function ChevronDownFilledIcon(props: IconProps) {
   return (

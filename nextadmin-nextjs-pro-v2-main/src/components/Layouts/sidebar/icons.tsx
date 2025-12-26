@@ -1,6 +1,4 @@
-import { SVGProps } from "react";
-
-export type PropsType = SVGProps<SVGSVGElement>;
+export type PropsType = React.ComponentProps<"svg">;
 
 export function ChevronUp(props: PropsType) {
   return (

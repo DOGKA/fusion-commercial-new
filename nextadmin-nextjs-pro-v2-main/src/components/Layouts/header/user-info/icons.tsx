@@ -1,6 +1,6 @@
-import type { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-type SVGPropsType = SVGProps<SVGSVGElement>;
+type SVGPropsType = SVGPropsType;
 
 export function UserIcon(props: SVGPropsType) {
   return (

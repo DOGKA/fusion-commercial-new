@@ -1,6 +1,6 @@
-import { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-type PropsType = SVGProps<SVGSVGElement>;
+type PropsType = SVGPropsType;
 
 export function WarningIcon(props: PropsType) {
   return (

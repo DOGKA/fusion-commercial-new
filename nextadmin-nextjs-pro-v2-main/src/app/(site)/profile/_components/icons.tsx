@@ -1,6 +1,4 @@
-import React from "react";
-
-export type PropsType = React.SVGProps<SVGSVGElement>;
+export type PropsType = React.ComponentProps<"svg">;
 
 export function CameraIcon(props: PropsType) {
   return (

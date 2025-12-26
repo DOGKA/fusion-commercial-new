@@ -1,6 +1,6 @@
-import type { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-export function ClockIcon(props: SVGProps<SVGSVGElement>) {
+export function ClockIcon(props: SVGPropsType) {
   return (
     <svg width={14} height={15} viewBox="0 0 14 15" fill="currentColor">
       <path

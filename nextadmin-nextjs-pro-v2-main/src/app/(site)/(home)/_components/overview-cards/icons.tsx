@@ -1,6 +1,4 @@
-import type { SVGProps } from "react";
-
-type SVGPropsType = SVGProps<SVGSVGElement>;
+type SVGPropsType = React.ComponentProps<"svg">;
 
 export function Views(props: SVGPropsType) {
   return (

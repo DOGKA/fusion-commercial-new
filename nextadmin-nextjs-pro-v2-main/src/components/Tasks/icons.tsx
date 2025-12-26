@@ -1,4 +1,6 @@
-export function RoundedPlusIcon(props: React.SVGProps<SVGSVGElement>) {
+type SVGPropsType = React.ComponentProps<"svg">;
+
+export function RoundedPlusIcon(props: SVGPropsType) {
   return (
     <svg
       className="fill-current"

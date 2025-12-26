@@ -1,6 +1,6 @@
-import { SVGProps } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-export function BellIcon(props: SVGProps<SVGSVGElement>) {
+export function BellIcon(props: SVGPropsType) {
   return (
     <svg width={20} height={20} viewBox="0 0 20 20" fill="none" {...props}>
       <path

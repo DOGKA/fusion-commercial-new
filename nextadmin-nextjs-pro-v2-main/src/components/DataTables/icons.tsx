@@ -1,4 +1,6 @@
-export function PointerUp(props: React.SVGProps<SVGSVGElement>) {
+type SVGPropsType = React.ComponentProps<"svg">;
+
+export function PointerUp(props: SVGPropsType) {
   return (
     <svg
       width="10"
