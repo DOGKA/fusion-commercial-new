@@ -1,6 +1,6 @@
-import type { SVGAttributes } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-export type IconProps = SVGAttributes<SVGSVGElement>;
+export type IconProps = SVGPropsType;
 
 export function PolygonUp(props: IconProps) {
   return (

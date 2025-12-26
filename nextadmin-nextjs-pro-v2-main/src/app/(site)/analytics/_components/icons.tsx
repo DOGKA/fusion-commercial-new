@@ -1,6 +1,6 @@
-import { SVGAttributes } from "react";
+type SVGPropsType = React.ComponentProps<"svg">;
 
-export function CalendarIcon(props: SVGAttributes<SVGSVGElement>) {
+export function CalendarIcon(props: SVGPropsType) {
   return (
     <svg
       className="fill-current"

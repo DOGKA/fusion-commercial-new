@@ -1,7 +1,6 @@
 import { IconProps } from "@/types/icon-props";
-import { type SVGAttributes } from "react";
 
-type PropsType = SVGAttributes<SVGSVGElement>;
+type PropsType = IconProps;
 
 export function SearchIcon(props: PropsType) {
   return (
