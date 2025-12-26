@@ -6,11 +6,12 @@ import { authOptions } from "@/libs/auth";
 // GET - Tek rozet getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const badge = await prisma.badge.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         productBadges: {
           include: {
@@ -56,9 +57,10 @@ export async function GET(
 // PATCH - Rozet güncelle
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
@@ -74,7 +76,7 @@ export async function PATCH(
       const existingBadge = await prisma.badge.findFirst({
         where: {
           slug: body.slug,
-          NOT: { id: params.id },
+          NOT: { id },
         },
       });
 
@@ -102,7 +104,7 @@ export async function PATCH(
     if (body.autoApplyRule !== undefined) updateData.autoApplyRule = body.autoApplyRule;
 
     const badge = await prisma.badge.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         _count: {
@@ -126,9 +128,10 @@ export async function PATCH(
 // DELETE - Rozet sil
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
@@ -139,7 +142,7 @@ export async function DELETE(
 
     // Rozeti sil (Cascade ile ProductBadge kayıtları da silinir)
     await prisma.badge.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

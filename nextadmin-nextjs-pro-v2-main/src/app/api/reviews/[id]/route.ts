@@ -6,11 +6,12 @@ import { authOptions } from "@/libs/auth";
 // GET - Tek yorum getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const review = await prisma.review.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
         product: { select: { id: true, name: true, thumbnail: true } },
@@ -31,9 +32,10 @@ export async function GET(
 // PUT - Yorum güncelle (onay/red)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -42,7 +44,7 @@ export async function PUT(
     const data = await request.json();
 
     const review = await prisma.review.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         isApproved: data.isApproved,
         ...(data.title && { title: data.title }),
@@ -64,16 +66,17 @@ export async function PUT(
 // DELETE - Yorum sil
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await prisma.review.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

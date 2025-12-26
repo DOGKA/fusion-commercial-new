@@ -9,11 +9,12 @@ import { deleteS3Object } from "@/lib/s3";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const media = await prisma.media.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!media) {
@@ -37,9 +38,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     // Validate (alt is REQUIRED)
@@ -47,7 +49,7 @@ export async function PUT(
 
     // Update media record
     const media = await prisma.media.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         alt: validated.alt,
         title: validated.title,
@@ -82,13 +84,14 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
     // Build update data with only provided fields
-    const updateData: any = {};
+    const updateData: Record<string, string> = {};
     if (body.alt !== undefined) updateData.alt = body.alt;
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
@@ -102,7 +105,7 @@ export async function PATCH(
 
     // Update media record
     const media = await prisma.media.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
     });
 
@@ -130,12 +133,13 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Get media record
     const media = await prisma.media.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!media) {
@@ -167,7 +171,7 @@ export async function DELETE(
 
     // Delete from DB
     await prisma.media.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     console.log(`✅ Media deleted: ${media.id} (${media.provider})`);

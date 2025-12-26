@@ -6,11 +6,12 @@ import { authOptions } from "@/libs/auth";
 // GET - Ürünün rozetlerini getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const productBadges = await prisma.productBadge.findMany({
-      where: { productId: params.id },
+      where: { productId: id },
       include: {
         badge: true,
       },
@@ -32,9 +33,10 @@ export async function GET(
 // POST - Ürüne rozet ata
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
@@ -55,7 +57,7 @@ export async function POST(
 
     // Ürün var mı kontrol et
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!product) {
@@ -81,7 +83,7 @@ export async function POST(
     const existingAssignment = await prisma.productBadge.findUnique({
       where: {
         productId_badgeId: {
-          productId: params.id,
+          productId: id,
           badgeId: body.badgeId,
         },
       },
@@ -96,7 +98,7 @@ export async function POST(
 
     // Position belirle (en son sıra)
     const maxPosition = await prisma.productBadge.findFirst({
-      where: { productId: params.id },
+      where: { productId: id },
       orderBy: { position: "desc" },
       select: { position: true },
     });
@@ -106,7 +108,7 @@ export async function POST(
     // Rozet ata
     const productBadge = await prisma.productBadge.create({
       data: {
-        productId: params.id,
+        productId: id,
         badgeId: body.badgeId,
         position,
       },
@@ -128,9 +130,10 @@ export async function POST(
 // PATCH - Rozet sırasını güncelle
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
@@ -155,7 +158,7 @@ export async function PATCH(
         prisma.productBadge.update({
           where: {
             productId_badgeId: {
-              productId: params.id,
+              productId: id,
               badgeId: item.badgeId,
             },
           },
@@ -168,7 +171,7 @@ export async function PATCH(
 
     // Güncellenmiş listeyi getir
     const updatedBadges = await prisma.productBadge.findMany({
-      where: { productId: params.id },
+      where: { productId: id },
       include: {
         badge: true,
       },
