@@ -1,6 +1,6 @@
 "use client";
 
-import { DocumentIcon } from "@/app/(site)/pages/file-manager/_components/icons";
+import { FileText } from "lucide-react";
 import { MediaIcon } from "@/assets/icons";
 import React, { useEffect, useState } from "react";
 
@@ -13,7 +13,7 @@ const listItems = [
     color: "#5750F1",
   },
   {
-    icon: <DocumentIcon />,
+    icon: <FileText className="w-6 h-6" />,
     name: "Documents",
     size: "25 GB",
     percent: 60,
