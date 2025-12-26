@@ -2099,7 +2099,9 @@ function AddressesPane({ userName }: { userName?: string }) {
 
   // Fetch addresses on mount
   useEffect(() => {
-    fetchAddresses();
+    queueMicrotask(() => {
+      fetchAddresses();
+    });
   }, []);
 
   const districts = formData.city ? getDistricts(formData.city) : [];
