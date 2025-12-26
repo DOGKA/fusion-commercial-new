@@ -15,7 +15,7 @@ interface BlogPostFull {
   content: string;
   excerpt: string | null;
   featuredImage: string | null;
-  publishedAt: Date;
+  publishedAt: Date | null;
   updatedAt: Date | null;
   category: string | null;
   status: string;
@@ -28,7 +28,7 @@ interface BlogPostSummary {
   content: string;
   excerpt: string | null;
   featuredImage: string | null;
-  publishedAt: Date;
+  publishedAt: Date | null;
   category: string | null;
 }
 
@@ -56,12 +56,10 @@ async function getBlogPost(slug: string): Promise<BlogPostFull | null> {
   try {
     const { prisma } = await import("@/lib/prisma");
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     if (typeof prisma.blogPost === "undefined") {
       return null;
     }
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     const post = await prisma.blogPost.findUnique({
       where: { slug },
     });
@@ -81,12 +79,10 @@ async function getRelatedPosts(
   try {
     const { prisma } = await import("@/lib/prisma");
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     if (typeof prisma.blogPost === "undefined") {
       return [];
     }
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     let relatedPosts = await prisma.blogPost.findMany({
       where: {
         status: "PUBLISHED",
@@ -109,7 +105,6 @@ async function getRelatedPosts(
 
     // If not enough related posts in same category, get recent posts
     if (relatedPosts.length < 3) {
-      // @ts-expect-error - BlogPost may not exist in schema yet
       const additionalPosts = await prisma.blogPost.findMany({
         where: {
           status: "PUBLISHED",
@@ -185,12 +180,10 @@ export async function generateStaticParams() {
   try {
     const { prisma } = await import("@/lib/prisma");
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     if (typeof prisma.blogPost === "undefined") {
       return [];
     }
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     const posts = await prisma.blogPost.findMany({
       where: { status: "PUBLISHED" },
       select: { slug: true },
@@ -227,7 +220,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Header */}
           <BlogHeader
             title={post.title}
-            publishedAt={post.publishedAt.toISOString()}
+            publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
             updatedAt={post.updatedAt?.toISOString()}
             category={post.category || undefined}
             readingTime={readingTime}
@@ -253,7 +246,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   excerpt={
                     relatedPost.excerpt || createExcerpt(relatedPost.content)
                   }
-                  publishedAt={relatedPost.publishedAt.toISOString()}
+                  publishedAt={relatedPost.publishedAt?.toISOString() || new Date().toISOString()}
                   category={relatedPost.category || undefined}
                   readingTime={calculateReadingTime(relatedPost.content)}
                 />

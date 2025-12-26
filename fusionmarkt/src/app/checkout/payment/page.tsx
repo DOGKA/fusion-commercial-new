@@ -519,18 +519,36 @@ export default function PaymentPage() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                       <span style={{ color: "rgba(255,255,255,0.5)" }}>Banka:</span>
-                      <span style={{ color: "#fff" }}>Ziraat Bankası</span>
+                      <span style={{ color: "#fff" }}>T. Garanti BBVA Bankası A.Ş.</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                       <span style={{ color: "rgba(255,255,255,0.5)" }}>Hesap Sahibi:</span>
-                      <span style={{ color: "#fff" }}>FusionMarkt A.Ş.</span>
+                      <span style={{ color: "#fff" }}>ASDTC Mühendislik Ticaret Ltd Şti.</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)" }}>Şube:</span>
+                      <span style={{ color: "#fff" }}>Yıldız (408)</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)" }}>Hesap No:</span>
+                      <span style={{ color: "#fff" }}>6290716</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                       <span style={{ color: "rgba(255,255,255,0.5)" }}>IBAN:</span>
-                      <span style={{ color: "#fff", fontFamily: "monospace" }}>TR00 0000 0000 0000 0000 0000 00</span>
+                      <span style={{ color: "#fff", fontFamily: "monospace" }}>TR79 0006 2000 4080 0006 2907 16</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)" }}>SWIFT:</span>
+                      <span style={{ color: "#fff" }}>TGBATRISXXX</span>
                     </div>
                   </div>
-                  <button style={{ width: "100%", height: "40px", backgroundColor: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "8px", fontSize: "13px", fontWeight: "500", color: "#fff", cursor: "pointer" }}>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText("TR79 0006 2000 4080 0006 2907 16");
+                      alert("IBAN kopyalandı!");
+                    }}
+                    style={{ width: "100%", height: "40px", backgroundColor: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "8px", fontSize: "13px", fontWeight: "500", color: "#fff", cursor: "pointer" }}
+                  >
                     IBAN&apos;ı Kopyala
                   </button>
                   <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "12px" }}>

@@ -22,7 +22,7 @@ interface BlogPost {
   content: string;
   excerpt: string | null;
   featuredImage: string | null;
-  publishedAt: Date;
+  publishedAt: Date | null;
   category: string | null;
 }
 
@@ -52,12 +52,10 @@ async function getBlogPosts(): Promise<BlogPost[]> {
     const { prisma } = await import("@/lib/prisma");
     
     // Check if BlogPost model exists in schema
-    // @ts-expect-error - BlogPost may not exist in schema yet
     if (typeof prisma.blogPost === "undefined") {
       return [];
     }
     
-    // @ts-expect-error - BlogPost may not exist in schema yet
     const posts = await prisma.blogPost.findMany({
       where: {
         status: "PUBLISHED",
@@ -109,7 +107,7 @@ export default async function BlogPage() {
                 slug={post.slug}
                 title={post.title}
                 excerpt={post.excerpt || createExcerpt(post.content)}
-                publishedAt={post.publishedAt.toISOString()}
+                publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
                 category={post.category || undefined}
                 readingTime={calculateReadingTime(post.content)}
               />
