@@ -19,7 +19,7 @@ interface UpdateAddressBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getAuthSession();
@@ -27,7 +27,7 @@ export async function PUT(
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
     const body: UpdateAddressBody = await request.json();
 
     // Check ownership
@@ -78,7 +78,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getAuthSession();
@@ -86,7 +86,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
 
     // Check ownership
     const existingAddress = await prisma.address.findUnique({
