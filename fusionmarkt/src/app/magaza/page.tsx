@@ -64,6 +64,18 @@ interface ApiProductBadge {
   };
 }
 
+interface ApiVariant {
+  id: string;
+  sku?: string;
+  stock?: number;
+  price?: number;
+  options?: Array<{
+    name: string;
+    value: string;
+  }>;
+  image?: string;
+}
+
 interface ApiProduct {
   id: string;
   name: string;
@@ -86,6 +98,9 @@ interface ApiProduct {
   comparePrice?: number;
   createdAt?: string;
   saleEndDate?: string | null;
+  productType?: "SIMPLE" | "VARIABLE";
+  variants?: ApiVariant[];
+  shortDescription?: string;
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "name_asc";
@@ -223,17 +238,20 @@ export default function StorePage() {
 
           // Convert ApiProduct to ProductWithCategory
           const stockQty = product.stock || 0;
-          const productWithCategory: ProductWithCategory = {
+          const productWithCategory = {
             id: product.id,
             title: product.title || product.name,
+            name: product.name,
             slug: product.slug,
             price: product.price,
             originalPrice: product.comparePrice || product.originalPrice,
             discountPercent: product.discountPercentage,
             brand: product.brand || "",
-            stockStatus: stockQty > 10 ? "in_stock" : stockQty > 0 ? "low_stock" : "out_of_stock",
+            stockStatus: (stockQty > 10 ? "in_stock" : stockQty > 0 ? "low_stock" : "out_of_stock") as "in_stock" | "low_stock" | "out_of_stock",
             stockQuantity: stockQty,
+            stock: stockQty,
             image: product.images?.[0],
+            images: product.images,
             categoryId: catId,
             categoryName: catName,
             categorySlug: catSlug,
@@ -241,6 +259,9 @@ export default function StorePage() {
             comparePrice: product.comparePrice,
             saleEndDate: product.saleEndDate,
             productBadges: product.productBadges,
+            productType: product.productType,
+            variants: product.variants,
+            shortDescription: product.shortDescription,
           };
 
           if (!categoryMap.has(catId)) {
@@ -252,7 +273,7 @@ export default function StorePage() {
               products: [],
             });
           }
-          categoryMap.get(catId)!.products.push(productWithCategory);
+          categoryMap.get(catId)!.products.push(productWithCategory as ProductWithCategory);
         });
 
         const categoriesArray = Array.from(categoryMap.values())

@@ -232,7 +232,7 @@ export function mapApiProductToCard(apiProduct: any): Product {
   // ============================================
   // STOCK STATUS
   // ============================================
-  const stock = apiProduct.stock ?? 0;
+  const stock = apiProduct.stock ?? apiProduct.stockQuantity ?? 0;
   const stockStatus = stock > LOW_STOCK_THRESHOLD 
     ? "in_stock" 
     : stock > 0 
@@ -254,7 +254,7 @@ export function mapApiProductToCard(apiProduct: any): Product {
     ratingAverage: apiProduct.ratingAverage || 0,
     ratingCount: apiProduct.ratingCount || apiProduct._count?.reviews || 0,
     freeShipping: apiProduct.freeShipping || false,
-    image: apiProduct.thumbnail || (apiProduct.images?.[0]) || undefined,
+    image: apiProduct.thumbnail || apiProduct.image || (apiProduct.images?.[0]) || undefined,
     // Badges array (sistem + manuel birleşik)
     badges: allBadges.length > 0 ? allBadges : undefined,
     // Legacy badge desteği artık kullanılmıyor
