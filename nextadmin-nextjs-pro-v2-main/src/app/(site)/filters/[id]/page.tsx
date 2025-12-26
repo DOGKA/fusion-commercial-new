@@ -363,7 +363,7 @@ export default function EditFilterPage() {
                 + Seçenek Ekle
               </button>
               <p className="text-xs text-gray-500">
-                Örnek: "Evet" / "true", "100W" / "100", "S / 08" / "S,08"
+                Örnek: &quot;Evet&quot; / &quot;true&quot;, &quot;100W&quot; / &quot;100&quot;, &quot;S / 08&quot; / &quot;S,08&quot;
               </p>
             </div>
           </div>

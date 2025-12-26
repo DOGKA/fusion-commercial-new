@@ -701,7 +701,7 @@ export default function OrderDetailPage() {
           {order.customerNote && (
             <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
               <h2 className="mb-2 text-lg font-semibold text-dark dark:text-white">Müşteri Notu</h2>
-              <p className="text-gray-600 italic dark:text-gray-400">"{order.customerNote}"</p>
+              <p className="text-gray-600 italic dark:text-gray-400">&quot;{order.customerNote}&quot;</p>
             </div>
           )}
 

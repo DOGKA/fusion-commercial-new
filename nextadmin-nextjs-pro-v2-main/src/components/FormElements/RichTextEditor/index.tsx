@@ -215,7 +215,7 @@ export default function RichTextEditor({
             />
             <div className="absolute bottom-0 left-0 right-0 p-3 bg-gray-800 border-t border-gray-700 flex items-center justify-between">
               <p className="text-xs text-gray-400">
-                HTML kodunu yazın veya yapıştırın, ardından "Uygula" butonuna
+                HTML kodunu yazın veya yapıştırın, ardından &quot;Uygula&quot; butonuna
                 basın
               </p>
               <button

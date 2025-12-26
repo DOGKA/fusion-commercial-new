@@ -73,8 +73,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = CreateSliderSchema.parse(body);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { effect, effectSpeed, animation, animationDelay, autoplay, autoplayDelay, loop, ...sliderData } = validated;
+    const { effect: _effect, effectSpeed: _effectSpeed, animation: _animation, animationDelay: _animationDelay, autoplay: _autoplay, autoplayDelay: _autoplayDelay, loop: _loop, ...sliderData } = validated;
     
     const slider = await prisma.slider.create({
       data: {

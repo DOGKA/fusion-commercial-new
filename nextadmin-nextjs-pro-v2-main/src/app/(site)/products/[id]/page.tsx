@@ -1854,7 +1854,7 @@ export default function EditProductPage() {
                 <input type="checkbox" checked={isNew} onChange={(e) => setIsNew(e.target.checked)} className="h-5 w-5 rounded text-primary" />
                 <div>
                   <span className="text-sm font-medium text-dark dark:text-white">Yeni Ürün</span>
-                  <p className="text-xs text-gray-500">"Yeni" etiketi göster</p>
+                  <p className="text-xs text-gray-500">&quot;Yeni&quot; etiketi göster</p>
                 </div>
               </label>
             </div>
@@ -2016,7 +2016,7 @@ export default function EditProductPage() {
                   </svg>
                 </div>
                 <p className="text-sm text-gray-500 mb-1">Ürün Videosu Ekle</p>
-                <p className="text-xs text-gray-400">Video eklendiğinde ürün kartında "Video İncele" etiketi görünür</p>
+                <p className="text-xs text-gray-400">Video eklendiğinde ürün kartında &quot;Video İncele&quot; etiketi görünür</p>
               </button>
             )}
           </div>

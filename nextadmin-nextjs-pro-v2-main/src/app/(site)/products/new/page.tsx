@@ -1570,7 +1570,7 @@ export default function NewProductPage() {
                   </svg>
                 </div>
                 <p className="text-sm text-gray-500 mb-1">Ürün Videosu Ekle</p>
-                <p className="text-xs text-gray-400">Video eklendiğinde ürün kartında "Video İncele" etiketi görünür</p>
+                <p className="text-xs text-gray-400">Video eklendiğinde ürün kartında &quot;Video İncele&quot; etiketi görünür</p>
               </button>
             )}
           </div>

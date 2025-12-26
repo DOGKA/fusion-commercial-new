@@ -198,7 +198,7 @@ export default function SnippetsPage() {
             <div>
               <h4 className="font-medium text-yellow-800 dark:text-yellow-400">Test Modu Aktif</h4>
               <p className="text-sm text-yellow-700 dark:text-yellow-500">
-                Test modundaki snippet'ler sadece admin kullanıcılara gösterilir. Canlıya almadan önce test edin.
+                Test modundaki snippet&apos;ler sadece admin kullanıcılara gösterilir. Canlıya almadan önce test edin.
               </p>
             </div>
           </div>
