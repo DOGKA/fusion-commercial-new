@@ -3,7 +3,7 @@
 import { ChevronUpIcon } from "@/assets/icons";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Dropdown, DropdownContent, DropdownTrigger } from "./ui/dropdown";
 
 type PropsType<TItem> = {
@@ -15,7 +15,7 @@ type PropsType<TItem> = {
 
 const PARAM_KEY = "selected_time_frame";
 
-export function PeriodPicker<TItem extends string>({
+function PeriodPickerContent<TItem extends string>({
   defaultValue,
   sectionKey,
   items,
@@ -96,3 +96,14 @@ const createQueryString = (props: {
 
   return `?${PARAM_KEY}=${newSearchParams},${paramsValue}`;
 };
+
+// Wrapper component with Suspense
+export function PeriodPicker<TItem extends string>(props: PropsType<TItem>) {
+  return (
+    <Suspense fallback={
+      <div className="h-8 w-24 animate-pulse rounded-md bg-gray-200 dark:bg-dark-3" />
+    }>
+      <PeriodPickerContent {...props} />
+    </Suspense>
+  );
+}

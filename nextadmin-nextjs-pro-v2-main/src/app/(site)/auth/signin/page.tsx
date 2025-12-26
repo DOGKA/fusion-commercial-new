@@ -1,10 +1,21 @@
 import Signin from "@/components/Auth/Signin";
 import { Metadata } from "next";
 import Image from "next/image";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Giriş Yap | FusionMarkt Admin",
 };
+
+function SigninFormLoading() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-12 bg-gray-200 dark:bg-dark-3 rounded-lg"></div>
+      <div className="h-12 bg-gray-200 dark:bg-dark-3 rounded-lg"></div>
+      <div className="h-12 bg-gray-200 dark:bg-dark-3 rounded-lg"></div>
+    </div>
+  );
+}
 
 export default function SignIn() {
   return (
@@ -29,7 +40,9 @@ export default function SignIn() {
                 Devam etmek için giriş yapın
               </p>
 
-              <Signin />
+              <Suspense fallback={<SigninFormLoading />}>
+                <Signin />
+              </Suspense>
 
               {/* Footer */}
               <div className="mt-8 pt-6 border-t border-stroke dark:border-dark-3">
