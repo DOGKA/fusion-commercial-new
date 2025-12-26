@@ -92,26 +92,27 @@ export default function HesabimPage() {
   };
   
   // Compute avatar URL from user data with cache buster
-  const computedAvatarUrl = useMemo(() => {
-    if (!user?.image) return null;
-    if (user.image.startsWith("data:")) {
-      return user.image;
-    }
-    // Cache buster için random değer
-    const separator = user.image.includes("?") ? "&" : "?";
-    return `${user.image}${separator}t=${Math.random().toString(36).substring(2, 9)}`;
-  }, [user?.image]);
+  // Cache buster ref - sadece bir kez oluşturulur
+  const cacheBusterRef = useRef<string | null>(null);
   
-  // Sync computed avatar to state (for manual updates)
+  // Sync avatar to state when user image changes
   const prevUserImageRef = useRef(user?.image);
   useEffect(() => {
     if (user?.image !== prevUserImageRef.current) {
       prevUserImageRef.current = user?.image;
-      if (computedAvatarUrl) {
-        queueMicrotask(() => setAvatarUrl(computedAvatarUrl));
+      // Yeni cache buster oluştur
+      cacheBusterRef.current = Math.random().toString(36).substring(2, 9);
+      
+      if (!user?.image) {
+        setAvatarUrl(null);
+      } else if (user.image.startsWith("data:")) {
+        setAvatarUrl(user.image);
+      } else {
+        const separator = user.image.includes("?") ? "&" : "?";
+        setAvatarUrl(`${user.image}${separator}t=${cacheBusterRef.current}`);
       }
     }
-  }, [user?.image, computedAvatarUrl]);
+  }, [user?.image]);
   
   // Login/Register state
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
