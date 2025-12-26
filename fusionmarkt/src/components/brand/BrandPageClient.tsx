@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ArrowRight, ExternalLink, Ticket, Copy, Check } from "lucide-react";
+import { ChevronLeft, ArrowRight, ExternalLink } from "lucide-react";
 import { 
   Sun, Battery, Zap, Factory, Clock, Package, Users, Award,
   Minimize2, Shield, MousePointer, Plane, Hand, Palette, Leaf, BadgeCheck,

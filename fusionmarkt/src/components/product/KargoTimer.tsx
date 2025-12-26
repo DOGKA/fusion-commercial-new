@@ -1,7 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { Truck } from "lucide-react";
+
+// Hydration-safe mounted state
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function useHydrated() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
 
 interface KargoTimerProps {
   /** "siparis" = Ürün sayfası, "odeme" = Checkout sayfası */
@@ -39,10 +48,10 @@ export function KargoTimer({
   className = "" 
 }: KargoTimerProps) {
   const [timer, setTimer] = useState<TimerState | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
   useEffect(() => {
-    setMounted(true);
+    if (!mounted) return;
     
     function calculateTimer(): TimerState {
       const now = new Date();
@@ -113,7 +122,7 @@ export function KargoTimer({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [mounted]);
 
   // SSR için bekle
   if (!mounted || !timer) {

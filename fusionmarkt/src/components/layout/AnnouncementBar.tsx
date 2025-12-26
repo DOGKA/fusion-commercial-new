@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { motion } from "framer-motion";
-import { Truck, Shield, CreditCard, Headphones, RefreshCw, Package } from "lucide-react";
+import { Truck, Shield, CreditCard, Headphones, Package } from "lucide-react";
 
 const announcements = [
   { icon: Headphones, text: "Teknik Destek" },

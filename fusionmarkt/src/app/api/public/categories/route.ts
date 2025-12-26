@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import { selectCategoryPublic } from "@/server/dto";
@@ -34,7 +33,7 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("❌ [PUBLIC API] Error fetching categories:", error);
     return NextResponse.json(
       { error: "Failed to fetch categories" },

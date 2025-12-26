@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { ImageOff, Package, Zap, Sun, User } from "lucide-react";
+import { ImageOff, Package, Zap, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type PlaceholderType = "product" | "category" | "avatar" | "hero" | "brand" | "default";

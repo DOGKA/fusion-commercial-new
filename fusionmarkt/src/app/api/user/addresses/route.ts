@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * User Addresses API
  * GET /api/user/addresses - Get all addresses

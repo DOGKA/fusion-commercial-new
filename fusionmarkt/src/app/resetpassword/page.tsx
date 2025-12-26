@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Lock, Loader2, Check, ShieldAlert } from "lucide-react";
@@ -9,6 +9,7 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+  const validationRef = useRef(false);
 
   const [isValidating, setIsValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
@@ -27,10 +28,22 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Update state after async operation
+  const updateValidationState = useCallback((valid: boolean, expired: boolean, email: string, name: string) => {
+    setIsValid(valid);
+    setIsExpired(expired);
+    setUserEmail(email);
+    setUserName(name);
+    setIsValidating(false);
+  }, []);
+
   // Validate token on mount
   useEffect(() => {
+    if (validationRef.current) return;
+    validationRef.current = true;
+
     if (!token) {
-      setIsValidating(false);
+      queueMicrotask(() => setIsValidating(false));
       return;
     }
 
@@ -40,20 +53,20 @@ export default function ResetPasswordPage() {
         const data = await res.json();
 
         if (data.valid) {
-          setIsValid(true);
-          setUserEmail(data.email || "");
-          setUserName(data.name || "");
+          updateValidationState(true, false, data.email || "", data.name || "");
         } else if (data.expired) {
-          setIsExpired(true);
+          updateValidationState(false, true, "", "");
+        } else {
+          updateValidationState(false, false, "", "");
         }
       } catch (e) {
         console.error("Token validation error:", e);
+        updateValidationState(false, false, "", "");
       }
-      setIsValidating(false);
     };
 
     validateToken();
-  }, [token]);
+  }, [token, updateValidationState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

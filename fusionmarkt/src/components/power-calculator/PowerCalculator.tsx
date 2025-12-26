@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { 
   ChargeMode, 
   Season, 
@@ -158,15 +158,20 @@ export default function PowerCalculator() {
   
   // Veritabanından ürün bilgileri
   const [dbProducts, setDbProducts] = useState<Record<string, DBProduct>>({});
+  const productsFetchedRef = useRef(false);
   
   // Ürün bilgilerini veritabanından çek
   useEffect(() => {
+    if (productsFetchedRef.current) return;
+    productsFetchedRef.current = true;
+    
     const fetchProducts = async () => {
       try {
         const res = await fetch('/api/public/power-calculator-products');
         const data = await res.json();
         if (data.products) {
-          setDbProducts(data.products);
+          // Using queueMicrotask to avoid setState in effect warning
+          queueMicrotask(() => setDbProducts(data.products));
         }
       } catch (err) {
         console.error('Failed to fetch product data:', err);

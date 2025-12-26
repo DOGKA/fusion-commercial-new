@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, Prisma } from "@/lib/prisma";
 
 /**
  * GET /api/public/categories/[slug]
@@ -47,7 +46,7 @@ export async function GET(
     }
 
     // Sıralama
-    let orderBy: any = { createdAt: "desc" }; // newest
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // newest
     switch (sort) {
       case "price_asc":
         orderBy = { price: "asc" };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -29,11 +29,19 @@ const FREE_SHIPPING_LIMIT = 2000;
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function MiniCart() {
-  const { items, isOpen, closeCart, itemCount, subtotal, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, isOpen, closeCart: closeCartOriginal, itemCount, subtotal, removeItem, updateQuantity, clearCart } = useCart();
   const { addItem: addToFavorites } = useFavorites();
   const panelRef = useRef<HTMLDivElement>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const prevIsOpenRef = useRef(isOpen);
+  
+  // Wrap closeCart to reset selection state
+  const closeCart = useCallback(() => {
+    setSelectedItems(new Set());
+    setIsSelectionMode(false);
+    closeCartOriginal();
+  }, [closeCartOriginal]);
   
   // Shipping state
   const [shippingInfo, setShippingInfo] = useState<{
@@ -123,12 +131,14 @@ export default function MiniCart() {
     };
   }, [isOpen, closeCart]);
 
-  // Reset selection when cart closes
+  // Track isOpen changes to reset selection when cart is closed externally
   useEffect(() => {
-    if (!isOpen) {
+    if (prevIsOpenRef.current && !isOpen) {
+      // Cart was just closed externally (not via closeCart)
       setSelectedItems(new Set());
       setIsSelectionMode(false);
     }
+    prevIsOpenRef.current = isOpen;
   }, [isOpen]);
 
   // Toggle item selection

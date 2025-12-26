@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 
@@ -119,12 +118,13 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Revalidation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Revalidation failed";
     return NextResponse.json(
       {
         revalidated: false,
-        error: error?.message || "Revalidation failed",
+        error: errorMessage,
       },
       { status: 500 }
     );

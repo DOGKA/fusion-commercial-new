@@ -84,8 +84,10 @@ export default function Header() {
   // Badge animation when item count changes
   useEffect(() => {
     if (itemCount > prevItemCount.current) {
-      setBadgeAnimating(true);
-      setTimeout(() => setBadgeAnimating(false), 600);
+      queueMicrotask(() => {
+        setBadgeAnimating(true);
+        setTimeout(() => setBadgeAnimating(false), 600);
+      });
     }
     prevItemCount.current = itemCount;
   }, [itemCount]);

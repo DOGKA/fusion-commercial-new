@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -27,8 +26,8 @@ export default function ParticleField({
     });
   }, []);
 
-  const particlesLoaded = useCallback(async (container: Container | undefined) => {
-    // Particles loaded
+  const particlesLoaded = useCallback(async (_container: Container | undefined) => {
+    // Particles loaded callback - container available for future use
   }, []);
 
   const options: ISourceOptions = {

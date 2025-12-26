@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -36,7 +35,7 @@ export default function MysteryBoxModal() {
     if (isModalOpen && canOpen && coupons.length === 0) {
       fetchCoupons();
     }
-  }, [isModalOpen, canOpen]);
+  }, [isModalOpen, canOpen, coupons.length]);
 
   const fetchCoupons = async () => {
     setLoading(true);

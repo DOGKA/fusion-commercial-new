@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Link from "next/link";
-import { Clock, Calendar, ChevronRight } from "lucide-react";
+import { Clock, Calendar } from "lucide-react";
 
 interface BlogHeaderProps {
   title: string;

@@ -1,7 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@repo/db";
+import { prisma, Prisma } from "@repo/db";
 import { selectProductPublic } from "@/server/dto";
+
+// Variant type for sorting (matches Prisma return type)
+interface ProductVariant {
+  id: string;
+  value?: string | null;
+  [key: string]: unknown;
+}
+
+// Product type from Prisma
+interface ProductWithVariants {
+  variants?: ProductVariant[];
+  [key: string]: unknown;
+}
 
 /**
  * GET /api/public/products
@@ -25,7 +37,7 @@ export async function GET(request: NextRequest) {
     const offset = searchParams.get("offset");
 
     // Build where clause
-    const where: any = { isActive: true };
+    const where: Prisma.ProductWhereInput = { isActive: true };
     if (categoryId) where.categoryId = categoryId;
     if (featured) where.isFeatured = true;
     if (inStock) where.stock = { gt: 0 };
@@ -70,7 +82,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch products with variants included
-    const products = await (prisma.product as any).findMany({
+    const products = await prisma.product.findMany({
       where,
       select: {
         ...selectProductPublic,
@@ -91,7 +103,7 @@ export async function GET(request: NextRequest) {
     const total = await prisma.product.count({ where });
 
     // Varyantları sırala (08, 09, 10, 11 veya S, M, L, XL)
-    const sortVariants = (variants: any[]) => {
+    const sortVariants = (variants: ProductVariant[]) => {
       if (!variants || variants.length === 0) return variants;
       const sizeOrder: Record<string, number> = { 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5 };
       return [...variants].sort((a, b) => {
@@ -105,9 +117,9 @@ export async function GET(request: NextRequest) {
       });
     };
 
-    const sortedProducts = products.map((p: any) => ({
+    const sortedProducts = products.map((p: ProductWithVariants) => ({
       ...p,
-      variants: sortVariants(p.variants),
+      variants: sortVariants(p.variants || []),
     }));
 
     return NextResponse.json({
@@ -120,7 +132,7 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("❌ [PUBLIC API] Error fetching products:", error);
     return NextResponse.json(
       { error: "Failed to fetch products" },

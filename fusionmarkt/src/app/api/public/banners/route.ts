@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@repo/db";
+import { prisma, Prisma } from "@repo/db";
 import { 
   selectBannerPublic, 
   mapBannersToPublicDTO,
@@ -22,9 +21,9 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get("limit");
 
     // Build where clause
-    const where: any = { isActive: true };
+    const where: Prisma.BannerWhereInput = { isActive: true };
     if (placement) {
-      where.placement = placement;
+      where.placement = placement as Prisma.EnumBannerPlacementFilter;
     }
 
     // Fetch with select preset (only public fields)
@@ -44,12 +43,13 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ [PUBLIC API] Error fetching banners:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { 
         error: "Failed to fetch banners",
-        details: process.env.NODE_ENV === 'development' ? error?.message : undefined 
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined 
       },
       { status: 500 }
     );

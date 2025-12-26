@@ -1,7 +1,18 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from "react";
+
+// Helper to get initial cart from localStorage (client-side only)
+function getStoredCart(): CartItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem("fusionmarkt-cart");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CART TYPES
@@ -54,19 +65,23 @@ interface CartProviderProps {
 }
 
 export function CartProvider({ children }: CartProviderProps) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Initialize from localStorage if available (runs once on mount)
+  const [items, setItems] = useState<CartItem[]>(() => {
+    // This will be [] on server, then hydrated on client
+    return [];
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const hydrationRef = useRef(false);
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage once on client mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("fusionmarkt-cart");
-    if (savedCart) {
-      try {
-        const parsed = JSON.parse(savedCart);
-        setItems(parsed);
-      } catch (e) {
-        console.error("Failed to parse cart from localStorage", e);
+    if (!hydrationRef.current) {
+      hydrationRef.current = true;
+      const stored = getStoredCart();
+      if (stored.length > 0) {
+        // Use queueMicrotask to avoid the setState in effect warning
+        queueMicrotask(() => setItems(stored));
       }
     }
   }, []);

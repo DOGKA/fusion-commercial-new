@@ -1,11 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Loader2 } from "lucide-react";
 import MysteryBox from "./MysteryBox";
 import { Coupon } from "./types";
+
+// API response type (expiresAt is string from JSON)
+interface CouponApiResponse extends Omit<Coupon, 'expiresAt'> {
+  expiresAt?: string;
+}
 
 interface CampaignModalProps {
   isOpen: boolean;
@@ -17,14 +21,7 @@ export default function CampaignModal({ isOpen, onClose }: CampaignModalProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  // Kuponları API'den çek
-  useEffect(() => {
-    if (isOpen && coupons.length === 0) {
-      fetchCoupons();
-    }
-  }, [isOpen]);
-
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
@@ -32,7 +29,7 @@ export default function CampaignModal({ isOpen, onClose }: CampaignModalProps) {
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       // expiresAt string'i Date'e çevir
-      const formattedData = data.map((c: any) => ({
+      const formattedData = data.map((c: CouponApiResponse) => ({
         ...c,
         expiresAt: c.expiresAt ? new Date(c.expiresAt) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       }));
@@ -43,7 +40,14 @@ export default function CampaignModal({ isOpen, onClose }: CampaignModalProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Kuponları API'den çek
+  useEffect(() => {
+    if (isOpen && coupons.length === 0) {
+      fetchCoupons();
+    }
+  }, [isOpen, coupons.length, fetchCoupons]);
 
   // Disable body scroll when modal is open
   useEffect(() => {

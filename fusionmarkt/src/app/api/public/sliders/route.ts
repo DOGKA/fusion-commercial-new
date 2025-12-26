@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import { 
@@ -45,12 +44,13 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ [PUBLIC API] Error fetching sliders:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { 
         error: "Failed to fetch sliders",
-        details: process.env.NODE_ENV === 'development' ? error?.message : undefined 
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined 
       },
       { status: 500 }
     );

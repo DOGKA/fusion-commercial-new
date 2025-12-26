@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -91,18 +90,26 @@ export default function HesabimPage() {
     setTimeout(() => setNotification(null), 3000);
   };
   
-  // Initialize avatar from user data with cache buster
+  // Compute avatar URL from user data with cache buster
+  const computedAvatarUrl = useMemo(() => {
+    if (!user?.image) return null;
+    if (user.image.startsWith("data:")) {
+      return user.image;
+    }
+    const separator = user.image.includes("?") ? "&" : "?";
+    return `${user.image}${separator}t=${Date.now()}`;
+  }, [user?.image]);
+  
+  // Sync computed avatar to state (for manual updates)
+  const prevUserImageRef = useRef(user?.image);
   useEffect(() => {
-    if (user?.image) {
-      // Add cache buster if not already a data URL
-      if (user.image.startsWith("data:")) {
-        setAvatarUrl(user.image);
-      } else {
-        const separator = user.image.includes("?") ? "&" : "?";
-        setAvatarUrl(`${user.image}${separator}t=${Date.now()}`);
+    if (user?.image !== prevUserImageRef.current) {
+      prevUserImageRef.current = user?.image;
+      if (computedAvatarUrl) {
+        queueMicrotask(() => setAvatarUrl(computedAvatarUrl));
       }
     }
-  }, [user?.image]);
+  }, [user?.image, computedAvatarUrl]);
   
   // Login/Register state
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
@@ -137,9 +144,16 @@ export default function HesabimPage() {
   const [registerHover, setRegisterHover] = useState(false);
   const [googleHover, setGoogleHover] = useState(false);
 
+  // Clear errors when panel changes (using ref to track changes)
+  const prevActivePanelRef = useRef(activePanel);
   useEffect(() => {
-    setLoginError(null);
-    setRegisterError(null);
+    if (prevActivePanelRef.current !== activePanel) {
+      prevActivePanelRef.current = activePanel;
+      queueMicrotask(() => {
+        setLoginError(null);
+        setRegisterError(null);
+      });
+    }
   }, [activePanel]);
 
   const handleLogin = async (e: React.FormEvent) => {

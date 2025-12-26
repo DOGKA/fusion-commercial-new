@@ -1,10 +1,77 @@
-/* eslint-disable react-hooks/static-components */
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Building2, Phone, Mail, MapPin, Calendar, FileText } from "lucide-react";
+import { User, Building2, Phone, MapPin, FileText, Mail, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AddressFormData, InvoiceType } from "@/types/checkout";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FORM INPUT COMPONENT (defined outside to prevent re-creation on each render)
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface FormInputProps {
+  name: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  required?: boolean;
+  value: string;
+  onValueChange: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  className?: string;
+  disabled?: boolean;
+  focusedField?: string | null;
+  error?: string;
+}
+
+function FormInput({
+  name,
+  label,
+  type = "text",
+  placeholder,
+  icon: Icon,
+  required = false,
+  value,
+  onValueChange,
+  onFocus,
+  onBlur,
+  className,
+  disabled = false,
+  focusedField,
+  error,
+}: FormInputProps) {
+  return (
+    <div className={cn("space-y-2", className)}>
+      <label className="flex items-center gap-1.5 text-xs font-medium text-white/60">
+        {Icon && <Icon size={12} className="text-white/40" />}
+        {label}
+        {required && <span className="text-red-400">*</span>}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onValueChange(e.target.value)}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={cn(
+          "w-full h-12 px-4 bg-white/[0.03] border rounded-xl text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200",
+          focusedField === name
+            ? "border-emerald-500/50 bg-white/[0.05]"
+            : "border-white/[0.08] hover:border-white/[0.12]",
+          error && "border-red-500/50",
+          disabled && "opacity-50 cursor-not-allowed"
+        )}
+      />
+      {error && (
+        <p className="text-xs text-red-400">{error}</p>
+      )}
+    </div>
+  );
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ADDRESS FORM COMPONENT
@@ -79,56 +146,14 @@ export default function AddressForm({
     return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
   };
 
-  // Input component
-  const FormInput = ({
-    name,
-    label,
-    type = "text",
-    placeholder,
-    icon: Icon,
-    required = false,
-    value,
-    onValueChange,
-    className,
-  }: {
-    name: string;
-    label: string;
-    type?: string;
-    placeholder?: string;
-    icon?: React.ComponentType<{ size?: number; className?: string }>;
-    required?: boolean;
-    value: string;
-    onValueChange: (value: string) => void;
-    className?: string;
-  }) => (
-    <div className={cn("space-y-2", className)}>
-      <label className="flex items-center gap-1.5 text-xs font-medium text-white/60">
-        {Icon && <Icon size={12} className="text-white/40" />}
-        {label}
-        {required && <span className="text-red-400">*</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onValueChange(e.target.value)}
-        onFocus={() => setFocusedField(name)}
-        onBlur={() => setFocusedField(null)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={cn(
-          "w-full h-12 px-4 bg-white/[0.03] border rounded-xl text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200",
-          focusedField === name
-            ? "border-emerald-500/50 bg-white/[0.05]"
-            : "border-white/[0.08] hover:border-white/[0.12]",
-          errors[name] && "border-red-500/50",
-          disabled && "opacity-50 cursor-not-allowed"
-        )}
-      />
-      {errors[name] && (
-        <p className="text-xs text-red-400">{errors[name]}</p>
-      )}
-    </div>
-  );
+  // Helper to create FormInput props
+  const getInputProps = (name: string) => ({
+    onFocus: () => setFocusedField(name),
+    onBlur: () => setFocusedField(null),
+    disabled,
+    focusedField,
+    error: errors[name],
+  });
 
   return (
     <div className="space-y-6">
@@ -173,6 +198,7 @@ export default function AddressForm({
           required
           value={formData.firstName}
           onValueChange={(v) => updateField("firstName", v)}
+          {...getInputProps("firstName")}
         />
         <FormInput
           name="lastName"
@@ -181,6 +207,7 @@ export default function AddressForm({
           required
           value={formData.lastName}
           onValueChange={(v) => updateField("lastName", v)}
+          {...getInputProps("lastName")}
         />
       </div>
 
@@ -195,6 +222,7 @@ export default function AddressForm({
             required
             value={formData.companyName || ""}
             onValueChange={(v) => updateField("companyName", v)}
+            {...getInputProps("companyName")}
           />
           <div className="grid grid-cols-2 gap-4">
             <FormInput
@@ -205,6 +233,7 @@ export default function AddressForm({
               required
               value={formData.taxNumber || ""}
               onValueChange={(v) => updateField("taxNumber", v.replace(/\D/g, "").slice(0, 10))}
+              {...getInputProps("taxNumber")}
             />
             <FormInput
               name="taxOffice"
@@ -213,6 +242,7 @@ export default function AddressForm({
               required
               value={formData.taxOffice || ""}
               onValueChange={(v) => updateField("taxOffice", v)}
+              {...getInputProps("taxOffice")}
             />
           </div>
         </div>
@@ -226,6 +256,7 @@ export default function AddressForm({
           placeholder="11 haneli T.C. Kimlik numaranız (isteğe bağlı)"
           value={formData.tcKimlikNo || ""}
           onValueChange={(v) => updateField("tcKimlikNo", v.replace(/\D/g, "").slice(0, 11))}
+          {...getInputProps("tcKimlikNo")}
         />
       )}
 
@@ -240,6 +271,7 @@ export default function AddressForm({
           required
           value={formData.phone}
           onValueChange={(v) => updateField("phone", formatPhone(v))}
+          {...getInputProps("phone")}
         />
         <FormInput
           name="email"
@@ -250,6 +282,7 @@ export default function AddressForm({
           required
           value={formData.email}
           onValueChange={(v) => updateField("email", v)}
+          {...getInputProps("email")}
         />
       </div>
 

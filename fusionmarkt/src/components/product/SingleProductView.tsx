@@ -1,13 +1,42 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { Heart, ChevronRight, Truck, RotateCcw, Shield, MessageCircle, Star, CheckCircle, AlertCircle, User, ShoppingBag, Minus, Plus } from "lucide-react";
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
+
+// API Response types
+interface ApiReview {
+  id: string;
+  user?: { name?: string; email?: string };
+  userName?: string;
+  userEmail?: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+  createdAt?: string;
+  isVerifiedPurchase?: boolean;
+}
+
+interface ApiKeyFeature {
+  id: string;
+  title?: string;
+  label?: string;
+  color?: string;
+  iconSvg?: string;
+  icon?: string;
+}
+
+interface ApiProductFeatureValue {
+  feature?: {
+    name?: string;
+  } | null;
+  value?: string;
+}
 
 // Yorum tipi
 interface Review {
@@ -188,15 +217,15 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
           setProductData(data);
           // API'den gelen yorumları component formatına map et
           if (data.reviews) {
-            const mappedReviews = data.reviews.map((r: any) => ({
+            const mappedReviews = data.reviews.map((r: ApiReview) => ({
               id: r.id,
               userName: r.user?.name || "Anonim",
               userEmail: r.user?.email || "",
               rating: r.rating,
               title: r.title || "",
-              comment: r.comment,
-              createdAt: new Date(r.createdAt).toISOString().split('T')[0],
-              isVerifiedPurchase: r.isVerified,
+              comment: r.comment || "",
+              createdAt: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : "",
+              isVerifiedPurchase: r.isVerifiedPurchase || false,
             }));
             setReviews(mappedReviews);
           }
@@ -381,7 +410,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const galleryImages = product.images || [];
   
   const galleryLabels = galleryImages.length > 0 
-    ? galleryImages.map((_: any, idx: number) => `Görsel ${idx + 1}`)
+    ? galleryImages.map((_: string, idx: number) => `Görsel ${idx + 1}`)
     : ['On', 'Yan', 'Port', 'Ekran', 'Detay', 'Kutu'];
 
   // Features - API'den gelecek (keyFeatures olarak geliyor)
@@ -398,7 +427,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   ];
   
   const features = product.keyFeatures && product.keyFeatures.length > 0 
-    ? product.keyFeatures.map((f: any, idx: number) => ({
+    ? product.keyFeatures.map((f: ApiKeyFeature, idx: number) => ({
         id: f.id,
         label: f.title, // API'den title olarak geliyor
         color: featureColors[idx % featureColors.length],
@@ -458,7 +487,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         position: 'relative',
                       }}
                     >
-                      <img src={img} alt={`Görsel ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <Image src={img} alt={`Görsel ${idx + 1}`} fill className="object-cover" sizes="80px" />
                     </button>
                   ))}
                   
@@ -489,10 +518,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                       }}
                     >
                       {/* Seçili gizli görselin thumbnail'ini göster */}
-                      <img 
+                      <Image 
                         src={galleryImages[selectedImage >= hiddenStartIndex ? selectedImage : hiddenStartIndex]} 
                         alt={`Görsel ${hiddenStartIndex + 1}`} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        fill
+                        className="object-cover"
+                        sizes="80px"
                       />
                       {/* Overlay: kaç görsel daha var */}
                       {hasHiddenImages && (
@@ -585,14 +616,13 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   }} 
                 />
               ) : (variantImage || galleryImages[selectedImage]) ? (
-                <img 
+                <Image 
                   src={variantImage || galleryImages[selectedImage]} 
                   alt={product.name} 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover',
-                  }} 
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
                 />
               ) : (
                 <ImagePlaceholder type="product" text="ÜRÜN GÖRSELİ" iconSize="lg" />
@@ -1418,7 +1448,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   {/* Önce kategori bazlı teknik özellikleri göster */}
                   {/* Silinmiş özellikleri filtrele (feature null olanları gösterme) */}
                   {(() => {
-                    const filteredSpecs = product.productFeatureValues?.filter((pfv: any) => pfv.feature !== null && pfv.feature !== undefined) || [];
+                    const filteredSpecs = product.productFeatureValues?.filter((pfv: ApiProductFeatureValue) => pfv.feature !== null && pfv.feature !== undefined) || [];
                     const techSpecs = product.technicalSpecs || [];
                     const hasProductFeatureValues = filteredSpecs.length > 0;
                     const hasTechSpecs = techSpecs.length > 0;
@@ -1699,10 +1729,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                       overflow: 'hidden',
                     }}>
                       {productImage ? (
-                        <img 
+                        <Image 
                           src={productImage} 
                           alt={relatedProduct.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          fill
+                          className="object-cover"
+                          sizes="72px"
                         />
                       ) : (
                         <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>
@@ -1876,10 +1908,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                       overflow: 'hidden',
                     }}>
                       {productImage ? (
-                        <img 
+                        <Image 
                           src={productImage} 
                           alt={relatedProduct.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          fill
+                          className="object-cover"
+                          sizes="72px"
                         />
                       ) : (
                         <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>

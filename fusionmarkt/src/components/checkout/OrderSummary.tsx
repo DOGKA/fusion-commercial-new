@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -8,8 +7,11 @@ import {
   Package, Truck, Tag, ShieldCheck 
 } from "lucide-react";
 import { useCheckout } from "@/context/CheckoutContext";
-import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import type { AppliedCoupon, CheckoutItem, CheckoutTotals } from "@/types/checkout";
+
+// Local type alias for cart items (compatible with CheckoutItem)
+type CartItem = CheckoutItem;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ORDER SUMMARY COMPONENT - Sticky Right Column
@@ -150,11 +152,11 @@ export default function OrderSummary({ isMobile = false }: OrderSummaryProps) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface OrderSummaryContentProps {
-  items: any[];
-  totals: any;
+  items: CartItem[];
+  totals: CheckoutTotals;
   shippingMethod: string;
   shippingMessage: string | null;
-  appliedCoupon: any;
+  appliedCoupon: AppliedCoupon | null;
   couponState: string;
   couponError: string | null;
   couponCode: string;
@@ -213,7 +215,7 @@ function OrderSummaryContent({
             {/* Info */}
             <div className="flex-1 min-w-0">
               <h4 className="text-xs font-medium text-white/90 line-clamp-1">{item.title}</h4>
-              {item.variant && (
+              {item.variant && typeof item.variant === 'object' && 'value' in item.variant && (
                 <p className="text-[10px] text-white/40 mt-0.5">{item.variant.value}</p>
               )}
               <div className="flex items-center justify-between mt-2">

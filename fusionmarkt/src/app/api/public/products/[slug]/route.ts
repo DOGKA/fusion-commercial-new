@@ -1,17 +1,37 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface RouteContext {
+  params: Promise<{ slug: string }>;
+}
+
+// Related product types
+interface RelatedProductRelation {
+  relationType: string;
+  relatedProduct: {
+    id: string;
+    name: string;
+    slug: string;
+    price?: number | null;
+    comparePrice?: number | null;
+    [key: string]: unknown;
+  };
+}
+
+interface ProductWithRelations {
+  relatedFrom?: RelatedProductRelation[];
+  variants?: { value?: string; [key: string]: unknown }[];
+  [key: string]: unknown;
+}
+
 export async function GET(
   request: NextRequest,
-  context: any
+  context: RouteContext
 ) {
   try {
-    // Next.js 15+ params is a Promise, handle both cases
-    const resolvedParams = context.params?.slug 
-      ? context.params 
-      : await context.params;
-    const slug = resolvedParams?.slug;
+    // Next.js 15+ params is a Promise
+    const resolvedParams = await context.params;
+    const slug = resolvedParams.slug;
 
     const product = await prisma.product.findUnique({
       where: { slug },
@@ -109,17 +129,18 @@ export async function GET(
     }
 
     // İlişkili ürünleri türlerine göre ayır
-    const frequentlyBought = (product as any).relatedFrom
-      ?.filter((r: any) => r.relationType === 'FREQUENTLY_BOUGHT')
-      .map((r: any) => ({
+    const productWithRelations = product as unknown as ProductWithRelations;
+    const frequentlyBought = productWithRelations.relatedFrom
+      ?.filter((r: RelatedProductRelation) => r.relationType === 'FREQUENTLY_BOUGHT')
+      .map((r: RelatedProductRelation) => ({
         ...r.relatedProduct,
         price: r.relatedProduct.price ? Number(r.relatedProduct.price) : 0,
         comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
       })) || [];
 
-    const alsoViewed = (product as any).relatedFrom
-      ?.filter((r: any) => r.relationType === 'ALSO_VIEWED')
-      .map((r: any) => ({
+    const alsoViewed = productWithRelations.relatedFrom
+      ?.filter((r: RelatedProductRelation) => r.relationType === 'ALSO_VIEWED')
+      .map((r: RelatedProductRelation) => ({
         ...r.relatedProduct,
         price: r.relatedProduct.price ? Number(r.relatedProduct.price) : 0,
         comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
@@ -165,10 +186,11 @@ export async function GET(
 
     // Return product with all details
     return NextResponse.json(productData);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching product:", error);
+    const errorMessage = error instanceof Error ? error.message : "Bilinmeyen hata";
     return NextResponse.json(
-      { error: "Bir hata oluştu", details: error.message },
+      { error: "Bir hata oluştu", details: errorMessage },
       { status: 500 }
     );
   }

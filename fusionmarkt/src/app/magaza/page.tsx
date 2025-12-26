@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
-  Filter,
   Loader2,
   Search,
   X,
@@ -44,6 +42,10 @@ interface ProductWithCategory extends Product {
   categoryId: string;
   categoryName: string;
   categorySlug: string;
+  createdAt?: string;
+  comparePrice?: number | null;
+  saleEndDate?: string | null;
+  productBadges?: ApiProductBadge[];
 }
 
 interface CategoryWithProducts {
@@ -52,6 +54,38 @@ interface CategoryWithProducts {
   slug: string;
   themeColor: string | null; // Kategori tema rengi
   products: ProductWithCategory[];
+}
+
+// API response types
+interface ApiProductBadge {
+  badge?: {
+    slug?: string;
+    name?: string;
+  };
+}
+
+interface ApiProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  originalPrice?: number;
+  stock?: number;
+  discountPercentage?: number;
+  categoryId?: string;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    themeColor?: string;
+  };
+  productBadges?: ApiProductBadge[];
+  title?: string;
+  brand?: string;
+  images?: string[];
+  comparePrice?: number;
+  createdAt?: string;
+  saleEndDate?: string | null;
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "name_asc";
@@ -176,16 +210,38 @@ export default function StorePage() {
           return;
         }
         const data = await res.json();
-        const products = (data.products || []) as ProductWithCategory[];
+        const apiProducts = (data.products || []) as ApiProduct[];
 
         // Kategorilere göre grupla
         const categoryMap = new Map<string, CategoryWithProducts>();
 
-        products.forEach((product: any) => {
+        apiProducts.forEach((product: ApiProduct) => {
           const catId = product.categoryId || "uncategorized";
           const catName = product.category?.name || "Diğer";
           const catSlug = product.category?.slug || "diger";
           const catThemeColor = product.category?.themeColor || null;
+
+          // Convert ApiProduct to ProductWithCategory
+          const stockQty = product.stock || 0;
+          const productWithCategory: ProductWithCategory = {
+            id: product.id,
+            title: product.title || product.name,
+            slug: product.slug,
+            price: product.price,
+            originalPrice: product.comparePrice || product.originalPrice,
+            discountPercent: product.discountPercentage,
+            brand: product.brand || "",
+            stockStatus: stockQty > 10 ? "in_stock" : stockQty > 0 ? "low_stock" : "out_of_stock",
+            stockQuantity: stockQty,
+            image: product.images?.[0],
+            categoryId: catId,
+            categoryName: catName,
+            categorySlug: catSlug,
+            createdAt: product.createdAt,
+            comparePrice: product.comparePrice,
+            saleEndDate: product.saleEndDate,
+            productBadges: product.productBadges,
+          };
 
           if (!categoryMap.has(catId)) {
             categoryMap.set(catId, {
@@ -196,7 +252,7 @@ export default function StorePage() {
               products: [],
             });
           }
-          categoryMap.get(catId)!.products.push(product);
+          categoryMap.get(catId)!.products.push(productWithCategory);
         });
 
         const categoriesArray = Array.from(categoryMap.values())
@@ -258,8 +314,8 @@ export default function StorePage() {
   // ═══════════════════════════════════════════════════════════════════════════
   // FİLTRELEME MANTIĞI - Rozet, Fiyat, Stok
   // ═══════════════════════════════════════════════════════════════════════════
-  const applyFiltersToProducts = (products: any[]) => {
-    return products.filter((product: any) => {
+  const applyFiltersToProducts = (products: ProductWithCategory[]) => {
+    return products.filter((product: ProductWithCategory & { productBadges?: ApiProductBadge[] }) => {
       // 1. Fiyat Filtresi
       if (rangeValues.price) {
         const { min, max } = rangeValues.price;
@@ -272,7 +328,7 @@ export default function StorePage() {
       if (selectedFilters.availability?.length > 0) {
         const avail = selectedFilters.availability[0];
         if (avail === "in_stock") {
-          const stock = product.stock || 0;
+          const stock = product.stockQuantity || 0;
           if (stock <= 0) return false;
         }
       }
@@ -305,7 +361,7 @@ export default function StorePage() {
           } else {
             // Diğer manuel rozetler: veritabanından kontrol
             const productBadges = product.productBadges || [];
-            const hasManualBadge = productBadges.some((pb: any) => {
+            const hasManualBadge = productBadges.some((pb: ApiProductBadge) => {
               const badge = pb.badge || {};
               return badge.slug === badgeType || badge.name?.toLowerCase().includes(badgeType);
             });
@@ -349,7 +405,9 @@ export default function StorePage() {
     })
     .filter((cat) => cat.products.length > 0);
 
-  const totalProducts = filteredCategories.reduce((sum, cat) => sum + cat.products.length, 0);
+  // Total products count (available for future use)
+  const _totalProducts = filteredCategories.reduce((sum, cat) => sum + cat.products.length, 0);
+  void _totalProducts;
 
   // Filtre paneli için aktif kategori tema rengi
   // İlk kategorinin (en çok ürünü olan) rengini kullan, yoksa default
@@ -626,17 +684,21 @@ function BannerImage({ banner }: { banner: Banner | null }) {
       {hasImage && (
         <>
           {banner?.mobileImage && (
-            <img
+            <Image
               src={banner.mobileImage}
               alt={banner?.name || "Banner"}
-              className="sm:hidden absolute inset-0 w-full h-full object-cover"
+              fill
+              className="sm:hidden object-cover"
+              sizes="100vw"
             />
           )}
           {banner?.desktopImage && (
-            <img
+            <Image
               src={banner.desktopImage}
               alt={banner?.name || "Banner"}
-              className={cn("hidden sm:block absolute inset-0 w-full h-full object-cover", !banner?.mobileImage && "block")}
+              fill
+              className={cn("hidden sm:block object-cover", !banner?.mobileImage && "block")}
+              sizes="100vw"
             />
           )}
         </>
@@ -744,7 +806,7 @@ function CategoryCarousel({
     return () => clearInterval(autoScroll);
   }, [category.products, isPaused]);
 
-  const scroll = (direction: "left" | "right") => {
+  const _scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const scrollAmount = 300;
       scrollRef.current.scrollBy({

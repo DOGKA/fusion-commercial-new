@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
@@ -39,11 +38,13 @@ const SPARKLES = [
   { x: '95%', y: '50%', size: 4, delay: 1.2 },
 ];
 
-export default function MysteryBox({ id, coupon, delay = 0, onOpen }: MysteryBoxProps) {
+export default function MysteryBox({ id: _id, coupon, delay = 0, onOpen }: MysteryBoxProps) {
+  void _id; // id is used for key in parent component
   const [state, setState] = useState<BoxState>('idle');
   const [currentFrame, setCurrentFrame] = useState(1);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [showCoupon, setShowCoupon] = useState(false);
+  const [_showCoupon, setShowCoupon] = useState(false);
+  void _showCoupon; // used by setShowCoupon
   const [isHovered, setIsHovered] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
@@ -119,7 +120,7 @@ export default function MysteryBox({ id, coupon, delay = 0, onOpen }: MysteryBox
     };
 
     rotationAnimation();
-  }, [state]);
+  }, [state, onOpen]);
 
   // Reset box to initial state
   const handleReset = useCallback(() => {

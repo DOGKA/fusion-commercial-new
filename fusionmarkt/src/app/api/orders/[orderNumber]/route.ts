@@ -114,7 +114,7 @@ export async function GET(
         phone: billingAddr.phone || "",
         addressLine1: billingAddr.addressLine1 || "",
         city: billingAddr.city || "",
-        district: (billingAddr as any).district || "",
+        district: billingAddr.district || "",
         postalCode: billingAddr.postalCode || "",
       } : null,
       shippingAddress: shippingAddr ? {
@@ -122,7 +122,7 @@ export async function GET(
         lastName: shippingAddr.lastName || "",
         addressLine1: shippingAddr.addressLine1 || "",
         city: shippingAddr.city || "",
-        district: (shippingAddr as any).district || "",
+        district: shippingAddr.district || "",
       } : null,
     };
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 
@@ -78,7 +77,7 @@ export async function GET() {
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("❌ [POWER CALCULATOR API] Error fetching products:", error);
     return NextResponse.json(
       { error: "Failed to fetch products", products: {} },

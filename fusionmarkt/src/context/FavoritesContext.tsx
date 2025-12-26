@@ -1,7 +1,17 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from "react";
+
+// Helper to get stored favorites
+function getStoredFavorites(): FavoriteItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem("fusionmarkt-favorites");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FAVORITES TYPES
@@ -53,16 +63,15 @@ interface FavoritesProviderProps {
 export function FavoritesProvider({ children }: FavoritesProviderProps) {
   const [items, setItems] = useState<FavoriteItem[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const hydrationRef = useRef(false);
 
-  // Load favorites from localStorage on mount
+  // Load favorites from localStorage on mount (using queueMicrotask to avoid setState in effect)
   useEffect(() => {
-    const savedFavorites = localStorage.getItem("fusionmarkt-favorites");
-    if (savedFavorites) {
-      try {
-        const parsed = JSON.parse(savedFavorites);
-        setItems(parsed);
-      } catch (e) {
-        console.error("Failed to parse favorites from localStorage", e);
+    if (!hydrationRef.current) {
+      hydrationRef.current = true;
+      const stored = getStoredFavorites();
+      if (stored.length > 0) {
+        queueMicrotask(() => setItems(stored));
       }
     }
   }, []);
