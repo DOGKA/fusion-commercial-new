@@ -1,11 +1,31 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Lock, Loader2, Check, ShieldAlert } from "lucide-react";
 
+// Loading fallback
+function ResetPasswordLoading() {
+  return (
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 size={40} className="animate-spin text-emerald-500 mx-auto mb-4" />
+        <p className="text-white/60">Yükleniyor...</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordLoading />}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
