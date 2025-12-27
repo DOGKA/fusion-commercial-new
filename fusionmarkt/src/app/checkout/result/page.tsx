@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { XCircle, Home, RefreshCw } from "lucide-react";
+import { XCircle, Home, RefreshCw, Loader2 } from "lucide-react";
 
-export default function CheckoutResultPage() {
+function CheckoutResultContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -92,3 +92,18 @@ export default function CheckoutResultPage() {
   );
 }
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+    </div>
+  );
+}
+
+export default function CheckoutResultPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <CheckoutResultContent />
+    </Suspense>
+  );
+}
