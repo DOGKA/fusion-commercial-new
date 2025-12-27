@@ -10,7 +10,6 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { threedsInitialize, formatIyzicoPrice, IYZICO_ENABLED } from "@/lib/iyzico";
 import type { ThreeDSInitializeRequest, BasketItem } from "@/lib/iyzico";
 

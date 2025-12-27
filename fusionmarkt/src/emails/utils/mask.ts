@@ -47,7 +47,7 @@ export function maskName(name: string): string {
  */
 export function maskAddress(address: string): string {
   // Mask numbers
-  let masked = address.replace(/\d+/g, "**");
+  const masked = address.replace(/\d+/g, "**");
   
   // Mask street names but keep structure words
   const words = masked.split(" ");

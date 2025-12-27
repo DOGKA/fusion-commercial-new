@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, XCircle, Home, RefreshCw } from "lucide-react";
+import { XCircle, Home, RefreshCw } from "lucide-react";
 
 export default function CheckoutResultPage() {
   const router = useRouter();

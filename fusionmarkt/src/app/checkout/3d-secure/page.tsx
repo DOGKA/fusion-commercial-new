@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Loader2, Shield } from "lucide-react";
 
 /**
@@ -11,18 +10,24 @@ import { Loader2, Shield } from "lucide-react";
  * Form otomatik olarak bankaya yönlendirir.
  */
 export default function ThreeDSecurePage() {
-  const searchParams = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initialized = useRef(false);
 
-  useEffect(() => {
+  const processHtmlContent = useCallback(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     // sessionStorage'dan HTML content al
     const htmlContent = sessionStorage.getItem("iyzico3DSHtml");
     
     if (!htmlContent) {
-      setError("3D Secure doğrulama bilgisi bulunamadı");
-      setLoading(false);
+      // Use setTimeout to avoid setState in effect body
+      setTimeout(() => {
+        setError("3D Secure doğrulama bilgisi bulunamadı");
+        setLoading(false);
+      }, 0);
       return;
     }
 
@@ -51,14 +56,18 @@ export default function ThreeDSecurePage() {
         });
       }
       
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
     }
+  }, []);
+
+  useEffect(() => {
+    processHtmlContent();
 
     // Cleanup
     return () => {
       sessionStorage.removeItem("iyzico3DSHtml");
     };
-  }, []);
+  }, [processHtmlContent]);
 
   if (error) {
     return (

@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
 }
 
 // iyzico GET request da yapabilir
-export async function GET(request: NextRequest) {
+export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fusionmarkt.com";
   return NextResponse.redirect(`${baseUrl}/checkout`, { status: 303 });
 }
