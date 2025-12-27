@@ -82,12 +82,24 @@ export async function POST(request: NextRequest) {
 
       // Siparişi güncelle - ödeme başarılı
       try {
+        // iyzico item transactions'ı kaydet (iade için gerekli)
+        const iyzicoPaymentTransactions = paymentResult.itemTransactions?.map(item => ({
+          itemId: item.itemId,
+          paymentTransactionId: item.paymentTransactionId,
+          price: item.price,
+          paidPrice: item.paidPrice,
+        })) || [];
+
         await prisma.order.update({
           where: { orderNumber: conversationId },
           data: {
             paymentStatus: "PAID",
             status: "PROCESSING",
             paidAt: new Date(),
+            // iyzico bilgilerini kaydet
+            iyzicoPaymentId: paymentResult.paymentId,
+            iyzicoConversationId: conversationId,
+            iyzicoPaymentTransactions: iyzicoPaymentTransactions,
             statusHistory: {
               push: {
                 status: "PROCESSING",

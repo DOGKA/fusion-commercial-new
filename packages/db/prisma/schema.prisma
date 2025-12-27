@@ -589,6 +589,11 @@ model Order {
   invoiceUrl        String? // Fatura dosyası URL'si (S3)
   invoiceUploadedAt DateTime? // Fatura yüklenme tarihi
 
+  // iyzico Payment Info (İade için gerekli)
+  iyzicoPaymentId         String?  // iyzico paymentId
+  iyzicoConversationId    String?  // iyzico conversationId
+  iyzicoPaymentTransactions Json?  @db.Json // [{itemId, paymentTransactionId, price}]
+
   // Durum Geçmişi [{status, date, note, updatedBy}]
   statusHistory Json? @db.Json
 

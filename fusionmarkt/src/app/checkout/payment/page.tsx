@@ -248,6 +248,7 @@ export default function PaymentPage() {
     }));
 
     try {
+      // 1. Önce siparişi oluştur (PENDING_PAYMENT status ile)
       const orderData = {
         billingAddress: state.billingAddress,
         shippingAddress: state.shippingAddress || state.billingAddress,
@@ -286,6 +287,99 @@ export default function PaymentPage() {
         throw new Error(result.error || "Sipariş oluşturulamadı");
       }
 
+      const orderNumber = result.orderNumber;
+
+      // 2. Kredi kartı ödeme ise iyzico 3D Secure başlat
+      if (paymentMethod === "card") {
+        // Basket items hazırla (iyzico için)
+        const basketItems = items.map(item => ({
+          id: item.productId,
+          name: item.title.substring(0, 50),
+          category: "Elektronik",
+          price: item.price,
+          quantity: item.quantity,
+        }));
+
+        // Buyer bilgileri
+        const buyer = {
+          id: state.billingAddress?.email || `guest-${Date.now()}`,
+          name: state.billingAddress?.firstName || "Misafir",
+          surname: state.billingAddress?.lastName || "Kullanıcı",
+          email: state.billingAddress?.email || "",
+          phone: state.billingAddress?.phone || "",
+          identityNumber: "11111111111", // TC Kimlik (zorunlu alan)
+        };
+
+        // Shipping address
+        const shippingAddr = state.shippingAddress || state.billingAddress;
+        const shippingAddress = {
+          contactName: `${shippingAddr?.firstName || ""} ${shippingAddr?.lastName || ""}`.trim(),
+          city: shippingAddr?.city || "İstanbul",
+          address: shippingAddr?.addressLine1 || "",
+          zipCode: shippingAddr?.postalCode || "00000",
+        };
+
+        // 3D Secure başlat
+        const paymentRes = await fetch("/api/payment/initialize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderNumber,
+            cardHolderName,
+            cardNumber: cardNumber.replace(/\s/g, ""),
+            expireMonth: expiryMonth,
+            expireYear: expiryYear,
+            cvc: cvv,
+            buyer,
+            shippingAddress,
+            billingAddress: shippingAddress, // Aynı adres kullan
+            basketItems,
+            price: total,
+            paidPrice: total,
+          }),
+        });
+
+        const paymentResult = await paymentRes.json();
+
+        if (!paymentRes.ok || !paymentResult.success) {
+          throw new Error(paymentResult.error || "Ödeme başlatılamadı");
+        }
+
+        // Kullanıcı profilini güncelle (ad/soyad/telefon bilgilerini kaydet)
+        if (isAuthenticated && state.billingAddress) {
+          try {
+            const profileData: Record<string, string> = {};
+            const fullName = `${state.billingAddress.firstName || ""} ${state.billingAddress.lastName || ""}`.trim();
+            if (fullName) profileData.name = fullName;
+            if (state.billingAddress.phone) profileData.phone = state.billingAddress.phone;
+            
+            if (Object.keys(profileData).length > 0) {
+              await fetch("/api/user/profile", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(profileData),
+              });
+            }
+          } catch (profileError) {
+            console.error("Profile update failed:", profileError);
+          }
+        }
+
+        // Kupon bilgisini temizle
+        sessionStorage.removeItem("appliedCoupon");
+        
+        // Sepeti temizle
+        clearCart();
+
+        // 3D Secure HTML'i sessionStorage'a kaydet
+        sessionStorage.setItem("iyzico3DSHtml", paymentResult.htmlContent);
+        
+        // 3D Secure sayfasına yönlendir
+        router.push("/checkout/3d-secure");
+        return;
+      }
+
+      // Havale/EFT için normal akış
       // Kullanıcı profilini güncelle (ad/soyad/telefon bilgilerini kaydet)
       if (isAuthenticated && state.billingAddress) {
         try {
@@ -314,7 +408,6 @@ export default function PaymentPage() {
       clearCart();
       
       // Yönlendirme yap
-      const orderNumber = result.orderNumber;
       window.location.href = `/order-confirmation?orderNumber=${orderNumber}`;
       
     } catch (error) {
