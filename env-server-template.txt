@@ -53,6 +53,15 @@ AWS_CLOUDFRONT_URL="https://d1xxxxxxxx.cloudfront.net"
 S3_PUBLIC_BASE_URL="https://d1xxxxxxxx.cloudfront.net"
 
 # =====================================================
+# IYZICO PAYMENT (Ödeme Sistemi)
+# =====================================================
+# Sandbox: https://sandbox-api.iyzipay.com
+# Production: https://api.iyzipay.com
+IYZICO_API_KEY="sandbox-XXXXXXXXXXXXXXXXXXXX"
+IYZICO_SECRET_KEY="sandbox-XXXXXXXXXXXXXXXXXXXX"
+IYZICO_BASE_URL="https://sandbox-api.iyzipay.com"
+
+# =====================================================
 # GOOGLE OAuth (Opsiyonel)
 # =====================================================
 GOOGLE_CLIENT_ID=""
