@@ -53,13 +53,20 @@ AWS_CLOUDFRONT_URL="https://d1xxxxxxxx.cloudfront.net"
 S3_PUBLIC_BASE_URL="https://d1xxxxxxxx.cloudfront.net"
 
 # =====================================================
+# SITE URL (Callback için gerekli)
+# =====================================================
+NEXT_PUBLIC_SITE_URL="https://fusionmarkt.com"
+
+# =====================================================
 # IYZICO PAYMENT (Ödeme Sistemi)
 # =====================================================
-# Sandbox: https://sandbox-api.iyzipay.com
-# Production: https://api.iyzipay.com
-IYZICO_API_KEY="sandbox-XXXXXXXXXXXXXXXXXXXX"
-IYZICO_SECRET_KEY="sandbox-XXXXXXXXXXXXXXXXXXXX"
-IYZICO_BASE_URL="https://sandbox-api.iyzipay.com"
+# iyzico Merchant Panel: https://merchant.iyzipay.com
+# Callback URL ayarlayın: https://fusionmarkt.com/api/payment/callback
+# 
+# Production API:
+IYZICO_API_KEY="BURAYA_IYZICO_API_KEY"
+IYZICO_SECRET_KEY="BURAYA_IYZICO_SECRET_KEY"
+IYZICO_BASE_URL="https://api.iyzipay.com"
 
 # =====================================================
 # GOOGLE OAuth (Opsiyonel)
