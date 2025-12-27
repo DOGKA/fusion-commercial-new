@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
-import { sendEmail, generateResetToken, emailTemplates } from "@/lib/email";
+import { sendPasswordResetEmail, generateResetToken } from "@/lib/email";
 import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -76,13 +76,8 @@ export async function POST(request: NextRequest) {
     }
     const resetLink = `${baseUrl}/resetpassword?token=${resetToken}`;
 
-    // Send email
-    const template = emailTemplates.passwordReset(resetLink, user.name || undefined);
-    const result = await sendEmail({
-      to: email,
-      subject: template.subject,
-      html: template.html,
-    });
+    // Send email using new API
+    const result = await sendPasswordResetEmail(email, resetLink, user.name || undefined);
 
     if (!result.success) {
       console.error("Failed to send password reset email");

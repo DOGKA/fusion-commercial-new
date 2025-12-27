@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
-import { sendEmail, generateActivationCode, emailTemplates } from "@/lib/email";
+import { sendActivationEmail, generateActivationCode } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,13 +42,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send email
-    const template = emailTemplates.activation(activationCode, user.name || undefined);
-    const result = await sendEmail({
-      to: email,
-      subject: template.subject,
-      html: template.html,
-    });
+    // Send email using new API
+    const result = await sendActivationEmail(email, activationCode, user.name || undefined);
 
     if (!result.success) {
       return NextResponse.json({ error: "Email gönderilemedi" }, { status: 500 });
