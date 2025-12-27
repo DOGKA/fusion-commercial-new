@@ -320,11 +320,11 @@ export default function Header() {
                 )}
               </button>
 
-              {/* Mobile Menu Toggle */}
+              {/* Mobile Menu Toggle - sadece mobilde görünür (640px altı) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className={cn(
-                  "lg:hidden relative flex items-center justify-center p-2.5 rounded-xl text-white/60 hover:text-white transition-all duration-300",
+                  "hidden max-sm:flex relative items-center justify-center p-2.5 rounded-xl text-white/60 hover:text-white transition-all duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-white/0 before:transition-all before:duration-300",
                   "hover:before:bg-white/[0.05]",
                   isMobileMenuOpen && "before:bg-white/[0.08]"

@@ -24,10 +24,10 @@ const footerLinks = {
     title: "Müşteri Hizmetleri",
     links: [
       { name: "Sıkça Sorulan Sorular", href: "/sikca-sorulan-sorular" },
-      { name: "Sipariş Takibi", href: "/siparis-takibi" },
+      { name: "Sipariş Takibi", href: "/hesabim" },
       { name: "İade ve Değişim", href: "/iade-politikasi" },
-      { name: "Garanti Koşulları", href: "/garanti" },
-      { name: "Kullanım Kılavuzları", href: "/kilavuzlar" },
+      { name: "Garanti Koşulları", href: "/sikca-sorulan-sorular" },
+      { name: "Kullanım Kılavuzları", href: "/blog" },
     ],
   },
   kullaniciPolitikalari: {

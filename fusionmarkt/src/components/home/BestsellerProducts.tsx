@@ -127,9 +127,9 @@ export default function BestsellerProducts() {
             >
               {displayProducts.map((product, index) => (
                 <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px] relative">
-                  {/* Bestseller Badge - sadece ilk 6 için göster */}
+                  {/* Bestseller Badge - sadece ilk 6 için göster, mobilde gizle */}
                   {index < 6 && (
-                    <div className="absolute -top-2 -left-2 z-20 w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-amber-500/30">
+                    <div className="absolute -top-2 -left-2 z-20 w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 hidden md:flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-amber-500/30">
                       {index + 1}
                     </div>
                   )}

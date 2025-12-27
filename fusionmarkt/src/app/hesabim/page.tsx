@@ -919,11 +919,11 @@ export default function HesabimPage() {
                       {activationLoading ? 'Doğrulanıyor...' : countdown <= 0 ? 'Süre Doldu' : 'Doğrula'}
                     </button>
 
-                    {/* Resend Code Button */}
+                    {/* Resend Code Button - Sadece countdown süresi dolunca aktif */}
                     <button
                       type="button"
                       onClick={handleResendCode}
-                      disabled={resendLoading}
+                      disabled={resendLoading || countdown > 0}
                       style={{
                         width: '100%',
                         height: '44px',
@@ -935,13 +935,14 @@ export default function HesabimPage() {
                         border: '1px solid rgba(255,255,255,0.1)',
                         borderRadius: '12px',
                         fontSize: '13px',
-                        color: 'rgba(255,255,255,0.6)',
-                        cursor: resendLoading ? 'not-allowed' : 'pointer',
+                        color: countdown > 0 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)',
+                        cursor: resendLoading || countdown > 0 ? 'not-allowed' : 'pointer',
+                        opacity: countdown > 0 ? 0.5 : 1,
                         transition: 'all 0.2s ease',
                       }}
                     >
                       {resendLoading && <Loader2 size={14} className="animate-spin" />}
-                      {resendLoading ? 'Gönderiliyor...' : 'Kodu Tekrar Gönder'}
+                      {resendLoading ? 'Gönderiliyor...' : countdown > 0 ? `Tekrar gönder (${formatCountdown(countdown)})` : 'Kodu Tekrar Gönder'}
                     </button>
                   </form>
                 )}
