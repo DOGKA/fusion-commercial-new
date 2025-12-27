@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // ═══════════════════════════════════════════════════════════════════════════
+  // SERVER EXTERNAL PACKAGES
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Packages that should not be bundled by webpack (run on server only)
+  serverExternalPackages: ["iyzipay"],
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // IMAGE OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════════════════
   images: {
