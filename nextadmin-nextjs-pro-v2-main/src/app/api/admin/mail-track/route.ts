@@ -34,7 +34,12 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
 
     // Where koşulları
-    const where: Record<string, unknown> = {};
+    const where: {
+      type?: string;
+      status?: string;
+      OR?: { to?: { contains: string; mode: string }; subject?: { contains: string; mode: string } }[];
+      sentAt?: { gte?: Date; lte?: Date };
+    } = {};
 
     if (type) {
       where.type = type;
