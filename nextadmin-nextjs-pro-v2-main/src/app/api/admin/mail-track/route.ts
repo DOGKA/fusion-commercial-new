@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/libs/prismaDb";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
 
@@ -34,12 +35,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
 
     // Where koşulları
-    const where: {
-      type?: string;
-      status?: string;
-      OR?: { to?: { contains: string; mode: string }; subject?: { contains: string; mode: string } }[];
-      sentAt?: { gte?: Date; lte?: Date };
-    } = {};
+    const where: Prisma.EmailLogWhereInput = {};
 
     if (type) {
       where.type = type;
