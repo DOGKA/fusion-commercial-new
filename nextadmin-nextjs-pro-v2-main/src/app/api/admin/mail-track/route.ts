@@ -30,10 +30,8 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
 
-    // Where koşulları - eslint-disable kullanarak any tipini geçici olarak kabul ediyoruz
-    // Sunucuda prisma generate çalıştıktan sonra tipler düzgün çalışacak
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
+    // Where koşulları
+    const where: Record<string, unknown> = {};
 
     if (type) {
       where.type = type;
@@ -51,13 +49,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (startDate || endDate) {
-      where.sentAt = {};
+      const sentAtFilter: { gte?: Date; lte?: Date } = {};
       if (startDate) {
-        where.sentAt.gte = new Date(startDate);
+        sentAtFilter.gte = new Date(startDate);
       }
       if (endDate) {
-        where.sentAt.lte = new Date(endDate);
+        sentAtFilter.lte = new Date(endDate);
       }
+      where.sentAt = sentAtFilter;
     }
 
     // Toplam sayı
