@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight, Zap, Star, Flame, Gift, Tag, Percent, Truck, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/Spotlight";
@@ -52,6 +52,11 @@ export default function HeroSlider() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Touch/swipe state
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  const sliderRef = useRef<HTMLElement>(null);
 
   // Mobil kontrolu
   useEffect(() => {
@@ -114,6 +119,34 @@ export default function HeroSlider() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, nextSlide, slides.length]);
 
+  // Touch/swipe handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsAutoPlaying(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50; // Minimum swipe distance to trigger slide change
+    
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // Swiped left - go to next slide
+        nextSlide();
+      } else {
+        // Swiped right - go to previous slide
+        prevSlide();
+      }
+    }
+    
+    // Reset and resume autoplay after a delay
+    setTimeout(() => setIsAutoPlaying(true), 3000);
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -172,9 +205,13 @@ export default function HeroSlider() {
 
   return (
     <section
-      className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-black"
+      ref={sliderRef}
+      className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-black touch-pan-y"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Spotlight Effect */}
       <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />

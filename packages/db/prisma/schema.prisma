@@ -654,6 +654,10 @@ model Cart {
 
   items CartItem[]
 
+  // Abandoned Cart Tracking
+  lastReminderSentAt DateTime? // Son hatırlatma e-postası gönderilme tarihi
+  reminderCount      Int       @default(0) // Gönderilen hatırlatma sayısı
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1568,4 +1572,80 @@ model LegalPage {
   @@index([isActive])
   @@index([showOnCheckout])
   @@map("legal_pages")
+}
+
+// ============================================
+// EMAIL TRACKING (Resend Webhooks)
+// ============================================
+
+model EmailLog {
+  id String @id @default(cuid())
+
+  // Resend Message ID
+  resendId String @unique // Resend API'den dönen email ID
+
+  // Alıcı Bilgileri
+  to      String // Alıcı e-posta adresi
+  subject String // E-posta konusu
+
+  // E-posta Tipi
+  type EmailType @default(OTHER)
+
+  // Durum
+  status EmailStatus @default(SENT)
+
+  // İlişkilendirme (opsiyonel)
+  orderId String? // Sipariş e-postası ise
+  userId  String? // Kullanıcı e-postası ise
+
+  // Zaman Damgaları
+  sentAt      DateTime  @default(now()) // Gönderilme zamanı
+  deliveredAt DateTime? // Teslim edilme zamanı
+  openedAt    DateTime? // Açılma zamanı
+  clickedAt   DateTime? // Link tıklanma zamanı
+  bouncedAt   DateTime? // Geri dönme zamanı
+  complainedAt DateTime? // Spam şikayeti zamanı
+
+  // Hata Bilgisi
+  errorMessage String? @db.Text
+
+  // Metadata
+  metadata Json? @db.Json // Ek bilgiler (tracking data vb.)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([to])
+  @@index([type])
+  @@index([status])
+  @@index([sentAt])
+  @@index([orderId])
+  @@index([userId])
+  @@map("email_logs")
+}
+
+enum EmailType {
+  ORDER_CONFIRMATION // Sipariş onayı
+  ORDER_STATUS // Sipariş durumu güncelleme
+  ORDER_SHIPPED // Kargoya verildi
+  ORDER_DELIVERED // Teslim edildi
+  ORDER_CANCELLED // Sipariş iptal
+  ORDER_REFUNDED // İade edildi
+  INVOICE // Fatura gönderimi
+  PAYMENT_CONFIRMED // Ödeme onayı
+  WELCOME // Hoş geldin e-postası
+  PASSWORD_RESET // Şifre sıfırlama
+  ABANDONED_CART // Terk edilmiş sepet
+  MARKETING // Pazarlama e-postası
+  OTHER // Diğer
+}
+
+enum EmailStatus {
+  SENT // Gönderildi (API'ye)
+  DELIVERED // Teslim edildi
+  OPENED // Açıldı
+  CLICKED // Link tıklandı
+  BOUNCED // Geri döndü
+  COMPLAINED // Spam şikayeti
+  FAILED // Başarısız
 }

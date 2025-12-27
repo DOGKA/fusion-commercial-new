@@ -41,7 +41,9 @@ interface CartContextType {
   items: CartItem[];
   isOpen: boolean;
   itemCount: number;
-  subtotal: number;
+  subtotal: number;           // Discounted total (what user pays)
+  originalSubtotal: number;   // Original total (before product discounts)
+  totalSavings: number;       // Total savings from product discounts
   isAnimating: boolean;
   
   // Actions
@@ -94,6 +96,12 @@ export function CartProvider({ children }: CartProviderProps) {
   // Calculate derived values
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Original subtotal uses originalPrice if available, otherwise falls back to price
+  const originalSubtotal = items.reduce((sum, item) => {
+    const originalPrice = item.originalPrice ?? item.price;
+    return sum + originalPrice * item.quantity;
+  }, 0);
+  const totalSavings = originalSubtotal - subtotal;
 
   // Add item with animation trigger
   const addItem = useCallback(async (newItem: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => {
@@ -170,6 +178,8 @@ export function CartProvider({ children }: CartProviderProps) {
         isOpen,
         itemCount,
         subtotal,
+        originalSubtotal,
+        totalSavings,
         isAnimating,
         addItem,
         removeItem,

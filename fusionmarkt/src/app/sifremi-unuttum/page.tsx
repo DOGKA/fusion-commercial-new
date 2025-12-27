@@ -4,6 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Lock, Mail, ArrowLeft, CheckCircle, AlertCircle, Loader2, Shield } from "lucide-react";
+import { isValidEmail, getEmailError } from "@/lib/utils";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FORGOT PASSWORD PAGE - /sifremi-unuttum
@@ -19,15 +20,10 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email.trim()) {
-      setError("E-posta adresi gereklidir");
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Geçerli bir e-posta adresi giriniz");
+    // Email validation
+    const emailError = getEmailError(email);
+    if (emailError) {
+      setError(emailError);
       return;
     }
 

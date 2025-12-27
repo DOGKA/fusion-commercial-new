@@ -48,7 +48,7 @@ export default function PaymentPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { state, setContractAccepted } = useCheckout();
-  const { items, updateQuantity, removeItem, subtotal, clearCart } = useCart();
+  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, clearCart } = useCart();
   const { addItem: addFavorite } = useFavorites();
 
   // Address state (used for future address selection feature)
@@ -277,6 +277,12 @@ export default function PaymentPage() {
       const result = await res.json();
 
       if (!res.ok) {
+        // Check if email is registered - redirect to checkout to login
+        if (result.code === "EMAIL_REGISTERED") {
+          alert(result.error || "Bu e-posta adresi kayıtlı. Lütfen giriş yapın.");
+          router.push("/checkout");
+          return;
+        }
         throw new Error(result.error || "Sipariş oluşturulamadı");
       }
 
@@ -434,10 +440,19 @@ export default function PaymentPage() {
                     color: paymentMethod === "card" ? "#fff" : "rgba(255,255,255,0.6)",
                     fontSize: "13px",
                     fontWeight: "500",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    padding: "0 12px",
+                    overflow: "hidden"
                   }}
                 >
-                  <CreditCard size={16} /> Kredi/Banka Kartı
+                  <span className="hidden sm:inline"><CreditCard size={16} /></span>
+                  <span className="hidden sm:inline">Kredi/Banka Kartı</span>
+                  <img 
+                    src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg" 
+                    alt="iyzico ile öde" 
+                    style={{ height: "20px", maxWidth: "100%", objectFit: "contain" }}
+                    className="sm:h-4 sm:ml-1"
+                  />
                 </button>
                 <button
                   type="button"
@@ -610,7 +625,10 @@ export default function PaymentPage() {
                           <Plus size={12} />
                         </button>
                       </div>
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>{formatPrice(item.price * item.quantity)}</span>
+                      {/* Always show original price in white - discount shown in totals */}
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>
+                        {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
+                      </span>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -627,16 +645,39 @@ export default function PaymentPage() {
 
             {/* Totals */}
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(subtotal)}</span>
-              </div>
+              {/* Original Subtotal - only show if there's product discount */}
+              {totalSavings > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
+                  <span style={{ color: "rgba(255,255,255,0.5)", textDecoration: "line-through" }}>{formatPrice(originalSubtotal)}</span>
+                </div>
+              )}
+              
+              {/* Product Discount */}
+              {totalSavings > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "#10b981" }}>Ürün İndirimi</span>
+                  <span style={{ color: "#10b981", fontWeight: "500" }}>-{formatPrice(totalSavings)}</span>
+                </div>
+              )}
+              
+              {/* Subtotal after product discount - only if no product discount */}
+              {totalSavings === 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
+                  <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(subtotal)}</span>
+                </div>
+              )}
+              
+              {/* Shipping */}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                 <span style={{ color: "rgba(255,255,255,0.5)" }}>Kargo</span>
                 <span style={{ color: shippingCost === 0 ? "#10b981" : "rgba(255,255,255,0.8)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
                   {shippingCost === 0 ? "Ücretsiz" : formatPrice(shippingCost)}
                 </span>
               </div>
+              
+              {/* Coupon Discount */}
               {appliedCoupon && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                   <span style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "6px" }}>
@@ -648,6 +689,8 @@ export default function PaymentPage() {
                   </span>
                 </div>
               )}
+              
+              {/* Grand Total */}
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
                 <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>Toplam</span>
                 <div style={{ textAlign: "right" }}>

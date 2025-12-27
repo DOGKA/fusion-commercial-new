@@ -17,6 +17,8 @@ import {
   sendAdminNewOrderNotification 
 } from "@/lib/email";
 import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
+import { generateContractsHTML } from "@/lib/contracts";
+import { isValidEmail } from "@/lib/utils";
 
 // Generate order number
 function generateOrderNumber(): string {
@@ -101,6 +103,52 @@ export async function POST(request: NextRequest) {
     if (!billingAddress.firstName || !billingAddress.email) {
       return NextResponse.json({ error: "Fatura adresi eksik bilgi içeriyor" }, { status: 400 });
     }
+    
+    // Validate email format
+    if (!isValidEmail(billingAddress.email)) {
+      return NextResponse.json({ error: "Geçerli bir e-posta adresi girin" }, { status: 400 });
+    }
+
+    // Check if guest is using a registered email
+    let userId = session?.user?.id;
+    
+    if (!userId) {
+      // Guest checkout - check if email is already registered
+      const existingUser = await prisma.user.findUnique({
+        where: { email: billingAddress.email.toLowerCase().trim() },
+        select: { id: true, name: true },
+      });
+      
+      if (existingUser) {
+        // Email is registered - user must login
+        return NextResponse.json(
+          { 
+            error: "Bu e-posta adresi kayıtlı bir hesaba ait. Lütfen giriş yaparak devam edin.",
+            code: "EMAIL_REGISTERED",
+            userName: existingUser.name 
+          },
+          { status: 409 } // Conflict
+        );
+      }
+      
+      // Create a new user account for guest
+      const tempPassword = Math.random().toString(36).slice(-12); // Temporary password
+      const hashedPassword = await bcrypt.hash(tempPassword, 12);
+      
+      const newUser = await prisma.user.create({
+        data: {
+          email: billingAddress.email.toLowerCase().trim(),
+          name: `${billingAddress.firstName} ${billingAddress.lastName}`.trim(),
+          password: hashedPassword,
+          phone: billingAddress.phone || null,
+          role: "CUSTOMER",
+        },
+      });
+      
+      userId = newUser.id;
+      
+      // TODO: Send welcome email with password reset link
+    }
 
     // Generate order number
     const orderNumber = generateOrderNumber();
@@ -108,9 +156,6 @@ export async function POST(request: NextRequest) {
     // Determine payment status
     const paymentStatus = "PENDING" as const;
     const orderStatus = "PENDING" as const;
-
-    // Use guest user ID if not logged in
-    const userId = session?.user?.id || "guest";
     
     // Handle billing address - use existing if ID provided, else create new only if saveToAddresses is true
     let billingAddressId: string;
@@ -118,7 +163,7 @@ export async function POST(request: NextRequest) {
     if (billingAddress.id) {
       // Kayıtlı adres seçilmiş - mevcut adresi kullan
       billingAddressId = billingAddress.id;
-    } else if (billingAddress.saveToAddresses && userId !== "guest") {
+    } else if (billingAddress.saveToAddresses && userId) {
       // Yeni adres ve "Kayıtlı adreslerime ekle" seçilmiş - yeni adres oluştur
       const createdBillingAddress = await prisma.address.create({
         data: {
@@ -180,7 +225,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Initial status history with contract acceptance
+    // Generate contract HTML with user's data
+    const contractDate = new Date();
+    const buyerInfo = {
+      fullName: `${billingAddress.firstName} ${billingAddress.lastName}`,
+      tcKimlikNo: billingAddress.tcKimlikNo,
+      address: `${billingAddress.addressLine1}${billingAddress.addressLine2 ? ", " + billingAddress.addressLine2 : ""}, ${billingAddress.district || ""}, ${billingAddress.city}`,
+      phone: billingAddress.phone || "",
+      email: billingAddress.email,
+    };
+    
+    const orderItems = items.map((item: { name?: string; title?: string; variant?: { value?: string }; price: number; quantity: number }) => ({
+      name: item.name || item.title || "Ürün",
+      variant: item.variant,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+    
+    const orderTotalsForContract = {
+      subtotal: orderSubtotal,
+      shipping: orderShipping,
+      discount: orderDiscount,
+      grandTotal: orderTotal,
+    };
+    
+    // Generate full HTML contracts
+    const contractsHTML = generateContractsHTML(
+      buyerInfo,
+      orderItems,
+      orderTotalsForContract,
+      orderNumber,
+      contractDate
+    );
+
+    // Initial status history with contract acceptance and full HTML
     const initialStatusHistory = [
       {
         status: "PENDING",
@@ -189,8 +267,13 @@ export async function POST(request: NextRequest) {
       },
       {
         type: "CONTRACT_ACCEPTANCE",
-        date: new Date().toISOString(),
-        contracts: contractsAccepted,
+        date: contractDate.toISOString(),
+        contracts: {
+          ...contractsAccepted,
+          // Store full HTML of contracts
+          termsAndConditionsHTML: contractsHTML.termsAndConditions,
+          distanceSalesContractHTML: contractsHTML.distanceSalesContract,
+        },
         note: "Sözleşmeler elektronik ortamda onaylandı",
       },
     ];
@@ -199,7 +282,7 @@ export async function POST(request: NextRequest) {
     const order = await prisma.order.create({
       data: {
         orderNumber,
-        userId: session?.user?.id || "guest",
+        userId,
         status: orderStatus,
         paymentStatus,
         paymentMethod: paymentMethod === "credit_card" || paymentMethod === "card_sipay" ? "CREDIT_CARD" : "BANK_TRANSFER",
@@ -262,26 +345,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create guest account if requested
-    if (!session?.user && createAccount && accountPassword && billingAddress.email) {
-      try {
-        const hashedPassword = await bcrypt.hash(accountPassword, 12);
-        
-        await prisma.user.create({
-          data: {
-            email: billingAddress.email,
-            name: `${billingAddress.firstName} ${billingAddress.lastName}`,
-            password: hashedPassword,
-            phone: billingAddress.phone,
-            role: "CUSTOMER",
-          },
-        });
-      } catch (e) {
-        // Ignore if user already exists
-        console.log("User creation skipped:", e);
-      }
-    }
-
     // ═══════════════════════════════════════════════════════════════════════
     // EMAIL NOTIFICATIONS
     // ═══════════════════════════════════════════════════════════════════════
@@ -303,8 +366,38 @@ export async function POST(request: NextRequest) {
           .catch(err => console.error("Customer email error:", err));
       } else {
         // Kredi kartı - sipariş onayı maili
-        sendOrderConfirmationEmail(customerEmail, order.orderNumber, customerName, orderTotal)
-          .catch(err => console.error("Customer email error:", err));
+        sendOrderConfirmationEmail(customerEmail, {
+          orderNumber: order.orderNumber,
+          orderDate: order.createdAt,
+          customerName,
+          customerEmail,
+          items: items.map((item: { name?: string; title?: string; quantity: number; price: number }) => ({
+            name: item.name || item.title || "Ürün",
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          subtotal: orderSubtotal,
+          shipping: orderShipping,
+          discount: orderDiscount,
+          total: orderTotal,
+          shippingAddress: {
+            fullName: `${shippingAddress?.firstName || billingAddress.firstName} ${shippingAddress?.lastName || billingAddress.lastName}`,
+            address: shippingAddress?.addressLine1 || billingAddress.addressLine1 || "",
+            city: shippingAddress?.city || billingAddress.city || "",
+            district: shippingAddress?.district || billingAddress.district || "",
+            postalCode: shippingAddress?.postalCode || billingAddress.postalCode || "",
+            phone: shippingAddress?.phone || billingAddress.phone || "",
+          },
+          billingAddress: {
+            fullName: `${billingAddress.firstName} ${billingAddress.lastName}`,
+            address: billingAddress.addressLine1 || "",
+            city: billingAddress.city || "",
+            district: billingAddress.district || "",
+            postalCode: billingAddress.postalCode || "",
+            phone: billingAddress.phone || "",
+          },
+          paymentMethod: "CREDIT_CARD",
+        }).catch(err => console.error("Customer email error:", err));
       }
       console.log(`📧 Customer email queued: ${customerEmail}`);
     }
@@ -312,12 +405,19 @@ export async function POST(request: NextRequest) {
     // Send admin notification
     sendAdminNewOrderNotification({
       orderNumber: order.orderNumber,
+      orderDate: order.createdAt,
       customerName,
       customerEmail: customerEmail || "Belirtilmedi",
-      customerPhone,
+      customerPhone: customerPhone || "",
       total: orderTotal,
       itemCount: items.length,
-      paymentMethod: paymentMethod || "BANK_TRANSFER",
+      paymentMethod: paymentMethod === "credit_card" || paymentMethod === "card_sipay" ? "CREDIT_CARD" : "BANK_TRANSFER",
+      shippingCity: shippingAddress?.city || billingAddress?.city || "",
+      items: items.map((item: { name?: string; title?: string; quantity: number; price: number }) => ({
+        name: item.name || item.title || "Ürün",
+        quantity: item.quantity,
+        price: item.price,
+      })),
     }).catch(err => console.error("Admin notification error:", err));
     console.log(`📧 Admin notification queued for new order: ${order.orderNumber}`);
 
@@ -418,6 +518,9 @@ export async function GET() {
       
       // Notes
       customerNote: order.customerNote,
+      
+      // Status History (includes contract acceptance)
+      statusHistory: order.statusHistory,
     }));
 
     return NextResponse.json(formattedOrders);

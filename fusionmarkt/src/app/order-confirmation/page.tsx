@@ -136,23 +136,18 @@ function OrderConfirmationContent() {
     setTimeout(() => setCopiedIban(false), 2000);
   };
   
-  // Save password handler - uses existing register API
+  // Save password handler - sets password for the user created during checkout
   const handleSavePassword = async () => {
-    if (!canSavePassword || !order?.billingAddress?.email) return;
+    if (!canSavePassword || !orderNumber) return;
     
     setPasswordSaving(true);
     setPasswordError(null);
     
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(`/api/orders/${orderNumber}/set-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: order.billingAddress.email,
-          password: password1,
-          name: `${order.billingAddress.firstName} ${order.billingAddress.lastName}`.trim(),
-          phone: order.billingAddress.phone,
-        }),
+        body: JSON.stringify({ password: password1 }),
       });
       
       const data = await res.json();
@@ -161,8 +156,23 @@ function OrderConfirmationContent() {
         setPasswordError(data.error || "Şifre oluşturulamadı");
       } else {
         setPasswordSaved(true);
+        
+        // Auto-login the user after password is set
+        if (data.email) {
+          const { signIn } = await import("next-auth/react");
+          const loginResult = await signIn("credentials", {
+            email: data.email,
+            password: password1,
+            redirect: false,
+          });
+          
+          if (loginResult?.ok) {
+            // Refresh to update session
+            window.location.reload();
+          }
+        }
       }
-    } catch (e) {
+    } catch {
       setPasswordError("Bir hata oluştu. Lütfen tekrar deneyin.");
     }
     

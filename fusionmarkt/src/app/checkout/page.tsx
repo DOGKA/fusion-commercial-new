@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  ChevronRight, User, Building2, Check, Loader2, 
+  ChevronRight, User, Building2, Check, Loader2, Lock,
   ShieldCheck, Truck, CreditCard, Phone, Mail, MapPin,
   FileText, Minus, Plus, Trash2, Heart, Package,
   Tag, ChevronDown, Plus as PlusIcon
@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCheckout } from "@/context/CheckoutContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, isValidEmail, getEmailError } from "@/lib/utils";
 import { CITIES, getDistricts } from "@/lib/turkey-cities";
 import type { AddressFormData, InvoiceType } from "@/types/checkout";
 import KargoTimer from "@/components/product/KargoTimer";
@@ -60,7 +60,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { setBillingAddress } = useCheckout();
-  const { items, updateQuantity, removeItem, subtotal } = useCart();
+  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings } = useCart();
   const { addItem: addFavorite } = useFavorites();
   
   // Refs to prevent re-fetching
@@ -92,6 +92,16 @@ export default function CheckoutPage() {
   
   const [isSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Email check state (for guest checkout)
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [emailRegistered, setEmailRegistered] = useState(false);
+  const [registeredUserName, setRegisteredUserName] = useState<string | null>(null);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
+  
   const [showCoupon, setShowCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -352,6 +362,79 @@ export default function CheckoutPage() {
     }
   }, [city, selectedAddressId, showNewAddressForm]);
 
+  // Check if email is registered (for guest checkout)
+  const checkEmailRegistered = useCallback(async (emailToCheck: string) => {
+    if (!emailToCheck || isAuthenticated) return;
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailToCheck)) return;
+    
+    setCheckingEmail(true);
+    try {
+      const res = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailToCheck }),
+      });
+      const data = await res.json();
+      
+      if (data.exists) {
+        setEmailRegistered(true);
+        setRegisteredUserName(data.userName);
+        setShowLoginForm(true);
+      } else {
+        setEmailRegistered(false);
+        setRegisteredUserName(null);
+        setShowLoginForm(false);
+      }
+    } catch (error) {
+      console.error("Email check error:", error);
+    } finally {
+      setCheckingEmail(false);
+    }
+  }, [isAuthenticated]);
+  
+  // Debounced email check
+  useEffect(() => {
+    if (!email || isAuthenticated) return;
+    
+    const timer = setTimeout(() => {
+      checkEmailRegistered(email);
+    }, 800); // 800ms debounce
+    
+    return () => clearTimeout(timer);
+  }, [email, isAuthenticated, checkEmailRegistered]);
+  
+  // Handle login for registered email
+  const handleEmailLogin = async () => {
+    if (!email || !loginPassword) return;
+    
+    setLoggingIn(true);
+    setLoginError("");
+    
+    try {
+      const { signIn } = await import("next-auth/react");
+      const result = await signIn("credentials", {
+        email,
+        password: loginPassword,
+        redirect: false,
+      });
+      
+      if (result?.error) {
+        setLoginError("Şifre hatalı. Lütfen tekrar deneyin.");
+      } else {
+        // Login successful - refresh page to load user data
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setLoginError("Giriş yapılırken bir hata oluştu.");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
   // Phone mask
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -383,7 +466,11 @@ export default function CheckoutPage() {
     if (!firstName) newErrors.firstName = "Ad gerekli";
     if (!lastName) newErrors.lastName = "Soyad gerekli";
     if (!phone) newErrors.phone = "Telefon gerekli";
-    if (!email) newErrors.email = "E-posta gerekli";
+    
+    // Email validasyonu
+    const emailError = getEmailError(email);
+    if (emailError) newErrors.email = emailError;
+    
     if (!city) newErrors.city = "İl seçin";
     if (!district) newErrors.district = "İlçe seçin";
     if (!addressLine1) newErrors.addressLine1 = "Adres gerekli";
@@ -524,13 +611,128 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label style={labelStyle}><Mail size={13} /> E-posta *</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ornek@email.com"
-                    style={{ ...inputStyle, borderColor: errors.email ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
-                  />
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        // Clear email error when typing
+                        if (errors.email) {
+                          setErrors(prev => ({ ...prev, email: "" }));
+                        }
+                        // Reset login state when email changes
+                        if (emailRegistered) {
+                          setEmailRegistered(false);
+                          setShowLoginForm(false);
+                          setLoginPassword("");
+                          setLoginError("");
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate email on blur
+                        if (email && !isValidEmail(email)) {
+                          const error = getEmailError(email);
+                          if (error) setErrors(prev => ({ ...prev, email: error }));
+                        }
+                      }}
+                      placeholder="ornek@email.com"
+                      style={{ 
+                        ...inputStyle, 
+                        borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)",
+                        paddingRight: checkingEmail ? "40px" : "12px"
+                      }}
+                      disabled={isAuthenticated}
+                    />
+                    {checkingEmail && (
+                      <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}>
+                        <Loader2 size={16} className="animate-spin" style={{ color: "rgba(255,255,255,0.5)" }} />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Email registered warning and login form */}
+                  {!isAuthenticated && emailRegistered && showLoginForm && (
+                    <div style={{ 
+                      marginTop: "12px", 
+                      padding: "16px", 
+                      backgroundColor: "rgba(251, 191, 36, 0.1)", 
+                      border: "1px solid rgba(251, 191, 36, 0.3)",
+                      borderRadius: "12px"
+                    }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "12px" }}>
+                        <div style={{ 
+                          width: "32px", height: "32px", borderRadius: "8px", 
+                          backgroundColor: "rgba(251, 191, 36, 0.2)", 
+                          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 
+                        }}>
+                          <User size={16} style={{ color: "#fbbf24" }} />
+                        </div>
+                        <div>
+                          <p style={{ fontSize: "13px", fontWeight: "600", color: "#fbbf24", margin: "0 0 4px 0" }}>
+                            Bu e-posta kayıtlı!
+                          </p>
+                          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", margin: 0 }}>
+                            {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}
+                            Devam etmek için şifrenizi girin.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div style={{ display: "flex", gap: "8px", marginBottom: loginError ? "8px" : 0 }}>
+                        <input
+                          type="password"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()}
+                          placeholder="Şifreniz"
+                          style={{ 
+                            ...inputStyle, 
+                            flex: 1,
+                            height: "40px",
+                            backgroundColor: "rgba(0,0,0,0.3)",
+                            borderColor: loginError ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)"
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleEmailLogin}
+                          disabled={loggingIn || !loginPassword}
+                          style={{
+                            height: "40px",
+                            padding: "0 16px",
+                            backgroundColor: "#10b981",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "8px",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                            cursor: loggingIn || !loginPassword ? "not-allowed" : "pointer",
+                            opacity: loggingIn || !loginPassword ? 0.6 : 1,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px"
+                          }}
+                        >
+                          {loggingIn ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                          Giriş Yap
+                        </button>
+                      </div>
+                      
+                      {loginError && (
+                        <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{loginError}</p>
+                      )}
+                      
+                      <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                        <Link 
+                          href="/sifremi-unuttum" 
+                          style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}
+                        >
+                          Şifremi unuttum
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -855,7 +1057,10 @@ export default function CheckoutPage() {
                           <Plus size={12} />
                         </button>
                       </div>
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>{formatPrice(item.price * item.quantity)}</span>
+                      {/* Always show original price in white - discount shown in totals */}
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>
+                        {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
+                      </span>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -1059,16 +1264,39 @@ export default function CheckoutPage() {
 
             {/* Totals */}
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(subtotal)}</span>
-              </div>
+              {/* Original Subtotal - only show if there's product discount */}
+              {totalSavings > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
+                  <span style={{ color: "rgba(255,255,255,0.5)", textDecoration: "line-through" }}>{formatPrice(originalSubtotal)}</span>
+                </div>
+              )}
+              
+              {/* Product Discount */}
+              {totalSavings > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "#10b981" }}>Ürün İndirimi</span>
+                  <span style={{ color: "#10b981", fontWeight: "500" }}>-{formatPrice(totalSavings)}</span>
+                </div>
+              )}
+              
+              {/* Subtotal after product discount - only if no product discount */}
+              {totalSavings === 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
+                  <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(subtotal)}</span>
+                </div>
+              )}
+              
+              {/* Shipping */}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                 <span style={{ color: "rgba(255,255,255,0.5)" }}>Kargo</span>
                 <span style={{ color: shippingCost === 0 ? "#10b981" : "rgba(255,255,255,0.8)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
                   {shippingCost === 0 ? "Ücretsiz" : formatPrice(shippingCost)}
                 </span>
               </div>
+              
+              {/* Coupon Discount */}
               {appliedCoupon && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                   <span style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "6px" }}>
@@ -1080,6 +1308,8 @@ export default function CheckoutPage() {
                   </span>
                 </div>
               )}
+              
+              {/* Grand Total */}
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
                 <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>Toplam</span>
                 <div style={{ textAlign: "right" }}>

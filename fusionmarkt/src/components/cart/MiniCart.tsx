@@ -29,7 +29,7 @@ const FREE_SHIPPING_LIMIT = 2000;
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function MiniCart() {
-  const { items, isOpen, closeCart: closeCartOriginal, itemCount, subtotal, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, isOpen, closeCart: closeCartOriginal, itemCount, subtotal, originalSubtotal, totalSavings, removeItem, updateQuantity, clearCart } = useCart();
   const { addItem: addToFavorites } = useFavorites();
   const panelRef = useRef<HTMLDivElement>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -450,8 +450,9 @@ export default function MiniCart() {
                     {/* Bottom: Price + Quantity */}
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-baseline gap-1">
+                        {/* Always show original price in white - discount shown in totals */}
                         <span className="text-[16px] font-semibold text-white">
-                          {formatPrice(item.price * item.quantity)}
+                          {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
                         </span>
                         <span className="text-[12px] text-white/40">₺</span>
                       </div>
@@ -565,18 +566,41 @@ export default function MiniCart() {
                 </div>
               )}
 
-              {/* Subtotal */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-base text-white/50">Ara Toplam</span>
-                  <p className="text-[12px] text-white/30 mt-0.5">{itemCount} ürün</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-3xl font-bold text-white">
-                    {formatPrice(subtotal)}
-                    <span className="text-lg font-normal text-white/50 ml-1">₺</span>
-                  </span>
-                  <p className="text-[12px] text-emerald-400/60">KDV Dahil</p>
+              {/* Totals Breakdown */}
+              <div className="space-y-2">
+                {/* Original Subtotal - only show if there's a discount */}
+                {totalSavings > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-white/50">Ara Toplam</span>
+                    <span className="text-sm text-white/50 line-through">
+                      {formatPrice(originalSubtotal)} ₺
+                    </span>
+                  </div>
+                )}
+                
+                {/* Total Discount */}
+                {totalSavings > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-emerald-400">İndirim</span>
+                    <span className="text-sm font-medium text-emerald-400">
+                      -{formatPrice(totalSavings)} ₺
+                    </span>
+                  </div>
+                )}
+                
+                {/* Final Total */}
+                <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+                  <div>
+                    <span className="text-base text-white/70">Toplam</span>
+                    <p className="text-[12px] text-white/30 mt-0.5">{itemCount} ürün</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-3xl font-bold text-white">
+                      {formatPrice(subtotal)}
+                      <span className="text-lg font-normal text-white/50 ml-1">₺</span>
+                    </span>
+                    <p className="text-[12px] text-emerald-400/60">KDV Dahil</p>
+                  </div>
                 </div>
               </div>
 

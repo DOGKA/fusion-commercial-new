@@ -235,9 +235,9 @@ function OrderSummaryContent(props: OrderSummaryContentProps) {
                   </button>
                 </div>
                 
-                {/* Price */}
+                {/* Price - always show original in white, discount in totals */}
                 <span className="text-xs font-semibold text-white">
-                  {formatPriceCtx(item.price * item.quantity)}
+                  {formatPriceCtx((item.originalPrice ?? item.price) * item.quantity)}
                 </span>
               </div>
             </div>

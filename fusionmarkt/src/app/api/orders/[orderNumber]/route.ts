@@ -15,20 +15,39 @@ export async function GET(
   try {
     const { orderNumber } = await params;
 
-    // Get order with items
+    // Get order with user info
     const order = await prisma.order.findUnique({
       where: { orderNumber },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            phone: true,
+          },
+        },
+      },
     });
 
     if (!order) {
       return NextResponse.json({ error: "Sipariş bulunamadı" }, { status: 404 });
     }
 
-    // Check authorization (if user is logged in, must be owner)
+    // Check authorization
+    // - If no session, allow access (order number in URL is the auth token - for order confirmation page)
+    // - If session exists but user doesn't own the order, deny access (unless admin)
     const session = await getServerSession(authOptions);
-    if (order.userId && order.userId !== "guest" && session?.user?.id !== order.userId) {
-      return NextResponse.json({ error: "Yetkilendirme hatası" }, { status: 403 });
+    
+    if (session?.user) {
+      const isOwner = session.user.id === order.userId;
+      const isAdmin = session.user.role === "ADMIN";
+      
+      if (!isOwner && !isAdmin) {
+        return NextResponse.json({ error: "Yetkilendirme hatası" }, { status: 403 });
+      }
     }
+    // If no session, allow access - order number is the secret token (received via redirect/email)
 
     // Get order items with product info
     const orderItems = await prisma.orderItem.findMany({
@@ -110,12 +129,22 @@ export async function GET(
       billingAddress: billingAddr ? {
         firstName: billingAddr.firstName || "",
         lastName: billingAddr.lastName || "",
-        email: "",
-        phone: billingAddr.phone || "",
+        email: order.user?.email || "",
+        phone: billingAddr.phone || order.user?.phone || "",
         addressLine1: billingAddr.addressLine1 || "",
         city: billingAddr.city || "",
         district: billingAddr.district || "",
         postalCode: billingAddr.postalCode || "",
+      } : order.user ? {
+        // No saved address, use user info
+        firstName: order.user.name?.split(" ")[0] || "",
+        lastName: order.user.name?.split(" ").slice(1).join(" ") || "",
+        email: order.user.email || "",
+        phone: order.user.phone || "",
+        addressLine1: "",
+        city: "",
+        district: "",
+        postalCode: "",
       } : null,
       shippingAddress: shippingAddr ? {
         firstName: shippingAddr.firstName || "",

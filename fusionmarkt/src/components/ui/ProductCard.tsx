@@ -116,32 +116,29 @@ export default function ProductCard({ product, className, priority = false }: Pr
   const hasVariants = variants && variants.length > 0;
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className, isOutOfStock && "opacity-60")}>
       <Link href={`/urun/${slug}`} className="block">
+        {/* IMAGE AREA - Tam genişlik, card'ın üstünde */}
         <div 
-          className={cn(
-            "flex flex-col h-full",
-            "bg-[#131313]/90 backdrop-blur-sm overflow-hidden",
-            "border border-white/[0.06] hover:border-white/10",
-            "transition-all duration-300",
-            isOutOfStock && "opacity-60"
-          )}
-          style={{ borderRadius: SQUIRCLE.xl }}
+          className="relative w-full bg-[#0a0a0a] overflow-hidden"
+          style={{ 
+            paddingBottom: '100%',
+            borderTopLeftRadius: SQUIRCLE.xl, 
+            borderTopRightRadius: SQUIRCLE.xl 
+          }}
         >
-          {/* IMAGE AREA - 1:1 Aspect Ratio */}
-          <div className="relative aspect-square flex-shrink-0 bg-[#0a0a0a]">
-            {image ? (
-              <Image 
-                src={image} 
-                alt={title} 
-                fill
-                sizes="(max-width: 768px) 100vw, 280px"
-                className="object-cover"
-                priority={priority}
-              />
-            ) : (
-              <ImagePlaceholder type="product" text="ÜRÜN GÖRSELİ" iconSize="lg" />
-            )}
+          {image ? (
+            <Image 
+              src={image} 
+              alt={title}
+              fill
+              priority={priority}
+              sizes="(max-width: 768px) 100vw, 280px"
+              className="object-cover"
+            />
+          ) : (
+            <ImagePlaceholder type="product" text="ÜRÜN GÖRSELİ" iconSize="lg" />
+          )}
             
             {/* Badges - Squircle */}
             {/* 
@@ -191,7 +188,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
 
             {/* Action Buttons - Glassmorphism Squircle - Bağımsız hover */}
             <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-              {/* Favorilere Ekle */}
+              {/* Favorilere Ekle - Hızlı İncele butonu gibi her zaman temalı */}
               <button
                 type="button"
                 onClick={(e) => { 
@@ -221,7 +218,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     ? '1px solid rgba(236, 72, 153, 0.5)' 
                     : favoriteHover 
                       ? '1px solid rgba(236, 72, 153, 0.45)' 
-                      : '1px solid rgba(255, 255, 255, 0.15)',
+                      : '1px solid rgba(236, 72, 153, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -229,7 +226,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     ? '#ec4899' 
                     : favoriteHover 
                       ? 'rgba(236, 72, 153, 0.95)' 
-                      : 'rgba(255, 255, 255, 0.6)',
+                      : 'rgba(236, 72, 153, 0.65)',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   boxShadow: isProductFavorite ? '0 2px 12px rgba(236, 72, 153, 0.25)' : '0 2px 8px rgba(0,0,0,0.12)',
@@ -275,8 +272,14 @@ export default function ProductCard({ product, className, priority = false }: Pr
             )}
           </div>
 
-          {/* CONTENT AREA */}
-          <div className="flex-1 flex flex-col p-3 pt-3">
+          {/* CONTENT AREA - Ayrı container, image'ın altında */}
+          <div 
+            className="flex-1 flex flex-col p-3 pt-3 bg-[#131313]/90 backdrop-blur-sm border border-white/[0.06] border-t-0 hover:border-white/10 transition-all duration-300"
+            style={{ 
+              borderBottomLeftRadius: SQUIRCLE.xl, 
+              borderBottomRightRadius: SQUIRCLE.xl 
+            }}
+          >
             {/* ÜST KISIM - Brand, Title, Subtitle */}
             <div className="flex flex-col gap-1">
               <p className="text-[10px] text-white/40 uppercase tracking-widest">
@@ -528,7 +531,6 @@ export default function ProductCard({ product, className, priority = false }: Pr
               </div>
             </div>
           </div>
-        </div>
       </Link>
     </div>
   );

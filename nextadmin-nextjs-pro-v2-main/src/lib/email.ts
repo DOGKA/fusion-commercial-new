@@ -4,7 +4,32 @@
  * 
  * Uses Resend API (https://resend.com)
  * Domain: fusionmarkt.com (verified, eu-west-1)
+ * 
+ * E-posta gönderimlerini otomatik olarak EmailLog tablosuna kaydeder.
+ * Resend webhook'ları ile durum güncellemeleri yapılır.
  */
+
+import { prisma } from "@/libs/prismaDb";
+
+// EmailLog model (prisma generate sonrası kaldırılacak)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const emailLog = (prisma as any).emailLog;
+
+// Email Type enum (schema ile aynı)
+export type EmailType = 
+  | "ORDER_CONFIRMATION"
+  | "ORDER_STATUS"
+  | "ORDER_SHIPPED"
+  | "ORDER_DELIVERED"
+  | "ORDER_CANCELLED"
+  | "ORDER_REFUNDED"
+  | "INVOICE"
+  | "PAYMENT_CONFIRMED"
+  | "WELCOME"
+  | "PASSWORD_RESET"
+  | "ABANDONED_CART"
+  | "MARKETING"
+  | "OTHER";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RESEND CONFIG
@@ -98,16 +123,20 @@ const baseTemplate = (content: string) => `
 `;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// EMAIL SEND FUNCTION (Resend API)
+// EMAIL SEND FUNCTION (Resend API with Tracking)
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
+  // Tracking için opsiyonel alanlar
+  type?: EmailType;
+  orderId?: string;
+  userId?: string;
 }
 
-async function sendEmail({ to, subject, html }: SendEmailParams) {
+async function sendEmail({ to, subject, html, type, orderId, userId }: SendEmailParams) {
   // Check if email is enabled
   if (!EMAIL_ENABLED) {
     if (process.env.NODE_ENV === "development") {
@@ -134,11 +163,50 @@ async function sendEmail({ to, subject, html }: SendEmailParams) {
     if (!response.ok) {
       const error = await response.json();
       console.error("❌ Resend API error:", error);
+      
+      // Başarısız gönderim logu
+      try {
+        await emailLog.create({
+          data: {
+            resendId: `failed-${Date.now()}`,
+            to,
+            subject,
+            type: type || "OTHER",
+            status: "FAILED",
+            orderId,
+            userId,
+            errorMessage: error.message || "Email send failed",
+          }
+        });
+      } catch (logError) {
+        console.error("❌ Failed to log email error:", logError);
+      }
+      
       return { success: false, error: error.message || "Email send failed" };
     }
 
     const data = await response.json();
     console.log("📧 Email sent via Resend:", data.id);
+    
+    // Başarılı gönderim logu oluştur
+    try {
+      await emailLog.create({
+        data: {
+          resendId: data.id,
+          to,
+          subject,
+          type: type || "OTHER",
+          status: "SENT",
+          orderId,
+          userId,
+        }
+      });
+      console.log("📝 Email logged:", data.id);
+    } catch (logError) {
+      // Log hatası e-posta gönderimini engellemez
+      console.error("❌ Failed to log email:", logError);
+    }
+    
     return { success: true, messageId: data.id };
   } catch (error) {
     console.error("❌ Email error:", error);
@@ -240,10 +308,21 @@ export async function sendOrderStatusEmail({
     </table>
   `);
 
+  // Status'a göre email type belirle
+  const emailTypeMap: Record<string, EmailType> = {
+    CONFIRMED: "ORDER_CONFIRMATION",
+    PROCESSING: "ORDER_STATUS",
+    SHIPPED: "ORDER_SHIPPED",
+    DELIVERED: "ORDER_DELIVERED",
+    CANCELLED: "ORDER_CANCELLED",
+    REFUNDED: "ORDER_REFUNDED",
+  };
+  
   return sendEmail({
     to,
     subject: `FusionMarkt - ${statusLabel} #${orderNumber}`,
     html,
+    type: emailTypeMap[status] || "ORDER_STATUS",
   });
 }
 
@@ -315,6 +394,7 @@ export async function sendInvoiceReadyEmail({
     to,
     subject: `FusionMarkt - Faturanız Hazır #${orderNumber}`,
     html,
+    type: "INVOICE",
   });
 }
 
@@ -395,5 +475,6 @@ export async function sendPaymentConfirmedEmail({
     to,
     subject: `FusionMarkt - Ödemeniz Onaylandı #${orderNumber}`,
     html,
+    type: "PAYMENT_CONFIRMED",
   });
 }

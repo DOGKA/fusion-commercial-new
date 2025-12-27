@@ -17,6 +17,7 @@ import {
   RefreshCcw,
   FileText
 } from "lucide-react";
+import { getEmailError } from "@/lib/utils";
 
 // WhatsApp SVG Icon
 const WhatsAppIcon = () => (
@@ -57,10 +58,10 @@ export default function IletisimPage() {
       newErrors.name = "Adınız ve soyadınız gereklidir";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "E-posta adresi gereklidir";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Geçerli bir e-posta adresi giriniz";
+    // Email validation
+    const emailError = getEmailError(formData.email);
+    if (emailError) {
+      newErrors.email = emailError;
     }
 
     if (!formData.phone.trim()) {

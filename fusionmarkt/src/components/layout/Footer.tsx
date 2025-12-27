@@ -51,7 +51,8 @@ const footerLinks = {
   },
 };
 
-const paymentMethods = ["Visa", "Mastercard", "Amex", "Troy"];
+// iyzico logo band for payment methods
+const IYZICO_LOGO_BAND_URL = "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832801022-0fvo3-logo_band_white.svg";
 
 export default function Footer() {
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -161,13 +162,11 @@ export default function Footer() {
               
               {/* Sağ: Ödeme Yöntemleri + Güvenlik */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  {paymentMethods.map((method) => (
-                    <div key={method} className="h-6 px-2 rounded bg-[var(--glass-bg)] border border-[var(--glass-border)] flex items-center justify-center">
-                      <span className="text-[9px] font-medium text-[var(--foreground-secondary)]">{method}</span>
-                    </div>
-                  ))}
-                </div>
+                <img 
+                  src={IYZICO_LOGO_BAND_URL} 
+                  alt="iyzico ödeme yöntemleri" 
+                  style={{ height: '14px', opacity: 0.8 }}
+                />
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
                   <Shield className="w-3.5 h-3.5 text-[var(--fusion-success)]" />
@@ -307,13 +306,11 @@ export default function Footer() {
         <div className="py-4 px-4 border-t border-[var(--glass-border)] bg-[var(--background-tertiary)] space-y-3">
           {/* Ödeme ve Güvenlik */}
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-            {paymentMethods.map((method) => (
-                <div key={method} className="h-5 px-1.5 rounded bg-[var(--glass-bg)] border border-[var(--glass-border)] flex items-center justify-center">
-                  <span className="text-[8px] font-medium text-[var(--foreground-secondary)]">{method}</span>
-              </div>
-            ))}
-          </div>
+            <img 
+              src={IYZICO_LOGO_BAND_URL} 
+              alt="iyzico ödeme yöntemleri" 
+              style={{ height: '12px', opacity: 0.8 }}
+            />
             <div className="flex items-center gap-2 text-[10px] text-[var(--foreground-muted)]">
               <div className="flex items-center gap-0.5">
                 <Shield className="w-2.5 h-2.5 text-[var(--fusion-success)]" />

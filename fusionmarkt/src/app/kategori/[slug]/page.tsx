@@ -289,6 +289,14 @@ export default function CategoryPage() {
 
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Mobile carousel state
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  const isDragging = useRef<boolean>(false);
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const cardWidth = 296; // 280px card + 16px gap
 
   // Get theme color from category or use default
   const themeColor = category?.themeColor || DEFAULT_THEME_COLOR;
@@ -717,6 +725,62 @@ export default function CategoryPage() {
     });
   };
 
+  // Touch/swipe handlers for mobile carousel
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    isDragging.current = true;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+    
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0 && currentIndex < products.length - 1) {
+        goToIndex(currentIndex + 1);
+      } else if (diff < 0 && currentIndex > 0) {
+        goToIndex(currentIndex - 1);
+      }
+    }
+  };
+
+  const goToIndex = (index: number) => {
+    const scrollContainer = mobileScrollRef.current;
+    if (!scrollContainer) return;
+    
+    const targetScroll = index * cardWidth;
+    scrollContainer.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth'
+    });
+    setCurrentIndex(index);
+  };
+
+  // Update currentIndex on scroll
+  useEffect(() => {
+    const scrollContainer = mobileScrollRef.current;
+    if (!scrollContainer || !isMobile) return;
+
+    const handleScroll = () => {
+      const scrollLeft = scrollContainer.scrollLeft;
+      const newIndex = Math.round(scrollLeft / cardWidth);
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < products.length) {
+        setCurrentIndex(newIndex);
+      }
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, [isMobile, currentIndex, products.length]);
+
   // Loading
   if (loading) {
     return (
@@ -787,42 +851,87 @@ export default function CategoryPage() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {products.length > 0 ? (
           <>
-            {/* MOBILE: Carousel */}
+            {/* MOBILE: Carousel with Swipe & Dots */}
             <div className="md:hidden relative">
               <div
-                ref={carouselRef}
-                className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                ref={mobileScrollRef}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth"
+                style={{ 
+                  scrollbarWidth: "none", 
+                  msOverflowStyle: "none",
+                  paddingLeft: '16px',
+                  paddingRight: '16px',
+                  WebkitOverflowScrolling: 'touch',
+                }}
               >
-                {products.map((product) => (
-                  <div key={product.id} className="flex-shrink-0 w-[75vw] max-w-[280px] snap-start">
-                    <ProductCard product={mapApiProductToCard(product)} />
+                {products.map((product, idx) => (
+                  <div 
+                    key={product.id} 
+                    className="flex-shrink-0 w-[280px] snap-start"
+                  >
+                    <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
                   </div>
                 ))}
               </div>
 
-              {/* Carousel Controls */}
-              <button
-                type="button"
-                onClick={() => scrollCarousel("left")}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-10 h-10 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white z-10"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollCarousel("right")}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-10 h-10 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white z-10"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-
-              {/* Scroll Indicator */}
-              <div className="flex justify-center gap-1 mt-2">
-                {products.slice(0, Math.min(products.length, 8)).map((_, i) => (
-                  <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/30" />
-                ))}
-              </div>
+              {/* Dot Indicators - themeColor based */}
+              {products.length > 1 && (
+                <div className="flex items-center justify-center gap-1.5 mt-4 pb-2">
+                  {products.length <= 5 ? (
+                    // Show all dots if 5 or fewer products
+                    products.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToIndex(index)}
+                        className="group relative p-1"
+                        aria-label={`Ürün ${index + 1}`}
+                      >
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-300 ${
+                            index === currentIndex
+                              ? 'w-6'
+                              : 'w-1.5 bg-white/30 group-hover:bg-white/50'
+                          }`}
+                          style={index === currentIndex ? { backgroundColor: themeColor } : {}}
+                        />
+                      </button>
+                    ))
+                  ) : (
+                    // Show abbreviated dots if more than 5 products
+                    [0, 1, 2].map((offset) => {
+                      let dotIndex: number;
+                      if (currentIndex <= 1) {
+                        dotIndex = offset;
+                      } else if (currentIndex >= products.length - 2) {
+                        dotIndex = products.length - 3 + offset;
+                      } else {
+                        dotIndex = currentIndex - 1 + offset;
+                      }
+                      
+                      return (
+                        <button
+                          key={dotIndex}
+                          onClick={() => goToIndex(dotIndex)}
+                          className="group relative p-1"
+                          aria-label={`Ürün ${dotIndex + 1}`}
+                        >
+                          <div
+                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                              dotIndex === currentIndex
+                                ? 'w-6'
+                                : 'w-1.5 bg-white/30 group-hover:bg-white/50'
+                            }`}
+                            style={dotIndex === currentIndex ? { backgroundColor: themeColor } : {}}
+                          />
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
             </div>
 
             {/* DESKTOP: Grid - 4 ürün per satır */}
@@ -847,10 +956,10 @@ export default function CategoryPage() {
       </div>
 
       {/* ============================================ */}
-      {/* PAGINATION */}
+      {/* PAGINATION - Hidden on mobile (dots used instead) */}
       {/* ============================================ */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2 py-6 sm:py-8 px-4">
+        <div className="relative z-10 hidden md:flex items-center justify-center gap-1 sm:gap-2 py-6 sm:py-8 px-4">
           <button
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}

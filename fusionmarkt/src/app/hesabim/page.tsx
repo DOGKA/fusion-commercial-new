@@ -1408,6 +1408,21 @@ interface OrderAddress {
   postalCode?: string;
 }
 
+interface StatusHistoryItem {
+  type?: string;
+  status?: string;
+  date?: string;
+  note?: string;
+  contracts?: {
+    termsAndConditions?: boolean;
+    distanceSalesContract?: boolean;
+    newsletter?: boolean;
+    acceptedAt?: string;
+    termsAndConditionsHTML?: string;
+    distanceSalesContractHTML?: string;
+  };
+}
+
 interface Order {
   id: string;
   orderNumber: string;
@@ -1434,6 +1449,7 @@ interface Order {
   shippingAddress: OrderAddress | null;
   billingAddress: OrderAddress | null;
   customerNote: string | null;
+  statusHistory?: StatusHistoryItem[];
 }
 
 // Durum konfigürasyonları
@@ -2021,6 +2037,80 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                       <span className="text-[12px] text-white/30">-</span>
                     )}
                   </div>
+
+                  {/* Contracts Section */}
+                  {(() => {
+                    const contractHistory = order.statusHistory?.find(
+                      (h: StatusHistoryItem) => h.type === "CONTRACT_ACCEPTANCE"
+                    );
+                    const contracts = contractHistory?.contracts;
+                    
+                    if (!contracts) return null;
+                    
+                    return (
+                      <div className="p-3 bg-white/[0.02] rounded-lg">
+                        <p className="text-[12px] text-white/40 mb-3 flex items-center gap-2">
+                          <FileText size={12} />
+                          Kabul Edilen Sözleşmeler
+                        </p>
+                        <div className="space-y-2">
+                          {/* Terms */}
+                          {contracts.termsAndConditions && (
+                            <div className="flex items-center justify-between bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[12px] text-emerald-400">✓</span>
+                                <span className="text-[12px] text-white/70">Kullanıcı Sözleşmesi ve Şartlar</span>
+                              </div>
+                              <a
+                                href={`/sozlesmeler/${order.orderNumber}?contract=terms`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                              >
+                                Görüntüle <ExternalLink size={10} />
+                              </a>
+                            </div>
+                          )}
+                          {/* Distance Sales */}
+                          {contracts.distanceSalesContract && (
+                            <div className="flex items-center justify-between bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[12px] text-emerald-400">✓</span>
+                                <span className="text-[12px] text-white/70">Mesafeli Satış Sözleşmesi</span>
+                              </div>
+                              <a
+                                href={`/sozlesmeler/${order.orderNumber}?contract=distance`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                              >
+                                Görüntüle <ExternalLink size={10} />
+                              </a>
+                            </div>
+                          )}
+                          {/* Newsletter */}
+                          {contracts.newsletter && (
+                            <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/10 rounded-lg p-2">
+                              <span className="text-[12px] text-blue-400">✓</span>
+                              <span className="text-[12px] text-white/50">Bülten ve Kampanya Bildirimleri</span>
+                            </div>
+                          )}
+                          {/* Acceptance Date */}
+                          {contracts.acceptedAt && (
+                            <p className="text-[10px] text-white/30 mt-2">
+                              Onay Tarihi: {new Date(contracts.acceptedAt).toLocaleDateString("tr-TR", { 
+                                day: "2-digit", 
+                                month: "long", 
+                                year: "numeric", 
+                                hour: "2-digit", 
+                                minute: "2-digit" 
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Shipping Address */}
                   {order.shippingAddress && (

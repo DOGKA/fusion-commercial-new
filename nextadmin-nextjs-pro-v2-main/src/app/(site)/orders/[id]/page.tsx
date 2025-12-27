@@ -998,7 +998,22 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
 
   if (!isOpen) return null;
 
-  // Build buyer info from order
+  // Check for stored HTML contracts in statusHistory
+  const contractHistory = order.statusHistory?.find(
+    (h: any) => h.type === "CONTRACT_ACCEPTANCE"
+  );
+  const storedContracts = contractHistory?.contracts;
+  
+  // Check if we have stored HTML contracts
+  const hasStoredHTML = contractType === "distanceSales"
+    ? !!storedContracts?.distanceSalesContractHTML
+    : !!storedContracts?.termsAndConditionsHTML;
+  
+  const storedHTML = contractType === "distanceSales"
+    ? storedContracts?.distanceSalesContractHTML
+    : storedContracts?.termsAndConditionsHTML;
+
+  // Build buyer info from order (fallback for old orders without stored HTML)
   const buyerName = order.user?.name || 
     (order.billingAddress ? 
       `${order.billingAddress.firstName || ""} ${order.billingAddress.lastName || ""}`.trim() || 
@@ -1012,6 +1027,7 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
   const buyerPhone = order.billingAddress?.phone || order.user?.phone || "Belirtilmedi";
   const buyerEmail = order.user?.email || "Belirtilmedi";
 
+  // Fallback to generated text if no stored HTML
   const contractContent = contractType === "distanceSales" 
     ? generateDistanceSalesContract({
         orderNumber: order.orderNumber,
@@ -1071,19 +1087,42 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
               <p className="text-xs md:text-sm text-gray-500">#{order.orderNumber}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg border border-stroke hover:bg-gray-50 dark:border-dark-3 dark:hover:bg-dark-2 flex-shrink-0"
-          >
-            <X size={isMobile ? 18 : 20} className="text-gray-500" />
-          </button>
+          <div className="flex items-center gap-2">
+            {hasStoredHTML && (
+              <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-full">
+                Orijinal Kayıt
+              </span>
+            )}
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg border border-stroke hover:bg-gray-50 dark:border-dark-3 dark:hover:bg-dark-2 flex-shrink-0"
+            >
+              <X size={isMobile ? 18 : 20} className="text-gray-500" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-3 md:p-6" style={{ WebkitOverflowScrolling: "touch" }}>
-          <pre className="whitespace-pre-wrap break-words rounded-lg md:rounded-xl border border-stroke bg-gray-50 p-3 md:p-6 font-mono text-[10px] md:text-xs leading-relaxed text-gray-700 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300">
-            {contractContent}
-          </pre>
+          {hasStoredHTML ? (
+            // Display stored HTML contract with same styling
+            <div 
+              className="contract-html-content"
+              dangerouslySetInnerHTML={{ __html: storedHTML || "" }}
+            />
+          ) : (
+            // Fallback to text-based contract for old orders
+            <div>
+              <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 dark:bg-amber-900/20 dark:border-amber-700">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  ⚠️ Bu sipariş için orijinal sözleşme HTML'i kayıtlı değil. Aşağıda yeniden oluşturulmuş sözleşme gösterilmektedir.
+                </p>
+              </div>
+              <pre className="whitespace-pre-wrap break-words rounded-lg md:rounded-xl border border-stroke bg-gray-50 p-3 md:p-6 font-mono text-[10px] md:text-xs leading-relaxed text-gray-700 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300">
+                {contractContent}
+              </pre>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
