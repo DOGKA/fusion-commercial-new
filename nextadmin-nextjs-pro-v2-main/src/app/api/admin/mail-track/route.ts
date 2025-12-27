@@ -10,9 +10,8 @@ import { prisma } from "@/libs/prismaDb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
 
-// EmailLog model types (prisma generate sonrası kaldırılacak)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const emailLog = (prisma as any).emailLog;
+// EmailLog model types
+const emailLog = prisma.emailLog;
 
 // GET - E-posta loglarını listele
 export async function GET(request: NextRequest) {
@@ -35,8 +34,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
 
     // Where koşulları
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (type) {
       where.type = type;

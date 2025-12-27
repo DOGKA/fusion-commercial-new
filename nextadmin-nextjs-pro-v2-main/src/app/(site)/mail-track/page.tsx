@@ -356,7 +356,7 @@ export default function MailTrackPage() {
         <h3 className="font-medium text-blue-800 dark:text-blue-300">📧 E-posta Takip Nasıl Çalışır?</h3>
         <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-400">
           <li>• E-postalar Resend API üzerinden gönderilir ve otomatik olarak loglanır</li>
-          <li>• Resend webhook'ları ile teslim, açılma ve tıklama durumları güncellenir</li>
+          <li>• Resend webhook&apos;ları ile teslim, açılma ve tıklama durumları güncellenir</li>
           <li>• Geri dönen e-postalar (bounce) ve spam şikayetleri takip edilir</li>
           <li>• Açılma oranı = (Açılan + Tıklanan) / (Teslim Edilen + Açılan + Tıklanan) * 100</li>
         </ul>

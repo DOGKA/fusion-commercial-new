@@ -20,9 +20,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/libs/prismaDb";
 import crypto from "crypto";
 
-// EmailLog model types (prisma generate sonrası kaldırılacak)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const emailLog = (prisma as any).emailLog;
+// EmailLog model types
+const emailLog = prisma.emailLog;
 
 // Resend webhook secret (opsiyonel ama önerilir)
 const WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET;

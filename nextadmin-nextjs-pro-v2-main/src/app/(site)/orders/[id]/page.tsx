@@ -1115,7 +1115,7 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
             <div>
               <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3 dark:bg-amber-900/20 dark:border-amber-700">
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  ⚠️ Bu sipariş için orijinal sözleşme HTML'i kayıtlı değil. Aşağıda yeniden oluşturulmuş sözleşme gösterilmektedir.
+                  ⚠️ Bu sipariş için orijinal sözleşme HTML&apos;i kayıtlı değil. Aşağıda yeniden oluşturulmuş sözleşme gösterilmektedir.
                 </p>
               </div>
               <pre className="whitespace-pre-wrap break-words rounded-lg md:rounded-xl border border-stroke bg-gray-50 p-3 md:p-6 font-mono text-[10px] md:text-xs leading-relaxed text-gray-700 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300">

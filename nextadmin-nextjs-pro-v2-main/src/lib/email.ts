@@ -11,9 +11,8 @@
 
 import { prisma } from "@/libs/prismaDb";
 
-// EmailLog model (prisma generate sonrası kaldırılacak)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const emailLog = (prisma as any).emailLog;
+// EmailLog model
+const emailLog = prisma.emailLog;
 
 // Email Type enum (schema ile aynı)
 export type EmailType = 
