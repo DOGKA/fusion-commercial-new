@@ -17,14 +17,17 @@ import Iyzipay from "iyzipay";
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 
-const iyzipay = new Iyzipay({
-  apiKey: process.env.IYZICO_API_KEY || "",
-  secretKey: process.env.IYZICO_SECRET_KEY || "",
-  uri: process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com",
-});
-
-// Check if iyzico is configured
+// Check if iyzico is configured BEFORE creating instance
 export const IYZICO_ENABLED = !!(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY);
+
+// Only create iyzipay instance if credentials are available
+const iyzipay = IYZICO_ENABLED 
+  ? new Iyzipay({
+      apiKey: process.env.IYZICO_API_KEY!,
+      secretKey: process.env.IYZICO_SECRET_KEY!,
+      uri: process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com",
+    })
+  : null;
 
 if (!IYZICO_ENABLED && process.env.NODE_ENV === "production") {
   console.warn("⚠️  iyzico disabled! Set IYZICO_API_KEY and IYZICO_SECRET_KEY to enable payments.");
@@ -195,6 +198,11 @@ export function threedsInitialize(request: ThreeDSInitializeRequest): Promise<Iy
 
     console.log("🔐 3DS Initialize Request:", JSON.stringify(iyziRequest, null, 2));
 
+    if (!iyzipay) {
+      reject(new Error("iyzico is not configured"));
+      return;
+    }
+
     iyzipay.threedsInitialize.create(iyziRequest, (err: Error | null, result: IyzicoResult) => {
       if (err) {
         console.error("❌ iyzico 3DS Initialize Error:", err);
@@ -222,6 +230,11 @@ export function threedsPayment(request: ThreeDSPaymentRequest): Promise<IyzicoRe
     };
 
     console.log("💳 3DS Payment Request:", JSON.stringify(iyziRequest, null, 2));
+
+    if (!iyzipay) {
+      reject(new Error("iyzico is not configured"));
+      return;
+    }
 
     iyzipay.threedsPayment.create(iyziRequest, (err: Error | null, result: IyzicoResult) => {
       if (err) {
@@ -262,6 +275,11 @@ export function createRefund(request: RefundRequest): Promise<IyzicoResult> {
 
     console.log("💸 Refund Request:", JSON.stringify(iyziRequest, null, 2));
 
+    if (!iyzipay) {
+      reject(new Error("iyzico is not configured"));
+      return;
+    }
+
     iyzipay.refund.create(iyziRequest, (err: Error | null, result: IyzicoResult) => {
       if (err) {
         console.error("❌ iyzico Refund Error:", err);
@@ -297,6 +315,11 @@ export function createCancel(request: CancelRequest): Promise<IyzicoResult> {
 
     console.log("🚫 Cancel Request:", JSON.stringify(iyziRequest, null, 2));
 
+    if (!iyzipay) {
+      reject(new Error("iyzico is not configured"));
+      return;
+    }
+
     iyzipay.cancel.create(iyziRequest, (err: Error | null, result: IyzicoResult) => {
       if (err) {
         console.error("❌ iyzico Cancel Error:", err);
@@ -322,12 +345,111 @@ export function retrievePayment(paymentId: string, conversationId?: string): Pro
       paymentId: paymentId,
     };
 
+    if (!iyzipay) {
+      reject(new Error("iyzico is not configured"));
+      return;
+    }
+
     iyzipay.payment.retrieve(iyziRequest, (err: Error | null, result: IyzicoResult) => {
       if (err) {
         console.error("❌ iyzico Retrieve Error:", err);
         reject(err);
         return;
       }
+      resolve(result);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INSTALLMENT INFO (Taksit Seçenekleri)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface InstallmentInfoRequest {
+  locale?: "tr" | "en";
+  conversationId?: string;
+  binNumber: string; // Kartın ilk 6 hanesi
+  price: string; // Toplam tutar
+}
+
+export interface InstallmentDetail {
+  binNumber: string;
+  price: string;
+  cardType: string;
+  cardAssociation: string;
+  cardFamilyName: string;
+  force3ds: number;
+  bankCode: number;
+  bankName: string;
+  forceCvc: number;
+  commercial: number;
+  installmentPrices: Array<{
+    installmentNumber: number;
+    installmentPrice: string;
+    totalPrice: string;
+  }>;
+}
+
+export interface InstallmentInfoResult {
+  status: "success" | "failure";
+  errorCode?: string;
+  errorMessage?: string;
+  errorGroup?: string;
+  locale?: string;
+  systemTime?: number;
+  conversationId?: string;
+  installmentDetails?: InstallmentDetail[];
+}
+
+export function getInstallmentInfo(request: InstallmentInfoRequest): Promise<InstallmentInfoResult> {
+  return new Promise((resolve, reject) => {
+    // Check if iyzico is configured
+    if (!IYZICO_ENABLED) {
+      console.warn("⚠️ iyzico not configured, returning mock installment data");
+      resolve({
+        status: "success",
+        conversationId: request.conversationId || `MOCK_${Date.now()}`,
+        installmentDetails: [{
+          binNumber: request.binNumber,
+          price: request.price,
+          cardType: "CREDIT_CARD",
+          cardAssociation: "MASTER_CARD",
+          cardFamilyName: "Bonus",
+          force3ds: 0,
+          bankCode: 0,
+          bankName: "Test Banka",
+          forceCvc: 0,
+          commercial: 0,
+          installmentPrices: [
+            { installmentNumber: 1, installmentPrice: request.price, totalPrice: request.price },
+          ],
+        }],
+      });
+      return;
+    }
+
+    const iyziRequest = {
+      locale: request.locale || Iyzipay.LOCALE.TR,
+      conversationId: request.conversationId || `INST_${Date.now()}`,
+      binNumber: request.binNumber.replace(/\s/g, "").substring(0, 6),
+      price: request.price,
+    };
+
+    console.log("💳 Installment Info Request:", JSON.stringify(iyziRequest, null, 2));
+
+    if (!iyzipay) {
+      reject(new Error("iyzico is not configured"));
+      return;
+    }
+
+    iyzipay.installmentInfo.retrieve(iyziRequest, (err: Error | null, result: InstallmentInfoResult) => {
+      if (err) {
+        console.error("❌ iyzico Installment Info Error:", err);
+        reject(err);
+        return;
+      }
+      
+      console.log("✅ iyzico Installment Info Result:", result.status);
       resolve(result);
     });
   });

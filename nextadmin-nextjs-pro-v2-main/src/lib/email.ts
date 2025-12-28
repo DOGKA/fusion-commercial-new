@@ -316,7 +316,7 @@ export async function sendOrderStatusEmail({
     CANCELLED: "ORDER_CANCELLED",
     REFUNDED: "ORDER_REFUNDED",
   };
-  
+
   return sendEmail({
     to,
     subject: `FusionMarkt - ${statusLabel} #${orderNumber}`,

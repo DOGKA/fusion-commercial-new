@@ -341,7 +341,7 @@ export default function HesabimPage() {
                   <div className="flex flex-col items-center text-center">
                     <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 flex items-center justify-center overflow-hidden mb-4 border-2 border-emerald-500/20">
                       {avatarUrl && (avatarUrl.startsWith("/") || avatarUrl.startsWith("http") || avatarUrl.startsWith("data:")) ? (
-                        <Image src={avatarUrl} alt={user.name || "Profil"} fill className="object-cover" />
+                        <Image src={avatarUrl} alt={user.name || "Profil"} fill sizes="96px" className="object-cover" />
                       ) : (
                         <User size={32} className="text-emerald-400" />
                       )}
@@ -1264,7 +1264,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
           {/* Profile Picture - Only visible on mobile (lg:hidden) */}
           <div className="lg:hidden relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 flex items-center justify-center overflow-hidden border-2 border-emerald-500/20 flex-shrink-0">
             {isValidAvatar ? (
-              <Image src={avatarUrl} alt={user.name || "Profil"} fill className="object-cover" />
+              <Image src={avatarUrl} alt={user.name || "Profil"} fill sizes="96px" className="object-cover" />
             ) : (
               <User size={28} className="text-emerald-400" />
             )}
@@ -1901,14 +1901,15 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-3 p-2 bg-white/[0.02] rounded-lg"
+                        className="flex items-start gap-2 sm:gap-3 p-2 bg-white/[0.02] rounded-lg"
                       >
-                        <div className="w-12 h-12 bg-white/[0.03] rounded-lg overflow-hidden relative flex-shrink-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/[0.03] rounded-lg overflow-hidden relative flex-shrink-0">
                           {item.product.thumbnail || item.product.images[0] ? (
                             <Image
                               src={item.product.thumbnail || item.product.images[0]}
                               alt={item.product.name}
                               fill
+                              sizes="48px"
                               className="object-contain p-1"
                             />
                           ) : (
@@ -2039,79 +2040,6 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                     )}
                   </div>
 
-                  {/* Contracts Section */}
-                  {(() => {
-                    const contractHistory = order.statusHistory?.find(
-                      (h: StatusHistoryItem) => h.type === "CONTRACT_ACCEPTANCE"
-                    );
-                    const contracts = contractHistory?.contracts;
-                    
-                    if (!contracts) return null;
-                    
-                    return (
-                      <div className="p-3 bg-white/[0.02] rounded-lg">
-                        <p className="text-[12px] text-white/40 mb-3 flex items-center gap-2">
-                          <FileText size={12} />
-                          Kabul Edilen Sözleşmeler
-                        </p>
-                        <div className="space-y-2">
-                          {/* Terms */}
-                          {contracts.termsAndConditions && (
-                            <div className="flex items-center justify-between bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[12px] text-emerald-400">✓</span>
-                                <span className="text-[12px] text-white/70">Kullanıcı Sözleşmesi ve Şartlar</span>
-                              </div>
-                              <a
-                                href={`/sozlesmeler/${order.orderNumber}?contract=terms`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                              >
-                                Görüntüle <ExternalLink size={10} />
-                              </a>
-                            </div>
-                          )}
-                          {/* Distance Sales */}
-                          {contracts.distanceSalesContract && (
-                            <div className="flex items-center justify-between bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[12px] text-emerald-400">✓</span>
-                                <span className="text-[12px] text-white/70">Mesafeli Satış Sözleşmesi</span>
-                              </div>
-                              <a
-                                href={`/sozlesmeler/${order.orderNumber}?contract=distance`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                              >
-                                Görüntüle <ExternalLink size={10} />
-                              </a>
-                            </div>
-                          )}
-                          {/* Newsletter */}
-                          {contracts.newsletter && (
-                            <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/10 rounded-lg p-2">
-                              <span className="text-[12px] text-blue-400">✓</span>
-                              <span className="text-[12px] text-white/50">Bülten ve Kampanya Bildirimleri</span>
-                            </div>
-                          )}
-                          {/* Acceptance Date */}
-                          {contracts.acceptedAt && (
-                            <p className="text-[10px] text-white/30 mt-2">
-                              Onay Tarihi: {new Date(contracts.acceptedAt).toLocaleDateString("tr-TR", { 
-                                day: "2-digit", 
-                                month: "long", 
-                                year: "numeric", 
-                                hour: "2-digit", 
-                                minute: "2-digit" 
-                              })}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
 
                   {/* Shipping Address */}
                   {order.shippingAddress && (
@@ -2656,7 +2584,7 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
           {avatarLoading ? (
             <Loader2 size={24} className="animate-spin text-emerald-400/50" />
           ) : isValidImageUrl ? (
-            <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+            <Image src={avatarUrl} alt="Avatar" fill sizes="96px" className="object-cover" />
           ) : (
             <User size={32} className="text-emerald-400" />
           )}
@@ -2874,6 +2802,7 @@ function FavoritesPane() {
                     src={item.image}
                     alt={item.title}
                     fill
+                    sizes="80px"
                     className="object-contain p-2"
                   />
                 ) : (

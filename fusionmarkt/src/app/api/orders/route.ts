@@ -235,8 +235,16 @@ export async function POST(request: NextRequest) {
       email: billingAddress.email,
     };
     
-    const orderItems = items.map((item: { name?: string; title?: string; variant?: { value?: string }; price: number; quantity: number }) => ({
-      name: item.name || item.title || "Ürün",
+    // Fetch product names from database for contract generation
+    const productIds = items.map((item: { productId: string }) => item.productId);
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, name: true },
+    });
+    const productNameMap = new Map(products.map(p => [p.id, p.name || "Ürün"]));
+    
+    const orderItems = items.map((item: { productId: string; name?: string; title?: string; variant?: { value?: string }; price: number; quantity: number }) => ({
+      name: productNameMap.get(item.productId) || item.name || item.title || "Ürün",
       variant: item.variant,
       price: item.price,
       quantity: item.quantity,

@@ -82,6 +82,38 @@ const nextConfig: NextConfig = {
   
   // Disable x-powered-by header (security)
   poweredByHeader: false,
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CSS CONFIGURATION
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Disable CSS optimization that causes preload warnings
+  experimental: {
+    optimizeCss: false,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WEBPACK CONFIGURATION
+  // ═══════════════════════════════════════════════════════════════════════════
+  webpack: (config, { isServer }) => {
+    // Fix for CSS preload warnings - disable preload hints for CSS
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks?.cacheGroups,
+          // Combine all CSS into fewer chunks to reduce preload issues
+          styles: {
+            name: "styles",
+            test: /\.css$/,
+            chunks: "all",
+            enforce: true,
+            priority: 20,
+          },
+        },
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

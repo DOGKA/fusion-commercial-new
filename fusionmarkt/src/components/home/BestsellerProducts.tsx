@@ -1,15 +1,22 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Loader2, TrendingUp } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { mapApiProductsToCards } from "@/lib/mappers";
+import { useMomentumScroll } from "@/hooks/useMomentumScroll";
 
 export default function BestsellerProducts() {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
+
+  // Use momentum scroll hook for smooth touch/drag interaction
+  const { containerRef: scrollRef, handlers } = useMomentumScroll({
+    autoScroll: !loading && products.length > 0,
+    autoScrollSpeed: 0.5,
+    pauseOnHover: true,
+    friction: 0.94,
+  });
 
   useEffect(() => {
     const fetchBestsellerProducts = async () => {
@@ -29,30 +36,6 @@ export default function BestsellerProducts() {
 
     fetchBestsellerProducts();
   }, []);
-
-  // Auto scroll - 360 derece sonsuz döngü
-  useEffect(() => {
-    if (loading || products.length === 0 || isPaused) return;
-
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    const scrollSpeed = 1;
-    const scrollInterval = 30;
-
-    const autoScroll = setInterval(() => {
-      if (!scrollContainer) return;
-      
-      scrollContainer.scrollLeft += scrollSpeed;
-      
-      const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-      if (scrollContainer.scrollLeft >= maxScroll - 10) {
-        scrollContainer.scrollLeft = 0;
-      }
-    }, scrollInterval);
-
-    return () => clearInterval(autoScroll);
-  }, [loading, products, isPaused]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -116,14 +99,18 @@ export default function BestsellerProducts() {
             <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
           </div>
         ) : (
-          /* Products Carousel */
+          /* Products Carousel - Momentum scroll enabled */
           <div className="relative">
             <div
               ref={scrollRef}
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-              className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              {...handlers}
+              className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide touch-pan-x"
+              style={{ 
+                scrollbarWidth: "none", 
+                msOverflowStyle: "none",
+                cursor: "grab",
+                WebkitOverflowScrolling: "touch",
+              }}
             >
               {displayProducts.map((product, index) => (
                 <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px] relative">

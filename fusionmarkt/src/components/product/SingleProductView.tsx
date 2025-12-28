@@ -8,6 +8,7 @@ import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useMomentumScroll } from "@/hooks/useMomentumScroll";
 
 // API Response types
 interface ApiReview {
@@ -289,13 +290,15 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
     fetchProduct();
   }, [slug]);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const dragStartX = useRef(0);
-  const scrollStartX = useRef(0);
-  const animationRef = useRef<number | null>(null);
-  
+
+  // Momentum scroll for key features strip
+  const { containerRef: featuresRef, handlers: featuresHandlers } = useMomentumScroll({
+    autoScroll: true,
+    autoScrollSpeed: 0.5,
+    pauseOnHover: true,
+    friction: 0.94,
+  });
+
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewRating, setReviewRating] = useState(0);
@@ -333,80 +336,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     }, 1000);
   };
 
-
-  // Auto-scroll features (smooth with requestAnimationFrame)
-  useEffect(() => {
-    let lastTime = 0;
-    const scrollSpeed = 0.5; // piksel/frame - daha yavaş ve smooth
-    
-    const animate = (currentTime: number) => {
-      if (!featuresRef.current || isPaused || isDragging) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      
-      // 60fps için throttle
-      if (currentTime - lastTime < 16.67) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      lastTime = currentTime;
-      
-      const container = featuresRef.current;
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      
-      // Sona gelince seamless loop için anında başa dön
-      if (container.scrollLeft >= maxScroll - 1) {
-        container.scrollLeft = 0;
-      } else {
-        container.scrollLeft += scrollSpeed;
-      }
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isPaused, isDragging]);
-
-  // Mouse drag handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!featuresRef.current) return;
-    setIsDragging(true);
-    dragStartX.current = e.clientX;
-    scrollStartX.current = featuresRef.current.scrollLeft;
-    featuresRef.current.style.cursor = 'grabbing';
-  };
-  
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !featuresRef.current) return;
-    e.preventDefault();
-    const deltaX = e.clientX - dragStartX.current;
-    featuresRef.current.scrollLeft = scrollStartX.current - deltaX;
-  };
-  
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (featuresRef.current) {
-      featuresRef.current.style.cursor = 'grab';
-    }
-  };
-  
-  const handleMouseLeaveCarousel = () => {
-    setIsDragging(false);
-    setIsPaused(false);
-    if (featuresRef.current) {
-      featuresRef.current.style.cursor = 'grab';
-    }
-  };
-
-  // Hover'da durdur
-  const handleMouseEnter = () => setIsPaused(true);
 
   // Loading state
   if (loading) {
@@ -770,12 +699,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               />
             </div>
 
-            {/* KEY FEATURES - Auto-scroll with drag support */}
-            <div 
-              style={{ marginBottom: '12px', position: 'relative' }}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeaveCarousel}
-            >
+            {/* KEY FEATURES - Auto-scroll with momentum drag support */}
+            <div style={{ marginBottom: '12px', position: 'relative' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Özellikler
@@ -788,19 +713,17 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               
               <div 
                 ref={featuresRef}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
+                {...featuresHandlers}
+                className="touch-pan-x"
                 style={{ 
                   display: 'flex', 
                   gap: '8px', 
                   overflowX: 'auto',
                   scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
                   paddingBottom: '4px',
                   cursor: 'grab',
                   userSelect: 'none',
+                  WebkitOverflowScrolling: 'touch',
                 }}
               >
                 {/* Backend'ten gelen features - 2x duplicate for seamless loop */}

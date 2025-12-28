@@ -30,8 +30,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60, // 24 saat
   },
   // ADMIN PANEL - Ayrı cookie adı kullanarak frontend session'ından ayır
-  // NOT: HTTPS kullanılmadığı için secure: false olmalı
-  // HTTPS'e geçince secure: true yapılmalı
+  // HTTPS aktif - secure: true
   cookies: {
     sessionToken: {
       name: "admin-session-token",
@@ -39,7 +38,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: false, // HTTP için false, HTTPS için true olmalı
+        secure: process.env.NODE_ENV === "production",
       },
     },
     callbackUrl: {
@@ -48,7 +47,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
       },
     },
     csrfToken: {
@@ -57,7 +56,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },

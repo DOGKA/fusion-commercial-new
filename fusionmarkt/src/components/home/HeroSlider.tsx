@@ -93,7 +93,7 @@ export default function HeroSlider() {
     if (!isTransitioning && slides.length > 0) {
       setIsTransitioning(true);
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-      setTimeout(() => setIsTransitioning(false), 800);
+      setTimeout(() => setIsTransitioning(false), 400); // Faster transition
     }
   }, [isTransitioning, slides.length]);
 
@@ -101,7 +101,7 @@ export default function HeroSlider() {
     if (!isTransitioning && slides.length > 0) {
       setIsTransitioning(true);
       setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-      setTimeout(() => setIsTransitioning(false), 800);
+      setTimeout(() => setIsTransitioning(false), 400); // Faster transition
     }
   }, [isTransitioning, slides.length]);
 
@@ -109,7 +109,7 @@ export default function HeroSlider() {
     if (!isTransitioning && index !== currentSlide) {
       setIsTransitioning(true);
       setCurrentSlide(index);
-      setTimeout(() => setIsTransitioning(false), 800);
+      setTimeout(() => setIsTransitioning(false), 400); // Faster transition
     }
   };
 
@@ -119,25 +119,45 @@ export default function HeroSlider() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, nextSlide, slides.length]);
 
-  // Touch/swipe handlers for mobile
+  // Touch/swipe handlers for mobile - improved for responsiveness
+  const velocityRef = useRef(0);
+  const lastTouchTime = useRef(0);
+  const lastTouchX = useRef(0);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    lastTouchX.current = e.touches[0].clientX;
+    lastTouchTime.current = Date.now();
+    velocityRef.current = 0;
     setIsAutoPlaying(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
+    const currentX = e.touches[0].clientX;
+    const currentTime = Date.now();
+    const timeDelta = currentTime - lastTouchTime.current;
+    
+    // Calculate velocity for better swipe detection
+    if (timeDelta > 0) {
+      velocityRef.current = (currentX - lastTouchX.current) / timeDelta;
+    }
+    
+    lastTouchX.current = currentX;
+    lastTouchTime.current = currentTime;
+    touchEndX.current = currentX;
   };
 
   const handleTouchEnd = () => {
     const diff = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 50; // Minimum swipe distance to trigger slide change
+    // Use velocity for more responsive swipe - lower threshold when swiping fast
+    const velocityThreshold = Math.abs(velocityRef.current) > 0.3;
+    const distanceThreshold = Math.abs(diff) > 30; // Lower threshold for fast swipes
     
-    if (Math.abs(diff) > minSwipeDistance) {
-      if (diff > 0) {
+    if (velocityThreshold || (distanceThreshold && Math.abs(diff) > 50)) {
+      if (diff > 0 || velocityRef.current < -0.3) {
         // Swiped left - go to next slide
         nextSlide();
-      } else {
+      } else if (diff < 0 || velocityRef.current > 0.3) {
         // Swiped right - go to previous slide
         prevSlide();
       }

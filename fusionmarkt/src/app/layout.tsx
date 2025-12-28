@@ -52,7 +52,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className="dark">
+    <html lang="tr" className="dark" data-scroll-behavior="smooth">
       <body className={`${inter.variable} antialiased`}>
         <AuthProvider>
           <FavoritesProvider>

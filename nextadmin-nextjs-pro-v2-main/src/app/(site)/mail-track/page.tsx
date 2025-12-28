@@ -268,60 +268,60 @@ export default function MailTrackPage() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-stroke dark:border-dark-3">
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Alıcı</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Konu</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Tip</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Durum</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Gönderim</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Açılma</th>
-                  </tr>
-                </thead>
-                <tbody>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-stroke dark:border-dark-3">
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Alıcı</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Konu</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Tip</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Durum</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Gönderim</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Açılma</th>
+              </tr>
+            </thead>
+            <tbody>
                   {emails.map((email) => (
                     <tr key={email.id} className="border-b border-stroke last:border-0 dark:border-dark-3 hover:bg-gray-50 dark:hover:bg-dark-2">
-                      <td className="px-6 py-4">
-                        <span className="text-dark dark:text-white">{email.to}</span>
-                      </td>
-                      <td className="px-6 py-4">
+                  <td className="px-6 py-4">
+                    <span className="text-dark dark:text-white">{email.to}</span>
+                  </td>
+                  <td className="px-6 py-4">
                         <span className="text-gray-600 dark:text-gray-400 line-clamp-1 max-w-xs" title={email.subject}>
                           {email.subject}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
+                  </td>
+                  <td className="px-6 py-4">
                         <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${typeConfig[email.type]?.color || typeConfig.OTHER.color}`}>
                           {typeConfig[email.type]?.label || email.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
                         <span className={`font-medium ${statusConfig[email.status]?.color || "text-gray-500"}`}>
                           <span className="mr-1">{statusConfig[email.status]?.icon || ""}</span>
                           {statusConfig[email.status]?.label || email.status}
-                        </span>
+                    </span>
                         {email.errorMessage && (
                           <p className="mt-1 text-xs text-red-500 line-clamp-1" title={email.errorMessage}>
                             {email.errorMessage}
                           </p>
                         )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-500">
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm text-gray-500">
                           {formatDate(email.sentAt)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-500">
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                      <span className="text-sm text-gray-500">
                           {formatDate(email.openedAt || email.clickedAt)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (

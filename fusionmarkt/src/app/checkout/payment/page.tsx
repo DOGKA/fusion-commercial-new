@@ -66,6 +66,20 @@ export default function PaymentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Installment (Taksit) state
+  const [installmentOptions, setInstallmentOptions] = useState<Array<{
+    count: number;
+    installmentPrice: string;
+    totalPrice: string;
+  }>>([]);
+  const [selectedInstallment, setSelectedInstallment] = useState(1);
+  const [cardInfo, setCardInfo] = useState<{
+    cardType?: string;
+    cardFamily?: string;
+    bankName?: string;
+  } | null>(null);
+  const [loadingInstallments, setLoadingInstallments] = useState(false);
+
   // Hover states
   const [hoverConfirm, setHoverConfirm] = useState(false);
   const [hoverBack, setHoverBack] = useState(false);
@@ -101,6 +115,7 @@ export default function PaymentPage() {
       }
     }
   }, []);
+
 
   // Fetch saved addresses
   useEffect(() => {
@@ -182,6 +197,65 @@ export default function PaymentPage() {
     
     fetchShippingCost();
   }, [items]);
+
+  // Fetch installment options when card number has 6+ digits
+  useEffect(() => {
+    const cleanCardNumber = cardNumber.replace(/\s/g, "");
+    
+    // Reset if card number is too short
+    if (cleanCardNumber.length < 6) {
+      setInstallmentOptions([]);
+      setSelectedInstallment(1);
+      setCardInfo(null);
+      return;
+    }
+
+    // Only fetch when we have exactly 6 or more digits
+    const binNumber = cleanCardNumber.substring(0, 6);
+    // Calculate price
+    const couponDiscountAmount = appliedCoupon?.discount || 0;
+    const priceToCheck = subtotal + shippingCost - couponDiscountAmount;
+    
+    if (priceToCheck <= 0) return;
+
+    const fetchInstallments = async () => {
+      setLoadingInstallments(true);
+      try {
+        const res = await fetch("/api/payment/installments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            binNumber,
+            price: priceToCheck.toFixed(2),
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setInstallmentOptions(data.installments || []);
+          setCardInfo({
+            cardType: data.cardType,
+            cardFamily: data.cardFamily,
+            bankName: data.bankName,
+          });
+          // Default to single payment
+          setSelectedInstallment(1);
+        } else {
+          // Default single payment if API fails
+          setInstallmentOptions([{ count: 1, installmentPrice: priceToCheck.toFixed(2), totalPrice: priceToCheck.toFixed(2) }]);
+        }
+      } catch (error) {
+        console.error("Error fetching installments:", error);
+        setInstallmentOptions([{ count: 1, installmentPrice: priceToCheck.toFixed(2), totalPrice: priceToCheck.toFixed(2) }]);
+      } finally {
+        setLoadingInstallments(false);
+      }
+    };
+
+    // Debounce the API call
+    const timeoutId = setTimeout(fetchInstallments, 300);
+    return () => clearTimeout(timeoutId);
+  }, [cardNumber, subtotal, shippingCost, appliedCoupon]);
 
   // Early return - after all hooks
   if (items.length === 0 || !state.billingAddress?.firstName || !state.billingAddress?.email) {
@@ -319,6 +393,10 @@ export default function PaymentPage() {
           zipCode: shippingAddr?.postalCode || "00000",
         };
 
+        // Get the selected installment's total price (may differ from original total due to interest)
+        const selectedInstOpt = installmentOptions.find(opt => opt.count === selectedInstallment);
+        const finalPrice = selectedInstOpt ? parseFloat(selectedInstOpt.totalPrice) : total;
+
         // 3D Secure başlat
         const paymentRes = await fetch("/api/payment/initialize", {
           method: "POST",
@@ -335,7 +413,8 @@ export default function PaymentPage() {
             billingAddress: shippingAddress, // Aynı adres kullan
             basketItems,
             price: total,
-            paidPrice: total,
+            paidPrice: finalPrice, // Taksitli ödeme tutarı (faiz dahil)
+            installment: selectedInstallment, // Taksit sayısı
           }),
         });
 
@@ -525,26 +604,27 @@ export default function PaymentPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "8px",
+                    gap: "6px",
                     height: "48px",
                     borderRadius: "12px",
                     border: paymentMethod === "card" ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.2)",
                     backgroundColor: paymentMethod === "card" ? "rgba(255,255,255,0.05)" : "#0f0f0f",
                     color: paymentMethod === "card" ? "#fff" : "rgba(255,255,255,0.6)",
-                    fontSize: "13px",
+                    fontSize: "12px",
                     fontWeight: "500",
                     cursor: "pointer",
-                    padding: "0 12px",
-                    overflow: "hidden"
+                    padding: "0 10px",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap"
                   }}
                 >
-                  <span className="hidden sm:inline"><CreditCard size={16} /></span>
-                  <span className="hidden sm:inline">Kredi/Banka Kartı</span>
+                  <CreditCard size={14} className="shrink-0" />
+                  <span className="hidden md:inline shrink-0">Kredi Kartı</span>
                   <img 
                     src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg" 
                     alt="iyzico ile öde" 
-                    style={{ height: "20px", maxWidth: "100%", objectFit: "contain" }}
-                    className="sm:h-4 sm:ml-1"
+                    style={{ height: "16px", objectFit: "contain" }}
+                    className="shrink-0"
                   />
                 </button>
                 <button
@@ -626,6 +706,76 @@ export default function PaymentPage() {
                       />
                     </div>
                   </div>
+
+                  {/* Installment Options (Taksit) */}
+                  {cardNumber.replace(/\s/g, "").length >= 6 && (
+                    <div style={{ marginTop: "20px", padding: "16px", backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                        <label style={{ fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.9)" }}>
+                          Taksit Seçenekleri
+                        </label>
+                        {cardInfo?.bankName && (
+                          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", backgroundColor: "rgba(255,255,255,0.05)", padding: "4px 8px", borderRadius: "4px" }}>
+                            {cardInfo.bankName}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {loadingInstallments ? (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", color: "rgba(255,255,255,0.5)" }}>
+                          <Loader2 size={16} style={{ marginRight: "8px", animation: "spin 1s linear infinite" }} />
+                          <span style={{ fontSize: "12px" }}>Taksit seçenekleri yükleniyor...</span>
+                        </div>
+                      ) : installmentOptions.length > 0 ? (
+                        <div style={{ display: "grid", gap: "8px" }}>
+                          {installmentOptions.map((opt) => (
+                            <label
+                              key={opt.count}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                padding: "12px 14px",
+                                backgroundColor: selectedInstallment === opt.count ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.02)",
+                                border: selectedInstallment === opt.count ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                              }}
+                            >
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <input
+                                  type="radio"
+                                  name="installment"
+                                  checked={selectedInstallment === opt.count}
+                                  onChange={() => setSelectedInstallment(opt.count)}
+                                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
+                                />
+                                <span style={{ fontSize: "13px", color: selectedInstallment === opt.count ? "#10b981" : "rgba(255,255,255,0.8)" }}>
+                                  {opt.count === 1 ? "Tek Çekim" : `${opt.count} Taksit`}
+                                </span>
+                              </div>
+                              <div style={{ textAlign: "right" }}>
+                                {opt.count > 1 && (
+                                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                                    {formatPrice(parseFloat(opt.installmentPrice))} × {opt.count}
+                                  </div>
+                                )}
+                                <div style={{ fontSize: "13px", fontWeight: "600", color: selectedInstallment === opt.count ? "#10b981" : "#fff" }}>
+                                  {formatPrice(parseFloat(opt.totalPrice))}
+                                </div>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ padding: "12px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
+                          Tek çekim
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "16px" }}>
                     <ShieldCheck size={14} /> Ödeme bilgileriniz SSL ile şifrelenir
                   </div>

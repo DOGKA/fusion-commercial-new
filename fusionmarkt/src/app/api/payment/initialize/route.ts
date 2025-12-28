@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
       // Fiyat
       price,
       paidPrice,
+      // Taksit
+      installment = 1,
     } = body;
 
     // Validation
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
       price: formatIyzicoPrice(price),
       paidPrice: formatIyzicoPrice(paidPrice || price),
       currency: "TRY",
-      installment: "1", // Tek çekim
+      installment: String(installment || 1), // Taksit sayısı
       basketId: orderNumber,
       paymentChannel: "WEB",
       paymentGroup: "PRODUCT",
