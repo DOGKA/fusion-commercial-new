@@ -708,7 +708,8 @@ export default function OrderDetailPage() {
           {/* Contract Acceptances */}
           {(() => {
             // Extract contract info from statusHistory
-            const contractHistory = order.statusHistory?.find(
+            const statusHistoryArr = Array.isArray(order.statusHistory) ? order.statusHistory : [];
+            const contractHistory = statusHistoryArr.find(
               (h: any) => h.type === "CONTRACT_ACCEPTANCE"
             );
             const contracts = contractHistory?.contracts;
@@ -999,7 +1000,8 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
   if (!isOpen) return null;
 
   // Check for stored HTML contracts in statusHistory
-  const contractHistory = order.statusHistory?.find(
+  const statusHistoryArray = Array.isArray(order.statusHistory) ? order.statusHistory : [];
+  const contractHistory = statusHistoryArray.find(
     (h: any) => h.type === "CONTRACT_ACCEPTANCE"
   );
   const storedContracts = contractHistory?.contracts;
