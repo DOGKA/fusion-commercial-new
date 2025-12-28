@@ -188,7 +188,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
 
       // Add to status history
-      const history = (existing.statusHistory as any[]) || [];
+      const history = Array.isArray(existing.statusHistory) ? [...existing.statusHistory] : [];
       history.push({
         status,
         date: now.toISOString(),
@@ -341,7 +341,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
 
       // Add to history
-      const history = (existing.statusHistory as any[]) || [];
+      const history = Array.isArray(existing.statusHistory) ? [...existing.statusHistory] : [];
       history.push({
         status: body.status,
         date: now.toISOString(),
@@ -468,8 +468,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("❌ [ORDERS API] Patch error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Bilinmeyen hata";
     return NextResponse.json(
-      { error: "Sipariş güncellenemedi" },
+      { error: "Sipariş güncellenemedi", details: errorMessage },
       { status: 500 }
     );
   }
