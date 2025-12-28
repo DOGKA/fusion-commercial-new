@@ -86,16 +86,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
     
-    const event: ResendWebhookEvent = JSON.parse(payload);
+    let event: ResendWebhookEvent;
+    try {
+      event = JSON.parse(payload);
+    } catch (parseError) {
+      console.error("❌ Resend webhook: JSON parse error", parseError);
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    
     const { type, data } = event;
-    const emailId = data.email_id;
+    const emailId = data?.email_id;
+    
+    if (!emailId) {
+      console.log(`⚠️ No email_id in webhook payload, skipping`);
+      return NextResponse.json({ success: true, message: "No email_id, skipped" });
+    }
     
     console.log(`📧 Resend webhook: ${type} for ${emailId}`);
     
     // Mevcut log kaydını bul
-    const existingLog = await emailLog.findUnique({
-      where: { resendId: emailId }
-    });
+    let existingLog = null;
+    try {
+      existingLog = await emailLog.findUnique({
+        where: { resendId: emailId }
+      });
+    } catch (dbError) {
+      console.error("❌ Database error finding email log:", dbError);
+      // Database hatası olsa bile devam et
+    }
     
     // Eğer log yoksa ve bu "sent" event'i değilse, sadece logla
     if (!existingLog && type !== "email.sent") {
