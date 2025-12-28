@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { 
   Mail, 
@@ -162,10 +163,13 @@ export default function Footer() {
               
               {/* Sağ: Ödeme Yöntemleri + Güvenlik */}
               <div className="flex items-center gap-4">
-                <img 
+                <Image 
                   src={IYZICO_LOGO_BAND_URL} 
                   alt="iyzico ödeme yöntemleri" 
-                  style={{ height: '14px', opacity: 0.8 }}
+                  width={120}
+                  height={14}
+                  unoptimized
+                  className="h-[14px] w-auto opacity-80"
                 />
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
@@ -306,10 +310,13 @@ export default function Footer() {
         <div className="py-4 px-4 border-t border-[var(--glass-border)] bg-[var(--background-tertiary)] space-y-3">
           {/* Ödeme ve Güvenlik */}
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <img 
+            <Image 
               src={IYZICO_LOGO_BAND_URL} 
               alt="iyzico ödeme yöntemleri" 
-              style={{ height: '12px', opacity: 0.8 }}
+              width={100}
+              height={12}
+              unoptimized
+              className="h-3 w-auto opacity-80"
             />
             <div className="flex items-center gap-2 text-[10px] text-[var(--foreground-muted)]">
               <div className="flex items-center gap-0.5">

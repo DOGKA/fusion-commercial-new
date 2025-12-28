@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  ChevronRight, User, Building2, Check, Loader2, Lock,
+  ChevronRight, User, Building2, Check, Loader2,
   ShieldCheck, Truck, CreditCard, Phone, Mail, MapPin,
   FileText, Minus, Plus, Trash2, Heart, Package,
   Tag, ChevronDown, Plus as PlusIcon

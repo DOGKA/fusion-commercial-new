@@ -784,7 +784,7 @@ const darkenColor = (hex: string, percent: number = 20): string => {
 function CategoryCarousel({ 
   category, 
   bannerData,
-  isFirstCategory = false
+  isFirstCategory: _isFirstCategory = false
 }: { 
   category: CategoryWithProducts; 
   bannerData?: Banner;

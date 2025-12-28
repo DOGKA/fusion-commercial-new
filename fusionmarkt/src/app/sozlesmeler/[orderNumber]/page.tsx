@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { FileText, X, Loader2, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { FileText, Loader2, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 interface ContractData {

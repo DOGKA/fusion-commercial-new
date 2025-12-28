@@ -59,7 +59,7 @@ export function generateDistanceSalesContractHTML(
   
   const itemsHTML = items
     .map(
-      (item, idx) => `
+      (item) => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 13px; color: rgba(255, 255, 255, 0.9);">
         ${item.name}${item.variant?.value ? ` <span style="color: rgba(255, 255, 255, 0.5);">(${item.variant.value})</span>` : ""}

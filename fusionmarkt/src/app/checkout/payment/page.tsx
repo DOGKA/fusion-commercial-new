@@ -620,11 +620,13 @@ export default function PaymentPage() {
                 >
                   <CreditCard size={14} className="shrink-0" />
                   <span className="hidden md:inline shrink-0">Kredi Kartı</span>
-                  <img 
+                  <Image 
                     src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg" 
                     alt="iyzico ile öde" 
-                    style={{ height: "16px", objectFit: "contain" }}
-                    className="shrink-0"
+                    width={80}
+                    height={16}
+                    unoptimized
+                    className="h-4 w-auto object-contain shrink-0"
                   />
                 </button>
                 <button
