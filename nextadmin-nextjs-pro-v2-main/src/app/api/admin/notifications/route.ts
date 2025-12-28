@@ -96,7 +96,7 @@ export async function GET() {
         type: "stock" as const,
         title: `Düşük stok uyarısı`,
         subTitle: `${product.name} - ${product.stock} adet kaldı`,
-        link: `/products/${product.id}/edit`,
+        link: `/products/${product.id}`,
         createdAt: new Date().toISOString(),
         read: false,
       });

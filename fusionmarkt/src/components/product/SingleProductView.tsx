@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Heart, Truck, MessageCircle, Star, CheckCircle, AlertCircle, User, Minus, Plus } from "lucide-react";
+import { Heart, Truck, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -298,7 +298,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     pauseOnHover: true,
     friction: 0.94,
   });
-
+  
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewRating, setReviewRating] = useState(0);
@@ -306,8 +306,36 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [isVerifiedPurchaser] = useState(true); // Normalde backend'ten gelecek
-  const [isLoggedIn] = useState(true); // Normalde backend'ten gelecek
+  const [reviewSubmitted, setReviewSubmitted] = useState(false); // Yorum gönderildi mi
+  const [reviewIsUpdate, setReviewIsUpdate] = useState(false); // Güncelleme mi
+  const [reviewFormOpen, setReviewFormOpen] = useState(false); // Form açık mı
+  const [guestName, setGuestName] = useState(""); // Misafir kullanıcı adı
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Kullanıcı giriş yapmış mı
+  const [userName, setUserName] = useState(""); // Giriş yapmış kullanıcının adı
+  const [nameDisplayPreference, setNameDisplayPreference] = useState<"masked" | "full">("masked"); // İsim gösterim tercihi
+  
+  // İsim maskeleme fonksiyonu: "DOĞUKAN ARIK" -> "D*** A***"
+  const maskName = (fullName: string): string => {
+    if (!fullName || fullName.trim() === "") return "Anonim";
+    const parts = fullName.trim().split(/\s+/);
+    return parts.map(part => {
+      if (part.length <= 1) return part;
+      return part[0].toUpperCase() + "***";
+    }).join(" ");
+  };
+  
+  // Check if user is logged in and get user name
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        setIsLoggedIn(!!data?.user?.email);
+        if (data?.user?.name) {
+          setUserName(data.user.name);
+        }
+      })
+      .catch(() => setIsLoggedIn(false));
+  }, []);
   
   // Ortalama puan hesapla
   const averageRating = reviews.length > 0 
@@ -317,23 +345,55 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   // Yorum gönderme
   const handleSubmitReview = async () => {
     if (!reviewRating || !reviewComment.trim()) {
-      alert("Lütfen puan verin ve yorum yazın.");
+      return;
+    }
+    
+    // Guest kullanıcılar için isim zorunlu
+    if (!isLoggedIn && !guestName.trim()) {
+      alert("Lütfen adınızı ve soyadınızı giriniz");
       return;
     }
     
     setReviewSubmitting(true);
     
-    // Simüle edilmiş API çağrısı
-    setTimeout(() => {
-      // Yorum başarılı gönderildi bildirimi (normalde onay bekleyecek)
-      alert("Yorumunuz gönderildi! Onaylandıktan sonra görüntülenecektir.");
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productData?.id || product?.id,
+          rating: reviewRating,
+          title: reviewTitle || null,
+          comment: reviewComment,
+          guestName: !isLoggedIn ? guestName.trim() : undefined,
+          nameDisplayPreference: isLoggedIn ? nameDisplayPreference : "masked", // Logged-in kullanıcılar için tercih
+        }),
+      });
       
-      // Form temizle
-      setReviewRating(0);
-      setReviewTitle("");
-      setReviewComment("");
+      if (response.ok) {
+        const result = await response.json();
+        // Başarılı
+        setReviewSubmitted(true);
+        setReviewIsUpdate(!!result.isUpdate);
+        // Form kapat
+        setReviewFormOpen(false);
+        // Form temizle
+        setReviewRating(0);
+        setReviewTitle("");
+        setReviewComment("");
+        setGuestName("");
+      } else {
+        const data = await response.json();
+        alert(data.error || "Yorum gönderilemedi");
+      }
+    } catch (error) {
+      console.error("Review submit error:", error);
+      alert("Yorum gönderilirken bir hata oluştu");
+    } finally {
       setReviewSubmitting(false);
-    }, 1000);
+    }
   };
 
 
@@ -1165,53 +1225,265 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   </div>
                 </div>
 
-                {/* Yorum Yazma Alanı */}
-                <div style={{ marginBottom: '32px', padding: '24px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <MessageCircle size={18} />
-                    Yorum Yaz
-                  </h3>
-                  
-                  {!isLoggedIn ? (
-                    <div style={{ textAlign: 'center', padding: '24px' }}>
-                      <AlertCircle size={32} style={{ color: '#F59E0B', margin: '0 auto 12px' }} />
-                      <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px' }}>Yorum yapmak için giriş yapmalısınız.</p>
-                      <button style={{ padding: '10px 24px', backgroundColor: '#10B981', color: 'white', borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-                        Giriş Yap
-                      </button>
+                {/* Mevcut Yorumlar - Üstte */}
+                {reviews.length > 0 && (
+                  <div style={{ marginBottom: '32px' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '16px' }}>Müşteri Yorumları ({reviews.length})</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {reviews.map((review) => (
+                        <div key={review.id} style={{ padding: '20px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                            {/* Avatar */}
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <User size={20} style={{ color: '#10B981' }} />
+                            </div>
+                            
+                            <div style={{ flex: 1 }}>
+                              {/* Header */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'white' }}>{review.userName}</span>
+                                    {review.isVerifiedPurchase && (
+                                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '2px 6px', backgroundColor: 'rgba(16, 185, 129, 0.15)', borderRadius: '4px' }}>
+                                        <CheckCircle size={9} style={{ color: '#10B981' }} />
+                                        <span style={{ fontSize: '8px', color: '#10B981', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Satın Alan Kullanıcı</span>
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                                    <div style={{ display: 'flex', gap: '2px' }}>
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star key={star} size={12} fill={star <= review.rating ? '#FBBF24' : 'none'} stroke="#FBBF24" />
+                                      ))}
+                                    </div>
+                                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>{review.createdAt}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Content */}
+                              {review.title && (
+                                <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'white', marginBottom: '8px' }}>{review.title}</h4>
+                              )}
+                              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' }}>{review.comment}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ) : !isVerifiedPurchaser ? (
-                    <div style={{ textAlign: 'center', padding: '24px', backgroundColor: 'rgba(245, 158, 11, 0.1)', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                      <AlertCircle size={32} style={{ color: '#F59E0B', margin: '0 auto 12px' }} />
-                      <p style={{ fontSize: '14px', color: '#F59E0B', fontWeight: '600', marginBottom: '8px' }}>Satın Alma Gerekli</p>
-                      <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>Bu ürüne yorum yapabilmek için önce satın almanız gerekmektedir.</p>
-                    </div>
-                  ) : (
-                    <div>
-                      {/* Satın Alma Doğrulandı Badge */}
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 12px', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', marginBottom: '16px' }}>
-                        <CheckCircle size={14} style={{ color: '#10B981' }} />
-                        <span style={{ fontSize: '11px', color: '#10B981', fontWeight: '500' }}>Satın alma doğrulandı - Yorum yapabilirsiniz</span>
+                  </div>
+                )}
+
+                {/* Yorum Yazma Alanı - Altta */}
+                <div style={{ 
+                  padding: reviewFormOpen ? '24px' : '16px', 
+                  backgroundColor: 'rgba(255,255,255,0.03)', 
+                  borderRadius: '16px', 
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  transition: 'all 0.3s ease',
+                }}>
+                  {!reviewFormOpen ? (
+                    // Kapalı durum - buton veya başarı mesajı
+                    reviewSubmitted ? (
+                      <div style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        borderRadius: '12px',
+                        color: '#10B981',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                      }}>
+                        <CheckCircle size={18} />
+                        {reviewIsUpdate ? 'Güncelleme Talebiniz Gönderildi' : 'Yorumunuz Gönderildi'}
                       </div>
-                      
+                    ) : (
+                      <button
+                        onClick={() => setReviewFormOpen(true)}
+                        style={{
+                          width: '100%',
+                          padding: '14px 24px',
+                          backgroundColor: '#10B981',
+                          border: 'none',
+                          borderRadius: '12px',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <MessageCircle size={18} />
+                        Yorum Yaz
+                      </button>
+                    )
+                  ) : (
+                    // Açık durum - form
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <MessageCircle size={18} />
+                          Yorum Yaz
+                        </h3>
+                        <button
+                          onClick={() => setReviewFormOpen(false)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'rgba(255,255,255,0.5)',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            fontSize: '12px',
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                  
+                    <div>
                       {/* Puan */}
                       <div style={{ marginBottom: '16px' }}>
                         <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>Puanınız *</label>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          {[1, 2, 3, 4, 5].map((star) => (
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {[1, 2, 3, 4, 5].map((star) => {
+                          const isActive = (reviewHoverRating || reviewRating) >= star;
+                          
+                          return (
                             <button
                               key={star}
                               type="button"
                               onMouseEnter={() => setReviewHoverRating(star)}
                               onMouseLeave={() => setReviewHoverRating(0)}
                               onClick={() => setReviewRating(star)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                              style={{ 
+                                background: 'none', 
+                                border: 'none', 
+                                cursor: 'pointer', 
+                                padding: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
                             >
-                              <Star size={28} fill={(reviewHoverRating || reviewRating) >= star ? '#FBBF24' : 'none'} stroke="#FBBF24" />
+                              <Star 
+                                size={32} 
+                                fill={isActive ? '#FBBF24' : 'transparent'} 
+                                stroke="#FBBF24" 
+                                strokeWidth={2}
+                              />
                             </button>
-                          ))}
+                          );
+                        })}
+                        {reviewRating > 0 && (
+                          <span style={{ marginLeft: '8px', fontSize: '14px', color: '#FBBF24', fontWeight: '600' }}>
+                            {reviewRating} / 5
+                          </span>
+                        )}
                         </div>
                       </div>
+                    
+                    {/* İsim Gösterim Tercihi - Giriş yapmış kullanıcılar için */}
+                    {isLoggedIn && userName && (
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {/* Maskelenmiş isim seçeneği */}
+                          <label 
+                            style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '10px', 
+                              padding: '10px 14px', 
+                              backgroundColor: nameDisplayPreference === 'masked' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)', 
+                              border: nameDisplayPreference === 'masked' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255,255,255,0.1)', 
+                              borderRadius: '10px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            <input 
+                              type="radio" 
+                              name="namePreference" 
+                              checked={nameDisplayPreference === 'masked'} 
+                              onChange={() => setNameDisplayPreference('masked')}
+                              style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
+                            />
+                            <span style={{ fontSize: '13px', color: 'white' }}>
+                              Yorumum <strong style={{ color: '#10B981' }}>{maskName(userName)}</strong> olarak gözüksün
+                            </span>
+                          </label>
+                          
+                          {/* Tam isim seçeneği */}
+                          <label 
+                            style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '10px', 
+                              padding: '10px 14px', 
+                              backgroundColor: nameDisplayPreference === 'full' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.03)', 
+                              border: nameDisplayPreference === 'full' ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(255,255,255,0.1)', 
+                              borderRadius: '10px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            <input 
+                              type="radio" 
+                              name="namePreference" 
+                              checked={nameDisplayPreference === 'full'} 
+                              onChange={() => setNameDisplayPreference('full')}
+                              style={{ accentColor: '#3B82F6', width: '16px', height: '16px' }}
+                            />
+                            <span style={{ fontSize: '13px', color: 'white' }}>
+                              Yorumum <strong style={{ color: '#3B82F6' }}>{userName}</strong> olarak gözüksün
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Ad Soyad - Sadece guest kullanıcılar için */}
+                    {!isLoggedIn && (
+                      <div style={{ marginBottom: '16px' }}>
+                        <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>
+                          Adınız Soyadınız *
+                        </label>
+                        <input
+                          type="text"
+                          value={guestName}
+                          onChange={(e) => setGuestName(e.target.value)}
+                          placeholder="Örn: John Doe"
+                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '14px', outline: 'none' }}
+                        />
+                        {/* Maskelenmiş isim önizlemesi */}
+                        {guestName.trim() && (
+                          <div style={{ 
+                            marginTop: '8px', 
+                            padding: '10px 14px', 
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+                            border: '1px solid rgba(16, 185, 129, 0.2)', 
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                          }}>
+                            <User size={14} style={{ color: '#10B981' }} />
+                            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
+                              Yorumunuz <strong style={{ color: '#10B981' }}>{maskName(guestName)}</strong> olarak görüntülenecek
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                       
                       {/* Başlık */}
                       <div style={{ marginBottom: '16px' }}>
@@ -1237,73 +1509,56 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         />
                       </div>
                       
-                      {/* Bilgi */}
-                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>
-                        Yorumunuz, yönetici onayından sonra yayınlanacaktır.
-                      </p>
+                    {/* Gönder Butonu */}
+                    {(() => {
+                      const needsGuestName = !isLoggedIn && !guestName.trim();
+                      const isDisabled = reviewSubmitting || reviewSubmitted || !reviewComment.trim() || !reviewRating || needsGuestName;
+                      const isActive = !isDisabled;
                       
-                      {/* Gönder */}
-                      <button
-                        onClick={handleSubmitReview}
-                        disabled={reviewSubmitting || !reviewRating || !reviewComment.trim()}
-                        style={{ padding: '12px 32px', backgroundColor: reviewSubmitting || !reviewRating || !reviewComment.trim() ? 'rgba(255,255,255,0.1)' : '#10B981', color: 'white', borderRadius: '12px', border: 'none', cursor: reviewSubmitting || !reviewRating || !reviewComment.trim() ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', transition: 'all 0.2s ease' }}
-                      >
-                        {reviewSubmitting ? 'Gönderiliyor...' : 'Yorumu Gönder'}
-                      </button>
+                      return (
+                        <button
+                          onClick={handleSubmitReview}
+                          disabled={isDisabled}
+                          style={{ 
+                            padding: '12px 32px', 
+                            backgroundColor: reviewSubmitted 
+                              ? '#10B981' 
+                              : isActive 
+                                ? '#10B981'
+                                : 'rgba(255,255,255,0.1)', 
+                            color: 'white', 
+                            borderRadius: '12px', 
+                            border: 'none', 
+                            cursor: isDisabled ? 'not-allowed' : 'pointer', 
+                            fontSize: '14px', 
+                            fontWeight: '600', 
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                          }}
+                        >
+                          {reviewSubmitted ? (
+                            <>
+                              <CheckCircle size={18} />
+                              Yorumunuz Gönderildi
+                            </>
+                          ) : reviewSubmitting ? (
+                            'Gönderiliyor...'
+                          ) : !reviewRating ? (
+                            'Lütfen Puanlama Yapınız'
+                          ) : needsGuestName ? (
+                            'Lütfen Adınızı Giriniz'
+                          ) : !reviewComment.trim() ? (
+                            'Lütfen Yorumunuzu Yazınız'
+                          ) : (
+                            'Yorumu Gönder'
+                          )}
+                        </button>
+                      );
+                    })()}
                     </div>
-                  )}
-                </div>
-
-                {/* Mevcut Yorumlar */}
-                <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '16px' }}>Müşteri Yorumları ({reviews.length})</h3>
-                  
-                  {reviews.length === 0 ? (
-                    <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '32px' }}>Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {reviews.map((review) => (
-                        <div key={review.id} style={{ padding: '20px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                            {/* Avatar */}
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              <User size={20} style={{ color: '#10B981' }} />
-                            </div>
-                            
-                            <div style={{ flex: 1 }}>
-                              {/* Header */}
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'white' }}>{review.userName}</span>
-                                    {review.isVerifiedPurchase && (
-                                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', backgroundColor: 'rgba(16, 185, 129, 0.15)', borderRadius: '4px' }}>
-                                        <CheckCircle size={10} style={{ color: '#10B981' }} />
-                                        <span style={{ fontSize: '9px', color: '#10B981', fontWeight: '500' }}>Doğrulanmış Alıcı</span>
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                                    <div style={{ display: 'flex', gap: '2px' }}>
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star key={star} size={12} fill={star <= review.rating ? '#FBBF24' : 'none'} stroke="#FBBF24" />
-                                      ))}
-                                    </div>
-                                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>{review.createdAt}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Content */}
-                              {review.title && (
-                                <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'white', marginBottom: '8px' }}>{review.title}</h4>
-                              )}
-                              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' }}>{review.comment}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    </>
                   )}
                 </div>
               </div>

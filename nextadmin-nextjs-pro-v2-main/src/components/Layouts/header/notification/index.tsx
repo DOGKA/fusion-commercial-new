@@ -138,9 +138,9 @@ export function Notification() {
             Bildirimler
           </span>
           {unreadCount > 0 && (
-            <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
+          <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
               {unreadCount} yeni
-            </span>
+          </span>
           )}
         </div>
 
@@ -156,9 +156,9 @@ export function Notification() {
           ) : (
             notifications.map((item) => (
               <li key={item.id} role="menuitem">
-                <Link
+              <Link
                   href={item.link}
-                  onClick={() => setIsOpen(false)}
+                onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-4 rounded-lg px-2 py-1.5 outline-none hover:bg-gray-2 focus-visible:bg-gray-2 dark:hover:bg-dark-3 dark:focus-visible:bg-dark-3",
                     !item.read && "bg-blue-50/50 dark:bg-blue-900/10"
@@ -168,19 +168,19 @@ export function Notification() {
 
                   <div className="flex-1 min-w-0">
                     <strong className="block text-sm font-medium text-dark dark:text-white truncate">
-                      {item.title}
-                    </strong>
+                    {item.title}
+                  </strong>
 
                     <span className="block truncate text-sm font-medium text-dark-5 dark:text-dark-6">
-                      {item.subTitle}
-                    </span>
+                    {item.subTitle}
+                  </span>
                     
                     <span className="text-xs text-gray-400 dark:text-gray-500">
                       {formatTime(item.createdAt)}
                     </span>
-                  </div>
-                </Link>
-              </li>
+                </div>
+              </Link>
+            </li>
             ))
           )}
         </ul>
