@@ -83,12 +83,13 @@ export function CartProvider({ children }: CartProviderProps) {
     if (!hydrationRef.current) {
       hydrationRef.current = true;
       const stored = getStoredCart();
-      if (stored.length > 0) {
-        // Use queueMicrotask to avoid the setState in effect warning
-        queueMicrotask(() => setItems(stored));
-      }
-      // Mark as hydrated after loading
-      setIsHydrated(true);
+      // Use queueMicrotask to avoid the setState in effect warning
+      queueMicrotask(() => {
+        if (stored.length > 0) {
+          setItems(stored);
+        }
+        setIsHydrated(true);
+      });
     }
   }, []);
 
