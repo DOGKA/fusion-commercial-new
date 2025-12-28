@@ -108,11 +108,28 @@ export async function POST(request: NextRequest) {
       case "email.sent":
         // İlk gönderim - log yoksa oluştur (normalde sendEmail'de oluşturulur)
         if (!existingLog) {
+          // Subject'ten email tipini tahmin et
+          let emailType: "ORDER_CONFIRMATION" | "ORDER_STATUS" | "ORDER_SHIPPED" | "PAYMENT_CONFIRMED" | "PASSWORD_RESET" | "MARKETING" | "OTHER" = "OTHER";
+          const subject = data.subject || "";
+          
+          if (subject.includes("Siparişiniz Alındı")) {
+            emailType = "ORDER_CONFIRMATION";
+          } else if (subject.includes("Yeni Sipariş")) {
+            emailType = "ORDER_STATUS";
+          } else if (subject.includes("Ödeme")) {
+            emailType = "PAYMENT_CONFIRMED";
+          } else if (subject.includes("Kargo") || subject.includes("Gönderim")) {
+            emailType = "ORDER_SHIPPED";
+          } else if (subject.includes("Şifre")) {
+            emailType = "PASSWORD_RESET";
+          }
+          
           await emailLog.create({
             data: {
               resendId: emailId,
               to: data.to[0] || "",
-              subject: data.subject || "",
+              subject: subject,
+              type: emailType,
               status: "SENT",
               sentAt: new Date(data.created_at),
             }
