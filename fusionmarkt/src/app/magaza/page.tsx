@@ -637,7 +637,6 @@ export default function StorePage() {
                 <CategoryCarousel 
                   category={category} 
                   bannerData={categoryBanners[category.slug]}
-                  isFirstCategory={idx === 0}
                 />
               </div>
             ))}
@@ -783,12 +782,10 @@ const darkenColor = (hex: string, percent: number = 20): string => {
 
 function CategoryCarousel({ 
   category, 
-  bannerData,
-  isFirstCategory: _isFirstCategory = false
+  bannerData
 }: { 
   category: CategoryWithProducts; 
   bannerData?: Banner;
-  isFirstCategory?: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);

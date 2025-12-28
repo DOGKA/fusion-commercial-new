@@ -70,8 +70,6 @@ export async function POST(request: NextRequest) {
       shippingCost: directShippingCost,
       discount: directDiscount,
       total: directTotal,
-      createAccount: _createAccount,
-      accountPassword: _accountPassword,
       contracts, // Sözleşme onayları
       newsletter, // Legacy newsletter field
     } = body;
