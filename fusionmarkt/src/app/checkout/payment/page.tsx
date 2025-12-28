@@ -150,16 +150,20 @@ export default function PaymentPage() {
   const [shippingCost, setShippingCost] = useState(0);
   const [_shippingLoading, setShippingLoading] = useState(true);
 
+  // Flag to prevent redirect during payment processing
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
   // Redirect validations - wait for cart hydration first
   useEffect(() => {
     if (!isHydrated) return; // Wait for cart to load from localStorage
+    if (isProcessingPayment) return; // Don't redirect during payment
     
     if (items.length === 0) {
       router.push("/checkout");
     } else if (!state.billingAddress?.firstName || !state.billingAddress?.email) {
       router.push("/checkout");
     }
-  }, [items.length, state.billingAddress, router, isHydrated]);
+  }, [items.length, state.billingAddress, router, isHydrated, isProcessingPayment]);
 
   useEffect(() => {
     const fetchShippingCost = async () => {
@@ -467,14 +471,17 @@ export default function PaymentPage() {
           }
         }
 
+        // Ödeme işlemi başarılı - redirect'i engelle
+        setIsProcessingPayment(true);
+
         // Kupon bilgisini temizle
         sessionStorage.removeItem("appliedCoupon");
         
-        // Sepeti temizle
-        clearCart();
-
         // 3D Secure HTML'i sessionStorage'a kaydet
         sessionStorage.setItem("iyzico3DSHtml", paymentResult.htmlContent);
+        
+        // Sepeti temizle
+        clearCart();
         
         // 3D Secure sayfasına yönlendir
         router.push("/checkout/3d-secure");
