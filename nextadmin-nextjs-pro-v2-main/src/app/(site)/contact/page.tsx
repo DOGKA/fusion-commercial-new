@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { 
   Trash2, 
   Mail, 
@@ -59,7 +59,7 @@ export default function ContactPage() {
   const [sending, setSending] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -78,11 +78,11 @@ export default function ContactPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, searchQuery]);
 
   useEffect(() => {
     fetchMessages();
-  }, [statusFilter]);
+  }, [fetchMessages]);
 
   const handleSearch = () => {
     fetchMessages();

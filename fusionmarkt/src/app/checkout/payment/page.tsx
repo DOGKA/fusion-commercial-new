@@ -48,7 +48,7 @@ export default function PaymentPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { state, setContractAccepted } = useCheckout();
-  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, clearCart } = useCart();
+  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, clearCart, isHydrated } = useCart();
   const { addItem: addFavorite } = useFavorites();
 
   // Address state (used for future address selection feature)
@@ -150,14 +150,16 @@ export default function PaymentPage() {
   const [shippingCost, setShippingCost] = useState(0);
   const [_shippingLoading, setShippingLoading] = useState(true);
 
-  // Redirect validations
+  // Redirect validations - wait for cart hydration first
   useEffect(() => {
+    if (!isHydrated) return; // Wait for cart to load from localStorage
+    
     if (items.length === 0) {
       router.push("/checkout");
     } else if (!state.billingAddress?.firstName || !state.billingAddress?.email) {
       router.push("/checkout");
     }
-  }, [items.length, state.billingAddress, router]);
+  }, [items.length, state.billingAddress, router, isHydrated]);
 
   useEffect(() => {
     const fetchShippingCost = async () => {

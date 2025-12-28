@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 
 interface CartItem {
   id: string;
@@ -58,7 +59,7 @@ export default function AbandonedCartsPage() {
   const [selectedCouponId, setSelectedCouponId] = useState<string>("");
   const [loadingCoupons, setLoadingCoupons] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -72,7 +73,7 @@ export default function AbandonedCartsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
 
   const fetchCoupons = async () => {
     try {
@@ -95,7 +96,7 @@ export default function AbandonedCartsPage() {
 
   useEffect(() => {
     fetchData();
-  }, [filter]);
+  }, [fetchData]);
 
   const openDetailModal = (cart: AbandonedCart) => {
     setSelectedCart(cart);
@@ -449,10 +450,13 @@ export default function AbandonedCartsPage() {
                   {selectedCart.items.map((item) => (
                     <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg dark:bg-dark-2">
                       {item.thumbnail ? (
-                        <img
+                        <Image
                           src={item.thumbnail}
                           alt={item.name}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 object-cover rounded-lg"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center dark:bg-dark-3">

@@ -45,6 +45,7 @@ interface CartContextType {
   originalSubtotal: number;   // Original total (before product discounts)
   totalSavings: number;       // Total savings from product discounts
   isAnimating: boolean;
+  isHydrated: boolean;        // True when cart is loaded from localStorage
   
   // Actions
   addItem: (item: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => Promise<void>;
@@ -74,6 +75,7 @@ export function CartProvider({ children }: CartProviderProps) {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const hydrationRef = useRef(false);
 
   // Load cart from localStorage once on client mount
@@ -85,6 +87,8 @@ export function CartProvider({ children }: CartProviderProps) {
         // Use queueMicrotask to avoid the setState in effect warning
         queueMicrotask(() => setItems(stored));
       }
+      // Mark as hydrated after loading
+      setIsHydrated(true);
     }
   }, []);
 
@@ -181,6 +185,7 @@ export function CartProvider({ children }: CartProviderProps) {
         originalSubtotal,
         totalSavings,
         isAnimating,
+        isHydrated,
         addItem,
         removeItem,
         updateQuantity,

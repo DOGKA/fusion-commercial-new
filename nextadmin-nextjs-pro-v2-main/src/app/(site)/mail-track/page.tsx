@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Metadata } from "next";
+import { useEffect, useState, useCallback } from "react";
 
 // Tip tanımları
 type EmailStatus = "SENT" | "DELIVERED" | "OPENED" | "CLICKED" | "BOUNCED" | "COMPLAINED" | "FAILED";
@@ -107,7 +106,7 @@ export default function MailTrackPage() {
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchEmails = async (page = 1) => {
+  const fetchEmails = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
@@ -134,11 +133,11 @@ export default function MailTrackPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, typeFilter, searchQuery]);
 
   useEffect(() => {
     fetchEmails();
-  }, [statusFilter, typeFilter]);
+  }, [fetchEmails]);
 
   const handleSearch = () => {
     fetchEmails(1);
