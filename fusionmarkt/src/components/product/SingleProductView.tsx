@@ -379,10 +379,10 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
         setReviewIsUpdate(!!result.isUpdate);
         // Form kapat
         setReviewFormOpen(false);
-        // Form temizle
-        setReviewRating(0);
-        setReviewTitle("");
-        setReviewComment("");
+      // Form temizle
+      setReviewRating(0);
+      setReviewTitle("");
+      setReviewComment("");
         setGuestName("");
       } else {
         const data = await response.json();
@@ -1332,9 +1332,9 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                         <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <MessageCircle size={18} />
-                          Yorum Yaz
-                        </h3>
+                    <MessageCircle size={18} />
+                    Yorum Yaz
+                  </h3>
                         <button
                           onClick={() => setReviewFormOpen(false)}
                           style={{
@@ -1347,9 +1347,9 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                           }}
                         >
                           ✕
-                        </button>
+                      </button>
                       </div>
-                  
+                      
                     <div>
                       {/* Puan */}
                       <div style={{ marginBottom: '16px' }}>
@@ -1516,8 +1516,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                       const isActive = !isDisabled;
                       
                       return (
-                        <button
-                          onClick={handleSubmitReview}
+                      <button
+                        onClick={handleSubmitReview}
                           disabled={isDisabled}
                           style={{ 
                             padding: '12px 32px', 
@@ -1557,7 +1557,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         </button>
                       );
                     })()}
-                    </div>
+                                  </div>
                     </>
                   )}
                 </div>

@@ -1654,3 +1654,47 @@ enum EmailStatus {
   COMPLAINED // Spam şikayeti
   FAILED // Başarısız
 }
+
+// ============================================
+// CONTACT MESSAGES (İletişim Formu Mesajları)
+// ============================================
+
+model ContactMessage {
+  id String @id @default(cuid())
+
+  // Gönderen Bilgileri
+  name    String // Ad Soyad
+  email   String // E-posta
+  phone   String? // Telefon (opsiyonel)
+  subject String? // Konu (opsiyonel)
+  message String  @db.Text // Mesaj içeriği
+
+  // Durum
+  status ContactMessageStatus @default(UNREAD)
+
+  // IP ve User Agent (spam tespiti için)
+  ipAddress String?
+  userAgent String?
+
+  // Admin Yanıtı
+  adminReply   String?   @db.Text
+  repliedAt    DateTime?
+  repliedBy    String? // Admin user ID
+
+  // Zaman Damgaları
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([email])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+enum ContactMessageStatus {
+  UNREAD // Okunmadı
+  READ // Okundu
+  REPLIED // Yanıtlandı
+  SPAM // Spam
+  ARCHIVED // Arşivlendi
+}

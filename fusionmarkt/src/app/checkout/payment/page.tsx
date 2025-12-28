@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ChevronRight, ChevronLeft, Check, Loader2, ShieldCheck,
-  CreditCard, Building2, FileText, Package, Trash2, Heart,
+  Building2, FileText, Package, Trash2, Heart,
   Edit2, Minus, Plus, ChevronDown, Tag
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -365,14 +365,34 @@ export default function PaymentPage() {
 
       // 2. Kredi kartı ödeme ise iyzico 3D Secure başlat
       if (paymentMethod === "card") {
-        // Basket items hazırla (iyzico için)
-        const basketItems = items.map(item => ({
+        // iyzico kuralı: basketItems toplamı = price olmalı
+        // Kupon indirimi varsa, ürün fiyatlarından orantılı düşülür
+        const discountRatio = couponDiscount > 0 ? (subtotal - couponDiscount) / subtotal : 1;
+        
+        // Basket items hazırla (iyzico için) - indirim orantılı dağıtılır
+        const basketItems: Array<{id: string; name: string; category: string; price: number; quantity: number}> = items.map(item => ({
           id: item.productId,
           name: item.title.substring(0, 50),
           category: "Elektronik",
-          price: item.price,
+          price: Math.round(item.price * discountRatio * 100) / 100, // İndirimli fiyat (yuvarla)
           quantity: item.quantity,
         }));
+
+        // Kargo ücreti varsa ayrı item olarak ekle
+        if (shippingCost > 0) {
+          basketItems.push({
+            id: "SHIPPING",
+            name: "Kargo Ücreti",
+            category: "Hizmet",
+            price: shippingCost,
+            quantity: 1,
+          });
+        }
+
+        // iyzico'ya gönderilecek toplam fiyat (basketItems toplamına eşit olmalı)
+        const iyzicoPrice = basketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        // Yuvarlama hatalarını düzelt (kuruş hassasiyeti)
+        const roundedIyzicoPrice = Math.round(iyzicoPrice * 100) / 100;
 
         // Buyer bilgileri
         const buyer = {
@@ -393,9 +413,10 @@ export default function PaymentPage() {
           zipCode: shippingAddr?.postalCode || "00000",
         };
 
-        // Get the selected installment's total price (may differ from original total due to interest)
+        // Taksitli ödeme tutarı (faiz dahil olabilir)
         const selectedInstOpt = installmentOptions.find(opt => opt.count === selectedInstallment);
-        const finalPrice = selectedInstOpt ? parseFloat(selectedInstOpt.totalPrice) : total;
+        // paidPrice: Taksit varsa taksit toplamı, yoksa normal fiyat
+        const finalPrice = selectedInstOpt ? parseFloat(selectedInstOpt.totalPrice) : roundedIyzicoPrice;
 
         // 3D Secure başlat
         const paymentRes = await fetch("/api/payment/initialize", {
@@ -412,7 +433,7 @@ export default function PaymentPage() {
             shippingAddress,
             billingAddress: shippingAddress, // Aynı adres kullan
             basketItems,
-            price: total,
+            price: roundedIyzicoPrice, // basketItems toplamına eşit olmalı
             paidPrice: finalPrice, // Taksitli ödeme tutarı (faiz dahil)
             installment: selectedInstallment, // Taksit sayısı
           }),
@@ -604,29 +625,22 @@ export default function PaymentPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "6px",
                     height: "48px",
                     borderRadius: "12px",
                     border: paymentMethod === "card" ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.2)",
                     backgroundColor: paymentMethod === "card" ? "rgba(255,255,255,0.05)" : "#0f0f0f",
-                    color: paymentMethod === "card" ? "#fff" : "rgba(255,255,255,0.6)",
-                    fontSize: "12px",
-                    fontWeight: "500",
                     cursor: "pointer",
-                    padding: "0 10px",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap"
+                    padding: "0 16px",
                   }}
                 >
-                  <CreditCard size={14} className="shrink-0" />
-                  <span className="hidden md:inline shrink-0">Kredi Kartı</span>
                   <Image 
                     src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg" 
                     alt="iyzico ile öde" 
-                    width={80}
-                    height={16}
+                    width={100}
+                    height={20}
                     unoptimized
-                    className="h-4 w-auto object-contain shrink-0"
+                    className="h-5 w-auto object-contain"
+                    style={{ opacity: paymentMethod === "card" ? 1 : 0.6 }}
                   />
                 </button>
                 <button

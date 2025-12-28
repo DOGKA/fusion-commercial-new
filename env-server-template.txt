@@ -39,7 +39,7 @@ NEXT_PUBLIC_FRONTEND_URL="https://fusionmarkt.com"
 # Resend dashboard'dan yeni API key alın: https://resend.com/api-keys
 RESEND_API_KEY="re_XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 EMAIL_FROM="FusionMarkt <noreply@fusionmarkt.com>"
-ADMIN_EMAIL="info@fusionmarkt.com"
+ADMIN_EMAIL="fusionmarktofficial@gmail.com"
 
 # =====================================================
 # AWS S3 (Görsel Depolama)
