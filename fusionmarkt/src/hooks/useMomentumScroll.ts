@@ -8,6 +8,38 @@ interface MomentumScrollOptions {
   pauseOnHover?: boolean;
   friction?: number;
   pauseDuration?: number;
+  debug?: boolean; // HUD debug modu
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DEBUG HUD - Mobilde gerçek sorunu görmek için
+// ═══════════════════════════════════════════════════════════════════════════
+function ensureHud(): HTMLPreElement | null {
+  if (typeof document === "undefined") return null;
+  
+  let el = document.getElementById("__as_hud__") as HTMLPreElement | null;
+  if (!el) {
+    el = document.createElement("pre");
+    el.id = "__as_hud__";
+    el.style.cssText =
+      "position:fixed;bottom:8px;left:8px;z-index:999999;" +
+      "max-width:92vw;max-height:40vh;overflow:auto;" +
+      "background:rgba(0,0,0,.85);color:#0f0;padding:10px;" +
+      "font:11px/1.3 monospace;border-radius:8px;pointer-events:none;" +
+      "border:1px solid #0f0;";
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function writeHud(text: string) {
+  const el = ensureHud();
+  if (el) el.textContent = text;
+}
+
+function removeHud() {
+  const el = document.getElementById("__as_hud__");
+  if (el) el.remove();
 }
 
 export function useMomentumScroll(options: MomentumScrollOptions = {}) {
@@ -17,6 +49,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     pauseOnHover = true,
     friction = 0.92,
     pauseDuration = 2000,
+    debug = true, // Geçici olarak true - sorunu bulduktan sonra false yap
   } = options;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,7 +57,9 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const isDragging = useRef(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isRunning = useRef(false); // Çoğalmayı önlemek için flag
+  const retryIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isRunning = useRef(false);
+  const retryCount = useRef(0);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -39,7 +74,57 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 10;
 
-  // Stop auto-scroll - useCallback ile memoize
+  // autoScroll değerini ref'te sakla (closure sorunu için)
+  const autoScrollRef = useRef(autoScroll);
+  autoScrollRef.current = autoScroll;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DEBUG TICK - Her frame'de durumu göster
+  // ═══════════════════════════════════════════════════════════════════════════
+  const debugTick = useCallback(() => {
+    if (!debug) return;
+    
+    const c = containerRef.current;
+    if (!c) {
+      writeHud("containerRef: NULL ❌");
+      return;
+    }
+
+    const cs = getComputedStyle(c);
+    const canScroll = c.scrollWidth > c.clientWidth + 1;
+
+    // scrollLeft yazınca gerçekten değişiyor mu? (kritik test)
+    const before = c.scrollLeft;
+    c.scrollLeft = before + 1;
+    const after = c.scrollLeft;
+    c.scrollLeft = before; // geri al
+
+    const snapType = (cs as CSSStyleDeclaration & { scrollSnapType?: string }).scrollSnapType || "none";
+    const writeWorks = after !== before;
+
+    writeHud([
+      `══ AUTO-SCROLL DEBUG ══`,
+      `TAG: ${c.tagName} class="${(c.className || "").toString().slice(0, 30)}..."`,
+      ``,
+      `autoScroll: ${autoScrollRef.current} ${autoScrollRef.current ? "✅" : "❌ DISABLED!"}`,
+      `overflowX: ${cs.overflowX}`,
+      `scrollSnapType: ${snapType} ${snapType.includes("mandatory") ? "⚠️ SNAP!" : "✅"}`,
+      ``,
+      `scrollWidth: ${c.scrollWidth}`,
+      `clientWidth: ${c.clientWidth}`,
+      `canScroll: ${canScroll} ${canScroll ? "✅" : "❌ NO SCROLL AREA"}`,
+      ``,
+      `writeWorks: ${writeWorks} ${writeWorks ? "✅" : "❌ SCROLL BLOCKED!"}`,
+      `scrollLeft: ${Math.round(c.scrollLeft)}`,
+      ``,
+      `isRunning: ${isRunning.current}`,
+      `isPaused: ${isPaused.current}`,
+      `isDragging: ${isDragging.current}`,
+      `retryCount: ${retryCount.current}`,
+    ].join("\n"));
+  }, [debug]);
+
+  // Stop auto-scroll
   const stopAutoScroll = useCallback(() => {
     isRunning.current = false;
     if (intervalRef.current) {
@@ -48,12 +133,26 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     }
   }, []);
 
-  // Start auto-scroll - useCallback ile memoize
+  // autoScrollSpeed'i de ref'te sakla
+  const autoScrollSpeedRef = useRef(autoScrollSpeed);
+  autoScrollSpeedRef.current = autoScrollSpeed;
+
+  // Start auto-scroll - SADECE scrollable ise başla
   const startAutoScroll = useCallback(() => {
-    // Zaten çalışıyorsa tekrar başlatma (çoğalmayı önle)
-    if (isRunning.current || !autoScroll) return;
+    // Zaten çalışıyorsa tekrar başlatma
+    if (isRunning.current) return false;
     
-    // Önceki interval'i temizle (garanti)
+    // autoScroll ref'ten oku (closure sorunu için)
+    if (!autoScrollRef.current) return false;
+    
+    const container = containerRef.current;
+    if (!container) return false;
+    
+    // ✅ KRİTİK: Kayacak alan yoksa başlama
+    const canScroll = container.scrollWidth > container.clientWidth + 1;
+    if (!canScroll) return false;
+    
+    // Önceki interval'i temizle
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -62,22 +161,29 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     isPaused.current = false;
     
     intervalRef.current = setInterval(() => {
-      const container = containerRef.current;
+      const c = containerRef.current;
       
-      if (!container || isPaused.current || isDragging.current) {
+      if (!c || isPaused.current || isDragging.current) {
         return;
       }
       
-      const maxScroll = container.scrollWidth - container.clientWidth;
+      const maxScroll = c.scrollWidth - c.clientWidth;
       if (maxScroll <= 0) return;
       
-      if (container.scrollLeft >= maxScroll - 1) {
-        container.scrollLeft = 0;
+      if (c.scrollLeft >= maxScroll - 1) {
+        c.scrollLeft = 0;
       } else {
-        container.scrollLeft += autoScrollSpeed;
+        c.scrollLeft += autoScrollSpeedRef.current;
+      }
+      
+      // Debug her tick'te güncelle
+      if (debug && retryCount.current < 5) {
+        debugTick();
       }
     }, 16);
-  }, [autoScroll, autoScrollSpeed]);
+    
+    return true; // Başarıyla başladı
+  }, [debug, debugTick]); // autoScroll ve autoScrollSpeed artık ref'ten okunuyor
 
   // Schedule resume after user interaction
   const scheduleResume = useCallback(() => {
@@ -88,11 +194,17 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     resumeTimeoutRef.current = setTimeout(() => {
       if (!isDragging.current) {
         isPaused.current = false;
+        // Yeniden başlat
+        if (!isRunning.current) {
+          startAutoScroll();
+        }
       }
     }, pauseDuration);
-  }, [pauseDuration]);
+  }, [pauseDuration, startAutoScroll]);
 
-  // Main effect - start auto-scroll and handle visibility/bfcache
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MAIN EFFECT - Scrollable olana kadar retry + visibility handlers
+  // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (!autoScroll) return;
 
@@ -101,27 +213,65 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
       if (document.hidden) {
         stopAutoScroll();
       } else {
+        // Tab aktif olunca yeniden dene
+        retryCount.current = 0;
         startAutoScroll();
       }
     };
 
     // Page show handler (iOS Safari bfcache)
     const handlePageShow = (e: PageTransitionEvent) => {
-      // persisted = sayfa bfcache'ten geldi
       if (e.persisted) {
+        retryCount.current = 0;
         startAutoScroll();
       }
     };
 
-    // Page hide handler (iOS Safari bfcache)
+    // Page hide handler
     const handlePageHide = () => {
       stopAutoScroll();
     };
 
-    // Start after delay
-    const startTimer = setTimeout(() => {
-      startAutoScroll();
-    }, 300);
+    // ═══════════════════════════════════════════════════════════════════════
+    // RETRY LOOP: Scrollable olana kadar dene (async ürün yükleme için)
+    // ═══════════════════════════════════════════════════════════════════════
+    retryCount.current = 0;
+    
+    const tryStart = () => {
+      retryCount.current++;
+      
+      // Debug ilk birkaç denemede göster
+      if (debug && retryCount.current <= 10) {
+        debugTick();
+      }
+      
+      const started = startAutoScroll();
+      
+      // Başladıysa veya 50 deneme olduysa (~10 saniye) dur
+      if (started || retryCount.current > 50) {
+        if (retryIntervalRef.current) {
+          clearInterval(retryIntervalRef.current);
+          retryIntervalRef.current = null;
+        }
+        
+        if (debug) {
+          // 5 saniye sonra HUD'u kaldır (sorun yoksa)
+          if (started) {
+            setTimeout(() => {
+              if (isRunning.current) {
+                removeHud();
+              }
+            }, 5000);
+          }
+        }
+      }
+    };
+    
+    // Hemen dene
+    tryStart();
+    
+    // 200ms'de bir dene (ürünler gelene kadar)
+    retryIntervalRef.current = setInterval(tryStart, 200);
 
     // Event listeners
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -129,13 +279,16 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     window.addEventListener("pagehide", handlePageHide);
     
     return () => {
-      clearTimeout(startTimer);
+      if (retryIntervalRef.current) {
+        clearInterval(retryIntervalRef.current);
+      }
       stopAutoScroll();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pageshow", handlePageShow);
       window.removeEventListener("pagehide", handlePageHide);
+      if (debug) removeHud();
     };
-  }, [autoScroll, startAutoScroll, stopAutoScroll]);
+  }, [autoScroll, startAutoScroll, stopAutoScroll, debug, debugTick]);
 
   // Momentum animation for swipe
   const startMomentumScroll = useCallback(() => {
