@@ -26,7 +26,6 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const animationRef = useRef<number | null>(null);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isVisibleRef = useRef(true);
-  const isMountedRef = useRef(false);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -44,8 +43,6 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   // Visibility Observer - Only auto-scroll when visible
   useEffect(() => {
     if (!autoScroll || !containerRef.current) return;
-
-    isMountedRef.current = true;
 
     // Check if IntersectionObserver is available
     if (typeof IntersectionObserver === 'undefined') {
@@ -70,7 +67,6 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
 
     return () => {
       observer.disconnect();
-      isMountedRef.current = false;
     };
   }, [autoScroll]);
 
@@ -84,13 +80,13 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const animate = (currentTime: number) => {
       if (!isRunning) return;
       
-      // Skip if paused, dragging, not visible, or not mounted
-      if (!containerRef.current || isPaused.current || isDragging.current || isManuallyScrolling.current || !isVisibleRef.current || !isMountedRef.current) {
+      // Skip if paused, dragging, or not visible
+      if (!containerRef.current || isPaused.current || isDragging.current || isManuallyScrolling.current || !isVisibleRef.current) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
       
-      // Throttle to ~60fps (but be more lenient for mobile)
+      // Throttle to ~60fps
       const frameDelta = currentTime - lastAnimTime;
       if (frameDelta < 16) {
         animationRef.current = requestAnimationFrame(animate);
@@ -107,7 +103,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
         return;
       }
       
-      // Calculate speed based on frame delta (smoother on variable frame rates)
+      // Calculate speed based on frame delta for smoother scrolling on variable frame rates
       const speed = autoScrollSpeed * (frameDelta / 16.67);
       
       // Seamless loop
@@ -120,12 +116,13 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    // Start animation with a slight delay for mobile
+    // Start animation with a delay to ensure DOM is ready (especially important for mobile)
     const startTimer = setTimeout(() => {
-      if (isRunning) {
+      if (isRunning && containerRef.current) {
+        // Double-check container exists before starting
         animationRef.current = requestAnimationFrame(animate);
       }
-    }, 200);
+    }, 300); // Increased delay for mobile
     
     return () => {
       isRunning = false;
