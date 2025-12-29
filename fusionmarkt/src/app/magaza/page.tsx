@@ -793,7 +793,7 @@ function CategoryCarousel({
   // Use momentum scroll hook - same as BestsellerProducts/FeaturedProducts
   const { containerRef: scrollRef, handlers } = useMomentumScroll({
     autoScroll: category.products.length > 0,
-    autoScrollSpeed: 0.5, // Same speed for both mobile and desktop
+    // autoScrollSpeed: default 80 px/sn kullanılıyor
     pauseOnHover: true,
     pauseDuration: 3000, // Resume after 3 seconds
     friction: 0.94, // Smooth momentum

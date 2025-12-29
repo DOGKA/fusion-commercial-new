@@ -307,7 +307,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   // Momentum scroll for key features strip
   const { containerRef: featuresRef, handlers: featuresHandlers } = useMomentumScroll({
     autoScroll: true,
-    autoScrollSpeed: 0.5,
+    // autoScrollSpeed: default 80 px/sn kullanılıyor
     pauseOnHover: true,
     friction: 0.94,
   });

@@ -294,7 +294,7 @@ export default function CategoryPage() {
   // Use momentum scroll hook for mobile carousel - 360° auto scroll
   const { containerRef: mobileScrollRef, handlers: mobileScrollHandlers } = useMomentumScroll({
     autoScroll: true,
-    autoScrollSpeed: 0.5,
+    // autoScrollSpeed: default 80 px/sn kullanılıyor
     pauseOnHover: true,
     pauseDuration: 3000,
     friction: 0.94,

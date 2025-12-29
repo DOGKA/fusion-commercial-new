@@ -13,7 +13,7 @@ export default function BestsellerProducts() {
   // Use momentum scroll hook for smooth touch/drag interaction
   const { containerRef: scrollRef, handlers } = useMomentumScroll({
     autoScroll: !loading && products.length > 0,
-    autoScrollSpeed: 0.5,
+    // autoScrollSpeed: default 80 px/sn kullanılıyor
     pauseOnHover: true,
     friction: 0.94,
   });
