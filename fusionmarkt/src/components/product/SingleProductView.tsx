@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Heart, Truck, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
+import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import RelatedProductCard from "@/components/product/RelatedProductCard";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useMomentumScroll } from "@/hooks/useMomentumScroll";
@@ -51,6 +52,17 @@ interface TechnicalSpec {
   label?: string;
 }
 
+interface RelatedProductVariant {
+  id: string;
+  name: string;
+  type: string;
+  value: string;
+  colorCode?: string | null;
+  image?: string | null;
+  stock: number;
+  isActive: boolean;
+}
+
 interface RelatedProduct {
   id: string;
   slug: string;
@@ -63,6 +75,7 @@ interface RelatedProduct {
   stock?: number;
   freeShipping?: boolean;
   shortDescription?: string;
+  variants?: RelatedProductVariant[];
 }
 
 interface ProductData {
@@ -1909,158 +1922,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             </h2>
 
             <div className="frequently-bought-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {product.frequentlyBought.map((relatedProduct: RelatedProduct) => {
-                const savings = relatedProduct.comparePrice ? relatedProduct.comparePrice - relatedProduct.price : 0;
-                const productImage = relatedProduct.thumbnail || relatedProduct.images?.[0];
-                
-                return (
-                  <a 
-                    key={relatedProduct.id} 
-                    href={`/urun/${relatedProduct.slug}`}
-                    className="frequently-bought-card"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '120px 1fr auto',
-                      gap: '20px',
-                      alignItems: 'center',
-                      backgroundColor: 'rgba(19, 19, 19, 0.9)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      borderRadius: '20px',
-                      padding: '16px',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
-                    <div style={{
-                      position: 'relative',
-                      width: '120px',
-                      height: '120px',
-                      backgroundColor: '#0a0a0a',
-                      borderRadius: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden',
-                    }}>
-                      {productImage ? (
-                        <Image 
-                          src={productImage} 
-                          alt={relatedProduct.name}
-                          fill
-                          className="object-cover"
-                          sizes="120px"
-                        />
-                      ) : (
-                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>
-                      )}
-                    </div>
-
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                        {relatedProduct.brand || 'FUSIONMARKT'}
-                      </p>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '6px' }}>
-                        {relatedProduct.name}
-                      </h3>
-                      {relatedProduct.shortDescription && (
-                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>
-                          {relatedProduct.shortDescription.substring(0, 50)}...
-                        </p>
-                      )}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {relatedProduct.freeShipping && (
-                          <>
-                            <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Truck size={10} />
-                              Ücretsiz Kargo
-                            </span>
-                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>•</span>
-                          </>
-                        )}
-                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Stok: {relatedProduct.stock} adet</span>
-                      </div>
-                    </div>
-
-                    <div className="related-product-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px', minWidth: '180px' }}>
-                      <div className="related-product-price-section" style={{ textAlign: 'right' }}>
-                        {savings > 0 && (
-                          <div className="related-product-discount" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>
-                              {formatPrice(relatedProduct.comparePrice ?? 0)} TL
-                            </span>
-                            <span className="related-savings-badge" style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>
-                              {formatPrice(savings)} TL kazanç
-                            </span>
-                          </div>
-                        )}
-                        <div className="related-product-current-price" style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                          <span 
-                            className="related-main-price" 
-                            style={{ 
-                              fontSize: 'var(--related-price-size, 20px)', 
-                              fontWeight: 'bold', 
-                              color: 'white' 
-                            }}
-                          >
-                            {formatPrice(relatedProduct.price)}
-                          </span>
-                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>TL</span>
-                        </div>
-                      </div>
-                      <div className="related-product-buttons" style={{ display: 'flex', gap: '8px' }}>
-                        <AddToCartButton
-                          product={{
-                            productId: relatedProduct.id,
-                            slug: relatedProduct.slug,
-                            title: relatedProduct.name,
-                            brand: relatedProduct.brand || 'FusionMarkt',
-                            price: relatedProduct.price,
-                            originalPrice: relatedProduct.comparePrice,
-                            image: productImage,
-                          }}
-                          variant="text"
-                          size="sm"
-                        />
-                        {(() => {
-                          const isRelatedFavorite = isFavorite(String(relatedProduct.id));
-                          return (
-                            <button 
-                              onClick={(e) => { 
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleItem({
-                                  productId: String(relatedProduct.id),
-                                  slug: relatedProduct.slug,
-                                  title: relatedProduct.name,
-                                  brand: relatedProduct.brand || 'FusionMarkt',
-                                  price: relatedProduct.price,
-                                  originalPrice: relatedProduct.comparePrice,
-                                  image: productImage,
-                                });
-                              }}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '40px',
-                                height: '40px',
-                                backgroundColor: isRelatedFavorite ? 'rgba(236, 72, 153, 0.15)' : 'rgba(255,255,255,0.05)',
-                                border: isRelatedFavorite ? '1px solid rgba(236, 72, 153, 0.4)' : '1px solid rgba(255,255,255,0.08)',
-                                borderRadius: '14px', // SQUIRCLE - matching AddToCartButton
-                                color: isRelatedFavorite ? '#ec4899' : 'rgba(255,255,255,0.5)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                              }}
-                            >
-                              <Heart size={16} fill={isRelatedFavorite ? 'currentColor' : 'none'} />
-                            </button>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
+              {product.frequentlyBought.map((relatedProduct: RelatedProduct) => (
+                <RelatedProductCard 
+                  key={relatedProduct.id} 
+                  product={relatedProduct}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -2089,158 +1956,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             </h2>
 
             <div className="also-viewed-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {product.alsoViewed.map((relatedProduct: RelatedProduct) => {
-                const savings = relatedProduct.comparePrice ? relatedProduct.comparePrice - relatedProduct.price : 0;
-                const productImage = relatedProduct.thumbnail || relatedProduct.images?.[0];
-                
-                return (
-                  <a 
-                    key={relatedProduct.id} 
-                    href={`/urun/${relatedProduct.slug}`}
-                    className="also-viewed-card"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '120px 1fr auto',
-                      gap: '20px',
-                      alignItems: 'center',
-                      backgroundColor: 'rgba(19, 19, 19, 0.9)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      borderRadius: '20px',
-                      padding: '16px',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
-                    <div style={{
-                      position: 'relative',
-                      width: '120px',
-                      height: '120px',
-                      backgroundColor: '#0a0a0a',
-                      borderRadius: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden',
-                    }}>
-                      {productImage ? (
-                        <Image 
-                          src={productImage} 
-                          alt={relatedProduct.name}
-                          fill
-                          className="object-cover"
-                          sizes="120px"
-                        />
-                      ) : (
-                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>
-                      )}
-                    </div>
-
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                        {relatedProduct.brand || 'FUSIONMARKT'}
-                      </p>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '6px' }}>
-                        {relatedProduct.name}
-                      </h3>
-                      {relatedProduct.shortDescription && (
-                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>
-                          {relatedProduct.shortDescription.substring(0, 50)}...
-                        </p>
-                      )}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {relatedProduct.freeShipping && (
-                          <>
-                            <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Truck size={10} />
-                              Ücretsiz Kargo
-                            </span>
-                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>•</span>
-                          </>
-                        )}
-                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Stok: {relatedProduct.stock} adet</span>
-                      </div>
-                    </div>
-
-                    <div className="related-product-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px', minWidth: '180px' }}>
-                      <div className="related-product-price-section" style={{ textAlign: 'right' }}>
-                        {savings > 0 && (
-                          <div className="related-product-discount" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>
-                              {formatPrice(relatedProduct.comparePrice ?? 0)} TL
-                            </span>
-                            <span className="related-savings-badge" style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>
-                              {formatPrice(savings)} TL kazanç
-                            </span>
-                          </div>
-                        )}
-                        <div className="related-product-current-price" style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                          <span 
-                            className="related-main-price" 
-                            style={{ 
-                              fontSize: 'var(--related-price-size, 20px)', 
-                              fontWeight: 'bold', 
-                              color: 'white' 
-                            }}
-                          >
-                            {formatPrice(relatedProduct.price)}
-                          </span>
-                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>TL</span>
-                        </div>
-                      </div>
-                      <div className="related-product-buttons" style={{ display: 'flex', gap: '8px' }}>
-                        <AddToCartButton
-                          product={{
-                            productId: relatedProduct.id,
-                            slug: relatedProduct.slug,
-                            title: relatedProduct.name,
-                            brand: relatedProduct.brand || 'FusionMarkt',
-                            price: relatedProduct.price,
-                            originalPrice: relatedProduct.comparePrice,
-                            image: productImage,
-                          }}
-                          variant="text"
-                          size="sm"
-                        />
-                        {(() => {
-                          const isRelatedFavorite = isFavorite(String(relatedProduct.id));
-                          return (
-                            <button 
-                              onClick={(e) => { 
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleItem({
-                                  productId: String(relatedProduct.id),
-                                  slug: relatedProduct.slug,
-                                  title: relatedProduct.name,
-                                  brand: relatedProduct.brand || 'FusionMarkt',
-                                  price: relatedProduct.price,
-                                  originalPrice: relatedProduct.comparePrice,
-                                  image: productImage,
-                                });
-                              }}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '40px',
-                                height: '40px',
-                                backgroundColor: isRelatedFavorite ? 'rgba(236, 72, 153, 0.15)' : 'rgba(255,255,255,0.05)',
-                                border: isRelatedFavorite ? '1px solid rgba(236, 72, 153, 0.4)' : '1px solid rgba(255,255,255,0.08)',
-                                borderRadius: '14px', // SQUIRCLE - matching AddToCartButton
-                                color: isRelatedFavorite ? '#ec4899' : 'rgba(255,255,255,0.5)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                              }}
-                            >
-                              <Heart size={16} fill={isRelatedFavorite ? 'currentColor' : 'none'} />
-                            </button>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
+              {product.alsoViewed.map((relatedProduct: RelatedProduct) => (
+                <RelatedProductCard 
+                  key={relatedProduct.id} 
+                  product={relatedProduct}
+                />
+              ))}
             </div>
           </div>
         )}

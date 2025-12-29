@@ -739,7 +739,7 @@ export default function CategoryPage() {
     if (newIndex !== currentIndex && newIndex >= 0 && newIndex < products.length) {
       setCurrentIndex(newIndex);
     }
-  }, [currentIndex, products.length, cardWidth]);
+  }, [currentIndex, products.length, cardWidth, mobileScrollRef]);
 
   const goToIndex = (index: number) => {
     const scrollContainer = mobileScrollRef.current;
@@ -760,7 +760,7 @@ export default function CategoryPage() {
 
     scrollContainer.addEventListener('scroll', handleScrollUpdate, { passive: true });
     return () => scrollContainer.removeEventListener('scroll', handleScrollUpdate);
-  }, [isMobile, handleScrollUpdate]);
+  }, [isMobile, handleScrollUpdate, mobileScrollRef]);
 
   // Loading
   if (loading) {

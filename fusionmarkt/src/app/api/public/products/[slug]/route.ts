@@ -114,6 +114,21 @@ export async function GET(
                 stock: true,
                 freeShipping: true,
                 shortDescription: true,
+                // Varyant bilgileri - frontend'de varyant seçimi için gerekli
+                variants: {
+                  where: { isActive: true },
+                  select: {
+                    id: true,
+                    name: true,
+                    type: true,
+                    value: true,
+                    colorCode: true,
+                    image: true,
+                    stock: true,
+                    isActive: true,
+                  },
+                  orderBy: { createdAt: 'asc' },
+                },
               },
             },
           },

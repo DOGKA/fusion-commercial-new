@@ -87,6 +87,10 @@ export default function ProductCard({ product, className, priority = false }: Pr
   const [quickViewHover, setQuickViewHover] = useState(false);
   const { isFavorite, toggleItem } = useFavorites();
   
+  // Variant selection state
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [variantError, setVariantError] = useState(false);
+  
   // Check if this product is in favorites
   const isProductFavorite = isFavorite(String(product.id));
 
@@ -316,19 +320,34 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     const showTextOnColor = !swatchColor;
                     const displayValue = v.value || v.name;
                     const backgroundImage = !swatchColor && v.image ? `url(${v.image})` : undefined;
+                    const isSelected = selectedVariant?.id === v.id;
 
                     if (v.type === "color") {
                       const isOutOfStock = !v.inStock;
                       return (
                         <span
                           key={v.id}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!isOutOfStock) {
+                              setSelectedVariant(v);
+                              setVariantError(false);
+                            }
+                          }}
                           style={{
                             position: 'relative',
                             width: '32px',
                             height: '32px',
                             boxSizing: 'border-box',
                             borderRadius: SQUIRCLE.sm,
-                            border: isOutOfStock ? '2px solid rgba(255,255,255,0.08)' : '2px solid rgba(255,255,255,0.2)',
+                            border: isOutOfStock 
+                              ? '2px solid rgba(255,255,255,0.08)' 
+                              : isSelected 
+                                ? '2px solid #10B981' 
+                                : variantError 
+                                  ? '2px solid #EF4444' 
+                                  : '2px solid rgba(255,255,255,0.2)',
                             backgroundColor: swatchColor || 'rgba(255,255,255,0.05)',
                             backgroundImage,
                             backgroundSize: 'cover',
@@ -340,8 +359,14 @@ export default function ProductCard({ product, className, priority = false }: Pr
                             cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                             opacity: isOutOfStock ? 0.4 : 1,
                             transition: 'all 0.2s ease',
+                            boxShadow: isSelected 
+                              ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
+                              : variantError 
+                                ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
+                                : undefined,
+                            transform: isSelected ? 'scale(1.08)' : undefined,
                           }}
-                          title={isOutOfStock ? `${v.name} (Stokta Yok)` : v.name}
+                          title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
                         >
                           {showTextOnColor && (
                             <span style={{ fontSize: '10px', fontWeight: 600, textAlign: 'center', lineHeight: 1.1 }}>
@@ -368,6 +393,14 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     return (
                       <span
                         key={v.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!isOutOfStock) {
+                            setSelectedVariant(v);
+                            setVariantError(false);
+                          }
+                        }}
                         style={{
                           position: 'relative',
                           width: '32px',
@@ -379,13 +412,33 @@ export default function ProductCard({ product, className, priority = false }: Pr
                           fontSize: '11px',
                           fontWeight: '500',
                           borderRadius: SQUIRCLE.sm,
-                          border: isOutOfStock ? '2px solid rgba(255,255,255,0.08)' : '2px solid rgba(255,255,255,0.2)',
-                          color: isOutOfStock ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.7)',
-                          backgroundColor: isOutOfStock ? 'transparent' : 'rgba(255,255,255,0.05)',
+                          border: isOutOfStock 
+                            ? '2px solid rgba(255,255,255,0.08)' 
+                            : isSelected 
+                              ? '2px solid #10B981' 
+                              : variantError 
+                                ? '2px solid #EF4444' 
+                                : '2px solid rgba(255,255,255,0.2)',
+                          color: isOutOfStock 
+                            ? 'rgba(255,255,255,0.25)' 
+                            : isSelected 
+                              ? '#10B981' 
+                              : 'rgba(255,255,255,0.7)',
+                          backgroundColor: isOutOfStock 
+                            ? 'transparent' 
+                            : isSelected 
+                              ? 'rgba(16, 185, 129, 0.1)' 
+                              : 'rgba(255,255,255,0.05)',
                           cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                           transition: 'all 0.2s ease',
+                          boxShadow: isSelected 
+                            ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
+                            : variantError 
+                              ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
+                              : undefined,
+                          transform: isSelected ? 'scale(1.08)' : undefined,
                         }}
-                        title={isOutOfStock ? `${v.name} (Stokta Yok)` : v.name}
+                        title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
                       >
                         {displayValue}
                         {/* Stokta yok çizgisi */}
@@ -531,10 +584,22 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     price: price,
                     originalPrice: originalPrice,
                     image: image,
+                    variant: selectedVariant ? {
+                      id: selectedVariant.id,
+                      name: selectedVariant.name,
+                      type: selectedVariant.type,
+                      value: selectedVariant.value,
+                    } : undefined,
                   }}
                   variant="icon"
                   disabled={isOutOfStock}
                   size="md"
+                  requiresVariant={hasVariants}
+                  onNeedsVariant={() => {
+                    setVariantError(true);
+                    // Clear error after animation
+                    setTimeout(() => setVariantError(false), 2500);
+                  }}
                 />
               </div>
             </div>

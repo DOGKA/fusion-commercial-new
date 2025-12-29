@@ -19,6 +19,7 @@ interface AddToCartButtonProps {
   className?: string;
   size?: "sm" | "md" | "lg";
   requiresVariant?: boolean; // If true, product.variant must be set
+  onNeedsVariant?: () => void; // Callback when variant is needed but not selected
 }
 
 // iOS-style Squircle border-radius (güncellenmiş değerler)
@@ -35,6 +36,7 @@ export default function AddToCartButton({
   className,
   size = "md",
   requiresVariant = false,
+  onNeedsVariant,
 }: AddToCartButtonProps) {
   const [buttonState, setButtonState] = useState<ButtonState>("idle");
   const { addItem } = useCart();
@@ -52,6 +54,10 @@ export default function AddToCartButton({
       // Check if variant is required
       if (needsVariant) {
         setButtonState("error");
+        // Notify parent component that variant selection is needed
+        if (onNeedsVariant) {
+          onNeedsVariant();
+        }
         setTimeout(() => {
           setButtonState("idle");
         }, 2500);
@@ -74,7 +80,7 @@ export default function AddToCartButton({
         setButtonState("idle");
       }
     },
-    [addItem, product, disabled, buttonState, needsVariant]
+    [addItem, product, disabled, buttonState, needsVariant, onNeedsVariant]
   );
 
   // Size configurations - sm height matches favorite button (40px)
