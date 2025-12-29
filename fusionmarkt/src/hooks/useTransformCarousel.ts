@@ -4,7 +4,7 @@ import { useRef, useEffect, useCallback } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CSS TRANSFORM CAROUSEL - Ultra-smooth GPU-accelerated scrolling
-// Apple, Stripe, Vercel kalitesinde animasyon
+// Native touch events with { passive: false } for proper preventDefault
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface TransformCarouselOptions {
@@ -21,20 +21,18 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     autoScroll = true,
     autoScrollSpeed = 40, // px/saniye - yavaş & akıcı
     pauseOnHover = true,
-    friction = 0.95,
+    friction = 0.92, // Daha hızlı durma
     pauseDuration = 2000,
-    loop = true,
   } = options;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // REFS
   // ═══════════════════════════════════════════════════════════════════════════
-  const containerRef = useRef<HTMLDivElement>(null); // Viewport (overflow: hidden)
-  const wrapperRef = useRef<HTMLDivElement>(null);   // Content (transform: translateX)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   
   // State refs
-  const translateX = useRef(0);          // Mevcut X pozisyonu (negatif değer)
-  const targetX = useRef(0);             // Hedef X pozisyonu
+  const translateX = useRef(0);
   const rafRef = useRef<number | null>(null);
   const isRunning = useRef(false);
   const isPaused = useRef(false);
@@ -43,37 +41,36 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   
   // Touch/Mouse tracking
   const startX = useRef(0);
+  const startY = useRef(0);
   const startTranslateX = useRef(0);
   const lastX = useRef(0);
   const lastTime = useRef(0);
   const velocity = useRef(0);
   
   // Direction lock
-  const startY = useRef(0);
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
-  const directionLockThreshold = 10;
+  const directionLockThreshold = 8;
 
-  // Options as refs (React 19 uyumlu)
+  // Options as refs
   const autoScrollRef = useRef(autoScroll);
   const autoScrollSpeedRef = useRef(autoScrollSpeed);
   const frictionRef = useRef(friction);
+  const pauseDurationRef = useRef(pauseDuration);
   
   useEffect(() => { autoScrollRef.current = autoScroll; }, [autoScroll]);
   useEffect(() => { autoScrollSpeedRef.current = autoScrollSpeed; }, [autoScrollSpeed]);
   useEffect(() => { frictionRef.current = friction; }, [friction]);
+  useEffect(() => { pauseDurationRef.current = pauseDuration; }, [pauseDuration]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // HELPER: Apply transform to wrapper
+  // HELPERS
   // ═══════════════════════════════════════════════════════════════════════════
   const applyTransform = useCallback((x: number) => {
     if (wrapperRef.current) {
-      wrapperRef.current.style.transform = `translateX(${x}px)`;
+      wrapperRef.current.style.transform = `translate3d(${x}px, 0, 0)`;
     }
   }, []);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // HELPER: Get max scroll distance
-  // ═══════════════════════════════════════════════════════════════════════════
   const getMaxScroll = useCallback(() => {
     if (!containerRef.current || !wrapperRef.current) return 0;
     const containerWidth = containerRef.current.clientWidth;
@@ -81,9 +78,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     return Math.max(0, contentWidth - containerWidth);
   }, []);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // STOP ANIMATION
-  // ═══════════════════════════════════════════════════════════════════════════
   const stopAnimation = useCallback(() => {
     isRunning.current = false;
     if (rafRef.current) {
@@ -93,7 +87,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // START AUTO-SCROLL ANIMATION
+  // AUTO-SCROLL
   // ═══════════════════════════════════════════════════════════════════════════
   const startAutoScroll = useCallback(() => {
     if (isRunning.current || !autoScrollRef.current) return false;
@@ -107,7 +101,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     const tick = () => {
       if (!isRunning.current) return;
       
-      // Pause veya drag durumunda bekle
       if (isPaused.current || isDragging.current) {
         lastTickRef.current = performance.now();
         rafRef.current = requestAnimationFrame(tick);
@@ -118,18 +111,14 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       const dt = (now - lastTickRef.current) / 1000;
       lastTickRef.current = now;
       
-      // TranslateX güncelle (negatif yönde ilerle)
       translateX.current -= autoScrollSpeedRef.current * dt;
       
-      // Loop: başa dön
       const currentMax = getMaxScroll();
       if (Math.abs(translateX.current) >= currentMax) {
         translateX.current = 0;
       }
       
-      // GPU Transform uygula - BUTTERY SMOOTH!
       applyTransform(translateX.current);
-      
       rafRef.current = requestAnimationFrame(tick);
     };
     
@@ -138,10 +127,9 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   }, [getMaxScroll, applyTransform]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // MOMENTUM ANIMATION (after drag)
+  // MOMENTUM
   // ═══════════════════════════════════════════════════════════════════════════
   const startMomentum = useCallback(() => {
-    // Önceki animation'ı temizle
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -151,7 +139,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     const maxScroll = getMaxScroll();
     
     const tick = () => {
-      // Drag başladıysa momentum'u durdur
       if (isDragging.current) {
         velocity.current = 0;
         return;
@@ -161,21 +148,18 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         velocity.current = 0;
         rafRef.current = null;
         
-        // Boundary check
-        if (translateX.current > 0) {
-          translateX.current = 0;
-        } else if (Math.abs(translateX.current) > maxScroll) {
-          translateX.current = -maxScroll;
-        }
+        // Boundary snap
+        if (translateX.current > 0) translateX.current = 0;
+        else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
+        
         applyTransform(translateX.current);
         
-        // Resume auto-scroll after pause
         setTimeout(() => {
           if (!isDragging.current && !isRunning.current) {
             isPaused.current = false;
             startAutoScroll();
           }
-        }, pauseDuration);
+        }, pauseDurationRef.current);
         return;
       }
       
@@ -196,252 +180,276 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     };
     
     rafRef.current = requestAnimationFrame(tick);
-  }, [getMaxScroll, applyTransform, pauseDuration, startAutoScroll]);
+  }, [getMaxScroll, applyTransform, startAutoScroll]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TOUCH HANDLERS
-  // ═══════════════════════════════════════════════════════════════════════════
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    // CRITICAL: Animation'ı tamamen durdur
-    isRunning.current = false;
-    isPaused.current = true;
-    scrollDirection.current = null;
-    velocity.current = 0;
-    
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
-    startTranslateX.current = translateX.current;
-    lastX.current = e.touches[0].clientX;
-    lastTime.current = Date.now();
-  }, []);
+  // NATIVE TOUCH EVENT HANDLERS
+  // ═══════════════════════════════════════════════════════════════
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const currentX = e.touches[0].clientX;
-    const currentY = e.touches[0].clientY;
-    const deltaX = Math.abs(currentX - startX.current);
-    const deltaY = Math.abs(currentY - startY.current);
-    
-    // Direction lock
-    if (scrollDirection.current === null) {
-      if (deltaX > directionLockThreshold || deltaY > directionLockThreshold) {
-        if (deltaX > deltaY) {
-          scrollDirection.current = "horizontal";
-          isDragging.current = true;
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    // GPU hints
+    wrapper.style.willChange = "transform";
+    wrapper.style.backfaceVisibility = "hidden";
+    wrapper.style.transform = "translate3d(0, 0, 0)";
+    wrapper.style.cursor = "grab";
+    // CRITICAL: Allow vertical scroll, we handle horizontal
+    wrapper.style.touchAction = "pan-y pinch-zoom";
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TOUCH START
+    // ─────────────────────────────────────────────────────────────────────────
+    const handleTouchStart = (e: TouchEvent) => {
+      isRunning.current = false;
+      isPaused.current = true;
+      scrollDirection.current = null;
+      velocity.current = 0;
+      
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      
+      const touch = e.touches[0];
+      startX.current = touch.clientX;
+      startY.current = touch.clientY;
+      startTranslateX.current = translateX.current;
+      lastX.current = touch.clientX;
+      lastTime.current = performance.now();
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TOUCH MOVE
+    // ─────────────────────────────────────────────────────────────────────────
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const currentX = touch.clientX;
+      const currentY = touch.clientY;
+      const deltaX = Math.abs(currentX - startX.current);
+      const deltaY = Math.abs(currentY - startY.current);
+      
+      // Direction lock
+      if (scrollDirection.current === null) {
+        if (deltaX > directionLockThreshold || deltaY > directionLockThreshold) {
+          if (deltaX > deltaY * 1.2) { // Favor horizontal
+            scrollDirection.current = "horizontal";
+            isDragging.current = true;
+          } else {
+            scrollDirection.current = "vertical";
+            return; // Let browser handle vertical scroll
+          }
         } else {
-          scrollDirection.current = "vertical";
           return;
         }
-      } else {
-        return;
       }
-    }
-    
-    if (scrollDirection.current !== "horizontal") return;
-    
-    e.preventDefault();
-    
-    const currentTime = Date.now();
-    const timeDelta = currentTime - lastTime.current;
-    
-    if (timeDelta > 0) {
-      velocity.current = (currentX - lastX.current) * 0.5; // Smooth velocity
-    }
-    
-    // Direct transform update - INSTANT RESPONSE
-    const dragDelta = currentX - startX.current;
-    translateX.current = startTranslateX.current + dragDelta;
-    
-    // Boundary resistance (rubber band effect)
-    const maxScroll = getMaxScroll();
-    if (translateX.current > 0) {
-      translateX.current *= 0.3; // Resistance
-    } else if (Math.abs(translateX.current) > maxScroll) {
-      const overflow = Math.abs(translateX.current) - maxScroll;
-      translateX.current = -(maxScroll + overflow * 0.3);
-    }
-    
-    applyTransform(translateX.current);
-    
-    lastX.current = currentX;
-    lastTime.current = currentTime;
-  }, [getMaxScroll, applyTransform]);
-
-  const handleTouchEnd = useCallback(() => {
-    if (scrollDirection.current === "horizontal") {
-      isDragging.current = false;
       
-      if (Math.abs(velocity.current) > 1) {
+      if (scrollDirection.current !== "horizontal") return;
+      
+      // CRITICAL: Prevent page scroll when dragging horizontally
+      e.preventDefault();
+      
+      const now = performance.now();
+      const timeDelta = now - lastTime.current;
+      
+      if (timeDelta > 0) {
+        const newVelocity = (currentX - lastX.current) / timeDelta * 16; // Normalize to ~60fps
+        velocity.current = velocity.current * 0.4 + newVelocity * 0.6; // Smooth
+      }
+      
+      const dragDelta = currentX - startX.current;
+      translateX.current = startTranslateX.current + dragDelta;
+      
+      // Rubber band effect
+      const maxScroll = getMaxScroll();
+      if (translateX.current > 0) {
+        translateX.current = translateX.current * 0.3;
+      } else if (Math.abs(translateX.current) > maxScroll) {
+        const overflow = Math.abs(translateX.current) - maxScroll;
+        translateX.current = -(maxScroll + overflow * 0.3);
+      }
+      
+      applyTransform(translateX.current);
+      
+      lastX.current = currentX;
+      lastTime.current = now;
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TOUCH END
+    // ─────────────────────────────────────────────────────────────────────────
+    const handleTouchEnd = () => {
+      if (scrollDirection.current === "horizontal") {
+        isDragging.current = false;
+        
+        if (Math.abs(velocity.current) > 0.5) {
+          startMomentum();
+        } else {
+          // Boundary snap
+          const maxScroll = getMaxScroll();
+          if (translateX.current > 0) translateX.current = 0;
+          else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
+          
+          applyTransform(translateX.current);
+          
+          setTimeout(() => {
+            if (!isDragging.current && !isRunning.current) {
+              isPaused.current = false;
+              startAutoScroll();
+            }
+          }, pauseDurationRef.current);
+        }
+      }
+      
+      scrollDirection.current = null;
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MOUSE HANDLERS
+    // ─────────────────────────────────────────────────────────────────────────
+    const handleMouseDown = (e: MouseEvent) => {
+      isRunning.current = false;
+      isDragging.current = true;
+      isPaused.current = true;
+      velocity.current = 0;
+      
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      
+      startX.current = e.clientX;
+      startTranslateX.current = translateX.current;
+      lastX.current = e.clientX;
+      lastTime.current = performance.now();
+      
+      wrapper.style.cursor = "grabbing";
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      e.preventDefault();
+      
+      const currentX = e.clientX;
+      const now = performance.now();
+      const timeDelta = now - lastTime.current;
+      
+      if (timeDelta > 0) {
+        const newVelocity = (currentX - lastX.current) / timeDelta * 16;
+        velocity.current = velocity.current * 0.4 + newVelocity * 0.6;
+      }
+      
+      const dragDelta = currentX - startX.current;
+      translateX.current = startTranslateX.current + dragDelta;
+      
+      // Boundary resistance
+      const maxScroll = getMaxScroll();
+      if (translateX.current > 0) {
+        translateX.current = translateX.current * 0.3;
+      } else if (Math.abs(translateX.current) > maxScroll) {
+        const overflow = Math.abs(translateX.current) - maxScroll;
+        translateX.current = -(maxScroll + overflow * 0.3);
+      }
+      
+      applyTransform(translateX.current);
+      
+      lastX.current = currentX;
+      lastTime.current = now;
+    };
+
+    const handleMouseUp = () => {
+      if (!isDragging.current) return;
+      
+      isDragging.current = false;
+      wrapper.style.cursor = "grab";
+      
+      if (Math.abs(velocity.current) > 0.5) {
         startMomentum();
       } else {
-        // Boundary snap
         const maxScroll = getMaxScroll();
-        if (translateX.current > 0) {
-          translateX.current = 0;
-        } else if (Math.abs(translateX.current) > maxScroll) {
-          translateX.current = -maxScroll;
-        }
+        if (translateX.current > 0) translateX.current = 0;
+        else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
+        
         applyTransform(translateX.current);
         
-        // Resume auto-scroll - temiz başlat
         setTimeout(() => {
           if (!isDragging.current && !isRunning.current) {
             isPaused.current = false;
             startAutoScroll();
           }
-        }, pauseDuration);
+        }, pauseDurationRef.current);
       }
-    }
-    
-    scrollDirection.current = null;
-  }, [startMomentum, getMaxScroll, applyTransform, pauseDuration, startAutoScroll]);
+    };
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MOUSE HANDLERS (Desktop drag)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // CRITICAL: Animation'ı tamamen durdur
-    isRunning.current = false;
-    isDragging.current = true;
-    isPaused.current = true;
-    velocity.current = 0;
-    
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    
-    startX.current = e.clientX;
-    startTranslateX.current = translateX.current;
-    lastX.current = e.clientX;
-    lastTime.current = Date.now();
-    
-    if (wrapperRef.current) {
-      wrapperRef.current.style.cursor = "grabbing";
-    }
-  }, []);
+    const handleMouseEnter = () => {
+      if (pauseOnHover) isPaused.current = true;
+    };
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current) return;
-    e.preventDefault();
-    
-    const currentX = e.clientX;
-    const currentTime = Date.now();
-    const timeDelta = currentTime - lastTime.current;
-    
-    if (timeDelta > 0) {
-      velocity.current = (currentX - lastX.current) * 0.5;
-    }
-    
-    const dragDelta = currentX - startX.current;
-    translateX.current = startTranslateX.current + dragDelta;
-    
-    // Boundary resistance
-    const maxScroll = getMaxScroll();
-    if (translateX.current > 0) {
-      translateX.current *= 0.3;
-    } else if (Math.abs(translateX.current) > maxScroll) {
-      const overflow = Math.abs(translateX.current) - maxScroll;
-      translateX.current = -(maxScroll + overflow * 0.3);
-    }
-    
-    applyTransform(translateX.current);
-    
-    lastX.current = currentX;
-    lastTime.current = currentTime;
-  }, [getMaxScroll, applyTransform]);
+    const handleMouseLeave = () => {
+      if (isDragging.current) handleMouseUp();
+      isPaused.current = false;
+    };
 
-  const handleMouseUp = useCallback(() => {
-    if (!isDragging.current) return;
+    // ─────────────────────────────────────────────────────────────────────────
+    // ADD EVENT LISTENERS
+    // ─────────────────────────────────────────────────────────────────────────
+    wrapper.addEventListener("touchstart", handleTouchStart, { passive: true });
+    wrapper.addEventListener("touchmove", handleTouchMove, { passive: false }); // CRITICAL!
+    wrapper.addEventListener("touchend", handleTouchEnd, { passive: true });
+    wrapper.addEventListener("touchcancel", handleTouchEnd, { passive: true });
     
-    isDragging.current = false;
-    
-    if (wrapperRef.current) {
-      wrapperRef.current.style.cursor = "grab";
-    }
-    
-    if (Math.abs(velocity.current) > 1) {
-      startMomentum();
-    } else {
-      const maxScroll = getMaxScroll();
-      if (translateX.current > 0) {
-        translateX.current = 0;
-      } else if (Math.abs(translateX.current) > maxScroll) {
-        translateX.current = -maxScroll;
-      }
-      applyTransform(translateX.current);
-      
-      // Resume auto-scroll - temiz başlat
-      setTimeout(() => {
-        if (!isDragging.current && !isRunning.current) {
-          isPaused.current = false;
-          startAutoScroll();
-        }
-      }, pauseDuration);
-    }
-  }, [startMomentum, getMaxScroll, applyTransform, pauseDuration, startAutoScroll]);
+    wrapper.addEventListener("mousedown", handleMouseDown);
+    wrapper.addEventListener("mousemove", handleMouseMove);
+    wrapper.addEventListener("mouseup", handleMouseUp);
+    wrapper.addEventListener("mouseleave", handleMouseLeave);
+    wrapper.addEventListener("mouseenter", handleMouseEnter);
 
-  const handleMouseEnter = useCallback(() => {
-    if (pauseOnHover) {
-      isPaused.current = true;
-    }
-  }, [pauseOnHover]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (isDragging.current) {
-      handleMouseUp();
-    }
-    isPaused.current = false;
-  }, [handleMouseUp]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // INITIALIZATION & CLEANUP
-  // ═══════════════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    // GPU hints for wrapper
-    if (wrapperRef.current) {
-      wrapperRef.current.style.willChange = "transform";
-      wrapperRef.current.style.backfaceVisibility = "hidden";
-      wrapperRef.current.style.transform = "translateX(0)";
-      wrapperRef.current.style.cursor = "grab";
-    }
-    
-    // Start auto-scroll with delay
-    const timer = setTimeout(() => {
+    // Start auto-scroll
+    const startTimer = setTimeout(() => {
       if (autoScrollRef.current && getMaxScroll() > 0) {
         startAutoScroll();
       }
     }, 500);
     
-    // Retry if content not loaded
     const retryTimer = setInterval(() => {
-      if (!isRunning.current && autoScrollRef.current && getMaxScroll() > 0) {
+      if (!isRunning.current && autoScrollRef.current && getMaxScroll() > 0 && !isDragging.current) {
         startAutoScroll();
       }
-    }, 200);
-    
-    // Visibility change handler
+    }, 500);
+
+    // Visibility
     const handleVisibility = () => {
       if (document.hidden) {
         stopAnimation();
-      } else {
+      } else if (!isDragging.current) {
         startAutoScroll();
       }
     };
-    
     document.addEventListener("visibilitychange", handleVisibility);
-    
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CLEANUP
+    // ─────────────────────────────────────────────────────────────────────────
     return () => {
-      clearTimeout(timer);
+      clearTimeout(startTimer);
       clearInterval(retryTimer);
       stopAnimation();
+      
+      wrapper.removeEventListener("touchstart", handleTouchStart);
+      wrapper.removeEventListener("touchmove", handleTouchMove);
+      wrapper.removeEventListener("touchend", handleTouchEnd);
+      wrapper.removeEventListener("touchcancel", handleTouchEnd);
+      
+      wrapper.removeEventListener("mousedown", handleMouseDown);
+      wrapper.removeEventListener("mousemove", handleMouseMove);
+      wrapper.removeEventListener("mouseup", handleMouseUp);
+      wrapper.removeEventListener("mouseleave", handleMouseLeave);
+      wrapper.removeEventListener("mouseenter", handleMouseEnter);
+      
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [getMaxScroll, startAutoScroll, stopAnimation]);
+  }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, stopAnimation, pauseOnHover]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RETURN
@@ -455,21 +463,13 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     },
     wrapperStyle: {
       display: "flex",
-      gap: "16px", // Default gap, override edilebilir
+      gap: "16px",
       willChange: "transform",
       backfaceVisibility: "hidden" as const,
       cursor: "grab",
+      touchAction: "pan-y pinch-zoom", // Allow vertical scroll
     },
-    handlers: {
-      onTouchStart: handleTouchStart,
-      onTouchMove: handleTouchMove,
-      onTouchEnd: handleTouchEnd,
-      onMouseDown: handleMouseDown,
-      onMouseMove: handleMouseMove,
-      onMouseUp: handleMouseUp,
-      onMouseLeave: handleMouseLeave,
-      onMouseEnter: handleMouseEnter,
-    },
+    // Empty handlers - all handled via native listeners
+    handlers: {},
   };
 }
-
