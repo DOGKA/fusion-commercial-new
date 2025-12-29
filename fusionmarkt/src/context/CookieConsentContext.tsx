@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from "react";
+import { createContext, useContext, useCallback, ReactNode, useMemo, useSyncExternalStore } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -14,6 +14,11 @@ export interface CookiePreferences {
   consentVersion: string;  // Politika versiyonu
 }
 
+interface ConsentState {
+  preferences: CookiePreferences;
+  hasConsent: boolean;
+}
+
 interface CookieConsentContextType {
   preferences: CookiePreferences;
   hasConsent: boolean;
@@ -22,7 +27,6 @@ interface CookieConsentContextType {
   acceptAll: () => void;
   acceptNecessary: () => void;
   resetConsent: () => void;
-  // Kullanım kolaylığı için
   canUseAnalytics: boolean;
   canUseMarketing: boolean;
   canUsePreferences: boolean;
@@ -32,8 +36,8 @@ interface CookieConsentContextType {
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════
 const COOKIE_CONSENT_KEY = "fusionmarkt-cookie-consent";
-const CONSENT_VERSION = "1.0"; // Politika değişirse bu versiyon artırılır
-const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 1 yıl (saniye)
+const CONSENT_VERSION = "1.0";
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
 
 const defaultPreferences: CookiePreferences = {
   necessary: true,
@@ -44,36 +48,98 @@ const defaultPreferences: CookiePreferences = {
   consentVersion: CONSENT_VERSION,
 };
 
+const defaultState: ConsentState = {
+  preferences: defaultPreferences,
+  hasConsent: false,
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CONTEXT
 // ═══════════════════════════════════════════════════════════════════════════
 const CookieConsentContext = createContext<CookieConsentContextType | undefined>(undefined);
 
 // ═══════════════════════════════════════════════════════════════════════════
+// EXTERNAL STORE for useSyncExternalStore
+// ═══════════════════════════════════════════════════════════════════════════
+let listeners: Array<() => void> = [];
+let cachedState: ConsentState | null = null;
+
+function getSnapshot(): ConsentState {
+  if (cachedState) return cachedState;
+  
+  if (typeof window === "undefined") {
+    return defaultState;
+  }
+  
+  const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
+  
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored) as CookiePreferences;
+      if (parsed.consentVersion === CONSENT_VERSION) {
+        cachedState = { preferences: parsed, hasConsent: true };
+        return cachedState;
+      }
+    } catch {
+      // Invalid stored data
+    }
+  }
+  
+  // Check cookie as fallback
+  const cookieConsent = getCookieValue("cookie_consent");
+  if (cookieConsent) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(cookieConsent)) as CookiePreferences;
+      localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(parsed));
+      cachedState = { preferences: parsed, hasConsent: true };
+      return cachedState;
+    } catch {
+      // Invalid cookie data
+    }
+  }
+  
+  cachedState = defaultState;
+  return cachedState;
+}
+
+function getServerSnapshot(): ConsentState {
+  return defaultState;
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners = [...listeners, listener];
+  return () => {
+    listeners = listeners.filter(l => l !== listener);
+  };
+}
+
+function emitChange() {
+  cachedState = null; // Clear cache to force re-read
+  for (const listener of listeners) {
+    listener();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Gerçek cookie set etme
-function setCookie(name: string, value: string, maxAge: number = COOKIE_MAX_AGE) {
+function setCookieValue(name: string, value: string, maxAge: number = COOKIE_MAX_AGE) {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
 }
 
-// Cookie okuma
-function getCookie(name: string): string | null {
+function getCookieValue(name: string): string | null {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
   return match ? match[2] : null;
 }
 
-// Cookie silme
-function deleteCookie(name: string) {
+function deleteCookieValue(name: string) {
   document.cookie = `${name}=; path=/; max-age=0`;
 }
 
-// Google Consent Mode v2 güncelleme
 function updateGoogleConsent(preferences: CookiePreferences) {
-  // gtag fonksiyonu varsa Google Consent Mode'u güncelle
   if (typeof window !== "undefined" && typeof window.gtag === "function") {
     window.gtag("consent", "update", {
       analytics_storage: preferences.analytics ? "granted" : "denied",
@@ -82,117 +148,52 @@ function updateGoogleConsent(preferences: CookiePreferences) {
       ad_personalization: preferences.marketing ? "granted" : "denied",
       functionality_storage: preferences.preferences ? "granted" : "denied",
       personalization_storage: preferences.preferences ? "granted" : "denied",
-      security_storage: "granted", // Her zaman granted
+      security_storage: "granted",
     });
   }
 }
 
-// Marketing/Analytics cookie'lerini temizle
 function clearTrackingCookies() {
-  // Google Analytics cookies
   const gaCookies = ["_ga", "_gid", "_gat", "_gac_"];
   gaCookies.forEach((name) => {
-    deleteCookie(name);
-    // Alt domain cookie'leri için
+    deleteCookieValue(name);
     document.cookie = `${name}=; path=/; domain=.${window.location.hostname}; max-age=0`;
   });
-  
-  // Facebook Pixel
-  deleteCookie("_fbp");
-  deleteCookie("_fbc");
-}
-
-// Initial state'i hesaplayan fonksiyon
-function getInitialState(): { preferences: CookiePreferences; hasConsent: boolean } {
-  if (typeof window === "undefined") {
-    return { preferences: defaultPreferences, hasConsent: false };
-  }
-  
-  const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
-  const cookieConsent = getCookie("cookie_consent");
-  
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored) as CookiePreferences;
-      if (parsed.consentVersion === CONSENT_VERSION) {
-        return { preferences: parsed, hasConsent: true };
-      }
-    } catch {
-      // Invalid stored data
-    }
-  } else if (cookieConsent) {
-    try {
-      const parsed = JSON.parse(decodeURIComponent(cookieConsent)) as CookiePreferences;
-      localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(parsed));
-      return { preferences: parsed, hasConsent: true };
-    } catch {
-      // Invalid cookie data
-    }
-  }
-  
-  return { preferences: defaultPreferences, hasConsent: false };
+  deleteCookieValue("_fbp");
+  deleteCookieValue("_fbc");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROVIDER
 // ═══════════════════════════════════════════════════════════════════════════
 export function CookieConsentProvider({ children }: { children: ReactNode }) {
-  // Lazy initialization - runs only once on mount
-  const [state, setState] = useState(() => {
-    // SSR'da default değerler döndür
-    if (typeof window === "undefined") {
-      return { preferences: defaultPreferences, hasConsent: false, isLoaded: false };
-    }
-    const initial = getInitialState();
-    return { ...initial, isLoaded: true };
-  });
+  // useSyncExternalStore - React 18+ recommended way for external state
+  const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  
+  const { preferences, hasConsent } = state;
 
-  const { preferences, hasConsent, isLoaded } = state;
-
-  // Client-side hydration için - SSR sonrası state'i güncelle
-  useEffect(() => {
-    if (!isLoaded) {
-      const initial = getInitialState();
-      setState({ ...initial, isLoaded: true });
-      if (initial.hasConsent) {
-        updateGoogleConsent(initial.preferences);
-      }
-    }
-  }, [isLoaded]);
-
-  // Tercihleri kaydet
   const savePreferences = useCallback((prefs: CookiePreferences) => {
     const toSave: CookiePreferences = {
       ...prefs,
-      necessary: true, // Her zaman true
+      necessary: true,
       consentDate: new Date().toISOString(),
       consentVersion: CONSENT_VERSION,
     };
     
-    // localStorage'a kaydet
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(toSave));
+    setCookieValue("cookie_consent", encodeURIComponent(JSON.stringify(toSave)));
+    setCookieValue("consent_analytics", toSave.analytics ? "1" : "0");
+    setCookieValue("consent_marketing", toSave.marketing ? "1" : "0");
+    setCookieValue("consent_preferences", toSave.preferences ? "1" : "0");
     
-    // Gerçek cookie olarak da kaydet (server-side erişim için)
-    setCookie("cookie_consent", encodeURIComponent(JSON.stringify(toSave)));
-    
-    // Bireysel consent cookie'leri (kolay kontrol için)
-    setCookie("consent_analytics", toSave.analytics ? "1" : "0");
-    setCookie("consent_marketing", toSave.marketing ? "1" : "0");
-    setCookie("consent_preferences", toSave.preferences ? "1" : "0");
-    
-    // State güncelle
-    setState({ preferences: toSave, hasConsent: true, isLoaded: true });
-    
-    // Google Consent Mode güncelle
     updateGoogleConsent(toSave);
     
-    // Eğer analytics/marketing reddedildiyse tracking cookie'lerini temizle
     if (!toSave.analytics || !toSave.marketing) {
       clearTrackingCookies();
     }
     
-    // Custom event dispatch (GoogleAnalytics component dinlesin)
     window.dispatchEvent(new CustomEvent("cookieConsentUpdated"));
+    emitChange();
   }, []);
 
   const updatePreferences = useCallback((prefs: Partial<CookiePreferences>) => {
@@ -216,18 +217,18 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
   const resetConsent = useCallback(() => {
     localStorage.removeItem(COOKIE_CONSENT_KEY);
-    deleteCookie("cookie_consent");
-    deleteCookie("consent_analytics");
-    deleteCookie("consent_marketing");
-    deleteCookie("consent_preferences");
+    deleteCookieValue("cookie_consent");
+    deleteCookieValue("consent_analytics");
+    deleteCookieValue("consent_marketing");
+    deleteCookieValue("consent_preferences");
     clearTrackingCookies();
-    setState({ preferences: defaultPreferences, hasConsent: false, isLoaded: true });
+    emitChange();
   }, []);
 
   const value: CookieConsentContextType = useMemo(() => ({
     preferences,
     hasConsent,
-    isLoaded,
+    isLoaded: true, // useSyncExternalStore handles hydration
     updatePreferences,
     acceptAll,
     acceptNecessary,
@@ -235,7 +236,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     canUseAnalytics: preferences.analytics,
     canUseMarketing: preferences.marketing,
     canUsePreferences: preferences.preferences,
-  }), [preferences, hasConsent, isLoaded, updatePreferences, acceptAll, acceptNecessary, resetConsent]);
+  }), [preferences, hasConsent, updatePreferences, acceptAll, acceptNecessary, resetConsent]);
 
   return (
     <CookieConsentContext.Provider value={value}>
