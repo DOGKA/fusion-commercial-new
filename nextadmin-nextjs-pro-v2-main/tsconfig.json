@@ -22,9 +22,8 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@emails/*": ["../fusionmarkt/src/emails/*"]
     },
     "target": "ES2017"
   },

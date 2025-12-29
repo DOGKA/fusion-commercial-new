@@ -1,5 +1,21 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MONOREPO: Allow importing from fusionmarkt emails
+  // ═══════════════════════════════════════════════════════════════════════════
+  transpilePackages: ["fusionmarkt"],
+  
+  webpack: (config) => {
+    // Add alias for email templates
+    config.resolve.alias["@emails"] = path.resolve(__dirname, "../fusionmarkt/src/emails");
+    return config;
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // IMAGE OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════════════════

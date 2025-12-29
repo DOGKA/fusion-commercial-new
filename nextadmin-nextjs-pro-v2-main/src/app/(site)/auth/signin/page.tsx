@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Giriş Yap | Juststack Admin",
+  title: "Giriş Yap | JUMS - Juststack Unified Management System",
 };
 
 function SigninFormLoading() {
@@ -16,12 +16,12 @@ function SigninFormLoading() {
   );
 }
 
-// Juststack Logo Component
+// Juststack Logo Component (with text)
 function JuststackLogo({ className = "" }: { className?: string }) {
   return (
     <svg 
-      width="140" 
-      height="24" 
+      width="120" 
+      height="20" 
       viewBox="0 0 560 79" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
@@ -37,121 +37,134 @@ function JuststackLogo({ className = "" }: { className?: string }) {
 
 export default function SignIn() {
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#0a0a0f]">
-      {/* Animated Background */}
-      <div className="absolute inset-0">
-        {/* Gradient Orbs */}
-        <div className="absolute top-0 -left-40 w-80 h-80 bg-[#00FF77]/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div className="absolute top-0 -right-40 w-80 h-80 bg-[#79FFB7]/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-20 left-40 w-80 h-80 bg-[#A5FFCF]/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#020a04]">
+      {/* Matrix-style Background with Image */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Base dark gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#020a04] via-[#041208] to-[#020a04]"></div>
         
-        {/* Grid Pattern */}
+        {/* Matrix code columns - more visible */}
+        <div className="absolute inset-0 opacity-30">
+          {[...Array(50)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute top-0 text-[#00FF77] text-[10px] font-mono leading-[1.2] animate-matrix-fall whitespace-nowrap"
+              style={{
+                left: `${i * 2}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${6 + Math.random() * 8}s`,
+              }}
+            >
+              {[...Array(40)].map((_, j) => (
+                <div 
+                  key={j}
+                  style={{ 
+                    opacity: Math.max(0.1, 1 - (j * 0.025)),
+                    textShadow: j < 5 ? '0 0 8px #00FF77, 0 0 15px #00FF77' : j < 10 ? '0 0 5px #00FF77' : 'none',
+                    color: j < 3 ? '#FFFFFF' : j < 8 ? '#00FF77' : '#00AA55'
+                  }}
+                >
+                  {String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Vertical code lines overlay */}
         <div 
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-20"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
+            backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(0,255,119,0.1) 18px, rgba(0,255,119,0.05) 20px)`,
           }}
         ></div>
+
+        {/* Scan lines */}
+        <div 
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,119,0.1) 2px, rgba(0,255,119,0.1) 4px)`,
+          }}
+        ></div>
+        
+        {/* Glow effects */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#00FF77]/8 rounded-full filter blur-[120px]"></div>
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#00FF77]/6 rounded-full filter blur-[150px]"></div>
+        <div className="absolute top-1/2 left-0 w-[400px] h-[800px] bg-[#00FF77]/5 rounded-full filter blur-[100px]"></div>
+        <div className="absolute top-1/2 right-0 w-[400px] h-[800px] bg-[#00FF77]/5 rounded-full filter blur-[100px]"></div>
+        
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(2,10,4,0.4)_50%,rgba(2,10,4,0.9)_100%)]"></div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
-          
-          {/* Left Side - Branding */}
-          <div className="flex-1 text-center lg:text-left max-w-lg relative z-20">
-              {/* Logo */}
-            <div className="mb-8">
-              <JuststackLogo className="mx-auto lg:mx-0" />
-              </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight relative z-20">
-              E-Commerce
-              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#00FF77] via-[#79FFB7] to-[#A5FFCF] relative z-20 py-2 px-1" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
-                Management System
-              </span>
-            </h1>
+      <div className="flex-1 relative z-10 flex items-center justify-center px-4 py-8 md:py-12">
+        <div className="w-full max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
             
-            <p className="text-white/60 text-lg mb-8 max-w-md mx-auto lg:mx-0">
-              Güçlü, hızlı ve güvenilir e-ticaret yönetim platformu ile işinizi bir üst seviyeye taşıyın.
-            </p>
+            {/* Left Side - Branding (Hidden on mobile) */}
+            <div className="flex-1 text-center lg:text-left max-w-lg relative z-20 order-2 lg:order-1 hidden lg:block">
+              {/* Headline */}
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+                Juststack
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00FF77] via-[#79FFB7] to-[#A5FFCF]" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
+                  Unified Management System
+                </span>
+              </h2>
+              
+              <p className="text-white/50 text-base md:text-lg mb-8 max-w-md mx-auto lg:mx-0">
+                Hızlı, Güvenli, Verimli. E-ticaret yönetimi tek bir panelde.
+              </p>
 
-            {/* Features */}
-            <div className="hidden md:grid grid-cols-2 gap-4 max-w-md mx-auto lg:mx-0">
-              <div className="flex items-center gap-3 text-white/70">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00FF77]/20 to-[#79FFB7]/10 border border-[#00FF77]/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[#00FF77]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="text-sm">Sipariş Yönetimi</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/70">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00FF77]/20 to-[#79FFB7]/10 border border-[#00FF77]/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[#00FF77]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <span className="text-sm">Stok Takibi</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/70">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00FF77]/20 to-[#79FFB7]/10 border border-[#00FF77]/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[#00FF77]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <span className="text-sm">Raporlama</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/70">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00FF77]/20 to-[#79FFB7]/10 border border-[#00FF77]/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[#00FF77]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <span className="text-sm">Müşteri Yönetimi</span>
+              {/* Features */}
+              <div className="flex flex-wrap gap-x-8 gap-y-3 max-w-md mx-auto lg:mx-0">
+                {["Siparişler", "Stok", "Analitik", "Müşteriler"].map((label, i) => (
+                  <div key={i} className="flex items-center gap-2 text-white/50">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#00FF77]"></div>
+                    <span className="text-sm">{label}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Right Side - Login Card */}
-          <div className="w-full max-w-md">
-            {/* Glassmorphism Card */}
-            <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF77]/20 via-[#79FFB7]/10 to-[#A5FFCF]/20 rounded-3xl blur-xl opacity-75"></div>
-              
-              {/* Card */}
-              <div className="relative backdrop-blur-xl bg-white/[0.03] border border-white/[0.08] rounded-3xl p-8 md:p-10 shadow-2xl">
-                {/* Header */}
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00FF77]/20 to-[#79FFB7]/10 border border-[#00FF77]/20 mb-4">
-                    <svg className="w-8 h-8 text-[#00FF77]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+            {/* Right Side - Login Card */}
+            <div className="w-full max-w-md order-1 lg:order-2">
+              {/* Mobile Header - Same style as desktop */}
+              <div className="lg:hidden mb-6 text-center">
+                <h1 className="text-2xl font-bold text-white leading-tight">
+                  Juststack
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00FF77] via-[#79FFB7] to-[#A5FFCF]" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
+                    Unified Management System
+                  </span>
+                </h1>
+              </div>
+
+              {/* Glassmorphism Card */}
+              <div className="relative">
+                {/* Glow Effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF77]/25 via-[#79FFB7]/15 to-[#A5FFCF]/25 rounded-3xl blur-xl opacity-70"></div>
+                
+                {/* Card */}
+                <div className="relative backdrop-blur-xl bg-black/40 border border-[#00FF77]/30 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl">
+                  {/* Header */}
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-[#00FF77]/20 to-[#79FFB7]/10 border border-[#00FF77]/30 mb-4">
+                      <svg className="w-7 h-7 md:w-8 md:h-8 text-[#00FF77]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+                      Hoş Geldiniz
+                    </h2>
+                    <p className="text-white/40 text-sm">
+                      Yönetim paneline erişmek için giriş yapın
+                    </p>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    Hoş Geldiniz
-                  </h2>
-                  <p className="text-white/50 text-sm">
-                    Yönetim paneline erişmek için giriş yapın
-                  </p>
-                </div>
 
-                {/* Form */}
-                <Suspense fallback={<SigninFormLoading />}>
-                  <Signin />
-                </Suspense>
-
-                {/* Footer */}
-                <div className="mt-8 pt-6 border-t border-white/[0.06]">
-                  <p className="text-center text-xs text-white/30">
-                    © 2025 Juststack Software & Technology
-                  </p>
-                  <p className="text-center text-xs text-white/20 mt-1">
-                    Tüm hakları saklıdır.
-                  </p>
+                  {/* Form */}
+                  <Suspense fallback={<SigninFormLoading />}>
+                    <Signin />
+                  </Suspense>
                 </div>
               </div>
             </div>
@@ -159,6 +172,26 @@ export default function SignIn() {
         </div>
       </div>
 
+      {/* Footer */}
+      <footer className="relative z-10 py-6 px-4 border-t border-white/[0.04]">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* Juststack Logo */}
+          <JuststackLogo className="opacity-60 hover:opacity-100 transition-opacity" />
+          
+          {/* Divider */}
+          <div className="hidden sm:block w-px h-4 bg-white/10"></div>
+          
+          {/* Copyright */}
+          <div className="text-center sm:text-left">
+            <p className="text-xs text-white/30">
+              © 2025 Juststack Software & Technology
+            </p>
+            <p className="text-[10px] text-white/20">
+              Tüm hakları saklıdır.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

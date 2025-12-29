@@ -13,6 +13,7 @@
     "___comment___": "This project owns DB migrations. Run prisma:migrate here."
   },
   "dependencies": {
+    "@react-email/components": "^0.5.7",
     "@aws-sdk/client-s3": "^3.705.0",
     "@aws-sdk/s3-request-presigner": "^3.705.0",
     "@next-auth/prisma-adapter": "^1.0.7",
