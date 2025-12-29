@@ -45,7 +45,7 @@ function removeHud() {
 export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const {
     autoScroll = true,
-    autoScrollSpeed = 60, // px/saniye - iOS Safari uyumlu (60px/sn = akıcı)
+    autoScrollSpeed = 80, // px/saniye - iOS Safari uyumlu (80px/sn = hızlı & akıcı)
     pauseOnHover = true,
     friction = 0.92,
     pauseDuration = 2000,
