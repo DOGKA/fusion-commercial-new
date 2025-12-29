@@ -268,40 +268,69 @@
 /* ─────────────────────────────────────────────────────────────────────────
    PRODUCT RELATED SECTIONS - Birlikte Alınan & Also Viewed
    Desktop: 3 kolon grid (120px + 1fr + auto)
-   Mobile: Compact card layout with 1:1 image
+   Mobile: Büyük görsel üstte, içerik altta - dikey card layout
 ───────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 767px) {
-  .frequently-bought-card,
-  .also-viewed-card {
+  /* RelatedProductCard - Mobil dikey layout */
+  .related-product-card {
     display: flex !important;
     flex-direction: column !important;
     grid-template-columns: none !important;
     gap: 12px !important;
     padding: 14px !important;
+    width: 100% !important;
   }
   
-  /* Resim - 1:1 aspect ratio */
-  .frequently-bought-card > div:first-child,
-  .also-viewed-card > div:first-child {
+  /* Resim container - Büyük, 1:1 aspect ratio */
+  .related-product-card > div:first-child {
     width: 100% !important;
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
     max-width: 100% !important;
+    min-height: 200px !important;
   }
   
   /* Resim container içindeki img */
-  .frequently-bought-card > div:first-child img,
-  .also-viewed-card > div:first-child img {
+  .related-product-card > div:first-child img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
   }
   
-  /* İçerik bölümü */
-  .frequently-bought-card > div:nth-child(2),
-  .also-viewed-card > div:nth-child(2) {
+  /* İçerik bölümü - tam genişlik */
+  .related-product-card > div:nth-child(2) {
     width: 100% !important;
+    flex: none !important;
+  }
+  
+  /* Ürün başlığı - 2 satıra sığdır */
+  .related-product-card > div:nth-child(2) h3 {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* Açıklama gizle - yer tasarrufu */
+  .related-product-card > div:nth-child(2) > p:nth-child(3) {
+    display: none !important;
+  }
+  
+  /* Varyant container - yatay scroll */
+  .related-product-card > div:nth-child(2) > div[style*="flex-wrap"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding-bottom: 4px !important;
+  }
+  
+  .related-product-card > div:nth-child(2) > div[style*="flex-wrap"]::-webkit-scrollbar {
+    display: none !important;
   }
   
   /* Fiyat ve buton bölümü - Actions Container */
@@ -323,65 +352,61 @@
     flex: 1 !important;
   }
   
-  /* Ana fiyat - CSS Variable ile kontrol ediliyor */
-  .related-main-price,
-  span.related-main-price {
-    font-weight: 700 !important;
-    color: white !important;
-  }
-  
-  /* Sepete Ekle ve Favori butonları - SQUIRCLE */
-  .related-product-buttons button {
-    border-radius: 14px !important;
-    min-width: 100px !important;
-    padding: 10px 14px !important;
-  }
-  
-  .related-product-buttons button:last-child {
-    /* Favori butonu - daha küçük squircle */
-    min-width: 44px !important;
-    width: 44px !important;
-    height: 44px !important;
-    padding: 0 !important;
-    border-radius: 12px !important;
-  }
-  
-  /* İndirim satırı - daha kompakt */
+  /* İndirim satırı - tek satır */
   .related-product-discount {
-    flex-wrap: wrap !important;
-    gap: 4px !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
     justify-content: flex-start !important;
+    margin-bottom: 2px !important;
   }
   
   .related-product-discount span:first-child {
-    font-size: 10px !important;
+    font-size: 11px !important;
   }
   
   .related-savings-badge {
-    font-size: 9px !important;
+    font-size: 10px !important;
     padding: 2px 6px !important;
     background: rgba(16, 185, 129, 0.1) !important;
     border-radius: 4px !important;
   }
   
-  /* Ana fiyat - daha küçük */
-  .related-product-current-price span:first-child {
-    font-size: 16px !important;
+  /* Ana fiyat - büyük ve belirgin */
+  .related-product-current-price {
+    align-items: center !important;
+  }
+  
+  .related-main-price,
+  span.related-main-price {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: white !important;
   }
   
   .related-product-current-price span:last-child {
-    font-size: 10px !important;
+    font-size: 12px !important;
   }
   
   /* Butonlar - sağ taraf */
   .related-product-buttons {
     flex-shrink: 0 !important;
-    gap: 6px !important;
+    gap: 8px !important;
   }
   
   .related-product-buttons button {
-    padding: 8px 12px !important;
-    font-size: 11px !important;
+    border-radius: 12px !important;
+    min-width: 90px !important;
+    padding: 10px 14px !important;
+    font-size: 12px !important;
+  }
+  
+  .related-product-buttons button:last-child {
+    /* Favori butonu - kare squircle */
+    min-width: 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
   }
 }
 

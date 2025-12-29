@@ -22,6 +22,7 @@ import { useMysteryBox } from "@/context/MysteryBoxContext";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getAllFilters } from "@/lib/filters/category-filters";
 import { isOnSale, isNewProduct } from "@/lib/badge-config";
+import { useMomentumScroll } from "@/hooks/useMomentumScroll";
 
 interface Banner {
   id: string;
@@ -787,18 +788,16 @@ function CategoryCarousel({
   category: CategoryWithProducts; 
   bannerData?: Banner;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   
-  // Touch/swipe state
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
-  const isDragging = useRef<boolean>(false);
-  
-  // Card width for mobile (280px + 16px gap)
-  const cardWidth = 296;
+  // Use momentum scroll hook - same as BestsellerProducts/FeaturedProducts
+  const { containerRef: scrollRef, handlers } = useMomentumScroll({
+    autoScroll: category.products.length > 0,
+    autoScrollSpeed: 0.5, // Same speed for both mobile and desktop
+    pauseOnHover: true,
+    pauseDuration: 3000, // Resume after 3 seconds
+    friction: 0.94, // Smooth momentum
+  });
 
   // Mobile check
   useEffect(() => {
@@ -821,96 +820,19 @@ function CategoryCarousel({
   const bannerSubtitle = bannerData?.subtitle || "Kaliteli ürünleri keşfedin";
   const bannerButtonText = bannerData?.buttonText || "Tümünü Gör";
 
-  // Auto scroll - only on desktop
-  useEffect(() => {
-    if (category.products.length === 0 || isPaused || isMobile) return;
-
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    const scrollSpeed = 0.5;
-    const scrollInterval = 30;
-
-    const autoScroll = setInterval(() => {
-      if (!scrollContainer) return;
-
-      scrollContainer.scrollLeft += scrollSpeed;
-
-      const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-      if (scrollContainer.scrollLeft >= maxScroll - 5) {
-        scrollContainer.scrollLeft = 0;
-      }
-    }, scrollInterval);
-
-    return () => clearInterval(autoScroll);
-  }, [category.products, isPaused, isMobile]);
-
-  // Touch/swipe handlers for mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    isDragging.current = true;
-    setIsPaused(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging.current) return;
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    
-    const diff = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(diff) > minSwipeDistance) {
-      if (diff > 0 && currentIndex < category.products.length - 1) {
-        // Swiped left - go to next
-        goToIndex(currentIndex + 1);
-      } else if (diff < 0 && currentIndex > 0) {
-        // Swiped right - go to previous
-        goToIndex(currentIndex - 1);
-      }
+  // Manual scroll function for arrow buttons
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = 296; // Card width + gap
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
     }
   };
 
-  const goToIndex = (index: number) => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-    
-    const targetScroll = index * cardWidth;
-    scrollContainer.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth'
-    });
-    setCurrentIndex(index);
-  };
-
-  // Update currentIndex on scroll
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer || !isMobile) return;
-
-    const handleScroll = () => {
-      const scrollLeft = scrollContainer.scrollLeft;
-      const newIndex = Math.round(scrollLeft / cardWidth);
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < category.products.length) {
-        setCurrentIndex(newIndex);
-      }
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [isMobile, currentIndex, category.products.length]);
-
-  // For mobile, show original products only; for desktop, duplicate for infinite scroll effect
-  const displayProducts = isMobile ? category.products : [...category.products, ...category.products];
-  
-  // Calculate visible dots (max 5 for mobile)
-  const maxDots = 5;
-  const totalProducts = category.products.length;
-  const showDots = isMobile && totalProducts > 1;
+  // Always duplicate products for 360° infinite scroll - both mobile and desktop
+  const displayProducts = [...category.products, ...category.products, ...category.products];
 
   return (
     <div className="container">
@@ -1000,28 +922,25 @@ function CategoryCarousel({
         </Link>
 
 
-        {/* Carousel Area */}
-        <div className={`flex-1 relative overflow-hidden ${isMobile ? '' : ''}`} style={{ marginLeft: isMobile ? '0' : '-100px' }}>
+        {/* Carousel Area - 360° infinite scroll with momentum */}
+        <div className="flex-1 relative overflow-hidden" style={{ marginLeft: isMobile ? '0' : '-100px' }}>
           <div
             ref={scrollRef}
-            onMouseEnter={() => !isMobile && setIsPaused(true)}
-            onMouseLeave={() => !isMobile && setIsPaused(false)}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            className={`flex items-start gap-4 overflow-x-auto pb-4 pt-1 ${isMobile ? 'snap-x snap-mandatory scroll-smooth' : ''}`}
+            {...handlers}
+            className="flex items-start gap-4 overflow-x-auto pb-4 pt-1"
             style={{ 
               scrollbarWidth: "none", 
               msOverflowStyle: "none", 
               paddingLeft: isMobile ? '16px' : '116px',
               paddingRight: isMobile ? '16px' : '0',
               WebkitOverflowScrolling: 'touch',
+              cursor: 'grab',
             }}
           >
             {displayProducts.map((product, idx) => (
               <div 
                 key={`${product.id}-${idx}`} 
-                className={`flex-shrink-0 w-[280px] ${isMobile ? 'snap-start' : ''}`}
+                className="flex-shrink-0 w-[280px]"
               >
                 <ProductCard 
                   product={mapApiProductToCard(product)} 
@@ -1030,62 +949,6 @@ function CategoryCarousel({
               </div>
             ))}
           </div>
-          
-          {/* Dot Indicators - Mobile Only */}
-          {showDots && (
-            <div className="flex items-center justify-center gap-1.5 mt-4 pb-2">
-              {totalProducts <= maxDots ? (
-                // Show all dots if 5 or fewer products
-                category.products.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToIndex(index)}
-                    className="group relative p-1"
-                    aria-label={`Ürün ${index + 1}`}
-                  >
-                    <div
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        index === currentIndex
-                          ? 'w-6'
-                          : 'w-1.5 bg-white/30 group-hover:bg-white/50'
-                      }`}
-                      style={index === currentIndex ? { backgroundColor: themeColor } : {}}
-                    />
-                  </button>
-                ))
-              ) : (
-                // Show abbreviated dots if more than 5 products
-                [0, 1, 2].map((offset) => {
-                  let dotIndex: number;
-                  if (currentIndex <= 1) {
-                    dotIndex = offset;
-                  } else if (currentIndex >= totalProducts - 2) {
-                    dotIndex = totalProducts - 3 + offset;
-                  } else {
-                    dotIndex = currentIndex - 1 + offset;
-                  }
-                  
-                  return (
-                    <button
-                      key={dotIndex}
-                      onClick={() => goToIndex(dotIndex)}
-                      className="group relative p-1"
-                      aria-label={`Ürün ${dotIndex + 1}`}
-                    >
-                      <div
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          dotIndex === currentIndex
-                            ? 'w-6'
-                            : 'w-1.5 bg-white/30 group-hover:bg-white/50'
-                        }`}
-                        style={dotIndex === currentIndex ? { backgroundColor: themeColor } : {}}
-                      />
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -312,8 +312,18 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 {subtitle || "\u00A0"}
               </p>
 
-              {/* Variants */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minHeight: '32px', flexWrap: 'wrap' }}>
+              {/* Variants - yatay scroll, taşma yok */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                minHeight: '32px', 
+                overflowX: 'auto',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch',
+                paddingBottom: '2px',
+              }}>
                 {hasVariants ? (
                   variants!.slice(0, 5).map((v) => {
                     const swatchColor = isValidColorValue(v.color) ? v.color! : isValidColorValue(v.value) ? v.value : undefined;
@@ -337,8 +347,9 @@ export default function ProductCard({ product, className, priority = false }: Pr
                           }}
                           style={{
                             position: 'relative',
-                            width: '32px',
-                            height: '32px',
+                            width: '28px',
+                            height: '28px',
+                            flexShrink: 0,
                             boxSizing: 'border-box',
                             borderRadius: SQUIRCLE.sm,
                             border: isOutOfStock 
@@ -403,13 +414,14 @@ export default function ProductCard({ product, className, priority = false }: Pr
                         }}
                         style={{
                           position: 'relative',
-                          width: '32px',
-                          height: '32px',
+                          width: '28px',
+                          height: '28px',
+                          flexShrink: 0,
                           boxSizing: 'border-box',
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '11px',
+                          fontSize: '10px',
                           fontWeight: '500',
                           borderRadius: SQUIRCLE.sm,
                           border: isOutOfStock 

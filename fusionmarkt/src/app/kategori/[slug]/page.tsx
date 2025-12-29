@@ -291,15 +291,13 @@ export default function CategoryPage() {
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
   
-  // Mobile carousel state with momentum scroll
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const cardWidth = 296; // 280px card + 16px gap
-  
-  // Use momentum scroll hook for mobile carousel
+  // Use momentum scroll hook for mobile carousel - 360° auto scroll
   const { containerRef: mobileScrollRef, handlers: mobileScrollHandlers } = useMomentumScroll({
-    autoScroll: false, // Kategori sayfasında otomatik kayma yok
-    pauseOnHover: false,
-    friction: 0.92,
+    autoScroll: true,
+    autoScrollSpeed: 0.5,
+    pauseOnHover: true,
+    pauseDuration: 3000,
+    friction: 0.94,
   });
 
   // Get theme color from category or use default
@@ -729,39 +727,6 @@ export default function CategoryPage() {
     });
   };
 
-  // Scroll event to update current index
-  const handleScrollUpdate = useCallback(() => {
-    const scrollContainer = mobileScrollRef.current;
-    if (!scrollContainer) return;
-    
-    const scrollLeft = scrollContainer.scrollLeft;
-    const newIndex = Math.round(scrollLeft / cardWidth);
-    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < products.length) {
-      setCurrentIndex(newIndex);
-    }
-  }, [currentIndex, products.length, cardWidth, mobileScrollRef]);
-
-  const goToIndex = (index: number) => {
-    const scrollContainer = mobileScrollRef.current;
-    if (!scrollContainer) return;
-    
-    const targetScroll = index * cardWidth;
-    scrollContainer.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth'
-    });
-    setCurrentIndex(index);
-  };
-
-  // Update currentIndex on scroll
-  useEffect(() => {
-    const scrollContainer = mobileScrollRef.current;
-    if (!scrollContainer || !isMobile) return;
-
-    scrollContainer.addEventListener('scroll', handleScrollUpdate, { passive: true });
-    return () => scrollContainer.removeEventListener('scroll', handleScrollUpdate);
-  }, [isMobile, handleScrollUpdate, mobileScrollRef]);
-
   // Loading
   if (loading) {
     return (
@@ -832,12 +797,12 @@ export default function CategoryPage() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {products.length > 0 ? (
           <>
-            {/* MOBILE: Carousel with Swipe & Dots */}
+            {/* MOBILE: 360° Carousel with auto-scroll & momentum drag */}
             <div className="md:hidden relative">
               <div
                 ref={mobileScrollRef}
                 {...mobileScrollHandlers}
-                className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth"
+                className="flex gap-4 overflow-x-auto pb-4"
                 style={{ 
                   scrollbarWidth: "none", 
                   msOverflowStyle: "none",
@@ -847,71 +812,16 @@ export default function CategoryPage() {
                   cursor: 'grab',
                 }}
               >
-                {products.map((product, idx) => (
+                {/* Triplicate products for 360° infinite scroll */}
+                {[...products, ...products, ...products].map((product, idx) => (
                   <div 
-                    key={product.id} 
-                    className="flex-shrink-0 w-[280px] snap-start"
+                    key={`${product.id}-${idx}`} 
+                    className="flex-shrink-0 w-[280px]"
                   >
                     <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
                   </div>
                 ))}
               </div>
-
-              {/* Dot Indicators - themeColor based */}
-              {products.length > 1 && (
-                <div className="flex items-center justify-center gap-1.5 mt-4 pb-2">
-                  {products.length <= 5 ? (
-                    // Show all dots if 5 or fewer products
-                    products.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => goToIndex(index)}
-                        className="group relative p-1"
-                        aria-label={`Ürün ${index + 1}`}
-                      >
-                        <div
-                          className={`h-1.5 rounded-full transition-all duration-300 ${
-                            index === currentIndex
-                              ? 'w-6'
-                              : 'w-1.5 bg-white/30 group-hover:bg-white/50'
-                          }`}
-                          style={index === currentIndex ? { backgroundColor: themeColor } : {}}
-                        />
-                      </button>
-                    ))
-                  ) : (
-                    // Show abbreviated dots if more than 5 products
-                    [0, 1, 2].map((offset) => {
-                      let dotIndex: number;
-                      if (currentIndex <= 1) {
-                        dotIndex = offset;
-                      } else if (currentIndex >= products.length - 2) {
-                        dotIndex = products.length - 3 + offset;
-                      } else {
-                        dotIndex = currentIndex - 1 + offset;
-                      }
-                      
-                      return (
-                        <button
-                          key={dotIndex}
-                          onClick={() => goToIndex(dotIndex)}
-                          className="group relative p-1"
-                          aria-label={`Ürün ${dotIndex + 1}`}
-                        >
-                          <div
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
-                              dotIndex === currentIndex
-                                ? 'w-6'
-                                : 'w-1.5 bg-white/30 group-hover:bg-white/50'
-                            }`}
-                            style={dotIndex === currentIndex ? { backgroundColor: themeColor } : {}}
-                          />
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              )}
             </div>
 
             {/* DESKTOP: Grid - 4 ürün per satır */}
