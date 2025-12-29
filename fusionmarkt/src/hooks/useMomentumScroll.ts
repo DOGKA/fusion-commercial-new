@@ -54,12 +54,12 @@ function removeHud() {
 export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const {
     autoScroll = true,
-    autoScrollSpeed = 50, // px/saniye - yavaş ve akıcı
-    smoothness = 0.08, // Lerp faktörü - düşük = daha yumuşak (0.05-0.15)
+    autoScrollSpeed = 40, // px/saniye - otomatik scroll (yavaş & akıcı)
+    smoothness = 0.06, // Lerp faktörü - düşük = daha yumuşak
     pauseOnHover = true,
     friction = 0.92,
     pauseDuration = 2000,
-    debug = false, // Sorun çözüldü - debug kapalı
+    debug = false,
   } = options;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -477,7 +477,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const timeDelta = currentTime - lastTime.current;
     
     if (timeDelta > 0) {
-      velocity.current = (currentX - lastX.current) / timeDelta * 15;
+      velocity.current = (currentX - lastX.current) / timeDelta * 25; // El ile sürüklemede daha hızlı momentum
     }
     
     containerRef.current.scrollLeft = startScrollLeft.current - (currentX - startX.current);
@@ -539,7 +539,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const timeDelta = currentTime - lastTime.current;
     
     if (timeDelta > 0) {
-      velocity.current = (currentX - lastX.current) / timeDelta * 15;
+      velocity.current = (currentX - lastX.current) / timeDelta * 25; // El ile sürüklemede daha hızlı momentum
     }
     
     containerRef.current.scrollLeft = startScrollLeft.current - (currentX - startX.current);
