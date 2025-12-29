@@ -292,8 +292,9 @@ export default function CategoryPage() {
   const [isMobile, setIsMobile] = useState(false);
   
   // Use CSS Transform carousel hook for mobile - ultra-smooth GPU scrolling
+  // CRITICAL: autoScroll must change when products load to trigger effect re-run
   const { containerRef: mobileContainerRef, wrapperRef: mobileWrapperRef, containerStyle: mobileContainerStyle, wrapperStyle: mobileWrapperStyle, handlers: mobileScrollHandlers } = useTransformCarousel({
-    autoScroll: true,
+    autoScroll: products.length > 0, // Trigger effect when products load
     autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
     pauseDuration: 3000,

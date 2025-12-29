@@ -50,9 +50,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   // Direction lock
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 8;
-  
-  // Listener attached flag - prevents duplicate listeners
-  const listenersAttached = useRef(false);
 
   // Options as refs
   const autoScrollRef = useRef(autoScroll);
