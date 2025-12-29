@@ -97,7 +97,7 @@ export default function FeaturedProducts() {
             <div
               ref={scrollRef}
               {...handlers}
-              className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide touch-pan-x"
+              className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide"
               style={{ 
                 scrollbarWidth: "none", 
                 msOverflowStyle: "none",

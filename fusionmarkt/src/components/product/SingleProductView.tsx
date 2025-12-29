@@ -774,7 +774,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               <div 
                 ref={featuresRef}
                 {...featuresHandlers}
-                className="touch-pan-x"
                 style={{ 
                   display: 'flex', 
                   gap: '8px', 
@@ -823,7 +822,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               </div>
             </div>
 
-            {/* Stock & SKU */}
+            {/* Stock & Taksit & SKU */}
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -831,12 +830,20 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               fontSize: '11px', 
               marginBottom: '10px' 
             }}>
-              <span style={{ color: (selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 ? 'rgba(255,255,255,0.45)' : '#EF4444' }}>
-                {selectedVariant 
-                  ? (selectedVariant.stock > 0 ? `Stok: ${selectedVariant.stock} adet` : 'Stokta Yok')
-                  : ((product.stock ?? 0) > 0 ? `Stok: ${product.stock} adet` : 'Stokta Yok')
-                }
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: (selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 ? 'rgba(255,255,255,0.45)' : '#EF4444' }}>
+                  {selectedVariant 
+                    ? (selectedVariant.stock > 0 ? `Stok: ${selectedVariant.stock} adet` : 'Stokta Yok')
+                    : ((product.stock ?? 0) > 0 ? `Stok: ${product.stock} adet` : 'Stokta Yok')
+                  }
+                </span>
+                {(selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 && (
+                  <>
+                    <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                    <span style={{ color: '#A78BFA', fontWeight: 500 }}>12 Taksit İmkanı</span>
+                  </>
+                )}
+              </div>
               <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>
                 SKU: {selectedVariant 
                   ? (selectedVariant.sku || `${product.sku || ''}-${selectedVariant.value}`)

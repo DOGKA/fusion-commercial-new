@@ -10,6 +10,9 @@ import { FavoritesProvider } from "@/context/FavoritesContext";
 import { MysteryBoxProvider } from "@/context/MysteryBoxContext";
 import MiniCart from "@/components/cart/MiniCart";
 import { MysteryBoxModal } from "@/components/campaign";
+import { CookieConsentProvider } from "@/context/CookieConsentContext";
+import CookieConsent from "@/components/CookieConsent";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -54,21 +57,27 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark" data-scroll-behavior="smooth">
       <body className={`${inter.variable} antialiased`}>
-        <AuthProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <MysteryBoxProvider>
-                <Header />
-                <main className="min-h-screen">
-                  {children}
-                </main>
-                <Footer />
-                <MiniCart />
-                <MysteryBoxModal />
-              </MysteryBoxProvider>
-            </CartProvider>
-          </FavoritesProvider>
-        </AuthProvider>
+        <CookieConsentProvider>
+          {/* Google Analytics, GTM, FB Pixel - API'den dinamik + Consent Mode v2 */}
+          <GoogleAnalytics />
+          
+          <AuthProvider>
+            <FavoritesProvider>
+              <CartProvider>
+                <MysteryBoxProvider>
+                  <Header />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <Footer />
+                  <MiniCart />
+                  <MysteryBoxModal />
+                  <CookieConsent />
+                </MysteryBoxProvider>
+              </CartProvider>
+            </FavoritesProvider>
+          </AuthProvider>
+        </CookieConsentProvider>
       </body>
     </html>
   );

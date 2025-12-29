@@ -196,12 +196,21 @@ export default function CheckoutPage() {
     setCouponError("");
     
     try {
+      // Sepet ürünlerini kategori kontrolü için hazırla
+      const cartItems = items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+        salePrice: item.salePrice,
+      }));
+
       const res = await fetch("/api/public/validate-coupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           code: couponCode.trim(), 
-          cartTotal: subtotal 
+          cartTotal: subtotal,
+          cartItems, // Kategori kontrolü için sepet ürünleri
         }),
       });
       

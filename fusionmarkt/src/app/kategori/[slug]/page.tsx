@@ -22,6 +22,7 @@ import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getFiltersByCategory } from "@/lib/filters/category-filters";
+import { useMomentumScroll } from "@/hooks/useMomentumScroll";
 
 // ============================================
 // INTERFACES
@@ -290,13 +291,16 @@ export default function CategoryPage() {
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
   
-  // Mobile carousel state
+  // Mobile carousel state with momentum scroll
   const [currentIndex, setCurrentIndex] = useState(0);
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
-  const isDragging = useRef<boolean>(false);
-  const mobileScrollRef = useRef<HTMLDivElement>(null);
   const cardWidth = 296; // 280px card + 16px gap
+  
+  // Use momentum scroll hook for mobile carousel
+  const { containerRef: mobileScrollRef, handlers: mobileScrollHandlers } = useMomentumScroll({
+    autoScroll: false, // Kategori sayfasında otomatik kayma yok
+    pauseOnHover: false,
+    friction: 0.92,
+  });
 
   // Get theme color from category or use default
   const themeColor = category?.themeColor || DEFAULT_THEME_COLOR;
@@ -725,32 +729,17 @@ export default function CategoryPage() {
     });
   };
 
-  // Touch/swipe handlers for mobile carousel
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    isDragging.current = true;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging.current) return;
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
+  // Scroll event to update current index
+  const handleScrollUpdate = useCallback(() => {
+    const scrollContainer = mobileScrollRef.current;
+    if (!scrollContainer) return;
     
-    const diff = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(diff) > minSwipeDistance) {
-      if (diff > 0 && currentIndex < products.length - 1) {
-        goToIndex(currentIndex + 1);
-      } else if (diff < 0 && currentIndex > 0) {
-        goToIndex(currentIndex - 1);
-      }
+    const scrollLeft = scrollContainer.scrollLeft;
+    const newIndex = Math.round(scrollLeft / cardWidth);
+    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < products.length) {
+      setCurrentIndex(newIndex);
     }
-  };
+  }, [currentIndex, products.length, cardWidth]);
 
   const goToIndex = (index: number) => {
     const scrollContainer = mobileScrollRef.current;
@@ -769,17 +758,9 @@ export default function CategoryPage() {
     const scrollContainer = mobileScrollRef.current;
     if (!scrollContainer || !isMobile) return;
 
-    const handleScroll = () => {
-      const scrollLeft = scrollContainer.scrollLeft;
-      const newIndex = Math.round(scrollLeft / cardWidth);
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < products.length) {
-        setCurrentIndex(newIndex);
-      }
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [isMobile, currentIndex, products.length]);
+    scrollContainer.addEventListener('scroll', handleScrollUpdate, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScrollUpdate);
+  }, [isMobile, handleScrollUpdate]);
 
   // Loading
   if (loading) {
@@ -855,9 +836,7 @@ export default function CategoryPage() {
             <div className="md:hidden relative">
               <div
                 ref={mobileScrollRef}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
+                {...mobileScrollHandlers}
                 className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth"
                 style={{ 
                   scrollbarWidth: "none", 
@@ -865,6 +844,7 @@ export default function CategoryPage() {
                   paddingLeft: '16px',
                   paddingRight: '16px',
                   WebkitOverflowScrolling: 'touch',
+                  cursor: 'grab',
                 }}
               >
                 {products.map((product, idx) => (

@@ -484,9 +484,17 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 </span>
               </div>
 
-              {/* Stock */}
-              <div className="text-[11px] text-white/45">
-                {stockQuantity && !isOutOfStock ? `Stok: ${stockQuantity} adet` : "\u00A0"}
+              {/* Stock & Taksit */}
+              <div className="flex items-center gap-2 text-[11px]">
+                <span className="text-white/45">
+                  {stockQuantity && !isOutOfStock ? `Stok: ${stockQuantity} adet` : "\u00A0"}
+                </span>
+                {stockQuantity && !isOutOfStock && (
+                  <>
+                    <span className="text-white/20">•</span>
+                    <span className="text-violet-400 font-medium">12 Taksit İmkanı</span>
+                  </>
+                )}
               </div>
             </div>
 

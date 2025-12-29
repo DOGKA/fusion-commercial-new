@@ -131,6 +131,13 @@ export default function NewCouponPage() {
           perUserLimit: usageLimitPerUser ? parseInt(usageLimitPerUser) : 1,
           endDate: expiryDate || null,
           isActive: isDraft ? false : status === "published",
+          // Kategori ve ürün kısıtlamaları
+          allowedCategories,
+          excludedCategories,
+          allowedProducts,
+          excludedProducts,
+          excludeSaleItems,
+          freeShipping: allowFreeShipping,
         }),
       });
 

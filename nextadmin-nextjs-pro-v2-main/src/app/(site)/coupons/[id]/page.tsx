@@ -30,6 +30,13 @@ interface Coupon {
   startDate: string;
   endDate: string | null;
   isActive: boolean;
+  // Yeni alanlar
+  allowedCategories: string[];
+  excludedCategories: string[];
+  allowedProducts: string[];
+  excludedProducts: string[];
+  excludeSaleItems: boolean;
+  freeShipping: boolean;
 }
 
 export default function EditCouponPage() {
@@ -99,6 +106,14 @@ export default function EditCouponPage() {
         setUsageCount(coupon.usageCount || 0);
         setIsActive(coupon.isActive);
         setStatus(coupon.isActive ? "published" : "draft");
+        
+        // Yeni alanlar
+        setAllowedCategories(coupon.allowedCategories || []);
+        setExcludedCategories(coupon.excludedCategories || []);
+        setAllowedProducts(coupon.allowedProducts || []);
+        setExcludedProducts(coupon.excludedProducts || []);
+        setExcludeSaleItems(coupon.excludeSaleItems || false);
+        setAllowFreeShipping(coupon.freeShipping || false);
         
         if (coupon.endDate) {
           const date = new Date(coupon.endDate);
@@ -177,6 +192,13 @@ export default function EditCouponPage() {
           perUserLimit: usageLimitPerUser ? parseInt(usageLimitPerUser) : 1,
           endDate: expiryDate || null,
           isActive: status === "published",
+          // Kategori ve ürün kısıtlamaları
+          allowedCategories,
+          excludedCategories,
+          allowedProducts,
+          excludedProducts,
+          excludeSaleItems,
+          freeShipping: allowFreeShipping,
         }),
       });
 

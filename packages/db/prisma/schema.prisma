@@ -784,6 +784,18 @@ model Coupon {
   usageCount     Int      @default(0) // Kullanım sayısı
   perUserLimit   Int      @default(1) // Kullanıcı başına limit
 
+  // Kategori Kısıtlamaları (JSON array of category IDs)
+  allowedCategories  String[] @default([]) // İzin verilen kategoriler
+  excludedCategories String[] @default([]) // Hariç tutulan kategoriler
+
+  // Ürün Kısıtlamaları (JSON array of product IDs)
+  allowedProducts  String[] @default([]) // İzin verilen ürünler
+  excludedProducts String[] @default([]) // Hariç tutulan ürünler
+
+  // Diğer Kısıtlamalar
+  excludeSaleItems Boolean @default(false) // İndirimli ürünleri hariç tut
+  freeShipping     Boolean @default(false) // Ücretsiz kargo
+
   // Geçerlilik
   startDate DateTime  @default(now())
   endDate   DateTime?
@@ -1697,4 +1709,38 @@ enum ContactMessageStatus {
   REPLIED // Yanıtlandı
   SPAM // Spam
   ARCHIVED // Arşivlendi
+}
+
+// ============================================
+// SITE SETTINGS (SEO, Analytics, Tracking)
+// ============================================
+
+model SiteSettings {
+  id String @id @default("default") // Singleton pattern - tek kayıt
+
+  // SEO Meta Tags
+  siteTitle       String @default("FusionMarkt - Güç İstasyonları ve Solar Paneller")
+  siteDescription String @default("Türkiye'nin en kapsamlı taşınabilir güç çözümleri mağazası.")
+  keywords        String @default("güç istasyonu, solar panel, taşınabilir enerji")
+  ogImage         String? // Open Graph görsel URL
+  twitterHandle   String? // @fusionmarkt
+
+  // Analytics & Tracking IDs
+  googleAnalyticsId   String? // G-XXXXXXXXXX
+  googleTagManagerId  String? // GTM-XXXXXXX
+  facebookPixelId     String? // 123456789012345
+
+  // Google Analytics Data API (Dashboard için)
+  gaPropertyId             String? // 123456789 (Property ID - rakam)
+  gaServiceAccountEmail    String? // analytics@project.iam.gserviceaccount.com
+  gaServiceAccountKey      String? @db.Text // JSON private key
+
+  // Robots.txt içeriği
+  robotsTxt String? @db.Text
+
+  // Zaman Damgaları
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
 }

@@ -104,7 +104,7 @@ export default function BestsellerProducts() {
             <div
               ref={scrollRef}
               {...handlers}
-              className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide touch-pan-x"
+              className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide"
               style={{ 
                 scrollbarWidth: "none", 
                 msOverflowStyle: "none",
@@ -114,12 +114,6 @@ export default function BestsellerProducts() {
             >
               {displayProducts.map((product, index) => (
                 <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px] relative">
-                  {/* Bestseller Badge - sadece ilk 6 için göster, mobilde gizle */}
-                  {index < 6 && (
-                    <div className="absolute -top-2 -left-2 z-20 w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 hidden md:flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-amber-500/30">
-                      {index + 1}
-                    </div>
-                  )}
                   <ProductCard product={product} priority={index < 4} />
                 </div>
               ))}

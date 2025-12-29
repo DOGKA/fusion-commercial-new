@@ -51,6 +51,13 @@ export async function PUT(
       startDate,
       endDate,
       isActive,
+      // Yeni alanlar
+      allowedCategories,
+      excludedCategories,
+      allowedProducts,
+      excludedProducts,
+      excludeSaleItems,
+      freeShipping,
     } = body;
 
     // Kupon var mı kontrol et
@@ -94,6 +101,13 @@ export async function PUT(
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate !== undefined ? (endDate ? new Date(endDate) : null) : undefined,
         isActive: isActive !== undefined ? isActive : undefined,
+        // Kategori ve ürün kısıtlamaları
+        allowedCategories: allowedCategories !== undefined ? allowedCategories : undefined,
+        excludedCategories: excludedCategories !== undefined ? excludedCategories : undefined,
+        allowedProducts: allowedProducts !== undefined ? allowedProducts : undefined,
+        excludedProducts: excludedProducts !== undefined ? excludedProducts : undefined,
+        excludeSaleItems: excludeSaleItems !== undefined ? excludeSaleItems : undefined,
+        freeShipping: freeShipping !== undefined ? freeShipping : undefined,
       },
     });
 

@@ -10,6 +10,7 @@ export const NAV_DATA: NavGroup[] = [
         icon: Icons.HomeIcon,
         items: [
           { title: "Genel Bakış", url: "/" },
+          { title: "Analiz", url: "/analytics" },
         ],
       },
       {

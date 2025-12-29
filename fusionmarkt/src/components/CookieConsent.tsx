@@ -1,0 +1,311 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Cookie, X, Check, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useCookieConsent, CookiePreferences } from "@/context/CookieConsentContext";
+
+export default function CookieConsent() {
+  const {
+    preferences,
+    hasConsent,
+    isLoaded,
+    acceptAll,
+    acceptNecessary,
+    updatePreferences,
+  } = useCookieConsent();
+
+  const [showBanner, setShowBanner] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [localPrefs, setLocalPrefs] = useState<CookiePreferences>(preferences);
+
+  // Sync local prefs with context
+  useEffect(() => {
+    setLocalPrefs(preferences);
+  }, [preferences]);
+
+  // Show banner for first-time visitors
+  useEffect(() => {
+    if (isLoaded && !hasConsent) {
+      const timer = setTimeout(() => setShowBanner(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, hasConsent]);
+
+  const handleAcceptAll = () => {
+    acceptAll();
+    setShowBanner(false);
+    setShowSettings(false);
+  };
+
+  const handleAcceptNecessary = () => {
+    acceptNecessary();
+    setShowBanner(false);
+    setShowSettings(false);
+  };
+
+  const handleSaveCustom = () => {
+    updatePreferences(localPrefs);
+    setShowBanner(false);
+    setShowSettings(false);
+  };
+
+  if (!isLoaded) return null;
+
+  return (
+    <>
+      {/* ═══════════════════════════════════════════════════════════════════
+          FLOATING COOKIE BUTTON - Sağ alt köşe
+      ═══════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {hasConsent && !showBanner && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            onClick={() => setShowBanner(true)}
+            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group"
+            style={{
+              background: "linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            }}
+            aria-label="Çerez Ayarları"
+          >
+            <Cookie className="w-5 h-5 md:w-6 md:h-6 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          COOKIE MODAL
+      ═══════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showBanner && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+              onClick={() => hasConsent && setShowBanner(false)}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ x: 100, y: 100, opacity: 0, scale: 0.8 }}
+              animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+              exit={{ x: 100, y: 100, opacity: 0, scale: 0.8 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] w-[calc(100%-32px)] max-w-md"
+            >
+              <div
+                className="relative overflow-hidden rounded-2xl border border-white/10"
+                style={{
+                  background: "linear-gradient(145deg, rgba(18, 18, 18, 0.98) 0%, rgba(10, 10, 10, 0.99) 100%)",
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+                }}
+              >
+                {/* Top gradient accent */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500" />
+
+                {/* Close button */}
+                {hasConsent && (
+                  <button
+                    onClick={() => setShowBanner(false)}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all z-10"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+
+                <div className="p-5 md:p-6">
+                  {!showSettings ? (
+                    // SIMPLE VIEW
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center">
+                          <Cookie className="w-6 h-6 text-amber-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold text-lg">Çerez Kullanımı</h3>
+                          <p className="text-white/40 text-xs">fusionmarkt.com</p>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-white/60 leading-relaxed mb-5">
+                        Size en iyi deneyimi sunmak için çerezler kullanıyoruz. Detaylı bilgi için{" "}
+                        <Link
+                          href="/cerez-politikasi"
+                          className="text-amber-400 hover:text-amber-300 underline underline-offset-2"
+                        >
+                          Çerez Politikası
+                        </Link>
+                        {"'"}mızı inceleyebilirsiniz.
+                      </p>
+
+                      {/* Butonlar - Mobilde ve webde tek satır */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowSettings(true)}
+                          className="flex items-center justify-center gap-1 px-2.5 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+                        >
+                          <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline">Ayarlar</span>
+                        </button>
+                        <button
+                          onClick={handleAcceptNecessary}
+                          className="flex items-center justify-center px-2.5 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+                        >
+                          <span className="sm:hidden">Gerekli</span>
+                          <span className="hidden sm:inline">Sadece Gerekli</span>
+                        </button>
+                        <button
+                          onClick={handleAcceptAll}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-white text-xs sm:text-sm font-semibold transition-all hover:brightness-110 whitespace-nowrap"
+                          style={{
+                            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                            boxShadow: "0 4px 14px rgba(16, 185, 129, 0.35)",
+                          }}
+                        >
+                          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <span>Kabul Et</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // SETTINGS VIEW
+                    <div>
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setShowSettings(false)}
+                            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <h3 className="text-white font-bold text-lg">Çerez Tercihleri</h3>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2.5 mb-5">
+                        <CookieOption
+                          title="Zorunlu Çerezler"
+                          description="Site işlevselliği için gerekli"
+                          checked={true}
+                          disabled={true}
+                          onChange={() => {}}
+                        />
+                        <CookieOption
+                          title="Analitik Çerezler"
+                          description="Google Analytics - ziyaretçi istatistikleri"
+                          checked={localPrefs.analytics}
+                          onChange={(c) => setLocalPrefs({ ...localPrefs, analytics: c })}
+                        />
+                        <CookieOption
+                          title="Pazarlama Çerezleri"
+                          description="Google Ads, Facebook - kişiselleştirilmiş reklamlar"
+                          checked={localPrefs.marketing}
+                          onChange={(c) => setLocalPrefs({ ...localPrefs, marketing: c })}
+                        />
+                        <CookieOption
+                          title="Tercih Çerezleri"
+                          description="Dil, tema ve bölge tercihleri"
+                          checked={localPrefs.preferences}
+                          onChange={(c) => setLocalPrefs({ ...localPrefs, preferences: c })}
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleAcceptNecessary}
+                          className="flex-1 flex items-center justify-center px-3 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-sm font-medium"
+                        >
+                          Sadece Gerekli
+                        </button>
+                        <button
+                          onClick={handleSaveCustom}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:brightness-110"
+                          style={{
+                            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                            boxShadow: "0 4px 14px rgba(16, 185, 129, 0.35)",
+                          }}
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>Kaydet</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function CookieOption({
+  title,
+  description,
+  checked,
+  disabled = false,
+  onChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label
+      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+        disabled
+          ? "bg-white/[0.02] border-white/5 cursor-not-allowed opacity-60"
+          : checked
+          ? "bg-emerald-500/5 border-emerald-500/20"
+          : "bg-white/[0.02] border-white/5 hover:border-white/10"
+      }`}
+    >
+      <div
+        className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${
+          disabled ? "bg-white/10" : checked ? "bg-emerald-500" : "bg-white/15"
+        }`}
+      >
+        <div
+          className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+            checked ? "translate-x-[18px]" : "translate-x-0.5"
+          }`}
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-white text-sm font-medium">{title}</span>
+          {disabled && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-white/40 uppercase tracking-wide">
+              Zorunlu
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-white/40">{description}</p>
+      </div>
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+    </label>
+  );
+}

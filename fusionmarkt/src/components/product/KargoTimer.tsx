@@ -3,6 +3,12 @@
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { Truck } from "lucide-react";
 
+// iOS-style Squircle border-radius
+const SQUIRCLE = {
+  sm: '10px',
+  md: '14px',
+};
+
 // Hydration-safe mounted state
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
@@ -129,61 +135,128 @@ export function KargoTimer(props: KargoTimerProps) {
   // Stokta değilse
   if (!inStock) {
     return (
-      <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 dark:bg-dark-2 ${className}`}>
-        <Truck size={14} className="text-gray-500" />
-        <span className="text-xs font-medium text-gray-500">
+      <div 
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 14px',
+          backgroundColor: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: SQUIRCLE.md,
+        }}
+      >
+        <Truck size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
+        <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.4)' }}>
           Yakında stoklarda
         </span>
       </div>
     );
   }
 
-  const actionText = variant === "odeme" ? "ödeme yap" : "sipariş ver";
   const isCheckout = variant === "odeme";
-  
-  // Her iki sayfada da beyaz
-  const textColorClass = "text-white";
-  const iconColorClass = "text-white";
 
+  // Checkout sayfasında compact versiyon
+  if (isCheckout) {
+    return (
+      <div className={className} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'white' }}>
+          <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {timer.hours}s {timer.minutes}d {timer.seconds}sn
+          </span>
+          {" "}içinde ödeme yap,{" "}
+          <span style={{ fontWeight: 700 }}>{timer.dayText}</span> kargoda!
+        </span>
+      </div>
+    );
+  }
+
+  // Progress bar yüzdesi hesapla (gece yarısından 16:00'a kadar)
+  const totalSeconds = timer.hours * 3600 + timer.minutes * 60 + timer.seconds;
+  const maxSeconds = 16 * 3600; // 16 saat maksimum
+  const progressPercent = Math.min(100, (totalSeconds / maxSeconds) * 100);
+
+  // Ürün sayfasında minimal, kurumsal banner
   return (
     <div 
-      className={`
-        inline-flex items-center gap-2
-        ${className}
-      `}
+      className={className}
+      style={{
+        padding: '14px 16px',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: SQUIRCLE.md,
+      }}
     >
-      <style jsx>{`
-        @keyframes truck-move {
-          0%, 100% {
-            transform: translateX(0);
-          }
-          50% {
-            transform: translateX(4px);
-          }
-        }
-        .truck-animated {
-          animation: truck-move 1s ease-in-out infinite;
-        }
-      `}</style>
-      {/* Checkout sayfasında ikon gösterme */}
-      {!isCheckout && (
-        <Truck 
-          size={14} 
-          className={`${iconColorClass} flex-shrink-0 truck-animated`}
-          style={{
-            animation: 'truck-move 1s ease-in-out infinite'
-          }}
-        />
-      )}
-      <span className={`text-xs font-semibold ${textColorClass}`}>
-        <span className="tabular-nums">
-          {timer.hours}s {timer.minutes}d {timer.seconds}sn
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px',
+        marginBottom: '10px',
+      }}>
+        <span style={{ fontSize: '14px' }}>⚡</span>
+        <span style={{ 
+          fontSize: '13px', 
+          fontWeight: 700, 
+          color: 'white',
+          letterSpacing: '0.02em',
+        }}>
+          HIZLI TESLİMAT FIRSATI
         </span>
-        {" "}içinde {actionText},{" "}
-        <span className="font-bold">{timer.dayText}</span> kargoda!
-      </span>
+      </div>
+
+      {/* Progress Bar */}
+      <div style={{
+        width: '100%',
+        height: '4px',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        borderRadius: '2px',
+        marginBottom: '10px',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          width: `${progressPercent}%`,
+          height: '100%',
+          backgroundColor: '#10B981',
+          borderRadius: '2px',
+          transition: 'width 1s linear',
+        }} />
+      </div>
+
+      {/* Timer Text */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '6px',
+        flexWrap: 'wrap',
+      }}>
+        <span style={{ 
+          fontSize: '12px', 
+          color: 'rgba(255,255,255,0.5)',
+        }}>
+          Kalan Süre:
+        </span>
+        <span style={{ 
+          fontSize: '12px', 
+          fontWeight: 600, 
+          color: 'white',
+          fontVariantNumeric: 'tabular-nums',
+        }}>
+          {String(timer.hours).padStart(2, '0')} sa {String(timer.minutes).padStart(2, '0')} dk {String(timer.seconds).padStart(2, '0')} sn
+        </span>
+        <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+        <span style={{ 
+          fontSize: '12px', 
+          fontWeight: 600, 
+          color: '#10B981',
+        }}>
+          {timer.dayText === 'bugün' ? 'Bugün' : timer.dayText} Kargoda
+        </span>
+      </div>
     </div>
   );
 }
 
 export default KargoTimer;
+

@@ -35,6 +35,13 @@ export async function POST(req: Request) {
       startDate,
       endDate,
       isActive,
+      // Yeni alanlar
+      allowedCategories,
+      excludedCategories,
+      allowedProducts,
+      excludedProducts,
+      excludeSaleItems,
+      freeShipping,
     } = body;
 
     // Validasyon
@@ -78,6 +85,13 @@ export async function POST(req: Request) {
         startDate: startDate ? new Date(startDate) : new Date(),
         endDate: endDate ? new Date(endDate) : null,
         isActive: isActive ?? true,
+        // Kategori ve ürün kısıtlamaları
+        allowedCategories: allowedCategories || [],
+        excludedCategories: excludedCategories || [],
+        allowedProducts: allowedProducts || [],
+        excludedProducts: excludedProducts || [],
+        excludeSaleItems: excludeSaleItems || false,
+        freeShipping: freeShipping || false,
       },
     });
 
