@@ -4,7 +4,7 @@ import { useRef, useEffect, useCallback } from "react";
 
 interface MomentumScrollOptions {
   autoScroll?: boolean;
-  autoScrollSpeed?: number; // pixels per frame
+  autoScrollSpeed?: number; // pixels per interval
   pauseOnHover?: boolean;
   friction?: number; // momentum friction (0-1, higher = less friction)
   pauseDuration?: number; // ms to pause after manual interaction
@@ -16,16 +16,14 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     autoScrollSpeed = 0.5,
     pauseOnHover = true,
     friction = 0.92,
-    pauseDuration = 3000,
+    pauseDuration = 2000, // 2 saniye sonra devam et (3'ten düşürdüm)
   } = options;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const isPaused = useRef(false);
   const isDragging = useRef(false);
-  const isManuallyScrolling = useRef(false);
-  const animationRef = useRef<number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isVisibleRef = useRef(true);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -36,104 +34,50 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const velocity = useRef(0);
   const momentumAnimationRef = useRef<number | null>(null);
   
-  // Determine if horizontal or vertical scroll (set on touch start)
+  // Direction lock
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
-  const directionLockThreshold = 10; // pixels to determine direction
+  const directionLockThreshold = 10;
 
-  // Visibility Observer - Only auto-scroll when visible
-  useEffect(() => {
-    if (!autoScroll || !containerRef.current) return;
-
-    // Check if IntersectionObserver is available
-    if (typeof IntersectionObserver === 'undefined') {
-      // Fallback for older browsers - always visible
-      isVisibleRef.current = true;
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          isVisibleRef.current = entry.isIntersecting;
-        });
-      },
-      { 
-        threshold: 0.1,
-        rootMargin: '50px'
-      }
-    );
-
-    observer.observe(containerRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [autoScroll]);
-
-  // Auto-scroll logic - improved for mobile
-  useEffect(() => {
+  // Start auto-scroll interval
+  const startAutoScroll = useCallback(() => {
     if (!autoScroll) return;
-
-    let lastAnimTime = 0;
-    let isRunning = true;
     
-    const animate = (currentTime: number) => {
-      if (!isRunning) return;
-      
-      // Skip if paused, dragging, or not visible
-      if (!containerRef.current || isPaused.current || isDragging.current || isManuallyScrolling.current || !isVisibleRef.current) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      
-      // Throttle to ~60fps
-      const frameDelta = currentTime - lastAnimTime;
-      if (frameDelta < 16) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      lastAnimTime = currentTime;
-      
+    // Clear existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    intervalRef.current = setInterval(() => {
       const container = containerRef.current;
+      
+      // Skip if no container, paused, or dragging
+      if (!container || isPaused.current || isDragging.current) {
+        return;
+      }
+      
       const maxScroll = container.scrollWidth - container.clientWidth;
       
       // Only scroll if there's content to scroll
-      if (maxScroll <= 0) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
+      if (maxScroll <= 0) return;
       
-      // Calculate speed based on frame delta for smoother scrolling on variable frame rates
-      const speed = autoScrollSpeed * (frameDelta / 16.67);
-      
-      // Seamless loop
+      // Seamless loop - sona gelince başa dön
       if (container.scrollLeft >= maxScroll - 1) {
         container.scrollLeft = 0;
       } else {
-        container.scrollLeft += speed;
+        container.scrollLeft += autoScrollSpeed;
       }
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    // Start animation with a delay to ensure DOM is ready (especially important for mobile)
-    const startTimer = setTimeout(() => {
-      if (isRunning && containerRef.current) {
-        // Double-check container exists before starting
-        animationRef.current = requestAnimationFrame(animate);
-      }
-    }, 300); // Increased delay for mobile
-    
-    return () => {
-      isRunning = false;
-      clearTimeout(startTimer);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
+    }, 16); // ~60fps
   }, [autoScroll, autoScrollSpeed]);
 
-  // Schedule resume of auto-scroll
+  // Stop auto-scroll interval
+  const stopAutoScroll = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  // Schedule resume after user interaction
   const scheduleResume = useCallback(() => {
     if (resumeTimeoutRef.current) {
       clearTimeout(resumeTimeoutRef.current);
@@ -142,12 +86,40 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     resumeTimeoutRef.current = setTimeout(() => {
       if (!isDragging.current) {
         isPaused.current = false;
-        isManuallyScrolling.current = false;
       }
     }, pauseDuration);
   }, [pauseDuration]);
 
-  // Momentum animation
+  // Main effect - start auto-scroll and handle visibility
+  useEffect(() => {
+    if (!autoScroll) return;
+
+    // Start after delay to ensure DOM is ready
+    const startTimer = setTimeout(() => {
+      startAutoScroll();
+    }, 300);
+
+    // Handle visibility change (tab switch, app background)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopAutoScroll();
+      } else {
+        // Resume after coming back
+        isPaused.current = false;
+        startAutoScroll();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    return () => {
+      clearTimeout(startTimer);
+      stopAutoScroll();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [autoScroll, startAutoScroll, stopAutoScroll]);
+
+  // Momentum animation for swipe
   const startMomentumScroll = useCallback(() => {
     if (momentumAnimationRef.current) {
       cancelAnimationFrame(momentumAnimationRef.current);
@@ -169,17 +141,14 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     momentumAnimationRef.current = requestAnimationFrame(animateMomentum);
   }, [friction, scheduleResume]);
 
-  // Touch handlers - with direction detection
+  // Touch handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!containerRef.current) return;
     
-    // Pause auto-scroll immediately on touch
+    // Immediately pause auto-scroll
     isPaused.current = true;
-    
-    // Reset direction lock
     scrollDirection.current = null;
     
-    // Cancel any ongoing momentum
     if (momentumAnimationRef.current) {
       cancelAnimationFrame(momentumAnimationRef.current);
     }
@@ -200,75 +169,61 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const deltaX = Math.abs(currentX - startX.current);
     const deltaY = Math.abs(currentY - startY.current);
     
-    // Determine scroll direction if not yet determined
+    // Determine scroll direction
     if (scrollDirection.current === null) {
       if (deltaX > directionLockThreshold || deltaY > directionLockThreshold) {
         if (deltaX > deltaY) {
-          // Horizontal scroll - we handle it
           scrollDirection.current = "horizontal";
           isDragging.current = true;
-          isManuallyScrolling.current = true;
         } else {
-          // Vertical scroll - let browser handle it, but still pause
           scrollDirection.current = "vertical";
           return;
         }
       } else {
-        // Not enough movement yet
         return;
       }
     }
     
-    // Only handle horizontal scrolling
-    if (scrollDirection.current !== "horizontal") {
-      return;
-    }
+    if (scrollDirection.current !== "horizontal") return;
     
-    // Prevent vertical scroll while horizontal scrolling
     e.preventDefault();
     
     const currentTime = Date.now();
     const timeDelta = currentTime - lastTime.current;
     
-    // Calculate velocity for momentum
     if (timeDelta > 0) {
       velocity.current = (currentX - lastX.current) / timeDelta * 15;
     }
     
-    const deltaScroll = currentX - startX.current;
-    containerRef.current.scrollLeft = startScrollLeft.current - deltaScroll;
+    containerRef.current.scrollLeft = startScrollLeft.current - (currentX - startX.current);
     
     lastX.current = currentX;
     lastTime.current = currentTime;
   }, []);
 
   const handleTouchEnd = useCallback(() => {
-    // Only process if we were horizontal scrolling
     if (scrollDirection.current === "horizontal") {
       isDragging.current = false;
       
-      // Start momentum scroll if velocity is significant
       if (Math.abs(velocity.current) > 1) {
         startMomentumScroll();
       } else {
         scheduleResume();
       }
     } else {
-      // Even for vertical scroll, schedule resume
+      // Vertical scroll veya hiç scroll yok - yine de resume
       scheduleResume();
     }
     
-    // Reset direction
     scrollDirection.current = null;
   }, [startMomentumScroll, scheduleResume]);
 
-  // Mouse handlers (for desktop drag)
+  // Mouse handlers (desktop)
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!containerRef.current) return;
     
     isDragging.current = true;
     isPaused.current = true;
-    isManuallyScrolling.current = true;
     
     if (momentumAnimationRef.current) {
       cancelAnimationFrame(momentumAnimationRef.current);
@@ -290,14 +245,13 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     
     const currentX = e.clientX;
     const currentTime = Date.now();
-    const deltaX = currentX - startX.current;
     const timeDelta = currentTime - lastTime.current;
     
     if (timeDelta > 0) {
       velocity.current = (currentX - lastX.current) / timeDelta * 15;
     }
     
-    containerRef.current.scrollLeft = startScrollLeft.current - deltaX;
+    containerRef.current.scrollLeft = startScrollLeft.current - (currentX - startX.current);
     
     lastX.current = currentX;
     lastTime.current = currentTime;
@@ -330,26 +284,19 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
       containerRef.current.style.userSelect = "";
     }
     
-    if (!isManuallyScrolling.current) {
-      isPaused.current = false;
-    } else {
-      scheduleResume();
-    }
-  }, [scheduleResume]);
+    // Resume immediately on mouse leave (desktop)
+    isPaused.current = false;
+  }, []);
 
-  // Handle wheel scroll - pause auto-scroll temporarily
   const handleWheel = useCallback(() => {
     isPaused.current = true;
-    isManuallyScrolling.current = true;
     scheduleResume();
   }, [scheduleResume]);
 
   // Cleanup
   useEffect(() => {
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      stopAutoScroll();
       if (momentumAnimationRef.current) {
         cancelAnimationFrame(momentumAnimationRef.current);
       }
@@ -357,7 +304,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
         clearTimeout(resumeTimeoutRef.current);
       }
     };
-  }, []);
+  }, [stopAutoScroll]);
 
   return {
     containerRef,
