@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback } from "react";
 
 interface MomentumScrollOptions {
   autoScroll?: boolean;
@@ -25,8 +25,8 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const isManuallyScrolling = useRef(false);
   const animationRef = useRef<number | null>(null);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [isVisible, setIsVisible] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
+  const isVisibleRef = useRef(true);
+  const isMountedRef = useRef(false);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -41,38 +41,27 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 10; // pixels to determine direction
 
-  // Mount detection - ensures we only run on client
-  useEffect(() => {
-    setIsMounted(true);
-    
-    // Small delay to ensure DOM is ready (helps with mobile)
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   // Visibility Observer - Only auto-scroll when visible
   useEffect(() => {
-    if (!autoScroll || !containerRef.current || !isMounted) return;
+    if (!autoScroll || !containerRef.current) return;
+
+    isMountedRef.current = true;
 
     // Check if IntersectionObserver is available
     if (typeof IntersectionObserver === 'undefined') {
       // Fallback for older browsers - always visible
-      setIsVisible(true);
+      isVisibleRef.current = true;
       return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
+          isVisibleRef.current = entry.isIntersecting;
         });
       },
       { 
         threshold: 0.1,
-        // Root margin helps with mobile where viewport might be calculated differently
         rootMargin: '50px'
       }
     );
@@ -81,12 +70,13 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
 
     return () => {
       observer.disconnect();
+      isMountedRef.current = false;
     };
-  }, [autoScroll, isMounted]);
+  }, [autoScroll]);
 
   // Auto-scroll logic - improved for mobile
   useEffect(() => {
-    if (!autoScroll || !isMounted) return;
+    if (!autoScroll) return;
 
     let lastAnimTime = 0;
     let isRunning = true;
@@ -94,8 +84,8 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const animate = (currentTime: number) => {
       if (!isRunning) return;
       
-      // Skip if paused, dragging, or not visible
-      if (!containerRef.current || isPaused.current || isDragging.current || isManuallyScrolling.current || !isVisible) {
+      // Skip if paused, dragging, not visible, or not mounted
+      if (!containerRef.current || isPaused.current || isDragging.current || isManuallyScrolling.current || !isVisibleRef.current || !isMountedRef.current) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
@@ -144,7 +134,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [autoScroll, autoScrollSpeed, isVisible, isMounted]);
+  }, [autoScroll, autoScrollSpeed]);
 
   // Schedule resume of auto-scroll
   const scheduleResume = useCallback(() => {
