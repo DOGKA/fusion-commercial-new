@@ -9,7 +9,7 @@ import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
-import { useMomentumScroll } from "@/hooks/useMomentumScroll";
+import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 
 // API Response types
 interface ApiReview {
@@ -304,12 +304,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     fetchProduct();
   }, [slug]);
 
-  // Momentum scroll for key features strip
-  const { containerRef: featuresRef, handlers: featuresHandlers } = useMomentumScroll({
+  // CSS Transform carousel for key features strip - ultra-smooth GPU scrolling
+  const { containerRef: featuresContainerRef, wrapperRef: featuresWrapperRef, containerStyle: featuresContainerStyle, wrapperStyle: featuresWrapperStyle, handlers: featuresHandlers } = useTransformCarousel({
     autoScroll: true,
-    // autoScrollSpeed: default 80 px/sn kullanılıyor
+    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
-    friction: 0.94,
+    friction: 0.95,
   });
   
   // Yorum state'leri
@@ -784,54 +784,59 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                 </span>
               </div>
               
+              {/* Container - viewport */}
               <div 
-                ref={featuresRef}
-                {...featuresHandlers}
+                ref={featuresContainerRef}
                 style={{ 
-                  display: 'flex', 
-                  gap: '8px', 
-                  overflowX: 'auto',
-                  scrollbarWidth: 'none',
+                  ...featuresContainerStyle,
                   paddingBottom: '4px',
-                  cursor: 'grab',
-                  userSelect: 'none',
-                  WebkitOverflowScrolling: 'touch',
                 }}
               >
-                {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
-                {[...features, ...features].map((feature, idx) => (
-                  <div
-                    key={`${feature.id}-${idx}`}
-                    style={{
-                      flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '8px 12px',
-                      backgroundColor: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: '10px',
-                      cursor: 'default',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
-                    {/* SVG Icon - Backend'ten gelir */}
-                    {feature.iconSvg && (
-                      <div
-                        style={{ 
-                          color: feature.color,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        dangerouslySetInnerHTML={{ __html: feature.iconSvg }}
-                      />
-                    )}
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}>
-                      {feature.label}
-                    </span>
-                  </div>
-                ))}
+                {/* Wrapper - content moves via transform */}
+                <div
+                  ref={featuresWrapperRef}
+                  style={{ 
+                    ...featuresWrapperStyle,
+                    gap: '8px',
+                    userSelect: 'none',
+                  }}
+                  {...featuresHandlers}
+                >
+                  {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
+                  {[...features, ...features].map((feature, idx) => (
+                    <div
+                      key={`${feature.id}-${idx}`}
+                      style={{
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 12px',
+                        backgroundColor: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '10px',
+                        cursor: 'default',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {/* SVG Icon - Backend'ten gelir */}
+                      {feature.iconSvg && (
+                        <div
+                          style={{ 
+                            color: feature.color,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                          dangerouslySetInnerHTML={{ __html: feature.iconSvg }}
+                        />
+                      )}
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}>
+                        {feature.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 

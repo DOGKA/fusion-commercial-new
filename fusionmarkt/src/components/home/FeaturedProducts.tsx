@@ -4,18 +4,18 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { mapApiProductsToCards } from "@/lib/mappers";
-import { useMomentumScroll } from "@/hooks/useMomentumScroll";
+import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Use momentum scroll hook for smooth touch/drag interaction
-  const { containerRef: scrollRef, handlers } = useMomentumScroll({
+  // Use CSS Transform carousel hook for ultra-smooth scrolling
+  const { containerRef, wrapperRef, containerStyle, wrapperStyle, handlers } = useTransformCarousel({
     autoScroll: !loading && products.length > 0,
-    // autoScrollSpeed: default 80 px/sn kullanılıyor
+    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
-    friction: 0.94, // Smooth momentum
+    friction: 0.95,
   });
 
   useEffect(() => {
@@ -37,13 +37,35 @@ export default function FeaturedProducts() {
   }, []);
 
   const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 260;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
+    if (!wrapperRef.current || !containerRef.current) return;
+    
+    const scrollAmount = 260;
+    const containerWidth = containerRef.current.clientWidth;
+    const contentWidth = wrapperRef.current.scrollWidth;
+    const maxScroll = Math.max(0, contentWidth - containerWidth);
+    
+    // Parse current translateX
+    const currentTransform = wrapperRef.current.style.transform;
+    const match = currentTransform.match(/translateX\((-?\d+\.?\d*)px\)/);
+    let currentX = match ? parseFloat(match[1]) : 0;
+    
+    // Calculate new position
+    if (direction === "left") {
+      currentX = Math.min(0, currentX + scrollAmount);
+    } else {
+      currentX = Math.max(-maxScroll, currentX - scrollAmount);
     }
+    
+    // Apply smooth transition
+    wrapperRef.current.style.transition = "transform 0.3s ease-out";
+    wrapperRef.current.style.transform = `translateX(${currentX}px)`;
+    
+    // Remove transition after animation
+    setTimeout(() => {
+      if (wrapperRef.current) {
+        wrapperRef.current.style.transition = "";
+      }
+    }, 300);
   };
 
   // Show nothing if no featured products
@@ -92,24 +114,27 @@ export default function FeaturedProducts() {
             <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
           </div>
         ) : (
-          /* Products Carousel - Momentum scroll enabled */
+          /* Products Carousel - CSS Transform for ultra-smooth GPU scrolling */
           <div className="relative -mx-4 px-4">
+            {/* Container - viewport */}
             <div
-              ref={scrollRef}
-              {...handlers}
-              className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide"
-              style={{ 
-                scrollbarWidth: "none", 
-                msOverflowStyle: "none",
-                cursor: "grab",
-                WebkitOverflowScrolling: "touch",
-              }}
+              ref={containerRef}
+              style={containerStyle}
+              className="pb-4"
             >
-              {displayProducts.map((product, index) => (
-                <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px]">
-                  <ProductCard product={product} priority={index < 4} />
-                </div>
-              ))}
+              {/* Wrapper - content moves via transform */}
+              <div
+                ref={wrapperRef}
+                style={{ ...wrapperStyle, gap: "20px" }}
+                {...handlers}
+                className="flex"
+              >
+                {displayProducts.map((product, index) => (
+                  <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px]">
+                    <ProductCard product={product} priority={index < 4} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

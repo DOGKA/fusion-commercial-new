@@ -22,7 +22,7 @@ import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getFiltersByCategory } from "@/lib/filters/category-filters";
-import { useMomentumScroll } from "@/hooks/useMomentumScroll";
+import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 
 // ============================================
 // INTERFACES
@@ -291,13 +291,13 @@ export default function CategoryPage() {
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
   
-  // Use momentum scroll hook for mobile carousel - 360° auto scroll
-  const { containerRef: mobileScrollRef, handlers: mobileScrollHandlers } = useMomentumScroll({
+  // Use CSS Transform carousel hook for mobile - ultra-smooth GPU scrolling
+  const { containerRef: mobileContainerRef, wrapperRef: mobileWrapperRef, containerStyle: mobileContainerStyle, wrapperStyle: mobileWrapperStyle, handlers: mobileScrollHandlers } = useTransformCarousel({
     autoScroll: true,
-    // autoScrollSpeed: default 80 px/sn kullanılıyor
+    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
     pauseDuration: 3000,
-    friction: 0.94,
+    friction: 0.95,
   });
 
   // Get theme color from category or use default
@@ -797,30 +797,31 @@ export default function CategoryPage() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {products.length > 0 ? (
           <>
-            {/* MOBILE: 360° Carousel with auto-scroll & momentum drag */}
+            {/* MOBILE: 360° Carousel with CSS Transform - ultra-smooth GPU scrolling */}
             <div className="md:hidden relative">
+              {/* Container - viewport */}
               <div
-                ref={mobileScrollRef}
-                {...mobileScrollHandlers}
-                className="flex gap-4 overflow-x-auto pb-4"
-                style={{ 
-                  scrollbarWidth: "none", 
-                  msOverflowStyle: "none",
-                  paddingLeft: '16px',
-                  paddingRight: '16px',
-                  WebkitOverflowScrolling: 'touch',
-                  cursor: 'grab',
-                }}
+                ref={mobileContainerRef}
+                style={{ ...mobileContainerStyle, paddingLeft: '16px', paddingRight: '16px' }}
+                className="pb-4"
               >
-                {/* Triplicate products for 360° infinite scroll */}
-                {[...products, ...products, ...products].map((product, idx) => (
-                  <div 
-                    key={`${product.id}-${idx}`} 
-                    className="flex-shrink-0 w-[280px]"
-                  >
-                    <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
-                  </div>
-                ))}
+                {/* Wrapper - content moves via transform */}
+                <div
+                  ref={mobileWrapperRef}
+                  style={{ ...mobileWrapperStyle, gap: '16px' }}
+                  {...mobileScrollHandlers}
+                  className="flex"
+                >
+                  {/* Triplicate products for 360° infinite scroll */}
+                  {[...products, ...products, ...products].map((product, idx) => (
+                    <div 
+                      key={`${product.id}-${idx}`} 
+                      className="flex-shrink-0 w-[280px]"
+                    >
+                      <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 

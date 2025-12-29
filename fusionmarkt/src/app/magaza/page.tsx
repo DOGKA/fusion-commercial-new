@@ -22,7 +22,7 @@ import { useMysteryBox } from "@/context/MysteryBoxContext";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getAllFilters } from "@/lib/filters/category-filters";
 import { isOnSale, isNewProduct } from "@/lib/badge-config";
-import { useMomentumScroll } from "@/hooks/useMomentumScroll";
+import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 
 interface Banner {
   id: string;
@@ -790,13 +790,13 @@ function CategoryCarousel({
 }) {
   const [isMobile, setIsMobile] = useState(false);
   
-  // Use momentum scroll hook - same as BestsellerProducts/FeaturedProducts
-  const { containerRef: scrollRef, handlers } = useMomentumScroll({
+  // Use CSS Transform carousel hook - ultra-smooth GPU scrolling
+  const { containerRef, wrapperRef, containerStyle, wrapperStyle, handlers } = useTransformCarousel({
     autoScroll: category.products.length > 0,
-    // autoScrollSpeed: default 80 px/sn kullanılıyor
+    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
-    pauseDuration: 3000, // Resume after 3 seconds
-    friction: 0.94, // Smooth momentum
+    pauseDuration: 3000,
+    friction: 0.95,
   });
 
   // Mobile check
@@ -911,32 +911,37 @@ function CategoryCarousel({
         </Link>
 
 
-        {/* Carousel Area - 360° infinite scroll with momentum */}
+        {/* Carousel Area - 360° infinite scroll with CSS Transform */}
         <div className="flex-1 relative overflow-hidden" style={{ marginLeft: isMobile ? '0' : '-100px' }}>
+          {/* Container - viewport */}
           <div
-            ref={scrollRef}
-            {...handlers}
-            className="flex items-start gap-4 overflow-x-auto pb-4 pt-1"
+            ref={containerRef}
             style={{ 
-              scrollbarWidth: "none", 
-              msOverflowStyle: "none", 
+              ...containerStyle, 
               paddingLeft: isMobile ? '16px' : '116px',
               paddingRight: isMobile ? '16px' : '0',
-              WebkitOverflowScrolling: 'touch',
-              cursor: 'grab',
             }}
+            className="pb-4 pt-1"
           >
-            {displayProducts.map((product, idx) => (
-              <div 
-                key={`${product.id}-${idx}`} 
-                className="flex-shrink-0 w-[280px]"
-              >
-                <ProductCard 
-                  product={mapApiProductToCard(product)} 
-                  priority={idx < 4}
-                />
-              </div>
-            ))}
+            {/* Wrapper - content moves via transform */}
+            <div
+              ref={wrapperRef}
+              style={{ ...wrapperStyle, gap: '16px' }}
+              {...handlers}
+              className="flex items-start"
+            >
+              {displayProducts.map((product, idx) => (
+                <div 
+                  key={`${product.id}-${idx}`} 
+                  className="flex-shrink-0 w-[280px]"
+                >
+                  <ProductCard 
+                    product={mapApiProductToCard(product)} 
+                    priority={idx < 4}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
