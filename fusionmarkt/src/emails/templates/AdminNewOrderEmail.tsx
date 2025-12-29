@@ -29,7 +29,7 @@ interface AdminNewOrderEmailProps {
 
 export const AdminNewOrderEmail = ({
   orderNumber,
-  orderDate,
+  orderDate: _orderDate,
   customerName,
   customerEmail,
   customerPhone,
@@ -39,6 +39,7 @@ export const AdminNewOrderEmail = ({
   shippingCity,
   items,
 }: AdminNewOrderEmailProps) => {
+  void _orderDate; // Reserved for future use
   const adminUrl = process.env.ADMIN_URL || "https://admin.fusionmarkt.com";
 
   return (

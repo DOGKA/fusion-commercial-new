@@ -4,6 +4,13 @@ import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 
+declare global {
+  interface Window {
+    gtag: (command: string, targetId: string, config?: Record<string, unknown>) => void;
+    dataLayer: unknown[];
+  }
+}
+
 interface TrackingSettings {
   googleAnalyticsId: string | null;
   googleTagManagerId: string | null;
@@ -80,8 +87,8 @@ function GoogleAnalyticsInner() {
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
     // GA4 pageview
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("config", settings.googleAnalyticsId, {
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("config", settings.googleAnalyticsId, {
         page_path: url,
       });
     }

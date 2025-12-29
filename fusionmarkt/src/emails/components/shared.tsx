@@ -6,7 +6,6 @@
 
 import {
   Button as EmailButton,
-  Link,
 } from "@react-email/components";
 import { theme, commonStyles } from "../styles/theme";
 

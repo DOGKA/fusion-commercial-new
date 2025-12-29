@@ -114,35 +114,39 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
     const cookieConsent = getCookie("cookie_consent");
     
+    let newHasConsent = false;
+    let newPreferences: CookiePreferences | null = null;
+    
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as CookiePreferences;
         
         // Versiyon kontrolü - politika değiştiyse yeniden onay iste
-        if (parsed.consentVersion !== CONSENT_VERSION) {
-          setHasConsent(false);
-        } else {
-          setPreferences(parsed);
-          setHasConsent(true);
-          // Google Consent Mode'u güncelle
-          updateGoogleConsent(parsed);
+        if (parsed.consentVersion === CONSENT_VERSION) {
+          newPreferences = parsed;
+          newHasConsent = true;
         }
       } catch {
-        setHasConsent(false);
+        // Invalid stored data
       }
     } else if (cookieConsent) {
       // Cookie var ama localStorage yok - sync et
       try {
         const parsed = JSON.parse(decodeURIComponent(cookieConsent)) as CookiePreferences;
-        setPreferences(parsed);
-        setHasConsent(true);
+        newPreferences = parsed;
+        newHasConsent = true;
         localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(parsed));
-        updateGoogleConsent(parsed);
       } catch {
-        setHasConsent(false);
+        // Invalid cookie data
       }
     }
     
+    // Batch state updates
+    if (newPreferences) {
+      setPreferences(newPreferences);
+      updateGoogleConsent(newPreferences);
+    }
+    setHasConsent(newHasConsent);
     setIsLoaded(true);
   }, []);
 
