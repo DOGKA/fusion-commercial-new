@@ -249,10 +249,33 @@ export function MysteryBoxProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useMysteryBox() {
+// ═══════════════════════════════════════════════════════════════════════════
+// SSG-SAFE DEFAULT VALUES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SSG_SAFE_MYSTERYBOX_DEFAULTS: MysteryBoxContextType = {
+  canOpen: false,
+  hasClaim: false,
+  isLoading: true,
+  claim: null,
+  coupon: null,
+  fingerprint: "",
+  refreshStatus: async () => {},
+  claimCoupon: async () => ({ success: false, error: "Not initialized" }),
+  isModalOpen: false,
+  openModal: () => {},
+  closeModal: () => {},
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK (SSG-SAFE)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function useMysteryBox(): MysteryBoxContextType {
   const context = useContext(MysteryBoxContext);
+  // SSG-safe: Return defaults during static generation instead of throwing
   if (context === undefined) {
-    throw new Error("useMysteryBox must be used within a MysteryBoxProvider");
+    return SSG_SAFE_MYSTERYBOX_DEFAULTS;
   }
   return context;
 }

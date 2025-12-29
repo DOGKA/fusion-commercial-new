@@ -202,13 +202,36 @@ export function CartProvider({ children }: CartProviderProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK
+// SSG-SAFE DEFAULT VALUES
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function useCart() {
+const SSG_SAFE_CART_DEFAULTS: CartContextType = {
+  items: [],
+  isOpen: false,
+  itemCount: 0,
+  subtotal: 0,
+  originalSubtotal: 0,
+  totalSavings: 0,
+  isAnimating: false,
+  isHydrated: false,
+  addItem: async () => {},
+  removeItem: () => {},
+  updateQuantity: () => {},
+  clearCart: () => {},
+  openCart: () => {},
+  closeCart: () => {},
+  toggleCart: () => {},
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK (SSG-SAFE)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function useCart(): CartContextType {
   const context = useContext(CartContext);
+  // SSG-safe: Return defaults during static generation instead of throwing
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
+    return SSG_SAFE_CART_DEFAULTS;
   }
   return context;
 }

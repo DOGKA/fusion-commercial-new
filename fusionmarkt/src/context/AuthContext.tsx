@@ -166,13 +166,28 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK
+// SSG-SAFE DEFAULT VALUES
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function useAuth() {
+const SSG_SAFE_AUTH_DEFAULTS: AuthContextType = {
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+  login: async () => ({ success: false, error: "Not initialized" }),
+  loginWithGoogle: async () => {},
+  logout: async () => {},
+  register: async () => ({ success: false, error: "Not initialized" }),
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK (SSG-SAFE)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
+  // SSG-safe: Return defaults during static generation instead of throwing
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    return SSG_SAFE_AUTH_DEFAULTS;
   }
   return context;
 }

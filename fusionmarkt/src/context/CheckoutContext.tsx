@@ -686,13 +686,48 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK
+// SSG-SAFE DEFAULT VALUES
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function useCheckout() {
+const SSG_SAFE_CHECKOUT_DEFAULTS: CheckoutContextType = {
+  state: initialState,
+  goToStep: () => {},
+  goToPayment: () => {},
+  goBack: () => {},
+  setBillingAddress: () => {},
+  setShippingAddress: () => {},
+  setUseDifferentShipping: () => {},
+  selectSavedAddress: () => {},
+  setInvoiceType: () => {},
+  setShippingMethod: () => {},
+  applyCoupon: async () => false,
+  removeCoupon: () => {},
+  setPaymentMethod: () => {},
+  setCardData: () => {},
+  setContractAccepted: () => {},
+  setCreateAccount: () => {},
+  setAccountPassword: () => {},
+  updateItemQuantity: () => {},
+  removeItem: () => {},
+  validateStep1: () => ({ isValid: false, errors: {} }),
+  validateStep2: () => ({ isValid: false, errors: {} }),
+  canProceedToPayment: () => false,
+  canSubmitOrder: () => false,
+  submitOrder: async () => ({ success: false, error: "Not initialized" }),
+  resetCheckout: () => {},
+  getShippingMessage: () => null,
+  formatPrice: (price: number) => `₺${price.toFixed(2)}`,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK (SSG-SAFE)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function useCheckout(): CheckoutContextType {
   const context = useContext(CheckoutContext);
+  // SSG-safe: Return defaults during static generation instead of throwing
   if (context === undefined) {
-    throw new Error("useCheckout must be used within a CheckoutProvider");
+    return SSG_SAFE_CHECKOUT_DEFAULTS;
   }
   return context;
 }

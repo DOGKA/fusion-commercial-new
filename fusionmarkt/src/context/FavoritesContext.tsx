@@ -164,13 +164,30 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK
+// SSG-SAFE DEFAULT VALUES
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function useFavorites() {
+const SSG_SAFE_FAVORITES_DEFAULTS: FavoritesContextType = {
+  items: [],
+  itemCount: 0,
+  isAnimating: false,
+  addItem: () => {},
+  removeItem: () => {},
+  toggleItem: () => {},
+  isFavorite: () => false,
+  clearFavorites: () => {},
+  moveToCart: () => {},
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK (SSG-SAFE)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function useFavorites(): FavoritesContextType {
   const context = useContext(FavoritesContext);
+  // SSG-safe: Return defaults during static generation instead of throwing
   if (context === undefined) {
-    throw new Error("useFavorites must be used within a FavoritesProvider");
+    return SSG_SAFE_FAVORITES_DEFAULTS;
   }
   return context;
 }

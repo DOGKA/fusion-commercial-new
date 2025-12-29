@@ -246,12 +246,30 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK
+// SSG-SAFE DEFAULT VALUES
 // ═══════════════════════════════════════════════════════════════════════════
-export function useCookieConsent() {
+
+const SSG_SAFE_COOKIE_DEFAULTS: CookieConsentContextType = {
+  preferences: defaultPreferences,
+  hasConsent: false,
+  isLoaded: false,
+  updatePreferences: () => {},
+  acceptAll: () => {},
+  acceptNecessary: () => {},
+  resetConsent: () => {},
+  canUseAnalytics: false,
+  canUseMarketing: false,
+  canUsePreferences: false,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK (SSG-SAFE)
+// ═══════════════════════════════════════════════════════════════════════════
+export function useCookieConsent(): CookieConsentContextType {
   const context = useContext(CookieConsentContext);
+  // SSG-safe: Return defaults during static generation instead of throwing
   if (context === undefined) {
-    throw new Error("useCookieConsent must be used within a CookieConsentProvider");
+    return SSG_SAFE_COOKIE_DEFAULTS;
   }
   return context;
 }
