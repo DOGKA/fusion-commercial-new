@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CSS TRANSFORM CAROUSEL - Ultra-smooth GPU-accelerated scrolling
@@ -51,9 +51,8 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 8;
   
-  // Mounted state for re-triggering effect when autoScroll changes
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => { setIsMounted(true); }, []);
+  // Listener attached flag - prevents duplicate listeners
+  const listenersAttached = useRef(false);
 
   // Options as refs
   const autoScrollRef = useRef(autoScroll);
@@ -450,7 +449,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       wrapper.removeEventListener("mouseleave", handleMouseLeave);
       wrapper.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, pauseOnHover, isMounted]);
+  }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, pauseOnHover, autoScroll]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RETURN

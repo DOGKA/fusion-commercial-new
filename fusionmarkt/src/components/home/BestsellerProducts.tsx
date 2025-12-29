@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Loader2, TrendingUp } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { mapApiProductsToCards } from "@/lib/mappers";
@@ -17,9 +17,6 @@ export default function BestsellerProducts() {
     pauseOnHover: true,
     friction: 0.95,
   });
-
-  // Track translateX value for arrow button control
-  const translateXRef = useRef(0);
 
   useEffect(() => {
     const fetchBestsellerProducts = async () => {
