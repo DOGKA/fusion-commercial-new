@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CSS TRANSFORM CAROUSEL - Ultra-smooth GPU-accelerated scrolling
@@ -50,6 +50,10 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   // Direction lock
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 8;
+  
+  // Mounted state for re-triggering effect when autoScroll changes
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => { setIsMounted(true); }, []);
 
   // Options as refs
   const autoScrollRef = useRef(autoScroll);
@@ -183,19 +187,56 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   }, [getMaxScroll, applyTransform, startAutoScroll]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // NATIVE TOUCH EVENT HANDLERS
-  // ═══════════════════════════════════════════════════════════════
+  // EFFECT 1: TIMERS - Always run, check wrapper inside
+  // ═══════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    // Start auto-scroll with delay
+    const startTimer = setTimeout(() => {
+      if (autoScrollRef.current && getMaxScroll() > 0 && wrapperRef.current) {
+        startAutoScroll();
+      }
+    }, 300);
+    
+    // Aggressive retry for dynamic content loading - checks every 150ms
+    const retryTimer = setInterval(() => {
+      const wrapper = wrapperRef.current;
+      if (!wrapper) return; // Wrapper henüz yok, bekle
+      
+      if (!isRunning.current && autoScrollRef.current && getMaxScroll() > 0 && !isDragging.current && !isPaused.current) {
+        startAutoScroll();
+      }
+    }, 150);
 
+    // Visibility change handler
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stopAnimation();
+      } else if (!isDragging.current && autoScrollRef.current && wrapperRef.current) {
+        setTimeout(() => startAutoScroll(), 100);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearInterval(retryTimer);
+      stopAnimation();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [getMaxScroll, startAutoScroll, stopAnimation, autoScroll]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EFFECT 2: NATIVE EVENT LISTENERS - Only when wrapper exists
+  // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     const wrapper = wrapperRef.current;
-    if (!wrapper) return;
+    if (!wrapper) return; // Wrapper yok, listener ekleme
 
     // GPU hints
     wrapper.style.willChange = "transform";
     wrapper.style.backfaceVisibility = "hidden";
     wrapper.style.transform = "translate3d(0, 0, 0)";
     wrapper.style.cursor = "grab";
-    // CRITICAL: Allow vertical scroll, we handle horizontal
     wrapper.style.touchAction = "pan-y pinch-zoom";
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -233,12 +274,12 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       // Direction lock
       if (scrollDirection.current === null) {
         if (deltaX > directionLockThreshold || deltaY > directionLockThreshold) {
-          if (deltaX > deltaY * 1.2) { // Favor horizontal
+          if (deltaX > deltaY * 1.2) {
             scrollDirection.current = "horizontal";
             isDragging.current = true;
           } else {
             scrollDirection.current = "vertical";
-            return; // Let browser handle vertical scroll
+            return;
           }
         } else {
           return;
@@ -247,21 +288,19 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       
       if (scrollDirection.current !== "horizontal") return;
       
-      // CRITICAL: Prevent page scroll when dragging horizontally
       e.preventDefault();
       
       const now = performance.now();
       const timeDelta = now - lastTime.current;
       
       if (timeDelta > 0) {
-        const newVelocity = (currentX - lastX.current) / timeDelta * 16; // Normalize to ~60fps
-        velocity.current = velocity.current * 0.4 + newVelocity * 0.6; // Smooth
+        const newVelocity = (currentX - lastX.current) / timeDelta * 16;
+        velocity.current = velocity.current * 0.4 + newVelocity * 0.6;
       }
       
       const dragDelta = currentX - startX.current;
       translateX.current = startTranslateX.current + dragDelta;
       
-      // Rubber band effect
       const maxScroll = getMaxScroll();
       if (translateX.current > 0) {
         translateX.current = translateX.current * 0.3;
@@ -271,7 +310,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       }
       
       applyTransform(translateX.current);
-      
       lastX.current = currentX;
       lastTime.current = now;
     };
@@ -286,7 +324,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         if (Math.abs(velocity.current) > 0.5) {
           startMomentum();
         } else {
-          // Boundary snap
           const maxScroll = getMaxScroll();
           if (translateX.current > 0) translateX.current = 0;
           else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
@@ -301,7 +338,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
           }, pauseDurationRef.current);
         }
       }
-      
       scrollDirection.current = null;
     };
 
@@ -323,7 +359,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       startTranslateX.current = translateX.current;
       lastX.current = e.clientX;
       lastTime.current = performance.now();
-      
       wrapper.style.cursor = "grabbing";
     };
 
@@ -343,7 +378,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       const dragDelta = currentX - startX.current;
       translateX.current = startTranslateX.current + dragDelta;
       
-      // Boundary resistance
       const maxScroll = getMaxScroll();
       if (translateX.current > 0) {
         translateX.current = translateX.current * 0.3;
@@ -353,7 +387,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       }
       
       applyTransform(translateX.current);
-      
       lastX.current = currentX;
       lastTime.current = now;
     };
@@ -395,7 +428,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     // ADD EVENT LISTENERS
     // ─────────────────────────────────────────────────────────────────────────
     wrapper.addEventListener("touchstart", handleTouchStart, { passive: true });
-    wrapper.addEventListener("touchmove", handleTouchMove, { passive: false }); // CRITICAL!
+    wrapper.addEventListener("touchmove", handleTouchMove, { passive: false });
     wrapper.addEventListener("touchend", handleTouchEnd, { passive: true });
     wrapper.addEventListener("touchcancel", handleTouchEnd, { passive: true });
     
@@ -405,37 +438,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     wrapper.addEventListener("mouseleave", handleMouseLeave);
     wrapper.addEventListener("mouseenter", handleMouseEnter);
 
-    // Start auto-scroll
-    const startTimer = setTimeout(() => {
-      if (autoScrollRef.current && getMaxScroll() > 0) {
-        startAutoScroll();
-      }
-    }, 500);
-    
-    const retryTimer = setInterval(() => {
-      if (!isRunning.current && autoScrollRef.current && getMaxScroll() > 0 && !isDragging.current) {
-        startAutoScroll();
-      }
-    }, 500);
-
-    // Visibility
-    const handleVisibility = () => {
-      if (document.hidden) {
-        stopAnimation();
-      } else if (!isDragging.current) {
-        startAutoScroll();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // CLEANUP
-    // ─────────────────────────────────────────────────────────────────────────
     return () => {
-      clearTimeout(startTimer);
-      clearInterval(retryTimer);
-      stopAnimation();
-      
       wrapper.removeEventListener("touchstart", handleTouchStart);
       wrapper.removeEventListener("touchmove", handleTouchMove);
       wrapper.removeEventListener("touchend", handleTouchEnd);
@@ -446,10 +449,8 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       wrapper.removeEventListener("mouseup", handleMouseUp);
       wrapper.removeEventListener("mouseleave", handleMouseLeave);
       wrapper.removeEventListener("mouseenter", handleMouseEnter);
-      
-      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, stopAnimation, pauseOnHover]);
+  }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, pauseOnHover, isMounted]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RETURN
