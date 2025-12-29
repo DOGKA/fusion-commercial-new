@@ -76,7 +76,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
 
   // autoScroll değerini ref'te sakla (closure sorunu için)
   const autoScrollRef = useRef(autoScroll);
-  autoScrollRef.current = autoScroll;
+  
+  // Ref'leri useEffect içinde güncelle (React 19 kuralı)
+  useEffect(() => {
+    autoScrollRef.current = autoScroll;
+  }, [autoScroll]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DEBUG TICK - Her frame'de durumu göster
@@ -135,7 +139,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
 
   // autoScrollSpeed'i de ref'te sakla
   const autoScrollSpeedRef = useRef(autoScrollSpeed);
-  autoScrollSpeedRef.current = autoScrollSpeed;
+  
+  // Ref'i useEffect içinde güncelle (React 19 kuralı)
+  useEffect(() => {
+    autoScrollSpeedRef.current = autoScrollSpeed;
+  }, [autoScrollSpeed]);
 
   // Start auto-scroll - SADECE scrollable ise başla
   const startAutoScroll = useCallback(() => {
