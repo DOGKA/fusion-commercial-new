@@ -45,7 +45,7 @@ function removeHud() {
 export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const {
     autoScroll = true,
-    autoScrollSpeed = 80, // px/saniye - iOS Safari uyumlu (80px/sn = hızlı & akıcı)
+    autoScrollSpeed = 60, // px/saniye - iOS Safari uyumlu, requestAnimationFrame ile akıcı
     pauseOnHover = true,
     friction = 0.92,
     pauseDuration = 2000,
@@ -58,6 +58,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoScrollRafRef = useRef<number | null>(null); // requestAnimationFrame ref
   const isRunning = useRef(false);
   const retryCount = useRef(0);
   
@@ -138,6 +139,12 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   // Stop auto-scroll
   const stopAutoScroll = useCallback(() => {
     isRunning.current = false;
+    // requestAnimationFrame iptal et
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+    }
+    // Eski interval varsa temizle (fallback)
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -153,7 +160,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   }, [autoScrollSpeed]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // START AUTO-SCROLL - Float birikim + dt bazlı (iOS Safari uyumlu)
+  // START AUTO-SCROLL - requestAnimationFrame ile akıcı scroll (titreşimsiz)
   // ═══════════════════════════════════════════════════════════════════════════
   const startAutoScroll = useCallback(() => {
     // Zaten çalışıyorsa tekrar başlatma
@@ -169,11 +176,6 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const canScroll = container.scrollWidth > container.clientWidth + 1;
     if (!canScroll) return false;
     
-    // Önceki interval'i temizle
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    
     isRunning.current = true;
     isPaused.current = false;
     
@@ -181,19 +183,33 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     posRef.current = container.scrollLeft;
     lastTickRef.current = performance.now();
     
-    intervalRef.current = setInterval(() => {
+    // ═══════════════════════════════════════════════════════════════════════
+    // requestAnimationFrame loop - tarayıcı render döngüsüyle senkronize
+    // ═══════════════════════════════════════════════════════════════════════
+    const tick = () => {
+      if (!isRunning.current) return;
+      
       const c = containerRef.current;
       
-      if (!c || isPaused.current || isDragging.current) {
+      if (!c) {
+        autoScrollRafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      
+      // Pause veya drag durumunda sadece bekle
+      if (isPaused.current || isDragging.current) {
+        lastTickRef.current = performance.now(); // dt sıfırla
+        autoScrollRafRef.current = requestAnimationFrame(tick);
         return;
       }
       
       const maxScroll = c.scrollWidth - c.clientWidth;
-      if (maxScroll <= 0) return;
+      if (maxScroll <= 0) {
+        autoScrollRafRef.current = requestAnimationFrame(tick);
+        return;
+      }
       
-      // ═══════════════════════════════════════════════════════════════════════
-      // DT BAZLI SCROLL - Frame-rate bağımsız, iOS Safari sub-pixel fix
-      // ═══════════════════════════════════════════════════════════════════════
+      // DT hesapla - frame-rate bağımsız
       const now = performance.now();
       const dt = (now - lastTickRef.current) / 1000; // saniye cinsinden
       lastTickRef.current = now;
@@ -214,11 +230,17 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
         c.scrollLeft = nextScrollLeft;
       }
       
-      // Debug her tick'te güncelle
+      // Debug (ilk birkaç frame)
       if (debug && retryCount.current < 5) {
         debugTick();
       }
-    }, 16); // ~60fps
+      
+      // Sonraki frame
+      autoScrollRafRef.current = requestAnimationFrame(tick);
+    };
+    
+    // İlk frame'i başlat
+    autoScrollRafRef.current = requestAnimationFrame(tick);
     
     return true; // Başarıyla başladı
   }, [debug, debugTick]); // autoScroll ve autoScrollSpeed artık ref'ten okunuyor
