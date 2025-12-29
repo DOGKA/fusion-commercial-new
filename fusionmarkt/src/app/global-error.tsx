@@ -1,12 +1,14 @@
 "use client";
 
 export default function GlobalError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // _error is available for logging if needed
+  void _error;
   return (
     <html lang="tr">
       <body className="bg-[#0a0a0f] text-white min-h-screen flex items-center justify-center">
