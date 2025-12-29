@@ -141,11 +141,26 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   // MOMENTUM ANIMATION (after drag)
   // ═══════════════════════════════════════════════════════════════════════════
   const startMomentum = useCallback(() => {
+    // Önceki animation'ı temizle
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    isRunning.current = false;
+    
     const maxScroll = getMaxScroll();
     
     const tick = () => {
+      // Drag başladıysa momentum'u durdur
+      if (isDragging.current) {
+        velocity.current = 0;
+        return;
+      }
+      
       if (Math.abs(velocity.current) < 0.5) {
         velocity.current = 0;
+        rafRef.current = null;
+        
         // Boundary check
         if (translateX.current > 0) {
           translateX.current = 0;
@@ -156,11 +171,9 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         
         // Resume auto-scroll after pause
         setTimeout(() => {
-          if (!isDragging.current) {
+          if (!isDragging.current && !isRunning.current) {
             isPaused.current = false;
-            if (!isRunning.current) {
-              startAutoScroll();
-            }
+            startAutoScroll();
           }
         }, pauseDuration);
         return;
@@ -189,12 +202,15 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   // TOUCH HANDLERS
   // ═══════════════════════════════════════════════════════════════════════════
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    // CRITICAL: Animation'ı tamamen durdur
+    isRunning.current = false;
     isPaused.current = true;
     scrollDirection.current = null;
     velocity.current = 0;
     
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     }
     
     startX.current = e.touches[0].clientX;
@@ -271,10 +287,10 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         }
         applyTransform(translateX.current);
         
-        // Resume auto-scroll
+        // Resume auto-scroll - temiz başlat
         setTimeout(() => {
-          isPaused.current = false;
-          if (!isRunning.current) {
+          if (!isDragging.current && !isRunning.current) {
+            isPaused.current = false;
             startAutoScroll();
           }
         }, pauseDuration);
@@ -288,12 +304,15 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   // MOUSE HANDLERS (Desktop drag)
   // ═══════════════════════════════════════════════════════════════════════════
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    // CRITICAL: Animation'ı tamamen durdur
+    isRunning.current = false;
     isDragging.current = true;
     isPaused.current = true;
     velocity.current = 0;
     
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     }
     
     startX.current = e.clientX;
@@ -356,9 +375,10 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       }
       applyTransform(translateX.current);
       
+      // Resume auto-scroll - temiz başlat
       setTimeout(() => {
-        isPaused.current = false;
-        if (!isRunning.current) {
+        if (!isDragging.current && !isRunning.current) {
+          isPaused.current = false;
           startAutoScroll();
         }
       }, pauseDuration);
