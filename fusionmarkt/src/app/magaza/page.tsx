@@ -820,17 +820,6 @@ function CategoryCarousel({
   const bannerSubtitle = bannerData?.subtitle || "Kaliteli ürünleri keşfedin";
   const bannerButtonText = bannerData?.buttonText || "Tümünü Gör";
 
-  // Manual scroll function for arrow buttons
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 296; // Card width + gap
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
-
   // Always duplicate products for 360° infinite scroll - both mobile and desktop
   const displayProducts = [...category.products, ...category.products, ...category.products];
 

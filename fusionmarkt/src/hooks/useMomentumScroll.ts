@@ -26,6 +26,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const animationRef = useRef<number | null>(null);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isVisible, setIsVisible] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -40,9 +41,28 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 10; // pixels to determine direction
 
+  // Mount detection - ensures we only run on client
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Small delay to ensure DOM is ready (helps with mobile)
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Visibility Observer - Only auto-scroll when visible
   useEffect(() => {
-    if (!autoScroll || !containerRef.current) return;
+    if (!autoScroll || !containerRef.current || !isMounted) return;
+
+    // Check if IntersectionObserver is available
+    if (typeof IntersectionObserver === 'undefined') {
+      // Fallback for older browsers - always visible
+      setIsVisible(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -50,7 +70,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
           setIsVisible(entry.isIntersecting);
         });
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.1,
+        // Root margin helps with mobile where viewport might be calculated differently
+        rootMargin: '50px'
+      }
     );
 
     observer.observe(containerRef.current);
@@ -58,23 +82,27 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     return () => {
       observer.disconnect();
     };
-  }, [autoScroll]);
+  }, [autoScroll, isMounted]);
 
   // Auto-scroll logic - improved for mobile
   useEffect(() => {
-    if (!autoScroll) return;
+    if (!autoScroll || !isMounted) return;
 
     let lastAnimTime = 0;
+    let isRunning = true;
     
     const animate = (currentTime: number) => {
+      if (!isRunning) return;
+      
       // Skip if paused, dragging, or not visible
       if (!containerRef.current || isPaused.current || isDragging.current || isManuallyScrolling.current || !isVisible) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
       
-      // Throttle to ~60fps
-      if (currentTime - lastAnimTime < 16.67) {
+      // Throttle to ~60fps (but be more lenient for mobile)
+      const frameDelta = currentTime - lastAnimTime;
+      if (frameDelta < 16) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
@@ -89,24 +117,34 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
         return;
       }
       
+      // Calculate speed based on frame delta (smoother on variable frame rates)
+      const speed = autoScrollSpeed * (frameDelta / 16.67);
+      
       // Seamless loop
       if (container.scrollLeft >= maxScroll - 1) {
         container.scrollLeft = 0;
       } else {
-        container.scrollLeft += autoScrollSpeed;
+        container.scrollLeft += speed;
       }
       
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    animationRef.current = requestAnimationFrame(animate);
+    // Start animation with a slight delay for mobile
+    const startTimer = setTimeout(() => {
+      if (isRunning) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    }, 200);
     
     return () => {
+      isRunning = false;
+      clearTimeout(startTimer);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [autoScroll, autoScrollSpeed, isVisible]);
+  }, [autoScroll, autoScrollSpeed, isVisible, isMounted]);
 
   // Schedule resume of auto-scroll
   const scheduleResume = useCallback(() => {
@@ -148,6 +186,9 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!containerRef.current) return;
     
+    // Pause auto-scroll immediately on touch
+    isPaused.current = true;
+    
     // Reset direction lock
     scrollDirection.current = null;
     
@@ -179,10 +220,9 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
           // Horizontal scroll - we handle it
           scrollDirection.current = "horizontal";
           isDragging.current = true;
-          isPaused.current = true;
           isManuallyScrolling.current = true;
         } else {
-          // Vertical scroll - let browser handle it
+          // Vertical scroll - let browser handle it, but still pause
           scrollDirection.current = "vertical";
           return;
         }
@@ -226,6 +266,9 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
       } else {
         scheduleResume();
       }
+    } else {
+      // Even for vertical scroll, schedule resume
+      scheduleResume();
     }
     
     // Reset direction
