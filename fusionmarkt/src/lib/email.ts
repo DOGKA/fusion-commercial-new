@@ -29,6 +29,7 @@ import { AdminNewOrderEmail } from "@/emails/templates/AdminNewOrderEmail";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || "FusionMarkt <noreply@fusionmarkt.com>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || "info@fusionmarkt.com";
 
 // Email feature toggle
 const EMAIL_ENABLED = !!RESEND_API_KEY;
@@ -350,6 +351,85 @@ export async function sendAdminNewOrderNotification(params: {
       style: "currency",
       currency: "TRY",
     }).format(params.total)}`,
+    html,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTACT FORM NOTIFICATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Send contact form notification to info@fusionmarkt.com
+ */
+export async function sendContactFormNotification(params: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  subject?: string | null;
+  message: string;
+}) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #10B981, #059669); padding: 24px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 20px; }
+        .content { padding: 24px; }
+        .field { margin-bottom: 16px; }
+        .label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+        .value { font-size: 15px; color: #1a1a1a; }
+        .message-box { background: #f9f9f9; border-left: 4px solid #10B981; padding: 16px; margin-top: 16px; }
+        .footer { padding: 16px 24px; background: #f9f9f9; text-align: center; font-size: 12px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>📧 Yeni İletişim Formu Mesajı</h1>
+        </div>
+        <div class="content">
+          <div class="field">
+            <div class="label">Gönderen</div>
+            <div class="value"><strong>${params.name}</strong></div>
+          </div>
+          <div class="field">
+            <div class="label">E-posta</div>
+            <div class="value"><a href="mailto:${params.email}">${params.email}</a></div>
+          </div>
+          ${params.phone ? `
+          <div class="field">
+            <div class="label">Telefon</div>
+            <div class="value"><a href="tel:${params.phone}">${params.phone}</a></div>
+          </div>
+          ` : ''}
+          ${params.subject ? `
+          <div class="field">
+            <div class="label">Konu</div>
+            <div class="value">${params.subject}</div>
+          </div>
+          ` : ''}
+          <div class="message-box">
+            <div class="label">Mesaj</div>
+            <div class="value" style="white-space: pre-wrap;">${params.message}</div>
+          </div>
+        </div>
+        <div class="footer">
+          Bu mesaj FusionMarkt iletişim formu üzerinden gönderildi.<br>
+          Yanıtlamak için doğrudan gönderen e-postasına yazabilirsiniz.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: CONTACT_EMAIL,
+    subject: `İletişim Formu: ${params.subject || params.name}`,
     html,
   });
 }

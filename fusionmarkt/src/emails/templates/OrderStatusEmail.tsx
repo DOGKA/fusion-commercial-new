@@ -11,7 +11,6 @@ import {
   StatusBadge,
   TrackingInfo,
   Button,
-  Divider,
 } from "../components/shared";
 
 type OrderStatus =
@@ -99,10 +98,8 @@ export const OrderStatusEmail = ({
 
       <Button href="https://fusionmarkt.com/hesabim">Siparişimi Görüntüle</Button>
 
-      <Divider />
-
       <Paragraph muted>
-        Sorularınız için iletisim@fusionmarkt.com adresinden bize ulaşabilirsiniz.
+        Sorularınız için info@fusionmarkt.com adresinden bize ulaşabilirsiniz.
       </Paragraph>
     </Layout>
   );

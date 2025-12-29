@@ -11,7 +11,6 @@ import {
   StatusBadge,
   TrackingInfo,
   Button,
-  Divider,
 } from "../components/shared";
 
 interface OrderShippedEmailProps {
@@ -42,8 +41,6 @@ export const OrderShippedEmail = ({
       <TrackingInfo trackingNumber={trackingNumber} carrier={carrier} />
 
       <Button href="https://fusionmarkt.com/hesabim">Kargomu Takip Et</Button>
-
-      <Divider />
 
       <Paragraph muted>
         Kargo takip bilgileriniz güncellendikçe hesabım sayfanızdan 

@@ -1,6 +1,7 @@
 /**
  * Base Email Layout
- * Glassmorphism design with mobile-first approach
+ * 100% table-based design for maximum email client compatibility
+ * Tüm içerik tek bir table içinde - yekpare tasarım
  */
 
 import {
@@ -8,12 +9,11 @@ import {
   Container,
   Head,
   Html,
+  Img,
   Preview,
-  Section,
-  Text,
 } from "@react-email/components";
 import { theme } from "../styles/theme";
-import { LogoInline } from "./Logo";
+import { LOGO_URL, LOGO_WIDTH, LOGO_HEIGHT } from "./Logo";
 
 interface LayoutProps {
   preview: string;
@@ -31,13 +31,32 @@ export const Layout = ({ preview, children }: LayoutProps) => {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <style>{`
+          /* Reset */
+          body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+          }
+          table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse !important;
+          }
+          img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+          }
+          /* Mobile */
           @media only screen and (max-width: 600px) {
             .email-container {
               width: 100% !important;
-              padding: 16px !important;
+              padding: 12px !important;
             }
-            .email-content {
-              padding: 24px !important;
+            .email-card {
+              padding: 20px !important;
             }
             .mobile-text-center {
               text-align: center !important;
@@ -64,23 +83,20 @@ export const Layout = ({ preview, children }: LayoutProps) => {
           style={{
             maxWidth: theme.layout.maxWidth,
             margin: "0 auto",
-            padding: theme.spacing[10],
+            padding: "40px 20px",
           }}
         >
-          {/* Header with Logo */}
-          <Section style={{ textAlign: "center", marginBottom: theme.spacing[8] }}>
-            <div dangerouslySetInnerHTML={{ __html: LogoInline }} />
-          </Section>
-
-          {/* Main Content Card - Glassmorphism */}
-          <Section
-            className="email-content"
+          {/* ANA KART - Tek table, tüm içerik burada */}
+          <table
+            cellPadding="0"
+            cellSpacing="0"
+            border={0}
+            width="100%"
+            className="email-card"
             style={{
               backgroundColor: theme.colors.bgCard,
               border: `1px solid ${theme.colors.border}`,
               borderRadius: theme.radius.xl,
-              padding: theme.layout.contentPadding,
-              // Subtle inner glow effect
               boxShadow: `
                 inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
                 0 0 0 1px rgba(255, 255, 255, 0.02),
@@ -88,31 +104,79 @@ export const Layout = ({ preview, children }: LayoutProps) => {
               `,
             }}
           >
-            {children}
-          </Section>
+            <tbody>
+              {/* LOGO */}
+              <tr>
+                <td
+                  style={{
+                    padding: "32px 32px 24px 32px",
+                    textAlign: "center",
+                  }}
+                >
+                  <Img
+                    src={LOGO_URL}
+                    alt="FusionMarkt"
+                    width={LOGO_WIDTH}
+                    height={LOGO_HEIGHT}
+                    style={{
+                      display: "inline-block",
+                      border: "0",
+                      outline: "none",
+                    }}
+                  />
+                </td>
+              </tr>
 
-          {/* Footer */}
-          <Section style={{ marginTop: theme.spacing[8], textAlign: "center" }}>
-            <Text
-              style={{
-                color: theme.colors.textDim,
-                fontSize: theme.fontSizes.xs,
-                margin: 0,
-                marginBottom: theme.spacing[2],
-              }}
-            >
-              Bu e-posta FusionMarkt tarafından gönderilmiştir.
-            </Text>
-            <Text
-              style={{
-                color: theme.colors.textDim,
-                fontSize: theme.fontSizes.xs,
-                margin: 0,
-              }}
-            >
-              {currentYear} FusionMarkt. Tüm hakları saklıdır.
-            </Text>
-          </Section>
+              {/* İÇERİK */}
+              <tr>
+                <td style={{ padding: "0 32px 24px 32px" }}>
+                  {children}
+                </td>
+              </tr>
+
+              {/* DIVIDER */}
+              <tr>
+                <td style={{ padding: "0 32px" }}>
+                  <table cellPadding="0" cellSpacing="0" border={0} width="100%">
+                    <tbody>
+                      <tr>
+                        <td
+                          style={{
+                            borderTop: `1px solid ${theme.colors.border}`,
+                            height: "1px",
+                            lineHeight: "1px",
+                            fontSize: "1px",
+                          }}
+                        >
+                          &nbsp;
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+
+              {/* FOOTER - Tek satır */}
+              <tr>
+                <td
+                  style={{
+                    padding: "24px 32px 32px 32px",
+                    textAlign: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: theme.colors.textDim,
+                      fontSize: theme.fontSizes.xs,
+                      fontFamily: theme.fonts.sans,
+                    }}
+                  >
+                    © {currentYear} FusionMarkt. Tüm hakları saklıdır.
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Container>
       </Body>
     </Html>

@@ -10,7 +10,6 @@ import {
   InfoCard,
   StatusBadge,
   Button,
-  Divider,
 } from "../components/shared";
 
 interface InvoiceReadyEmailProps {
@@ -35,8 +34,6 @@ export const InvoiceReadyEmail = ({
       <InfoCard label="Sipariş Numarası" value={orderNumber} mono />
 
       <Button href="https://fusionmarkt.com/hesabim">Faturamı İndir</Button>
-
-      <Divider />
 
       <Paragraph muted>
         Faturanızı hesabım sayfasından indirebilirsiniz.

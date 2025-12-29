@@ -1,11 +1,11 @@
 /**
  * Account Activation Email
  * Sent when user registers - contains activation code
+ * 100% table-based for email client compatibility
  */
 
-import { Text } from "@react-email/components";
 import { Layout } from "../components/Layout";
-import { Greeting, Paragraph, InfoCard, SmallText, Divider } from "../components/shared";
+import { Greeting, Paragraph, InfoCard, SmallText } from "../components/shared";
 import { theme } from "../styles/theme";
 
 interface ActivationEmailProps {
@@ -31,18 +31,17 @@ export const ActivationEmail = ({ code, name }: ActivationEmailProps) => {
         Bu kod 5 dakika içinde geçerliliğini yitirecektir.
       </SmallText>
 
-      <Divider />
-
-      <Text
+      <p
         style={{
           color: theme.colors.textFaded,
           fontSize: theme.fontSizes.sm,
           textAlign: "center" as const,
           margin: 0,
+          fontFamily: theme.fonts.sans,
         }}
       >
         Eğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.
-      </Text>
+      </p>
     </Layout>
   );
 };

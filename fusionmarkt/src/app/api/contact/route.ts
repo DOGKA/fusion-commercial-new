@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendContactFormNotification } from "@/lib/email";
 
 // Rate limiting için basit in-memory store
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -94,6 +95,21 @@ export async function POST(request: NextRequest) {
     });
 
     console.log(`📧 New contact message from ${email} (ID: ${contactMessage.id})`);
+
+    // Send email notification to info@fusionmarkt.com
+    try {
+      await sendContactFormNotification({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone?.trim() || null,
+        subject: subject?.trim() || null,
+        message: message.trim(),
+      });
+      console.log(`📧 Contact form notification sent to info@fusionmarkt.com`);
+    } catch (emailError) {
+      console.error("Failed to send contact form notification:", emailError);
+      // Don't fail the request if email fails - message is already saved
+    }
 
     return NextResponse.json({
       success: true,

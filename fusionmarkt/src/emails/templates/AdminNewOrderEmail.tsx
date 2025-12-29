@@ -1,13 +1,14 @@
 /**
  * Admin New Order Notification
  * Sent to admin when a new order is placed
+ * 100% table-based for email client compatibility
  */
 
-import { Section, Text, Row, Column, Hr, Link } from "@react-email/components";
+import { Link } from "@react-email/components";
 import { Layout } from "../components/Layout";
-import { InfoCard, Button, Divider } from "../components/shared";
+import { InfoCard, Button, GlassPanel } from "../components/shared";
 import { theme } from "../styles/theme";
-import { formatCurrency, formatDateTime } from "../utils/mask";
+import { formatCurrency } from "../utils/mask";
 
 interface AdminNewOrderEmailProps {
   orderNumber: string;
@@ -42,7 +43,7 @@ export const AdminNewOrderEmail = ({
 
   return (
     <Layout preview={`Yeni Sipariş: ${orderNumber} - ${formatCurrency(total)}`}>
-      <Text
+      <p
         style={{
           color: theme.colors.primary,
           fontSize: theme.fontSizes.lg,
@@ -50,23 +51,16 @@ export const AdminNewOrderEmail = ({
           textAlign: "center" as const,
           margin: 0,
           marginBottom: theme.spacing[4],
+          fontFamily: theme.fonts.sans,
         }}
       >
         Yeni Sipariş Alındı
-      </Text>
+      </p>
 
       <InfoCard label="Sipariş Numarası" value={orderNumber} mono accent />
 
       {/* Order Summary */}
-      <Section
-        style={{
-          backgroundColor: theme.colors.bgGlass,
-          border: `1px solid ${theme.colors.border}`,
-          borderRadius: theme.radius.lg,
-          padding: theme.spacing[4],
-          marginBottom: theme.spacing[4],
-        }}
-      >
+      <GlassPanel>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <tbody>
             <tr>
@@ -76,6 +70,7 @@ export const AdminNewOrderEmail = ({
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
                   width: "120px",
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 Müşteri
@@ -86,6 +81,7 @@ export const AdminNewOrderEmail = ({
                   fontSize: theme.fontSizes.sm,
                   fontWeight: theme.fontWeights.medium,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 {customerName}
@@ -97,6 +93,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.textFaded,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 E-posta
@@ -106,6 +103,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.text,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 <Link
@@ -122,6 +120,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.textFaded,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 Telefon
@@ -131,6 +130,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.text,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 {customerPhone}
@@ -142,6 +142,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.textFaded,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 Şehir
@@ -151,6 +152,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.text,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 {shippingCity}
@@ -162,6 +164,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.textFaded,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 Ürün Sayısı
@@ -171,6 +174,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.text,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 {itemCount} adet
@@ -182,6 +186,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.textFaded,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 Ödeme
@@ -191,6 +196,7 @@ export const AdminNewOrderEmail = ({
                   color: theme.colors.text,
                   fontSize: theme.fontSizes.sm,
                   padding: `${theme.spacing[2]} 0`,
+                  fontFamily: theme.fonts.sans,
                 }}
               >
                 {paymentMethod === "CREDIT_CARD" ? "Kredi Kartı" : "Havale/EFT"}
@@ -199,47 +205,52 @@ export const AdminNewOrderEmail = ({
           </tbody>
         </table>
 
-        <Hr style={{ borderColor: theme.colors.border, margin: `${theme.spacing[3]} 0` }} />
+        {/* Divider */}
+        <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: `${theme.spacing[3]} 0` }}>
+          <tbody>
+            <tr>
+              <td style={{ borderTop: `1px solid ${theme.colors.border}`, height: "1px" }}>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <Row>
-          <Column>
-            <Text
-              style={{
-                color: theme.colors.textMuted,
-                fontSize: theme.fontSizes.md,
-                fontWeight: theme.fontWeights.semibold,
-                margin: 0,
-              }}
-            >
-              Toplam
-            </Text>
-          </Column>
-          <Column style={{ textAlign: "right" as const }}>
-            <Text
-              style={{
-                color: theme.colors.primary,
-                fontSize: theme.fontSizes.xl,
-                fontWeight: theme.fontWeights.bold,
-                margin: 0,
-              }}
-            >
-              {formatCurrency(total)}
-            </Text>
-          </Column>
-        </Row>
-      </Section>
+        <table cellPadding="0" cellSpacing="0" border={0} width="100%">
+          <tbody>
+            <tr>
+              <td>
+                <p
+                  style={{
+                    color: theme.colors.textMuted,
+                    fontSize: theme.fontSizes.md,
+                    fontWeight: theme.fontWeights.semibold,
+                    margin: 0,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Toplam
+                </p>
+              </td>
+              <td style={{ textAlign: "right" }}>
+                <p
+                  style={{
+                    color: theme.colors.primary,
+                    fontSize: theme.fontSizes.xl,
+                    fontWeight: theme.fontWeights.bold,
+                    margin: 0,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  {formatCurrency(total)}
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </GlassPanel>
 
       {/* Order Items */}
-      <Section
-        style={{
-          backgroundColor: theme.colors.bgGlass,
-          border: `1px solid ${theme.colors.border}`,
-          borderRadius: theme.radius.lg,
-          padding: theme.spacing[4],
-          marginBottom: theme.spacing[4],
-        }}
-      >
-        <Text
+      <GlassPanel>
+        <p
           style={{
             color: theme.colors.textFaded,
             fontSize: theme.fontSizes.xs,
@@ -247,64 +258,59 @@ export const AdminNewOrderEmail = ({
             letterSpacing: "0.5px",
             margin: 0,
             marginBottom: theme.spacing[3],
+            fontFamily: theme.fonts.sans,
           }}
         >
           Sipariş İçeriği
-        </Text>
+        </p>
 
         {items.map((item, index) => (
-          <Row key={index} style={{ marginBottom: theme.spacing[2] }}>
-            <Column style={{ width: "60%" }}>
-              <Text
-                style={{
-                  color: theme.colors.text,
-                  fontSize: theme.fontSizes.sm,
-                  margin: 0,
-                }}
-              >
-                {item.name}
-              </Text>
-            </Column>
-            <Column style={{ width: "15%", textAlign: "center" as const }}>
-              <Text
-                style={{
-                  color: theme.colors.textFaded,
-                  fontSize: theme.fontSizes.sm,
-                  margin: 0,
-                }}
-              >
-                x{item.quantity}
-              </Text>
-            </Column>
-            <Column style={{ width: "25%", textAlign: "right" as const }}>
-              <Text
-                style={{
-                  color: theme.colors.text,
-                  fontSize: theme.fontSizes.sm,
-                  margin: 0,
-                }}
-              >
-                {formatCurrency(item.price * item.quantity)}
-              </Text>
-            </Column>
-          </Row>
+          <table key={index} cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ marginBottom: theme.spacing[2] }}>
+            <tbody>
+              <tr>
+                <td style={{ width: "60%" }}>
+                  <p
+                    style={{
+                      color: theme.colors.text,
+                      fontSize: theme.fontSizes.sm,
+                      margin: 0,
+                      fontFamily: theme.fonts.sans,
+                    }}
+                  >
+                    {item.name}
+                  </p>
+                </td>
+                <td style={{ width: "15%", textAlign: "center" }}>
+                  <p
+                    style={{
+                      color: theme.colors.textFaded,
+                      fontSize: theme.fontSizes.sm,
+                      margin: 0,
+                      fontFamily: theme.fonts.sans,
+                    }}
+                  >
+                    x{item.quantity}
+                  </p>
+                </td>
+                <td style={{ width: "25%", textAlign: "right" }}>
+                  <p
+                    style={{
+                      color: theme.colors.text,
+                      fontSize: theme.fontSizes.sm,
+                      margin: 0,
+                      fontFamily: theme.fonts.sans,
+                    }}
+                  >
+                    {formatCurrency(item.price * item.quantity)}
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         ))}
-      </Section>
+      </GlassPanel>
 
       <Button href={`${adminUrl}/orders`}>Siparişi Görüntüle</Button>
-
-      <Divider />
-
-      <Text
-        style={{
-          color: theme.colors.textDim,
-          fontSize: theme.fontSizes.xs,
-          textAlign: "center" as const,
-          margin: 0,
-        }}
-      >
-        {formatDateTime(orderDate)}
-      </Text>
     </Layout>
   );
 };

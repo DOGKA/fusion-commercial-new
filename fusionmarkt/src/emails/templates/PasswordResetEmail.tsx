@@ -1,11 +1,12 @@
 /**
  * Password Reset Email
  * Sent when user requests password reset
+ * 100% table-based for email client compatibility
  */
 
-import { Link, Text } from "@react-email/components";
+import { Link } from "@react-email/components";
 import { Layout } from "../components/Layout";
-import { Greeting, Paragraph, Button, SmallText, Divider } from "../components/shared";
+import { Greeting, Paragraph, Button, SmallText } from "../components/shared";
 import { theme } from "../styles/theme";
 
 interface PasswordResetEmailProps {
@@ -24,7 +25,7 @@ export const PasswordResetEmail = ({ resetLink, name }: PasswordResetEmailProps)
 
       <Button href={resetLink}>Şifremi Sıfırla</Button>
 
-      <Text
+      <p
         style={{
           color: theme.colors.textDim,
           fontSize: theme.fontSizes.xs,
@@ -32,6 +33,7 @@ export const PasswordResetEmail = ({ resetLink, name }: PasswordResetEmailProps)
           wordBreak: "break-all" as const,
           margin: 0,
           marginTop: theme.spacing[2],
+          fontFamily: theme.fonts.sans,
         }}
       >
         Buton çalışmıyorsa:{" "}
@@ -43,24 +45,23 @@ export const PasswordResetEmail = ({ resetLink, name }: PasswordResetEmailProps)
         >
           {resetLink}
         </Link>
-      </Text>
+      </p>
 
       <SmallText>
         Bu link 1 saat içinde geçerliliğini yitirecektir.
       </SmallText>
 
-      <Divider />
-
-      <Text
+      <p
         style={{
           color: theme.colors.textFaded,
           fontSize: theme.fontSizes.sm,
           textAlign: "center" as const,
           margin: 0,
+          fontFamily: theme.fonts.sans,
         }}
       >
         Eğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.
-      </Text>
+      </p>
     </Layout>
   );
 };

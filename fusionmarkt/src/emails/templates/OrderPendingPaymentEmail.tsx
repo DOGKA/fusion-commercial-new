@@ -11,7 +11,6 @@ import {
   StatusBadge,
   BankInfo,
   Button,
-  Divider,
   SmallText,
 } from "../components/shared";
 import { formatCurrency } from "../utils/mask";
@@ -50,10 +49,8 @@ export const OrderPendingPaymentEmail = ({
         Ödeme onay süreci 1-2 iş günü içerisinde tamamlanır.
       </SmallText>
 
-      <Divider />
-
       <Paragraph muted>
-        Sorularınız için iletisim@fusionmarkt.com adresinden bize ulaşabilirsiniz.
+        Sorularınız için info@fusionmarkt.com adresinden bize ulaşabilirsiniz.
       </Paragraph>
     </Layout>
   );

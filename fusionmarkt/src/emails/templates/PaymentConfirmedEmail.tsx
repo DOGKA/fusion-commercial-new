@@ -10,7 +10,6 @@ import {
   InfoCard,
   StatusBadge,
   Button,
-  Divider,
 } from "../components/shared";
 import { formatCurrency } from "../utils/mask";
 
@@ -40,8 +39,6 @@ export const PaymentConfirmedEmail = ({
       <InfoCard label="Ödenen Tutar" value={formatCurrency(total)} accent />
 
       <Button href="https://fusionmarkt.com/hesabim">Siparişimi Görüntüle</Button>
-
-      <Divider />
 
       <Paragraph muted>
         Siparişiniz hazırlanıyor. Kargoya verildiğinde bilgilendirileceksiniz.

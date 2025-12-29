@@ -1,15 +1,12 @@
 /**
  * Shared Email Components
- * Reusable building blocks for all email templates
+ * 100% table-based for maximum email client compatibility
+ * Section kullanılmıyor - sadece table, tr, td
  */
 
 import {
   Button as EmailButton,
-  Column,
-  Hr,
-  Row,
-  Section,
-  Text,
+  Link,
 } from "@react-email/components";
 import { theme, commonStyles } from "../styles/theme";
 
@@ -22,14 +19,15 @@ interface GreetingProps {
 }
 
 export const Greeting = ({ name }: GreetingProps) => (
-  <Text
+  <p
     style={{
       ...commonStyles.text,
       marginBottom: theme.spacing[4],
+      marginTop: 0,
     }}
   >
     Merhaba{name ? <strong style={{ color: theme.colors.text }}> {name}</strong> : ""},
-  </Text>
+  </p>
 );
 
 interface ParagraphProps {
@@ -38,29 +36,32 @@ interface ParagraphProps {
 }
 
 export const Paragraph = ({ children, muted }: ParagraphProps) => (
-  <Text
+  <p
     style={{
       color: muted ? theme.colors.textFaded : theme.colors.textMuted,
       fontSize: theme.fontSizes.md,
       lineHeight: theme.lineHeights.normal,
       margin: 0,
       marginBottom: theme.spacing[4],
+      fontFamily: theme.fonts.sans,
     }}
   >
     {children}
-  </Text>
+  </p>
 );
 
 export const SmallText = ({ children }: { children: React.ReactNode }) => (
-  <Text
+  <p
     style={{
       ...commonStyles.textSmall,
       marginTop: theme.spacing[4],
+      marginBottom: 0,
       textAlign: "center" as const,
+      fontFamily: theme.fonts.sans,
     }}
   >
     {children}
-  </Text>
+  </p>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -74,14 +75,20 @@ interface ButtonProps {
 }
 
 export const Button = ({ href, children, variant = "primary" }: ButtonProps) => (
-  <Section style={{ textAlign: "center", margin: `${theme.spacing[6]} 0` }}>
-    <EmailButton
-      href={href}
-      style={variant === "primary" ? commonStyles.button : commonStyles.buttonSecondary}
-    >
-      {children}
-    </EmailButton>
-  </Section>
+  <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: `${theme.spacing[6]} 0` }}>
+    <tbody>
+      <tr>
+        <td style={{ textAlign: "center" }}>
+          <EmailButton
+            href={href}
+            style={variant === "primary" ? commonStyles.button : commonStyles.buttonSecondary}
+          >
+            {children}
+          </EmailButton>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -96,31 +103,46 @@ interface InfoCardProps {
 }
 
 export const InfoCard = ({ label, value, mono, accent }: InfoCardProps) => (
-  <Section
+  <table
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    width="100%"
     style={{
-      ...commonStyles.glassPanel,
-      padding: theme.spacing[5],
+      backgroundColor: theme.colors.bgGlass,
+      border: `1px solid ${accent ? theme.colors.borderAccent : theme.colors.border}`,
+      borderRadius: theme.radius.lg,
       marginBottom: theme.spacing[4],
-      textAlign: "center" as const,
-      borderColor: accent ? theme.colors.borderAccent : theme.colors.border,
     }}
   >
-    <Text style={{ ...commonStyles.label, marginBottom: theme.spacing[2] }}>
-      {label}
-    </Text>
-    <Text
-      style={{
-        color: accent ? theme.colors.primary : theme.colors.text,
-        fontSize: mono ? theme.fontSizes.xl : theme.fontSizes.lg,
-        fontWeight: theme.fontWeights.semibold,
-        fontFamily: mono ? theme.fonts.mono : theme.fonts.sans,
-        letterSpacing: mono ? "2px" : "normal",
-        margin: 0,
-      }}
-    >
-      {value}
-    </Text>
-  </Section>
+    <tbody>
+      <tr>
+        <td style={{ padding: theme.spacing[5], textAlign: "center" }}>
+          <p
+            style={{
+              ...commonStyles.label,
+              marginBottom: theme.spacing[2],
+              marginTop: 0,
+            }}
+          >
+            {label}
+          </p>
+          <p
+            style={{
+              color: accent ? theme.colors.primary : theme.colors.text,
+              fontSize: mono ? theme.fontSizes.xl : theme.fontSizes.lg,
+              fontWeight: theme.fontWeights.semibold,
+              fontFamily: mono ? theme.fonts.mono : theme.fonts.sans,
+              letterSpacing: mono ? "2px" : "normal",
+              margin: 0,
+            }}
+          >
+            {value}
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 interface StatusBadgeProps {
@@ -137,21 +159,28 @@ const statusColors = {
 };
 
 export const StatusBadge = ({ label, status }: StatusBadgeProps) => (
-  <Section style={{ textAlign: "center", margin: `${theme.spacing[4]} 0` }}>
-    <span
-      style={{
-        display: "inline-block",
-        backgroundColor: statusColors[status].bg,
-        color: statusColors[status].text,
-        fontSize: theme.fontSizes.sm,
-        fontWeight: theme.fontWeights.semibold,
-        padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
-        borderRadius: theme.radius.full,
-      }}
-    >
-      {label}
-    </span>
-  </Section>
+  <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: `${theme.spacing[4]} 0` }}>
+    <tbody>
+      <tr>
+        <td style={{ textAlign: "center" }}>
+          <span
+            style={{
+              display: "inline-block",
+              backgroundColor: statusColors[status].bg,
+              color: statusColors[status].text,
+              fontSize: theme.fontSizes.sm,
+              fontWeight: theme.fontWeights.semibold,
+              padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
+              borderRadius: theme.radius.full,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            {label}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -178,53 +207,67 @@ export const AddressDisplay = ({
   postalCode,
   phone,
 }: AddressDisplayProps) => (
-  <Section
+  <table
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    width="100%"
     style={{
-      ...commonStyles.glassPanel,
-      padding: theme.spacing[4],
+      backgroundColor: theme.colors.bgGlass,
+      border: `1px solid ${theme.colors.border}`,
+      borderRadius: theme.radius.lg,
       marginBottom: theme.spacing[3],
     }}
   >
-    <Text
-      style={{
-        ...commonStyles.label,
-        marginBottom: theme.spacing[3],
-        color: theme.colors.textFaded,
-      }}
-    >
-      {title}
-    </Text>
-    <Text
-      style={{
-        color: theme.colors.text,
-        fontSize: theme.fontSizes.base,
-        fontWeight: theme.fontWeights.medium,
-        margin: 0,
-        marginBottom: theme.spacing[1],
-      }}
-    >
-      {name}
-    </Text>
-    <Text
-      style={{
-        color: theme.colors.textMuted,
-        fontSize: theme.fontSizes.sm,
-        lineHeight: theme.lineHeights.relaxed,
-        margin: 0,
-      }}
-    >
-      {address}
-      <br />
-      {district}/{city}
-      {postalCode && ` - ${postalCode}`}
-      {phone && (
-        <>
-          <br />
-          Tel: {phone}
-        </>
-      )}
-    </Text>
-  </Section>
+    <tbody>
+      <tr>
+        <td style={{ padding: theme.spacing[4] }}>
+          <p
+            style={{
+              ...commonStyles.label,
+              marginBottom: theme.spacing[3],
+              marginTop: 0,
+              color: theme.colors.textFaded,
+            }}
+          >
+            {title}
+          </p>
+          <p
+            style={{
+              color: theme.colors.text,
+              fontSize: theme.fontSizes.base,
+              fontWeight: theme.fontWeights.medium,
+              margin: 0,
+              marginBottom: theme.spacing[1],
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            {name}
+          </p>
+          <p
+            style={{
+              color: theme.colors.textMuted,
+              fontSize: theme.fontSizes.sm,
+              lineHeight: theme.lineHeights.relaxed,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            {address}
+            <br />
+            {district}/{city}
+            {postalCode && ` - ${postalCode}`}
+            {phone && (
+              <>
+                <br />
+                Tel: {phone}
+              </>
+            )}
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -238,40 +281,47 @@ interface OrderItemProps {
 }
 
 export const OrderItem = ({ name, quantity, price }: OrderItemProps) => (
-  <Row style={{ marginBottom: theme.spacing[3] }}>
-    <Column style={{ width: "60%" }}>
-      <Text
-        style={{
-          color: theme.colors.text,
-          fontSize: theme.fontSizes.sm,
-          margin: 0,
-        }}
-      >
-        {name}
-      </Text>
-      <Text
-        style={{
-          color: theme.colors.textFaded,
-          fontSize: theme.fontSizes.xs,
-          margin: 0,
-        }}
-      >
-        Adet: {quantity}
-      </Text>
-    </Column>
-    <Column style={{ width: "40%", textAlign: "right" as const }}>
-      <Text
-        style={{
-          color: theme.colors.text,
-          fontSize: theme.fontSizes.sm,
-          fontWeight: theme.fontWeights.medium,
-          margin: 0,
-        }}
-      >
-        {price}
-      </Text>
-    </Column>
-  </Row>
+  <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ marginBottom: theme.spacing[3] }}>
+    <tbody>
+      <tr>
+        <td style={{ width: "60%", verticalAlign: "top" }}>
+          <p
+            style={{
+              color: theme.colors.text,
+              fontSize: theme.fontSizes.sm,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            {name}
+          </p>
+          <p
+            style={{
+              color: theme.colors.textFaded,
+              fontSize: theme.fontSizes.xs,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            Adet: {quantity}
+          </p>
+        </td>
+        <td style={{ width: "40%", textAlign: "right", verticalAlign: "top" }}>
+          <p
+            style={{
+              color: theme.colors.text,
+              fontSize: theme.fontSizes.sm,
+              fontWeight: theme.fontWeights.medium,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            {price}
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 interface OrderSummaryProps {
@@ -282,71 +332,78 @@ interface OrderSummaryProps {
 }
 
 export const OrderSummary = ({ subtotal, shipping, discount, total }: OrderSummaryProps) => (
-  <Section
-    style={{
-      borderTop: `1px solid ${theme.colors.border}`,
-      paddingTop: theme.spacing[4],
-      marginTop: theme.spacing[4],
-    }}
-  >
-    <Row style={{ marginBottom: theme.spacing[2] }}>
-      <Column>
-        <Text style={{ ...commonStyles.textSmall }}>Ara Toplam</Text>
-      </Column>
-      <Column style={{ textAlign: "right" as const }}>
-        <Text style={{ ...commonStyles.textSmall }}>{subtotal}</Text>
-      </Column>
-    </Row>
-    <Row style={{ marginBottom: theme.spacing[2] }}>
-      <Column>
-        <Text style={{ ...commonStyles.textSmall }}>Kargo</Text>
-      </Column>
-      <Column style={{ textAlign: "right" as const }}>
-        <Text style={{ ...commonStyles.textSmall }}>{shipping}</Text>
-      </Column>
-    </Row>
-    {discount && (
-      <Row style={{ marginBottom: theme.spacing[2] }}>
-        <Column>
-          <Text style={{ ...commonStyles.textSmall, color: theme.colors.success }}>
-            İndirim
-          </Text>
-        </Column>
-        <Column style={{ textAlign: "right" as const }}>
-          <Text style={{ ...commonStyles.textSmall, color: theme.colors.success }}>
-            -{discount}
-          </Text>
-        </Column>
-      </Row>
-    )}
-    <Hr style={{ borderColor: theme.colors.border, margin: `${theme.spacing[3]} 0` }} />
-    <Row>
-      <Column>
-        <Text
-          style={{
-            color: theme.colors.text,
-            fontSize: theme.fontSizes.md,
-            fontWeight: theme.fontWeights.semibold,
-            margin: 0,
-          }}
-        >
-          Toplam
-        </Text>
-      </Column>
-      <Column style={{ textAlign: "right" as const }}>
-        <Text
-          style={{
-            color: theme.colors.primary,
-            fontSize: theme.fontSizes.lg,
-            fontWeight: theme.fontWeights.bold,
-            margin: 0,
-          }}
-        >
-          {total}
-        </Text>
-      </Column>
-    </Row>
-  </Section>
+  <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ marginTop: theme.spacing[4] }}>
+    <tbody>
+      {/* Divider */}
+      <tr>
+        <td colSpan={2} style={{ borderTop: `1px solid ${theme.colors.border}`, paddingTop: theme.spacing[4] }}>
+        </td>
+      </tr>
+      {/* Ara Toplam */}
+      <tr>
+        <td>
+          <p style={{ ...commonStyles.textSmall, margin: 0, marginBottom: theme.spacing[2] }}>Ara Toplam</p>
+        </td>
+        <td style={{ textAlign: "right" }}>
+          <p style={{ ...commonStyles.textSmall, margin: 0, marginBottom: theme.spacing[2] }}>{subtotal}</p>
+        </td>
+      </tr>
+      {/* Kargo */}
+      <tr>
+        <td>
+          <p style={{ ...commonStyles.textSmall, margin: 0, marginBottom: theme.spacing[2] }}>Kargo</p>
+        </td>
+        <td style={{ textAlign: "right" }}>
+          <p style={{ ...commonStyles.textSmall, margin: 0, marginBottom: theme.spacing[2] }}>{shipping}</p>
+        </td>
+      </tr>
+      {/* İndirim */}
+      {discount && (
+        <tr>
+          <td>
+            <p style={{ ...commonStyles.textSmall, margin: 0, marginBottom: theme.spacing[2], color: theme.colors.success }}>İndirim</p>
+          </td>
+          <td style={{ textAlign: "right" }}>
+            <p style={{ ...commonStyles.textSmall, margin: 0, marginBottom: theme.spacing[2], color: theme.colors.success }}>-{discount}</p>
+          </td>
+        </tr>
+      )}
+      {/* Divider before total */}
+      <tr>
+        <td colSpan={2} style={{ borderTop: `1px solid ${theme.colors.border}`, paddingTop: theme.spacing[3] }}>
+        </td>
+      </tr>
+      {/* Toplam */}
+      <tr>
+        <td>
+          <p
+            style={{
+              color: theme.colors.text,
+              fontSize: theme.fontSizes.md,
+              fontWeight: theme.fontWeights.semibold,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            Toplam
+          </p>
+        </td>
+        <td style={{ textAlign: "right" }}>
+          <p
+            style={{
+              color: theme.colors.primary,
+              fontSize: theme.fontSizes.lg,
+              fontWeight: theme.fontWeights.bold,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            {total}
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -359,44 +416,53 @@ interface TrackingInfoProps {
 }
 
 export const TrackingInfo = ({ trackingNumber, carrier }: TrackingInfoProps) => (
-  <Section
+  <table
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    width="100%"
     style={{
       backgroundColor: "rgba(139, 92, 246, 0.08)",
       border: `1px solid rgba(139, 92, 246, 0.2)`,
       borderRadius: theme.radius.lg,
-      padding: theme.spacing[5],
-      textAlign: "center" as const,
       marginBottom: theme.spacing[4],
     }}
   >
-    <Text style={{ ...commonStyles.label, marginBottom: theme.spacing[2] }}>
-      Kargo Takip Numarası
-    </Text>
-    <Text
-      style={{
-        color: theme.colors.purple,
-        fontSize: theme.fontSizes.lg,
-        fontWeight: theme.fontWeights.bold,
-        fontFamily: theme.fonts.mono,
-        letterSpacing: "2px",
-        margin: 0,
-      }}
-    >
-      {trackingNumber}
-    </Text>
-    {carrier && (
-      <Text
-        style={{
-          color: theme.colors.textMuted,
-          fontSize: theme.fontSizes.sm,
-          marginTop: theme.spacing[3],
-          marginBottom: 0,
-        }}
-      >
-        Kargo: <strong>{carrier}</strong>
-      </Text>
-    )}
-  </Section>
+    <tbody>
+      <tr>
+        <td style={{ padding: theme.spacing[5], textAlign: "center" }}>
+          <p style={{ ...commonStyles.label, marginBottom: theme.spacing[2], marginTop: 0 }}>
+            Kargo Takip Numarası
+          </p>
+          <p
+            style={{
+              color: theme.colors.purple,
+              fontSize: theme.fontSizes.lg,
+              fontWeight: theme.fontWeights.bold,
+              fontFamily: theme.fonts.mono,
+              letterSpacing: "2px",
+              margin: 0,
+            }}
+          >
+            {trackingNumber}
+          </p>
+          {carrier && (
+            <p
+              style={{
+                color: theme.colors.textMuted,
+                fontSize: theme.fontSizes.sm,
+                marginTop: theme.spacing[3],
+                marginBottom: 0,
+                fontFamily: theme.fonts.sans,
+              }}
+            >
+              Kargo: <strong>{carrier}</strong>
+            </p>
+          )}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -408,105 +474,128 @@ interface BankInfoProps {
 }
 
 export const BankInfo = ({ orderNumber }: BankInfoProps) => (
-  <Section
+  <table
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    width="100%"
     style={{
       backgroundColor: "rgba(245, 158, 11, 0.06)",
       border: `1px solid rgba(245, 158, 11, 0.2)`,
       borderRadius: theme.radius.lg,
-      padding: theme.spacing[5],
       marginBottom: theme.spacing[4],
     }}
   >
-    <Text
-      style={{
-        color: theme.colors.warning,
-        fontSize: theme.fontSizes.base,
-        fontWeight: theme.fontWeights.semibold,
-        marginBottom: theme.spacing[4],
-        marginTop: 0,
-      }}
-    >
-      Havale / EFT Bilgileri
-    </Text>
-    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-      <tbody>
-        <tr>
-          <td
+    <tbody>
+      <tr>
+        <td style={{ padding: theme.spacing[5] }}>
+          <p
+            style={{
+              color: theme.colors.warning,
+              fontSize: theme.fontSizes.base,
+              fontWeight: theme.fontWeights.semibold,
+              marginBottom: theme.spacing[4],
+              marginTop: 0,
+              fontFamily: theme.fonts.sans,
+            }}
+          >
+            Havale / EFT Bilgileri
+          </p>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <tbody>
+              <tr>
+                <td
+                  style={{
+                    color: theme.colors.textFaded,
+                    fontSize: theme.fontSizes.sm,
+                    padding: `${theme.spacing[1]} 0`,
+                    width: "100px",
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Banka
+                </td>
+                <td
+                  style={{
+                    color: theme.colors.text,
+                    fontSize: theme.fontSizes.sm,
+                    padding: `${theme.spacing[1]} 0`,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Ziraat Bankası
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    color: theme.colors.textFaded,
+                    fontSize: theme.fontSizes.sm,
+                    padding: `${theme.spacing[1]} 0`,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Hesap Sahibi
+                </td>
+                <td
+                  style={{
+                    color: theme.colors.text,
+                    fontSize: theme.fontSizes.sm,
+                    padding: `${theme.spacing[1]} 0`,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  FusionMarkt A.Ş.
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    color: theme.colors.textFaded,
+                    fontSize: theme.fontSizes.sm,
+                    padding: `${theme.spacing[1]} 0`,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  IBAN
+                </td>
+                <td
+                  style={{
+                    color: theme.colors.text,
+                    fontSize: theme.fontSizes.sm,
+                    fontFamily: theme.fonts.mono,
+                    padding: `${theme.spacing[1]} 0`,
+                  }}
+                >
+                  TR00 0000 0000 0000 0000 0000 00
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          {/* Divider */}
+          <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: `${theme.spacing[4]} 0` }}>
+            <tbody>
+              <tr>
+                <td style={{ borderTop: "1px solid rgba(255, 255, 255, 0.08)", height: "1px" }}>&nbsp;</td>
+              </tr>
+            </tbody>
+          </table>
+          <p
             style={{
               color: theme.colors.textFaded,
-              fontSize: theme.fontSizes.sm,
-              padding: `${theme.spacing[1]} 0`,
-              width: "100px",
+              fontSize: theme.fontSizes.xs,
+              textAlign: "center" as const,
+              margin: 0,
+              fontFamily: theme.fonts.sans,
             }}
           >
-            Banka
-          </td>
-          <td
-            style={{
-              color: theme.colors.text,
-              fontSize: theme.fontSizes.sm,
-              padding: `${theme.spacing[1]} 0`,
-            }}
-          >
-            Ziraat Bankası
-          </td>
-        </tr>
-        <tr>
-          <td
-            style={{
-              color: theme.colors.textFaded,
-              fontSize: theme.fontSizes.sm,
-              padding: `${theme.spacing[1]} 0`,
-            }}
-          >
-            Hesap Sahibi
-          </td>
-          <td
-            style={{
-              color: theme.colors.text,
-              fontSize: theme.fontSizes.sm,
-              padding: `${theme.spacing[1]} 0`,
-            }}
-          >
-            FusionMarkt A.Ş.
-          </td>
-        </tr>
-        <tr>
-          <td
-            style={{
-              color: theme.colors.textFaded,
-              fontSize: theme.fontSizes.sm,
-              padding: `${theme.spacing[1]} 0`,
-            }}
-          >
-            IBAN
-          </td>
-          <td
-            style={{
-              color: theme.colors.text,
-              fontSize: theme.fontSizes.sm,
-              fontFamily: theme.fonts.mono,
-              padding: `${theme.spacing[1]} 0`,
-            }}
-          >
-            TR00 0000 0000 0000 0000 0000 00
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <Hr style={{ borderColor: "rgba(255, 255, 255, 0.08)", margin: `${theme.spacing[4]} 0` }} />
-    <Text
-      style={{
-        color: theme.colors.textFaded,
-        fontSize: theme.fontSizes.xs,
-        textAlign: "center" as const,
-        margin: 0,
-      }}
-    >
-      Açıklama kısmına sipariş numaranızı yazınız:{" "}
-      <strong style={{ color: theme.colors.warning }}>{orderNumber}</strong>
-    </Text>
-  </Section>
+            Açıklama kısmına sipariş numaranızı yazınız:{" "}
+            <strong style={{ color: theme.colors.warning }}>{orderNumber}</strong>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -514,10 +603,53 @@ export const BankInfo = ({ orderNumber }: BankInfoProps) => (
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const Divider = () => (
-  <Hr
+  <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: `${theme.spacing[6]} 0` }}>
+    <tbody>
+      <tr>
+        <td
+          style={{
+            borderTop: `1px solid ${theme.colors.border}`,
+            height: "1px",
+            lineHeight: "1px",
+            fontSize: "1px",
+          }}
+        >
+          &nbsp;
+        </td>
+      </tr>
+    </tbody>
+  </table>
+);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GLASS PANEL (for wrapping content sections)
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface GlassPanelProps {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}
+
+export const GlassPanel = ({ children, style }: GlassPanelProps) => (
+  <table
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    width="100%"
     style={{
-      borderColor: theme.colors.border,
-      margin: `${theme.spacing[6]} 0`,
+      backgroundColor: theme.colors.bgGlass,
+      border: `1px solid ${theme.colors.border}`,
+      borderRadius: theme.radius.lg,
+      marginBottom: theme.spacing[4],
+      ...style,
     }}
-  />
+  >
+    <tbody>
+      <tr>
+        <td style={{ padding: theme.spacing[4] }}>
+          {children}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
