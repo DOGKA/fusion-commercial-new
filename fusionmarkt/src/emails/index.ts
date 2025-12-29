@@ -17,7 +17,7 @@ export { AdminNewOrderEmail } from "./templates/AdminNewOrderEmail";
 
 // Components
 export { Layout } from "./components/Layout";
-export { Logo, LogoInline } from "./components/Logo";
+export { LOGO_URL, LOGO_WIDTH, LOGO_HEIGHT, LogoInline } from "./components/Logo";
 export * from "./components/shared";
 
 // Utils
