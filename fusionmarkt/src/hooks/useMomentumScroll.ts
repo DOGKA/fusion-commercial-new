@@ -4,7 +4,7 @@ import { useRef, useEffect, useCallback } from "react";
 
 interface MomentumScrollOptions {
   autoScroll?: boolean;
-  autoScrollSpeed?: number;
+  autoScrollSpeed?: number; // px/saniye (ör: 60 = saniyede 60px)
   pauseOnHover?: boolean;
   friction?: number;
   pauseDuration?: number;
@@ -45,11 +45,11 @@ function removeHud() {
 export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const {
     autoScroll = true,
-    autoScrollSpeed = 0.5,
+    autoScrollSpeed = 60, // px/saniye - iOS Safari uyumlu (60px/sn = akıcı)
     pauseOnHover = true,
     friction = 0.92,
     pauseDuration = 2000,
-    debug = true, // Geçici olarak true - sorunu bulduktan sonra false yap
+    debug = false, // Sorun çözüldü - debug kapalı
   } = options;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,6 +60,13 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const retryIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isRunning = useRef(false);
   const retryCount = useRef(0);
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FLOAT BİRİKİM - iOS Safari sub-pixel scroll fix
+  // Float pozisyon tutup Math.round ile integer set ediyoruz
+  // ═══════════════════════════════════════════════════════════════════════════
+  const posRef = useRef(0);        // Float pozisyon birikimi
+  const lastTickRef = useRef(0);   // Son tick zamanı (performance.now)
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -137,7 +144,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     }
   }, []);
 
-  // autoScrollSpeed'i de ref'te sakla
+  // autoScrollSpeed'i de ref'te sakla (px/saniye)
   const autoScrollSpeedRef = useRef(autoScrollSpeed);
   
   // Ref'i useEffect içinde güncelle (React 19 kuralı)
@@ -145,7 +152,9 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     autoScrollSpeedRef.current = autoScrollSpeed;
   }, [autoScrollSpeed]);
 
-  // Start auto-scroll - SADECE scrollable ise başla
+  // ═══════════════════════════════════════════════════════════════════════════
+  // START AUTO-SCROLL - Float birikim + dt bazlı (iOS Safari uyumlu)
+  // ═══════════════════════════════════════════════════════════════════════════
   const startAutoScroll = useCallback(() => {
     // Zaten çalışıyorsa tekrar başlatma
     if (isRunning.current) return false;
@@ -168,6 +177,10 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     isRunning.current = true;
     isPaused.current = false;
     
+    // Float birikim başlat
+    posRef.current = container.scrollLeft;
+    lastTickRef.current = performance.now();
+    
     intervalRef.current = setInterval(() => {
       const c = containerRef.current;
       
@@ -178,17 +191,34 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
       const maxScroll = c.scrollWidth - c.clientWidth;
       if (maxScroll <= 0) return;
       
-      if (c.scrollLeft >= maxScroll - 1) {
-        c.scrollLeft = 0;
-      } else {
-        c.scrollLeft += autoScrollSpeedRef.current;
+      // ═══════════════════════════════════════════════════════════════════════
+      // DT BAZLI SCROLL - Frame-rate bağımsız, iOS Safari sub-pixel fix
+      // ═══════════════════════════════════════════════════════════════════════
+      const now = performance.now();
+      const dt = (now - lastTickRef.current) / 1000; // saniye cinsinden
+      lastTickRef.current = now;
+      
+      // Float pozisyonu güncelle (px/saniye * saniye = px)
+      posRef.current += autoScrollSpeedRef.current * dt;
+      
+      // Loop - başa dön
+      if (posRef.current >= maxScroll) {
+        posRef.current = 0;
+      }
+      
+      // ✅ KRİTİK: Math.round ile integer set et (iOS Safari sub-pixel fix)
+      const nextScrollLeft = Math.round(posRef.current);
+      
+      // Sadece değiştiyse set et (gereksiz DOM güncellemelerini önle)
+      if (c.scrollLeft !== nextScrollLeft) {
+        c.scrollLeft = nextScrollLeft;
       }
       
       // Debug her tick'te güncelle
       if (debug && retryCount.current < 5) {
         debugTick();
       }
-    }, 16);
+    }, 16); // ~60fps
     
     return true; // Başarıyla başladı
   }, [debug, debugTick]); // autoScroll ve autoScrollSpeed artık ref'ten okunuyor
@@ -307,6 +337,10 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const animateMomentum = () => {
       if (!containerRef.current || Math.abs(velocity.current) < 0.5) {
         velocity.current = 0;
+        // posRef'i senkronize et (auto-scroll kaldığı yerden devam etsin)
+        if (containerRef.current) {
+          posRef.current = containerRef.current.scrollLeft;
+        }
         scheduleResume();
         return;
       }
@@ -382,6 +416,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     if (scrollDirection.current === "horizontal") {
       isDragging.current = false;
       
+      // posRef'i senkronize et (auto-scroll kaldığı yerden devam etsin)
+      if (containerRef.current) {
+        posRef.current = containerRef.current.scrollLeft;
+      }
+      
       if (Math.abs(velocity.current) > 1) {
         startMomentumScroll();
       } else {
@@ -439,6 +478,9 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     isDragging.current = false;
     containerRef.current.style.cursor = "grab";
     containerRef.current.style.userSelect = "";
+    
+    // posRef'i senkronize et (auto-scroll kaldığı yerden devam etsin)
+    posRef.current = containerRef.current.scrollLeft;
     
     if (Math.abs(velocity.current) > 1) {
       startMomentumScroll();
