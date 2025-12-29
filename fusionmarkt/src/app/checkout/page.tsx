@@ -201,7 +201,7 @@ export default function CheckoutPage() {
         productId: item.productId,
         quantity: item.quantity,
         price: item.price,
-        salePrice: item.salePrice,
+        salePrice: item.originalPrice ? item.price : undefined,
       }));
 
       const res = await fetch("/api/public/validate-coupon", {
