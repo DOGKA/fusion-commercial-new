@@ -2,9 +2,18 @@
 
 import { useRef, useEffect, useCallback } from "react";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// LERP (Linear Interpolation) - Profesyonel smooth animasyon
+// Apple, Stripe, Vercel gibi sitelerde kullanılır
+// ═══════════════════════════════════════════════════════════════════════════
+function lerp(current: number, target: number, factor: number): number {
+  return current + (target - current) * factor;
+}
+
 interface MomentumScrollOptions {
   autoScroll?: boolean;
-  autoScrollSpeed?: number; // px/saniye (ör: 60 = saniyede 60px)
+  autoScrollSpeed?: number; // px/saniye (ör: 50 = saniyede 50px)
+  smoothness?: number; // Lerp faktörü (0.05-0.15 arası, düşük = daha yumuşak)
   pauseOnHover?: boolean;
   friction?: number;
   pauseDuration?: number;
@@ -45,7 +54,8 @@ function removeHud() {
 export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const {
     autoScroll = true,
-    autoScrollSpeed = 60, // px/saniye - iOS Safari uyumlu, requestAnimationFrame ile akıcı
+    autoScrollSpeed = 50, // px/saniye - yavaş ve akıcı
+    smoothness = 0.08, // Lerp faktörü - düşük = daha yumuşak (0.05-0.15)
     pauseOnHover = true,
     friction = 0.92,
     pauseDuration = 2000,
@@ -63,11 +73,16 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
   const retryCount = useRef(0);
   
   // ═══════════════════════════════════════════════════════════════════════════
-  // FLOAT BİRİKİM - iOS Safari sub-pixel scroll fix
-  // Float pozisyon tutup Math.round ile integer set ediyoruz
+  // LERP SCROLL - Profesyonel smooth animasyon (Apple-quality)
+  // targetScroll: Hedef pozisyon (dt ile artırılır)
+  // currentScroll: Mevcut görüntülenen pozisyon (lerp ile hedefe yaklaşır)
   // ═══════════════════════════════════════════════════════════════════════════
-  const posRef = useRef(0);        // Float pozisyon birikimi
-  const lastTickRef = useRef(0);   // Son tick zamanı (performance.now)
+  const targetScrollRef = useRef(0);   // Hedef scroll pozisyonu
+  const currentScrollRef = useRef(0);  // Mevcut (lerp ile yumuşatılmış) pozisyon
+  const lastTickRef = useRef(0);       // Son tick zamanı (performance.now)
+  
+  // GPU Hızlandırma ref'i
+  const gpuHintApplied = useRef(false);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -159,8 +174,28 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     autoScrollSpeedRef.current = autoScrollSpeed;
   }, [autoScrollSpeed]);
 
+  // Smoothness ref
+  const smoothnessRef = useRef(smoothness);
+  useEffect(() => {
+    smoothnessRef.current = smoothness;
+  }, [smoothness]);
+
   // ═══════════════════════════════════════════════════════════════════════════
-  // START AUTO-SCROLL - requestAnimationFrame ile akıcı scroll (titreşimsiz)
+  // GPU HİNT UYGULA - Container mount olunca
+  // ═══════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    const c = containerRef.current;
+    if (c && !gpuHintApplied.current) {
+      // GPU hızlandırma için CSS hint'ler
+      c.style.willChange = "scroll-position";
+      c.style.transform = "translateZ(0)"; // GPU layer oluştur
+      c.style.backfaceVisibility = "hidden";
+      gpuHintApplied.current = true;
+    }
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // START AUTO-SCROLL - LERP ile profesyonel smooth scroll (Apple-quality)
   // ═══════════════════════════════════════════════════════════════════════════
   const startAutoScroll = useCallback(() => {
     // Zaten çalışıyorsa tekrar başlatma
@@ -179,12 +214,17 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     isRunning.current = true;
     isPaused.current = false;
     
-    // Float birikim başlat
-    posRef.current = container.scrollLeft;
+    // Lerp scroll başlat - mevcut pozisyondan başla
+    const initialScroll = container.scrollLeft;
+    targetScrollRef.current = initialScroll;
+    currentScrollRef.current = initialScroll;
     lastTickRef.current = performance.now();
     
     // ═══════════════════════════════════════════════════════════════════════
-    // requestAnimationFrame loop - tarayıcı render döngüsüyle senkronize
+    // LERP ANIMATION LOOP - Profesyonel smooth scroll
+    // 1. Target pozisyonu dt ile artır (hedef)
+    // 2. Current pozisyonu lerp ile target'a yaklaştır (yumuşak geçiş)
+    // 3. scrollLeft'e current'ı yaz
     // ═══════════════════════════════════════════════════════════════════════
     const tick = () => {
       if (!isRunning.current) return;
@@ -196,9 +236,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
         return;
       }
       
-      // Pause veya drag durumunda sadece bekle
+      // Pause veya drag durumunda: current'ı actual scroll'a senkronize et
       if (isPaused.current || isDragging.current) {
-        lastTickRef.current = performance.now(); // dt sıfırla
+        currentScrollRef.current = c.scrollLeft;
+        targetScrollRef.current = c.scrollLeft;
+        lastTickRef.current = performance.now();
         autoScrollRafRef.current = requestAnimationFrame(tick);
         return;
       }
@@ -214,16 +256,24 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
       const dt = (now - lastTickRef.current) / 1000; // saniye cinsinden
       lastTickRef.current = now;
       
-      // Float pozisyonu güncelle (px/saniye * saniye = px)
-      posRef.current += autoScrollSpeedRef.current * dt;
+      // 1️⃣ TARGET güncelle (hedef pozisyon - dt ile linear artış)
+      targetScrollRef.current += autoScrollSpeedRef.current * dt;
       
       // Loop - başa dön
-      if (posRef.current >= maxScroll) {
-        posRef.current = 0;
+      if (targetScrollRef.current >= maxScroll) {
+        targetScrollRef.current = 0;
+        currentScrollRef.current = 0; // Reset için current'ı da sıfırla
       }
       
-      // ✅ KRİTİK: Math.round ile integer set et (iOS Safari sub-pixel fix)
-      const nextScrollLeft = Math.round(posRef.current);
+      // 2️⃣ CURRENT güncelle - LERP ile yumuşak geçiş
+      currentScrollRef.current = lerp(
+        currentScrollRef.current,
+        targetScrollRef.current,
+        smoothnessRef.current
+      );
+      
+      // 3️⃣ scrollLeft'e yaz - Math.round ile integer (iOS Safari fix)
+      const nextScrollLeft = Math.round(currentScrollRef.current);
       
       // Sadece değiştiyse set et (gereksiz DOM güncellemelerini önle)
       if (c.scrollLeft !== nextScrollLeft) {
@@ -243,7 +293,7 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     autoScrollRafRef.current = requestAnimationFrame(tick);
     
     return true; // Başarıyla başladı
-  }, [debug, debugTick]); // autoScroll ve autoScrollSpeed artık ref'ten okunuyor
+  }, [debug, debugTick]); // autoScroll, autoScrollSpeed, smoothness artık ref'ten okunuyor
 
   // Schedule resume after user interaction
   const scheduleResume = useCallback(() => {
@@ -359,9 +409,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     const animateMomentum = () => {
       if (!containerRef.current || Math.abs(velocity.current) < 0.5) {
         velocity.current = 0;
-        // posRef'i senkronize et (auto-scroll kaldığı yerden devam etsin)
+        // Lerp ref'leri senkronize et (auto-scroll kaldığı yerden devam etsin)
         if (containerRef.current) {
-          posRef.current = containerRef.current.scrollLeft;
+          const pos = containerRef.current.scrollLeft;
+          currentScrollRef.current = pos;
+          targetScrollRef.current = pos;
         }
         scheduleResume();
         return;
@@ -438,9 +490,11 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     if (scrollDirection.current === "horizontal") {
       isDragging.current = false;
       
-      // posRef'i senkronize et (auto-scroll kaldığı yerden devam etsin)
+      // Lerp ref'leri senkronize et (auto-scroll kaldığı yerden devam etsin)
       if (containerRef.current) {
-        posRef.current = containerRef.current.scrollLeft;
+        const pos = containerRef.current.scrollLeft;
+        currentScrollRef.current = pos;
+        targetScrollRef.current = pos;
       }
       
       if (Math.abs(velocity.current) > 1) {
@@ -501,8 +555,10 @@ export function useMomentumScroll(options: MomentumScrollOptions = {}) {
     containerRef.current.style.cursor = "grab";
     containerRef.current.style.userSelect = "";
     
-    // posRef'i senkronize et (auto-scroll kaldığı yerden devam etsin)
-    posRef.current = containerRef.current.scrollLeft;
+    // Lerp ref'leri senkronize et (auto-scroll kaldığı yerden devam etsin)
+    const pos = containerRef.current.scrollLeft;
+    currentScrollRef.current = pos;
+    targetScrollRef.current = pos;
     
     if (Math.abs(velocity.current) > 1) {
       startMomentumScroll();
