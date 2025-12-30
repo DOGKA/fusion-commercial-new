@@ -30,6 +30,8 @@ export const Layout = ({ preview, children }: LayoutProps) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="color-scheme" content="light only" />
+        <meta name="supported-color-schemes" content="light only" />
         <style>{`
           /* Reset */
           body, table, td, p, a, li, blockquote {
@@ -97,11 +99,7 @@ export const Layout = ({ preview, children }: LayoutProps) => {
               backgroundColor: theme.colors.bgCard,
               border: `1px solid ${theme.colors.border}`,
               borderRadius: theme.radius.xl,
-              boxShadow: `
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
-                0 0 0 1px rgba(255, 255, 255, 0.02),
-                0 20px 50px -12px rgba(0, 0, 0, 0.5)
-              `,
+              boxShadow: "0 4px 24px -4px rgba(0, 0, 0, 0.08)",
             }}
           >
             <tbody>

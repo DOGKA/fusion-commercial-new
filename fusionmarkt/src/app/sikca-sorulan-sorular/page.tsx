@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { 
   HelpCircle,
@@ -14,206 +14,44 @@ import {
   MessageCircle,
   Phone,
   Mail,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 
-// FAQ Categories
-const categories = [
-  { 
-    id: "all", 
-    name: "Tümünü Göster", 
-    icon: HelpCircle,
-    color: "var(--fusion-primary)"
-  },
-  { 
-    id: "iade", 
-    name: "İade, Değişim ve Teknik Destek", 
-    icon: RefreshCcw,
-    color: "var(--fusion-error)"
-  },
-  { 
-    id: "odeme", 
-    name: "Ödeme İşlemleri ve Faturalandırma", 
-    icon: CreditCard,
-    color: "var(--fusion-success)"
-  },
-  { 
-    id: "siparis", 
-    name: "Sipariş ve Kargo İşlemleri", 
-    icon: Truck,
-    color: "var(--fusion-warning)"
-  },
-  { 
-    id: "uyelik", 
-    name: "Üyelik ve Hesap Yönetimi", 
-    icon: User,
-    color: "var(--fusion-info)"
-  },
-];
+// Icon mapping
+const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
+  RefreshCcw,
+  CreditCard,
+  Truck,
+  User,
+  HelpCircle,
+};
 
-// FAQ Data
-const faqData = [
-  // İade, Değişim ve Teknik Destek
-  {
-    id: 1,
-    category: "iade",
-    question: "Değişim yapmak için ne yapmalıyım?",
-    answer: "Değişim için ürünü iade ederek, ardından yeni bir sipariş oluşturmanız gerekir. İade ve yeniden sipariş işlemleri ayrı olarak gerçekleştirilir."
-  },
-  {
-    id: 2,
-    category: "iade",
-    question: "Hangi ürünlerde iade yapılamaz?",
-    answer: "Kullanılmış, ambalajı açılmış ve hijyenik ürünlerin iadesi kabul edilmez. Ayrıntılı bilgi için iade politikamıza göz atabilirsiniz."
-  },
-  {
-    id: 3,
-    category: "iade",
-    question: "İade işlemi nasıl yapılır?",
-    answer: '"Hesabım > Siparişler" bölümünden iade talebi oluşturabilirsiniz. Talebiniz onaylandıktan sonra size verilen kargo kodu ile ürünü gönderebilirsiniz.'
-  },
-  {
-    id: 4,
-    category: "iade",
-    question: "Kargo ücreti iade ediliyor mu?",
-    answer: "İade işlemlerinde ürünün kargo ücreti iade edilmez. Ancak hatalı veya kusurlu ürünlerde kargo ücreti tarafımızdan karşılanır."
-  },
-  {
-    id: 5,
-    category: "iade",
-    question: "Teknik sorunlarla ilgili nasıl destek alabilirim?",
-    answer: "Teknik destek için WhatsApp veya telefon üzerinden +90 (850) 840 6160 ve +1 (302) 918-4817 numaralı hatlardan bize ulaşabilirsiniz."
-  },
-  {
-    id: 6,
-    category: "iade",
-    question: "Ürünlerim için garanti belgesi kayboldu, ne yapmalıyım?",
-    answer: "Satın alma geçmişiniz üzerinden ürününüzün garanti süresini doğrulamak için bizimle iletişime geçebilirsiniz."
-  },
+interface FaqCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
 
-  // Ödeme İşlemleri ve Faturalandırma
-  {
-    id: 7,
-    category: "odeme",
-    question: "Hangi ödeme yöntemlerini kullanabilirim?",
-    answer: "Kredi kartı, banka kartı ve havale/EFT ödeme yöntemlerini tercih edebilirsiniz. Taksit seçenekleri, bankanızın kampanyalarına göre değişiklik gösterebilir."
-  },
-  {
-    id: 8,
-    category: "odeme",
-    question: "İndirim kuponu ödeme sırasında çalışmadı, ne yapabilirim?",
-    answer: "Kuponun geçerlilik tarihini ve koşullarını kontrol edin. Sorun devam ederse destek@fusionmarkt.com adresine ulaşabilirsiniz."
-  },
-  {
-    id: 9,
-    category: "odeme",
-    question: "Ödeme sırasında hata aldım, ne yapmalıyım?",
-    answer: "Ödeme hataları bankanızdan veya internet bağlantınızdan kaynaklanabilir. Farklı bir kartla işlem yapmayı deneyin veya bizimle iletişime geçin."
-  },
-  {
-    id: 10,
-    category: "odeme",
-    question: "Ödeme yaparken güvenlik nasıl sağlanıyor?",
-    answer: "Ödeme işlemleri SSL şifreleme teknolojisi ile korunur ve hiçbir kart bilginiz sistemimizde saklanmaz."
-  },
-  {
-    id: 11,
-    category: "odeme",
-    question: "Şirket adına fatura kestirmek için ne yapmalıyım?",
-    answer: "Sipariş sırasında fatura bilgisi kısmına şirket bilgilerinizi girerek kurumsal fatura talebinde bulunabilirsiniz."
-  },
-  {
-    id: 12,
-    category: "odeme",
-    question: "Siparişimi iptal ettim, para iadesi ne zaman yapılır?",
-    answer: "İptal işlemi onaylandıktan sonra 3-7 iş günü içinde iade işlemi tamamlanır. İade süresi, bankanızın işlem sürelerine bağlı olarak değişiklik gösterebilir."
-  },
-
-  // Sipariş ve Kargo İşlemleri
-  {
-    id: 13,
-    category: "siparis",
-    question: "Hangi kargo firmalarıyla çalışıyorsunuz?",
-    answer: "Türkiye içinde MNG, Yurtiçi ve Aras Kargo; yurtdışı gönderimlerde ise DHL, UPS ve FedEx ile çalışıyoruz."
-  },
-  {
-    id: 14,
-    category: "siparis",
-    question: "Kargo takip numaram ulaşmadı, ne yapabilirim?",
-    answer: "Kargo takip bilgileri, siparişiniz kargoya verildikten sonra e-posta veya SMS yoluyla iletilir. Size ulaşmazsa destek@fusionmarkt.com ile iletişime geçebilirsiniz."
-  },
-  {
-    id: 15,
-    category: "siparis",
-    question: "Siparişim onaylandıktan sonra adres değişikliği yapabilir miyim?",
-    answer: 'Siparişiniz henüz kargoya verilmediyse, "Hesabım > Siparişler" bölümünden adres değişikliği yapabilirsiniz. İşlem sonrası için +90 (850) 840 6160 numaralı müşteri hizmetlerinden destek alabilirsiniz.'
-  },
-  {
-    id: 16,
-    category: "siparis",
-    question: "Siparişime ek ürün ekleyebilir miyim?",
-    answer: "Sipariş onaylandıktan sonra ekleme yapılamaz. Ancak yeni bir sipariş verebilirsiniz."
-  },
-  {
-    id: 17,
-    category: "siparis",
-    question: 'Siparişimin durumu "Hazırlanıyor" görünüyor, ne anlama gelir?',
-    answer: "Siparişiniz depomuzda hazırlanıyor demektir. En geç 24 saat içinde kargoya verilmesi planlanmaktadır."
-  },
-  {
-    id: 18,
-    category: "siparis",
-    question: "Yurtdışı teslimat yapıyor musunuz?",
-    answer: "Evet, yurtdışına da teslimat yapıyoruz. Teslimat süreleri ülkeye göre değişiklik göstermekte olup sipariş sırasında tahmini teslimat tarihi görüntülenebilir."
-  },
-
-  // Üyelik ve Hesap Yönetimi
-  {
-    id: 19,
-    category: "uyelik",
-    question: "Farklı e-posta adresiyle yeni bir hesap açabilir miyim?",
-    answer: "Evet, farklı bir e-posta adresi kullanarak yeni bir hesap oluşturabilirsiniz. Ancak, birleştirilmiş puan veya sipariş geçmişi sunulamamaktadır."
-  },
-  {
-    id: 20,
-    category: "uyelik",
-    question: "Hesabımın şifresini unuttum, nasıl sıfırlayabilirim?",
-    answer: 'Giriş ekranındaki "Şifremi Unuttum" seçeneği ile e-posta adresinize şifre sıfırlama bağlantısı gönderilir. Bağlantıya tıklayarak yeni şifrenizi belirleyebilirsiniz.'
-  },
-  {
-    id: 21,
-    category: "uyelik",
-    question: "Kayıt sırasında hangi bilgileri vermem gerekiyor?",
-    answer: "Üyelik işlemi için ad, soyad, e-posta adresi, şifre ve iletişim bilgileri gereklidir. Ayrıca sipariş için adres bilgilerini eklemeniz gerekir."
-  },
-  {
-    id: 22,
-    category: "uyelik",
-    question: "Üye oldum ama e-posta doğrulama mesajı gelmedi, ne yapmalıyım?",
-    answer: "Öncelikle spam veya gereksiz posta klasörünü kontrol edin. Eğer hala ulaşmadıysa, destek@fusionmarkt.com adresine e-posta göndererek yeniden talep edebilirsiniz."
-  },
-  {
-    id: 23,
-    category: "uyelik",
-    question: "Üye olmadan alışveriş yapabilir miyim?",
-    answer: "Evet, misafir kullanıcı olarak alışveriş yapabilirsiniz. Ancak üyelikle birlikte sipariş takibi, kampanyalardan faydalanma ve puan kazanma gibi avantajlara sahip olursunuz."
-  },
-  {
-    id: 24,
-    category: "uyelik",
-    question: "Üyelikten nasıl çıkabilirim?",
-    answer: "Üyeliğinizi iptal etmek için destek@fusionmarkt.com adresine e-posta atabilir veya müşteri hizmetlerinden destek alabilirsiniz."
-  },
-];
+interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  category: FaqCategory;
+}
 
 // FAQ Item Component
 function FAQItem({ item, isOpen, onToggle, index }: { 
-  item: typeof faqData[0]; 
+  item: Faq; 
   isOpen: boolean; 
   onToggle: () => void;
   index: number;
 }) {
-  const category = categories.find(c => c.id === item.category);
+  const IconComponent = item.category.icon ? iconMap[item.category.icon] || HelpCircle : HelpCircle;
+  const color = item.category.color || "var(--fusion-primary)";
 
   return (
     <motion.div
@@ -228,14 +66,12 @@ function FAQItem({ item, isOpen, onToggle, index }: {
         className="w-full flex items-start gap-3 md:gap-4 p-4 md:p-5 text-left hover:bg-[var(--glass-bg-hover)] transition-colors"
       >
         {/* Category Icon - Hidden on mobile for cleaner look */}
-        {category && (
-          <div 
-            className="hidden sm:flex w-10 h-10 rounded-xl items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: `${category.color}15` }}
-          >
-            <category.icon className="w-5 h-5" style={{ color: category.color }} />
-          </div>
-        )}
+        <div 
+          className="hidden sm:flex w-10 h-10 rounded-xl items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: `${color}15` }}
+        >
+          <IconComponent className="w-5 h-5" style={{ color }} />
+        </div>
 
         {/* Question */}
         <div className="flex-1 min-w-0">
@@ -282,36 +118,67 @@ function FAQItem({ item, isOpen, onToggle, index }: {
 }
 
 export default function SikcaSorulanSorularPage() {
+  const [categories, setCategories] = useState<FaqCategory[]>([]);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
-  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch FAQs from API
+  useEffect(() => {
+    async function fetchFaqs() {
+      try {
+        const res = await fetch("/api/faqs");
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories || []);
+          setFaqs(data.faqs || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch FAQs:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchFaqs();
+  }, []);
+
+  // All categories including "all"
+  const allCategories = useMemo(() => {
+    return [
+      { id: "all", name: "Tümünü Göster", slug: "all", icon: "HelpCircle", color: "var(--fusion-primary)" },
+      ...categories
+    ];
+  }, [categories]);
 
   // Filter FAQs based on category and search query
   const filteredFAQs = useMemo(() => {
-    return faqData.filter(faq => {
-      const matchesCategory = activeCategory === "all" || faq.category === activeCategory;
+    return faqs.filter(faq => {
+      const matchesCategory = activeCategory === "all" || faq.category.slug === activeCategory;
       const matchesSearch = searchQuery === "" || 
         faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
         faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [faqs, activeCategory, searchQuery]);
 
   // Group FAQs by category
   const groupedFAQs = useMemo(() => {
     if (activeCategory !== "all") return null;
     
-    const groups: { [key: string]: typeof faqData } = {};
+    const groups: { [key: string]: Faq[] } = {};
     filteredFAQs.forEach(faq => {
-      if (!groups[faq.category]) {
-        groups[faq.category] = [];
+      const slug = faq.category.slug;
+      if (!groups[slug]) {
+        groups[slug] = [];
       }
-      groups[faq.category].push(faq);
+      groups[slug].push(faq);
     });
     return groups;
   }, [filteredFAQs, activeCategory]);
 
-  const toggleItem = (id: number) => {
+  const toggleItem = (id: string) => {
     setOpenItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -330,6 +197,14 @@ export default function SikcaSorulanSorularPage() {
   const collapseAll = () => {
     setOpenItems(new Set());
   };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--fusion-primary)]" />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -400,20 +275,21 @@ export default function SikcaSorulanSorularPage() {
             {/* Mobile: Horizontal Scroll */}
             <div className="lg:hidden overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div className="flex gap-2 min-w-max pr-4">
-                {categories.map((category) => {
-                  const isActive = activeCategory === category.id;
+                {allCategories.map((category) => {
+                  const isActive = activeCategory === category.slug;
+                  const IconComponent = category.icon ? iconMap[category.icon] || HelpCircle : HelpCircle;
                   return (
                     <button
                       key={category.id}
-                      onClick={() => setActiveCategory(category.id)}
+                      onClick={() => setActiveCategory(category.slug)}
                       className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                         isActive 
                           ? 'bg-[var(--fusion-primary)] text-white' 
                           : 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--foreground-secondary)]'
                       }`}
                     >
-                      <category.icon className="w-4 h-4" />
-                      {category.id === "all" ? "Tümü" : category.name.split(" ")[0]}
+                      <IconComponent className="w-4 h-4" />
+                      {category.slug === "all" ? "Tümü" : category.name.split(" ")[0]}
                     </button>
                   );
                 })}
@@ -422,16 +298,18 @@ export default function SikcaSorulanSorularPage() {
 
             {/* Desktop: Grid */}
             <div className="hidden lg:grid lg:grid-cols-5 gap-3">
-              {categories.map((category) => {
-                const isActive = activeCategory === category.id;
-                const count = category.id === "all" 
-                  ? faqData.length 
-                  : faqData.filter(f => f.category === category.id).length;
+              {allCategories.map((category) => {
+                const isActive = activeCategory === category.slug;
+                const IconComponent = category.icon ? iconMap[category.icon] || HelpCircle : HelpCircle;
+                const count = category.slug === "all" 
+                  ? faqs.length 
+                  : faqs.filter(f => f.category.slug === category.slug).length;
+                const color = category.color || "var(--fusion-primary)";
 
                 return (
                   <motion.button
                     key={category.id}
-                    onClick={() => setActiveCategory(category.id)}
+                    onClick={() => setActiveCategory(category.slug)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl text-center transition-all ${
@@ -444,15 +322,15 @@ export default function SikcaSorulanSorularPage() {
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                         isActive ? 'bg-white/20' : ''
                       }`}
-                      style={!isActive ? { backgroundColor: `${category.color}15` } : {}}
+                      style={!isActive ? { backgroundColor: `${color}15` } : {}}
                     >
-                      <category.icon 
+                      <IconComponent 
                         className="w-6 h-6" 
-                        style={!isActive ? { color: category.color } : { color: 'white' }} 
+                        style={!isActive ? { color } : { color: 'white' }} 
                       />
                     </div>
                     <span className="text-sm font-medium leading-tight">
-                      {category.id === "all" ? "Tümünü Göster" : category.name.split(" ").slice(0, 2).join(" ")}
+                      {category.slug === "all" ? "Tümünü Göster" : category.name.split(" ").slice(0, 2).join(" ")}
                     </span>
                     <span className={`text-xs ${isActive ? 'text-white/70' : 'text-[var(--foreground-tertiary)]'}`}>
                       {count} soru
@@ -511,28 +389,31 @@ export default function SikcaSorulanSorularPage() {
             ) : activeCategory === "all" && groupedFAQs ? (
               // Grouped View
               <div className="space-y-10">
-                {Object.entries(groupedFAQs).map(([categoryId, faqs]) => {
-                  const category = categories.find(c => c.id === categoryId);
-                  if (!category || faqs.length === 0) return null;
+                {categories.map((category) => {
+                  const categoryFaqs = groupedFAQs[category.slug];
+                  if (!categoryFaqs || categoryFaqs.length === 0) return null;
+                  
+                  const IconComponent = category.icon ? iconMap[category.icon] || HelpCircle : HelpCircle;
+                  const color = category.color || "var(--fusion-primary)";
 
                   return (
-                    <div key={categoryId}>
+                    <div key={category.id}>
                       <div className="flex items-start sm:items-center gap-3 mb-4">
                         <div 
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: `${category.color}15` }}
+                          style={{ backgroundColor: `${color}15` }}
                         >
-                          <category.icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: category.color }} />
+                          <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" style={{ color }} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h2 className="text-base sm:text-xl font-bold leading-tight">{category.name}</h2>
                           <span className="text-xs sm:text-sm text-[var(--foreground-tertiary)]">
-                            {faqs.length} soru
+                            {categoryFaqs.length} soru
                           </span>
                         </div>
                       </div>
                       <div className="space-y-3">
-                        {faqs.map((faq, index) => (
+                        {categoryFaqs.map((faq, index) => (
                           <FAQItem
                             key={faq.id}
                             item={faq}
@@ -613,4 +494,3 @@ export default function SikcaSorulanSorularPage() {
     </main>
   );
 }
-

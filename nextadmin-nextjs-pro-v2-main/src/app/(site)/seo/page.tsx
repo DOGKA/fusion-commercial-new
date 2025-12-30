@@ -15,6 +15,9 @@ interface SiteSettings {
   gaPropertyId: string | null;
   gaServiceAccountEmail: string | null;
   gaServiceAccountKey: string | null;
+  gscSiteUrl: string | null;
+  gscServiceAccountEmail: string | null;
+  gscServiceAccountKey: string | null;
   robotsTxt: string | null;
 }
 
@@ -31,6 +34,9 @@ export default function SeoPage() {
     gaPropertyId: null,
     gaServiceAccountEmail: null,
     gaServiceAccountKey: null,
+    gscSiteUrl: null,
+    gscServiceAccountEmail: null,
+    gscServiceAccountKey: null,
     robotsTxt: null,
   });
 
@@ -55,6 +61,9 @@ export default function SeoPage() {
     gaPropertyId: "504466773",
     gaServiceAccountEmail: "fusionmarkt-analytics@fusionmarkt-new.iam.gserviceaccount.com",
     gaServiceAccountKey: "", // Private Key admin panelden girilecek - güvenlik için koda eklenmez!
+    gscSiteUrl: "https://fusionmarkt.com",
+    gscServiceAccountEmail: "", // GA ile aynı olabilir
+    gscServiceAccountKey: "", // GA ile aynı olabilir
     robotsTxt: "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /hesabim/\nSitemap: https://fusionmarkt.com/sitemap.xml",
   };
 
@@ -77,6 +86,9 @@ export default function SeoPage() {
           gaPropertyId: data.gaPropertyId || defaultValues.gaPropertyId,
           gaServiceAccountEmail: data.gaServiceAccountEmail || defaultValues.gaServiceAccountEmail,
           gaServiceAccountKey: data.gaServiceAccountKey || defaultValues.gaServiceAccountKey,
+          gscSiteUrl: data.gscSiteUrl || defaultValues.gscSiteUrl,
+          gscServiceAccountEmail: data.gscServiceAccountEmail || defaultValues.gscServiceAccountEmail,
+          gscServiceAccountKey: data.gscServiceAccountKey || defaultValues.gscServiceAccountKey,
           robotsTxt: data.robotsTxt || defaultValues.robotsTxt,
         });
       } else {
@@ -427,6 +439,100 @@ export default function SeoPage() {
               </div>
               <p className="mt-1 text-xs text-gray-500">
                 Google Cloud Console {">"} Service Account {">"} Keys {">"} JSON
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Google Search Console API */}
+        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold text-dark dark:text-white">
+              Google Search Console API
+            </h2>
+            {settings.gscSiteUrl && (settings.gscServiceAccountEmail || settings.gaServiceAccountEmail) ? (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                Bağlı
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs font-medium">
+                Yapılandırılmadı
+              </span>
+            )}
+          </div>
+          <p className="mb-6 text-xs text-gray-500">
+            SEO performans verileri için (arama sorguları, gösterimler, tıklamalar)
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                Site URL
+              </label>
+              <input
+                type="text"
+                value={settings.gscSiteUrl || ""}
+                onChange={(e) =>
+                  setSettings({ ...settings, gscSiteUrl: e.target.value })
+                }
+                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3"
+                placeholder="https://fusionmarkt.com veya sc-domain:fusionmarkt.com"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Search Console {">"} Ayarlar {">"} Mülk Ayarları {">"} Site URL
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                Service Account Email (opsiyonel)
+              </label>
+              <input
+                type="email"
+                value={settings.gscServiceAccountEmail || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    gscServiceAccountEmail: e.target.value,
+                  })
+                }
+                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3"
+                placeholder="GA ile aynı ise boş bırakın"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                GA Service Account ile aynı ise boş bırakabilirsiniz
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                Service Account Private Key (opsiyonel)
+              </label>
+              <textarea
+                rows={2}
+                value={settings.gscServiceAccountKey || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    gscServiceAccountKey: e.target.value,
+                  })
+                }
+                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 font-mono text-xs dark:border-dark-3"
+                placeholder="GA ile aynı ise boş bırakın"
+                style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                GA Private Key ile aynı ise boş bırakabilirsiniz
+              </p>
+            </div>
+
+            {/* GSC Bilgi Kutusu */}
+            <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                <strong>⚠️ Önemli:</strong> Service Account'u Search Console'a "Tam" yetkili kullanıcı olarak eklemeniz gerekiyor.
+                <br />
+                Search Console {">"} Ayarlar {">"} Kullanıcılar ve izinler {">"} Kullanıcı ekle {">"} Service Account Email
               </p>
             </div>
           </div>

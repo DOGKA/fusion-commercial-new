@@ -22,89 +22,9 @@ export async function GET(request: NextRequest) {
     const monthStart = new Date(todayStart);
     monthStart.setMonth(monthStart.getMonth() - 1);
 
-    // Sipariş verileri
-    const [
-      totalOrders,
-      ordersToday,
-      ordersThisWeek,
-      ordersThisMonth,
-      revenueData,
-      revenueTodayData,
-      revenueWeekData,
-      revenueMonthData,
-    ] = await Promise.all([
-      // Toplam sipariş
-      prisma.order.count({
-        where: { status: { not: "CANCELLED" } },
-      }),
-      // Bugünkü siparişler
-      prisma.order.count({
-        where: {
-          createdAt: { gte: todayStart },
-          status: { not: "CANCELLED" },
-        },
-      }),
-      // Bu haftaki siparişler
-      prisma.order.count({
-        where: {
-          createdAt: { gte: weekStart },
-          status: { not: "CANCELLED" },
-        },
-      }),
-      // Bu ayki siparişler
-      prisma.order.count({
-        where: {
-          createdAt: { gte: monthStart },
-          status: { not: "CANCELLED" },
-        },
-      }),
-      // Toplam gelir
-      prisma.order.aggregate({
-        _sum: { total: true },
-        where: { status: { not: "CANCELLED" } },
-      }),
-      // Bugünkü gelir
-      prisma.order.aggregate({
-        _sum: { total: true },
-        where: {
-          createdAt: { gte: todayStart },
-          status: { not: "CANCELLED" },
-        },
-      }),
-      // Bu haftaki gelir
-      prisma.order.aggregate({
-        _sum: { total: true },
-        where: {
-          createdAt: { gte: weekStart },
-          status: { not: "CANCELLED" },
-        },
-      }),
-      // Bu ayki gelir
-      prisma.order.aggregate({
-        _sum: { total: true },
-        where: {
-          createdAt: { gte: monthStart },
-          status: { not: "CANCELLED" },
-        },
-      }),
-    ]);
-
-    const totalRevenue = revenueData._sum.total || 0;
-    const revenueToday = revenueTodayData._sum.total || 0;
-    const revenueThisWeek = revenueWeekData._sum.total || 0;
-    const revenueThisMonth = revenueMonthData._sum.total || 0;
-
-    // Ortalama sipariş değeri
-    const averageOrderValue = totalOrders > 0 ? Number(totalRevenue) / totalOrders : 0;
-
-    // Google Analytics Data API kontrolü
+    // Google Analytics & Search Console ayarlarını al
     const settings = await prisma.siteSettings.findUnique({
       where: { id: "default" },
-      select: {
-        gaPropertyId: true,
-        gaServiceAccountEmail: true,
-        gaServiceAccountKey: true,
-      },
     });
 
     const gaConnected = !!(
@@ -113,36 +33,136 @@ export async function GET(request: NextRequest) {
       settings?.gaServiceAccountKey
     );
 
+    // GSC alanlarını dinamik olarak kontrol et (Prisma henüz güncellemediyse)
+    const settingsAny = settings as Record<string, unknown> | null;
+    const gscSiteUrl = settingsAny?.gscSiteUrl as string | null;
+    const gscServiceAccountEmail = (settingsAny?.gscServiceAccountEmail || settings?.gaServiceAccountEmail) as string | null;
+    const gscServiceAccountKey = (settingsAny?.gscServiceAccountKey || settings?.gaServiceAccountKey) as string | null;
+
+    const gscConnected = !!(
+      gscSiteUrl &&
+      gscServiceAccountEmail &&
+      gscServiceAccountKey
+    );
+
+    console.log("Analytics settings check:", {
+      gaConnected,
+      gscConnected,
+      hasGaPropertyId: !!settings?.gaPropertyId,
+      hasGaEmail: !!settings?.gaServiceAccountEmail,
+      hasGaKey: !!settings?.gaServiceAccountKey,
+      hasGscUrl: !!gscSiteUrl,
+    });
+
+    // Kupon istatistikleri
+    const [
+      activeCoupons,
+      totalCouponUsage,
+      couponStats,
+      topUsedCoupons,
+    ] = await Promise.all([
+      // Aktif kupon sayısı
+      prisma.coupon.count({
+        where: {
+          isActive: true,
+          OR: [
+            { endDate: null },
+            { endDate: { gte: now } },
+          ],
+        },
+      }),
+      // Toplam kupon kullanımı
+      prisma.coupon.aggregate({
+        _sum: { usageCount: true },
+      }),
+      // Kuponlarla yapılan toplam indirim
+      prisma.order.aggregate({
+        where: {
+          couponId: { not: null },
+          status: { not: "CANCELLED" },
+        },
+        _sum: { discount: true },
+        _count: true,
+      }),
+      // En çok kullanılan kuponlar (veya tüm aktif kuponlar)
+      prisma.coupon.findMany({
+        where: {
+          isActive: true,
+        },
+        orderBy: { usageCount: "desc" },
+        take: 10,
+        select: {
+          id: true,
+          code: true,
+          description: true,
+          discountType: true,
+          discountValue: true,
+          usageCount: true,
+          usageLimit: true,
+          isActive: true,
+          startDate: true,
+          endDate: true,
+        },
+      }),
+    ]);
+
     // GA verilerini çek (eğer yapılandırılmışsa)
     let gaData = null;
     if (gaConnected) {
       try {
+        console.log("Fetching GA data for property:", settings!.gaPropertyId);
         gaData = await fetchGoogleAnalyticsData(
           settings!.gaPropertyId!,
           settings!.gaServiceAccountEmail!,
           settings!.gaServiceAccountKey!,
           period
         );
+        console.log("GA data result:", gaData ? "SUCCESS" : "NULL", gaData ? { visitors: gaData.visitors, pageViews: gaData.pageViews } : null);
       } catch (error) {
         console.error("GA Data API error:", error);
-        // GA hatasında bile devam et, sadece veritabanı verilerini göster
+      }
+    }
+
+    // GSC verilerini çek (eğer yapılandırılmışsa)
+    let gscData = null;
+    if (gscConnected && gscSiteUrl && gscServiceAccountEmail && gscServiceAccountKey) {
+      try {
+        gscData = await fetchSearchConsoleData(
+          gscSiteUrl,
+          gscServiceAccountEmail,
+          gscServiceAccountKey,
+          period
+        );
+      } catch (error) {
+        console.error("GSC Data API error:", error);
       }
     }
 
     return NextResponse.json({
-      // Sipariş verileri
-      totalOrders,
-      totalRevenue: Number(totalRevenue),
-      averageOrderValue,
-      ordersToday,
-      ordersThisWeek,
-      ordersThisMonth,
-      revenueToday: Number(revenueToday),
-      revenueThisWeek: Number(revenueThisWeek),
-      revenueThisMonth: Number(revenueThisMonth),
       // GA verileri
       gaConnected,
       ...(gaData || {}),
+      // GSC verileri
+      gscConnected,
+      gscData: gscData || null,
+      // Kupon istatistikleri
+      couponStats: {
+        activeCoupons,
+        totalUsage: totalCouponUsage._sum.usageCount || 0,
+        ordersWithCoupon: couponStats._count || 0,
+        totalDiscount: Number(couponStats._sum.discount || 0),
+        topCoupons: topUsedCoupons.map((c) => ({
+          id: c.id,
+          code: c.code,
+          description: c.description,
+          type: c.discountType,
+          value: Number(c.discountValue),
+          usageCount: c.usageCount,
+          usageLimit: c.usageLimit,
+          isActive: c.isActive,
+          isExpired: c.endDate ? new Date(c.endDate) < now : false,
+        })),
+      },
     });
   } catch (error) {
     console.error("Analytics error:", error);
@@ -162,7 +182,11 @@ async function fetchGoogleAnalyticsData(
 ) {
   try {
     // JWT oluştur
-    const jwt = await createGoogleJWT(serviceAccountEmail, serviceAccountKey);
+    const jwt = await createGoogleJWT(
+      serviceAccountEmail,
+      serviceAccountKey,
+      "https://www.googleapis.com/auth/analytics.readonly"
+    );
     if (!jwt) return null;
 
     // Access token al
@@ -176,7 +200,7 @@ async function fetchGoogleAnalyticsData(
     });
 
     if (!tokenRes.ok) {
-      console.error("Failed to get access token");
+      console.error("Failed to get access token:", await tokenRes.text());
       return null;
     }
 
@@ -189,79 +213,158 @@ async function fetchGoogleAnalyticsData(
     if (period === "today") startDate = "today";
     else if (period === "month") startDate = "30daysAgo";
 
-    // GA4 Data API çağrısı
-    const gaRes = await fetch(
-      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dateRanges: [{ startDate, endDate }],
-          dimensions: [{ name: "deviceCategory" }],
-          metrics: [
-            { name: "activeUsers" },
-            { name: "screenPageViews" },
-            { name: "sessions" },
-          ],
-        }),
-      }
-    );
+    // 1. Genel metrikler ve cihaz dağılımı
+    const [metricsRes, topPagesRes, trafficSourcesRes] = await Promise.all([
+      // Genel metrikler + cihaz dağılımı
+      fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dateRanges: [{ startDate, endDate }],
+            dimensions: [{ name: "deviceCategory" }],
+            metrics: [
+              { name: "activeUsers" },
+              { name: "screenPageViews" },
+              { name: "sessions" },
+              { name: "averageSessionDuration" },
+              { name: "bounceRate" },
+            ],
+          }),
+        }
+      ),
+      // En çok ziyaret edilen sayfalar
+      fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dateRanges: [{ startDate, endDate }],
+            dimensions: [{ name: "pagePath" }],
+            metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
+            orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+            limit: 10,
+          }),
+        }
+      ),
+      // Trafik kaynakları
+      fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dateRanges: [{ startDate, endDate }],
+            dimensions: [{ name: "sessionDefaultChannelGroup" }],
+            metrics: [{ name: "sessions" }, { name: "activeUsers" }],
+            orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+            limit: 8,
+          }),
+        }
+      ),
+    ]);
 
-    if (!gaRes.ok) {
-      console.error("GA API error:", await gaRes.text());
+    if (!metricsRes.ok) {
+      console.error("GA metrics error:", await metricsRes.text());
       return null;
     }
 
-    const gaData = await gaRes.json();
+    const metricsData = await metricsRes.json();
+    const topPagesData = topPagesRes.ok ? await topPagesRes.json() : null;
+    const trafficData = trafficSourcesRes.ok ? await trafficSourcesRes.json() : null;
 
-    // Verileri parse et
-    let visitors = 0;
-    let pageViews = 0;
-    const deviceBreakdown: { device: string; percentage: number }[] = [];
+    // Metrikleri parse et
+    let totalVisitors = 0;
+    let totalPageViews = 0;
+    let totalSessions = 0;
+    let avgSessionDuration = 0;
+    let bounceRate = 0;
+    const deviceBreakdown: { device: string; sessions: number; percentage: number }[] = [];
 
-    if (gaData.rows) {
-      let totalSessions = 0;
-      for (const row of gaData.rows) {
+    if (metricsData.rows) {
+      for (const row of metricsData.rows) {
         const device = row.dimensionValues[0].value;
         const users = parseInt(row.metricValues[0].value) || 0;
         const views = parseInt(row.metricValues[1].value) || 0;
         const sessions = parseInt(row.metricValues[2].value) || 0;
+        const duration = parseFloat(row.metricValues[3].value) || 0;
+        const bounce = parseFloat(row.metricValues[4].value) || 0;
 
-        visitors += users;
-        pageViews += views;
+        totalVisitors += users;
+        totalPageViews += views;
         totalSessions += sessions;
+        avgSessionDuration += duration * sessions;
+        bounceRate += bounce * sessions;
 
         deviceBreakdown.push({
           device,
+          sessions,
           percentage: 0, // Sonra hesaplanacak
         });
       }
 
-      // Yüzdeleri hesapla
-      for (const item of deviceBreakdown) {
-        item.percentage = totalSessions > 0
-          ? Math.round((gaData.rows.find((r: any) => r.dimensionValues[0].value === item.device)?.metricValues[2]?.value || 0) / totalSessions * 100)
-          : 0;
+      // Ortalama ve yüzdeleri hesapla
+      if (totalSessions > 0) {
+        avgSessionDuration = avgSessionDuration / totalSessions;
+        bounceRate = bounceRate / totalSessions;
+
+        for (const item of deviceBreakdown) {
+          item.percentage = Math.round((item.sessions / totalSessions) * 100);
+        }
+      }
+    }
+
+    // Top pages parse et
+    const topPages: { page: string; views: number; users: number }[] = [];
+    if (topPagesData?.rows) {
+      for (const row of topPagesData.rows) {
+        topPages.push({
+          page: row.dimensionValues[0].value,
+          views: parseInt(row.metricValues[0].value) || 0,
+          users: parseInt(row.metricValues[1].value) || 0,
+        });
+      }
+    }
+
+    // Traffic sources parse et
+    const trafficSources: { source: string; sessions: number; users: number; percentage: number }[] = [];
+    if (trafficData?.rows) {
+      const totalTrafficSessions = trafficData.rows.reduce(
+        (sum: number, row: any) => sum + (parseInt(row.metricValues[0].value) || 0),
+        0
+      );
+
+      for (const row of trafficData.rows) {
+        const sessions = parseInt(row.metricValues[0].value) || 0;
+        trafficSources.push({
+          source: row.dimensionValues[0].value,
+          sessions,
+          users: parseInt(row.metricValues[1].value) || 0,
+          percentage: totalTrafficSessions > 0 ? Math.round((sessions / totalTrafficSessions) * 100) : 0,
+        });
       }
     }
 
     return {
-      visitors: {
-        today: period === "today" ? visitors : 0,
-        thisWeek: period === "week" ? visitors : 0,
-        thisMonth: period === "month" ? visitors : 0,
-      },
-      pageViews: {
-        today: period === "today" ? pageViews : 0,
-        thisWeek: period === "week" ? pageViews : 0,
-        thisMonth: period === "month" ? pageViews : 0,
-      },
+      visitors: totalVisitors,
+      pageViews: totalPageViews,
+      sessions: totalSessions,
+      avgSessionDuration: Math.round(avgSessionDuration),
+      bounceRate: Math.round(bounceRate * 100) / 100,
       deviceBreakdown,
-      topPages: [], // Ek API çağrısı gerekir
-      trafficSources: [], // Ek API çağrısı gerekir
+      topPages,
+      trafficSources,
     };
   } catch (error) {
     console.error("GA fetch error:", error);
@@ -269,10 +372,164 @@ async function fetchGoogleAnalyticsData(
   }
 }
 
+// Google Search Console Data API çağrısı
+async function fetchSearchConsoleData(
+  siteUrl: string,
+  serviceAccountEmail: string,
+  serviceAccountKey: string,
+  period: string
+) {
+  try {
+    // JWT oluştur
+    const jwt = await createGoogleJWT(
+      serviceAccountEmail,
+      serviceAccountKey,
+      "https://www.googleapis.com/auth/webmasters.readonly"
+    );
+    if (!jwt) return null;
+
+    // Access token al
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion: jwt,
+      }),
+    });
+
+    if (!tokenRes.ok) {
+      console.error("GSC Failed to get access token:", await tokenRes.text());
+      return null;
+    }
+
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
+
+    // Tarih aralığı hesapla
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() - 2); // GSC verileri 2 gün gecikmeli
+    
+    const startDate = new Date(endDate);
+    if (period === "today") {
+      startDate.setDate(startDate.getDate() - 1);
+    } else if (period === "week") {
+      startDate.setDate(startDate.getDate() - 7);
+    } else {
+      startDate.setDate(startDate.getDate() - 30);
+    }
+
+    const formatDate = (d: Date) => d.toISOString().split("T")[0];
+
+    // 1. Genel metrikler
+    const [overviewRes, queriesRes, pagesRes] = await Promise.all([
+      // Genel metrikler
+      fetch(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+            dimensions: [],
+          }),
+        }
+      ),
+      // Top arama sorguları
+      fetch(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+            dimensions: ["query"],
+            rowLimit: 10,
+          }),
+        }
+      ),
+      // Top sayfalar
+      fetch(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+            dimensions: ["page"],
+            rowLimit: 10,
+          }),
+        }
+      ),
+    ]);
+
+    if (!overviewRes.ok) {
+      const errorText = await overviewRes.text();
+      console.error("GSC overview error:", errorText);
+      return null;
+    }
+
+    const overviewData = await overviewRes.json();
+    const queriesData = queriesRes.ok ? await queriesRes.json() : null;
+    const pagesData = pagesRes.ok ? await pagesRes.json() : null;
+
+    // Overview metrikleri
+    const overview = overviewData.rows?.[0] || {};
+    const impressions = Math.round(overview.impressions || 0);
+    const clicks = Math.round(overview.clicks || 0);
+    const ctr = Math.round((overview.ctr || 0) * 10000) / 100; // %XX.XX formatı
+    const position = Math.round((overview.position || 0) * 10) / 10;
+
+    // Top queries
+    const topQueries = (queriesData?.rows || []).map((row: any) => ({
+      query: row.keys[0],
+      impressions: Math.round(row.impressions || 0),
+      clicks: Math.round(row.clicks || 0),
+      ctr: Math.round((row.ctr || 0) * 10000) / 100,
+      position: Math.round((row.position || 0) * 10) / 10,
+    }));
+
+    // Top pages
+    const topSeoPages = (pagesData?.rows || []).map((row: any) => ({
+      page: row.keys[0].replace(siteUrl.replace("sc-domain:", "https://"), ""),
+      impressions: Math.round(row.impressions || 0),
+      clicks: Math.round(row.clicks || 0),
+      ctr: Math.round((row.ctr || 0) * 10000) / 100,
+      position: Math.round((row.position || 0) * 10) / 10,
+    }));
+
+    return {
+      impressions,
+      clicks,
+      ctr,
+      position,
+      topQueries,
+      topPages: topSeoPages,
+    };
+  } catch (error) {
+    console.error("GSC fetch error:", error);
+    return null;
+  }
+}
+
 // Google JWT oluştur (Service Account için)
 async function createGoogleJWT(
   serviceAccountEmail: string,
-  serviceAccountKeyJson: string
+  serviceAccountKeyJson: string,
+  scope: string
 ): Promise<string | null> {
   try {
     let privateKey: string;
@@ -295,7 +552,7 @@ async function createGoogleJWT(
 
     const payload = {
       iss: serviceAccountEmail,
-      scope: "https://www.googleapis.com/auth/analytics.readonly",
+      scope,
       aud: "https://oauth2.googleapis.com/token",
       iat: now,
       exp: now + 3600,
@@ -330,4 +587,3 @@ async function createGoogleJWT(
     return null;
   }
 }
-

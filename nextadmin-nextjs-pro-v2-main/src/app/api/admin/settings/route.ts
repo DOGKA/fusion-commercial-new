@@ -56,6 +56,9 @@ export async function POST(request: NextRequest) {
       "gaPropertyId",
       "gaServiceAccountEmail",
       "gaServiceAccountKey",
+      "gscSiteUrl",
+      "gscServiceAccountEmail",
+      "gscServiceAccountKey",
       "robotsTxt",
     ];
 

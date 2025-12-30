@@ -117,8 +117,8 @@ export const OrderConfirmationEmail = ({
         <p style={{ textAlign: "center", margin: "0 0 20px 0" }}>
           <span style={{
             display: "inline-block",
-            backgroundColor: "rgba(16, 185, 129, 0.12)",
-            color: theme.colors.success,
+            backgroundColor: "#d1fae5",
+            color: "#047857",
             fontSize: "13px",
             fontWeight: "600",
             padding: "8px 20px",
@@ -192,7 +192,7 @@ export const OrderConfirmationEmail = ({
 
         {/* Total - emphasized with background */}
         <div style={{
-          backgroundColor: "rgba(16, 185, 129, 0.06)",
+          backgroundColor: "#ecfdf5",
           borderRadius: "8px",
           padding: "12px",
           marginTop: "12px",
@@ -264,7 +264,7 @@ export const OrderConfirmationEmail = ({
 
         {/* Contracts - subtle background */}
         <div style={{
-          backgroundColor: "rgba(16, 185, 129, 0.04)",
+          backgroundColor: "#f0fdf4",
           borderRadius: "12px",
           padding: "16px",
         }}>

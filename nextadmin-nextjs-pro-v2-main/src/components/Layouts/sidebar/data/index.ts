@@ -6,12 +6,22 @@ export const NAV_DATA: NavGroup[] = [
     label: "E-TİCARET",
     items: [
       {
-        title: "Dashboard",
+        title: "Genel Bakış",
+        url: "/",
         icon: Icons.HomeIcon,
-        items: [
-          { title: "Genel Bakış", url: "/" },
-          { title: "Analiz", url: "/analytics" },
-        ],
+        items: [],
+      },
+      {
+        title: "Analiz",
+        url: "/analytics",
+        icon: Icons.PieChart,
+        items: [],
+      },
+      {
+        title: "SEO",
+        url: "/seo",
+        icon: Icons.Search,
+        items: [],
       },
       {
         title: "Ürünler",
@@ -28,10 +38,9 @@ export const NAV_DATA: NavGroup[] = [
       },
       {
         title: "Siparişler",
+        url: "/orders",
         icon: Icons.Alphabet,
-        items: [
-          { title: "Tüm Siparişler", url: "/orders" },
-        ],
+        items: [],
       },
       {
         title: "Müşteriler",
@@ -144,12 +153,6 @@ export const NAV_DATA: NavGroup[] = [
         title: "Genel Ayarlar",
         url: "/settings",
         icon: Icons.Settings,
-        items: [],
-      },
-      {
-        title: "SEO",
-        url: "/seo",
-        icon: Icons.Search,
         items: [],
       },
       {

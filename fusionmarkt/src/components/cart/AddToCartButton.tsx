@@ -118,9 +118,9 @@ export default function AddToCartButton({
             : buttonState === "success"
             ? "Eklendi!"
             : buttonState === "error"
-            ? "Lütfen varyant seçin"
+            ? "Varyant seçiniz"
             : needsVariant
-            ? "Önce varyant seçin"
+            ? "Varyant seçiniz"
             : "Sepete Ekle"
         }
         className={cn(
@@ -276,7 +276,7 @@ export default function AddToCartButton({
         {buttonState === "idle" && "Sepete Ekle"}
         {buttonState === "loading" && "Ekleniyor..."}
         {buttonState === "success" && "Eklendi!"}
-        {buttonState === "error" && "Lütfen Varyant Seçin"}
+        {buttonState === "error" && "Varyant Seçiniz"}
       </span>
 
       {/* Hover shine effect */}

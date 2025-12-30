@@ -27,8 +27,8 @@ const footerLinks = {
       { name: "Sıkça Sorulan Sorular", href: "/sikca-sorulan-sorular" },
       { name: "Sipariş Takibi", href: "/hesabim" },
       { name: "İade ve Değişim", href: "/iade-politikasi" },
-      { name: "Garanti Koşulları", href: "/sikca-sorulan-sorular" },
-      { name: "Kullanım Kılavuzları", href: "/blog" },
+      { name: "Aplikasyon Kullanım Kılavuzu", href: "https://ieetek.vercel.app/", external: true },
+      { name: "Kullanım Kılavuzları", href: "/kullanim-kilavuzlari" },
     ],
   },
   kullaniciPolitikalari: {
@@ -122,9 +122,20 @@ export default function Footer() {
                 <ul className="space-y-2.5">
                   {section.links.map((link) => (
                     <li key={link.name}>
-                      <Link href={link.href} className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap">
-                        {link.name}
-                      </Link>
+                      {'external' in link && link.external ? (
+                        <a 
+                          href={link.href} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap"
+                        >
+                          {link.name}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap">
+                          {link.name}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -244,12 +255,23 @@ export default function Footer() {
                 <ul className="px-4 space-y-1">
                   {section.links.map((link) => (
                     <li key={link.name}>
-                      <Link
-                        href={link.href}
-                        className="block py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
-                      >
-                        {link.name}
-                      </Link>
+                      {'external' in link && link.external ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
+                        >
+                          {link.name}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="block py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>

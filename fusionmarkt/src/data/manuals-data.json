@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2025-12-30T09:01:24.355Z",
+  "products": [
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek P800",
+      "slug": "p800",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/p800.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/p800-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek P1800",
+      "slug": "p1800",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/p1800.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/p1800-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek P2400",
+      "slug": "p2400",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/p2400.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/p2400-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek P3200",
+      "slug": "p3200",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/p3200.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/p3200-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek SH4000",
+      "slug": "sh4000",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/sh4000.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/sh4000-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek SE5000",
+      "slug": "se5000",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/se5000.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/se5000-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek SP5000",
+      "slug": "sp5000",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/sp5000.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/sp5000-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek Singo1000",
+      "slug": "singo1000",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/singo1000.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/singo1000-datasheet.pdf",
+      "userManualUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/manuals/singo1000-manual.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek Singo2000Plus",
+      "slug": "singo2000plus",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/singo2000plus.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/singo2000plus-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek Singo3000",
+      "slug": "singo3000",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/singo3000.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/singo3000-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek Singo600",
+      "slug": "singo600",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/singo600.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/singo600-datasheet.pdf",
+      "userManualUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/manuals/singo600-manual.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek Singo2000",
+      "slug": "singo2000",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/singo2000.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/singo2000-datasheet.pdf"
+    },
+    {
+      "category": "Taşınabilir Güç İstasyonu",
+      "name": "IEETek Singo2000Pro",
+      "slug": "singo2000pro",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/singo2000pro.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/singo2000pro-datasheet.pdf"
+    },
+    {
+      "category": "Güneş Paneli",
+      "name": "IEETek SP100",
+      "slug": "sp100-panel",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/sp100-panel.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/sp100-panel-datasheet.pdf"
+    },
+    {
+      "category": "Güneş Paneli",
+      "name": "IEETek SP200",
+      "slug": "sp200-panel",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/sp200-panel.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/sp200-panel-datasheet.pdf"
+    },
+    {
+      "category": "Güneş Paneli",
+      "name": "IEETek SP400",
+      "slug": "sp400-panel",
+      "imageUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/images/sp400-panel.png",
+      "datasheetUrl": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/datasheets/sp400-panel-datasheet.pdf"
+    }
+  ],
+  "catalogues": [
+    {
+      "name": "İngilizce",
+      "url": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/catalogues/catalogue-i-ngilizce.pdf"
+    },
+    {
+      "name": "Çince",
+      "url": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/catalogues/catalogue-ince.pdf"
+    },
+    {
+      "name": "Arapça",
+      "url": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/catalogues/catalogue-arap-a.pdf"
+    },
+    {
+      "name": "Rusça",
+      "url": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/catalogues/catalogue-rus-a.pdf"
+    },
+    {
+      "name": "Fransızca",
+      "url": "https://fusionmarkt.s3.eu-central-1.amazonaws.com/fusionmarkt/manuals/catalogues/catalogue-frans-zca.pdf"
+    }
+  ]
+}

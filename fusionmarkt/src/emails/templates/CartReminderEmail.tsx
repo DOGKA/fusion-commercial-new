@@ -77,7 +77,7 @@ export const CartReminderEmail = ({
           border={0}
           width="100%"
           style={{
-            backgroundColor: "rgba(16, 185, 129, 0.1)",
+            backgroundColor: "#d1fae5",
             border: `2px dashed ${theme.colors.primary}`,
             borderRadius: theme.radius.lg,
             marginBottom: theme.spacing[4],

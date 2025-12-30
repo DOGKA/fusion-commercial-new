@@ -115,6 +115,9 @@ export default function CheckoutPage() {
     description?: string;
   } | null>(null);
   const [saveToAddresses, setSaveToAddresses] = useState(false); // Kayıtlı adreslerime ekle
+  
+  // Kişisel bilgileri düzenleme modu
+  const [editingPersonalInfo, setEditingPersonalInfo] = useState(false);
 
   // Shipping options state
   const [shippingOptions, setShippingOptions] = useState<{
@@ -556,6 +559,9 @@ export default function CheckoutPage() {
   };
 
   const hasSavedAddresses = savedAddresses.length > 0;
+  
+  // Kişisel bilgiler tam mı kontrol et
+  const isPersonalInfoComplete = firstName && lastName && phone && email && isValidEmail(email);
 
   return (
     <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "#050505", paddingTop: "120px", paddingBottom: "80px" }}>
@@ -582,168 +588,239 @@ export default function CheckoutPage() {
         <div className="checkout-main-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
           {/* LEFT COLUMN */}
           <div className="checkout-left-column" style={containerStyle}>
-            {/* User Info - Otomatik doldurulmuş */}
+            {/* User Info - Kayıtlı bilgiler veya form */}
             <div style={{ marginBottom: "24px" }}>
-              <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff", marginBottom: "16px" }}>Kişisel Bilgiler</h2>
-              <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-                <div>
-                  <label style={labelStyle}><User size={13} /> Ad *</label>
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Adınız"
-                    style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
-                  />
-                </div>
-                <div>
-                  <label style={labelStyle}>Soyad *</label>
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Soyadınız"
-                    style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
-                  />
-                </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff" }}>Kişisel Bilgiler</h2>
+                {isPersonalInfoComplete && !editingPersonalInfo && (
+                  <button 
+                    type="button"
+                    onClick={() => setEditingPersonalInfo(true)}
+                    style={{ 
+                      fontSize: "13px", 
+                      color: "rgba(255,255,255,0.6)", 
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "4px" 
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    Düzenle
+                  </button>
+                )}
               </div>
-              <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={labelStyle}><Phone size={13} /> Telefon *</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(formatPhone(e.target.value))}
-                    placeholder="0532 123 45 67"
-                    style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
-                  />
-                </div>
-                <div>
-                  <label style={labelStyle}><Mail size={13} /> E-posta *</label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        // Clear email error when typing
-                        if (errors.email) {
-                          setErrors(prev => ({ ...prev, email: "" }));
-                        }
-                        // Reset login state when email changes
-                        if (emailRegistered) {
-                          setEmailRegistered(false);
-                          setShowLoginForm(false);
-                          setLoginPassword("");
-                          setLoginError("");
-                        }
-                      }}
-                      onBlur={() => {
-                        // Validate email on blur
-                        if (email && !isValidEmail(email)) {
-                          const error = getEmailError(email);
-                          if (error) setErrors(prev => ({ ...prev, email: error }));
-                        }
-                      }}
-                      placeholder="ornek@email.com"
-                      style={{ 
-                        ...inputStyle, 
-                        borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)",
-                        paddingRight: checkingEmail ? "40px" : "12px"
-                      }}
-                      disabled={isAuthenticated}
-                    />
-                    {checkingEmail && (
-                      <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}>
-                        <Loader2 size={16} className="animate-spin" style={{ color: "rgba(255,255,255,0.5)" }} />
-                      </div>
-                    )}
+              
+              {/* Kişisel bilgiler tam ve düzenleme modunda değilse kompakt kart göster */}
+              {isPersonalInfoComplete && !editingPersonalInfo ? (
+                <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Kayıtlı Bilgiler</span>
                   </div>
-                  
-                  {/* Email registered warning and login form */}
-                  {!isAuthenticated && emailRegistered && showLoginForm && (
-                    <div style={{ 
-                      marginTop: "12px", 
-                      padding: "16px", 
-                      backgroundColor: "rgba(251, 191, 36, 0.1)", 
-                      border: "1px solid rgba(251, 191, 36, 0.3)",
-                      borderRadius: "12px"
-                    }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "12px" }}>
-                        <div style={{ 
-                          width: "32px", height: "32px", borderRadius: "8px", 
-                          backgroundColor: "rgba(251, 191, 36, 0.2)", 
-                          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 
-                        }}>
-                          <User size={16} style={{ color: "#fbbf24" }} />
-                        </div>
-                        <div>
-                          <p style={{ fontSize: "13px", fontWeight: "600", color: "#fbbf24", margin: "0 0 4px 0" }}>
-                            Bu e-posta kayıtlı!
-                          </p>
-                          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", margin: 0 }}>
-                            {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}
-                            Devam etmek için şifrenizi girin.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div style={{ display: "flex", gap: "8px", marginBottom: loginError ? "8px" : 0 }}>
+                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "4px" }}>
+                    {firstName.toUpperCase()} {lastName.toUpperCase()}
+                  </p>
+                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginBottom: "4px" }}>
+                    {email}
+                  </p>
+                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{phone}</p>
+                </div>
+              ) : (
+                /* Kişisel bilgiler eksikse veya düzenleme modundaysa form göster */
+                <>
+                  <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                    <div>
+                      <label style={labelStyle}><User size={13} /> Ad *</label>
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Adınız"
+                        style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Soyad *</label>
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Soyadınız"
+                        style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                    <div>
+                      <label style={labelStyle}><Phone size={13} /> Telefon *</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(formatPhone(e.target.value))}
+                        placeholder="0532 123 45 67"
+                        style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={labelStyle}><Mail size={13} /> E-posta *</label>
+                      <div style={{ position: "relative" }}>
                         <input
-                          type="password"
-                          value={loginPassword}
-                          onChange={(e) => setLoginPassword(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()}
-                          placeholder="Şifreniz"
+                          type="email"
+                          value={email}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            // Clear email error when typing
+                            if (errors.email) {
+                              setErrors(prev => ({ ...prev, email: "" }));
+                            }
+                            // Reset login state when email changes
+                            if (emailRegistered) {
+                              setEmailRegistered(false);
+                              setShowLoginForm(false);
+                              setLoginPassword("");
+                              setLoginError("");
+                            }
+                          }}
+                          onBlur={() => {
+                            // Validate email on blur
+                            if (email && !isValidEmail(email)) {
+                              const error = getEmailError(email);
+                              if (error) setErrors(prev => ({ ...prev, email: error }));
+                            }
+                          }}
+                          placeholder="ornek@email.com"
                           style={{ 
                             ...inputStyle, 
-                            flex: 1,
-                            height: "40px",
-                            backgroundColor: "rgba(0,0,0,0.3)",
-                            borderColor: loginError ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)"
+                            borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)",
+                            paddingRight: checkingEmail ? "40px" : "12px"
                           }}
+                          disabled={isAuthenticated}
                         />
-                        <button
-                          type="button"
-                          onClick={handleEmailLogin}
-                          disabled={loggingIn || !loginPassword}
-                          style={{
-                            height: "40px",
-                            padding: "0 16px",
-                            backgroundColor: "#10b981",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "8px",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            cursor: loggingIn || !loginPassword ? "not-allowed" : "pointer",
-                            opacity: loggingIn || !loginPassword ? 0.6 : 1,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px"
-                          }}
-                        >
-                          {loggingIn ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                          Giriş Yap
-                        </button>
+                        {checkingEmail && (
+                          <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}>
+                            <Loader2 size={16} className="animate-spin" style={{ color: "rgba(255,255,255,0.5)" }} />
+                          </div>
+                        )}
                       </div>
                       
-                      {loginError && (
-                        <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{loginError}</p>
+                      {/* Email registered warning and login form */}
+                      {!isAuthenticated && emailRegistered && showLoginForm && (
+                        <div style={{ 
+                          marginTop: "12px", 
+                          padding: "16px", 
+                          backgroundColor: "rgba(251, 191, 36, 0.1)", 
+                          border: "1px solid rgba(251, 191, 36, 0.3)",
+                          borderRadius: "12px"
+                        }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "12px" }}>
+                            <div style={{ 
+                              width: "32px", height: "32px", borderRadius: "8px", 
+                              backgroundColor: "rgba(251, 191, 36, 0.2)", 
+                              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 
+                            }}>
+                              <User size={16} style={{ color: "#fbbf24" }} />
+                            </div>
+                            <div>
+                              <p style={{ fontSize: "13px", fontWeight: "600", color: "#fbbf24", margin: "0 0 4px 0" }}>
+                                Bu e-posta kayıtlı!
+                              </p>
+                              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", margin: 0 }}>
+                                {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}
+                                Devam etmek için şifrenizi girin.
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div style={{ display: "flex", gap: "8px", marginBottom: loginError ? "8px" : 0 }}>
+                            <input
+                              type="password"
+                              value={loginPassword}
+                              onChange={(e) => setLoginPassword(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()}
+                              placeholder="Şifreniz"
+                              style={{ 
+                                ...inputStyle, 
+                                flex: 1,
+                                height: "40px",
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                borderColor: loginError ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)"
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={handleEmailLogin}
+                              disabled={loggingIn || !loginPassword}
+                              style={{
+                                height: "40px",
+                                padding: "0 16px",
+                                backgroundColor: "#10b981",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "8px",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                cursor: loggingIn || !loginPassword ? "not-allowed" : "pointer",
+                                opacity: loggingIn || !loginPassword ? 0.6 : 1,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px"
+                              }}
+                            >
+                              {loggingIn ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                              Giriş Yap
+                            </button>
+                          </div>
+                          
+                          {loginError && (
+                            <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{loginError}</p>
+                          )}
+                          
+                          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                            <Link 
+                              href="/sifremi-unuttum" 
+                              style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}
+                            >
+                              Şifremi unuttum
+                            </Link>
+                          </div>
+                        </div>
                       )}
-                      
-                      <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                        <Link 
-                          href="/sifremi-unuttum" 
-                          style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}
-                        >
-                          Şifremi unuttum
-                        </Link>
-                      </div>
                     </div>
+                  </div>
+                  
+                  {/* Düzenleme modundaysa Kaydet butonu göster */}
+                  {editingPersonalInfo && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isPersonalInfoComplete) {
+                          setEditingPersonalInfo(false);
+                        }
+                      }}
+                      disabled={!isPersonalInfoComplete}
+                      style={{
+                        marginTop: "12px",
+                        padding: "10px 20px",
+                        backgroundColor: isPersonalInfoComplete ? "#10b981" : "rgba(255,255,255,0.1)",
+                        color: isPersonalInfoComplete ? "#fff" : "rgba(255,255,255,0.4)",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontSize: "13px",
+                        fontWeight: "500",
+                        cursor: isPersonalInfoComplete ? "pointer" : "not-allowed",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      <Check size={14} />
+                      Bilgileri Kaydet
+                    </button>
                   )}
-                </div>
-              </div>
+                </>
+              )}
             </div>
 
             {/* Invoice Type */}

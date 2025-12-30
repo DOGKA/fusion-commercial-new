@@ -1735,6 +1735,11 @@ model SiteSettings {
   gaServiceAccountEmail    String? // analytics@project.iam.gserviceaccount.com
   gaServiceAccountKey      String? @db.Text // JSON private key
 
+  // Google Search Console API (SEO Dashboard için)
+  gscSiteUrl               String? // https://fusionmarkt.com veya sc-domain:fusionmarkt.com
+  gscServiceAccountEmail   String? // Service account email (GA ile aynı olabilir)
+  gscServiceAccountKey     String? @db.Text // JSON private key (GA ile aynı olabilir)
+
   // Robots.txt içeriği
   robotsTxt String? @db.Text
 
@@ -1743,4 +1748,46 @@ model SiteSettings {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+// ============================================
+// FAQ (Sıkça Sorulan Sorular)
+// ============================================
+
+model FaqCategory {
+  id          String   @id @default(cuid())
+  name        String   // "İade, Değişim ve Teknik Destek"
+  slug        String   @unique // "iade"
+  description String?
+  icon        String?  // "RefreshCcw" - lucide icon name
+  color       String?  // "#ef4444" - hex color
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  faqs        Faq[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("faq_categories")
+}
+
+model Faq {
+  id         String   @id @default(cuid())
+  question   String
+  answer     String   @db.Text
+  
+  categoryId String
+  category   FaqCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([order])
+  @@map("faqs")
 }

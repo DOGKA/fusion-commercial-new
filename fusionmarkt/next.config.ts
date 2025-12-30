@@ -50,6 +50,12 @@ const nextConfig: NextConfig = {
         hostname: "www.fusionmarkt.com",
         pathname: "/**",
       },
+      // IEETek product images
+      {
+        protocol: "https",
+        hostname: "ieetek.com",
+        pathname: "/**",
+      },
     ],
   },
 

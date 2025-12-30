@@ -150,11 +150,11 @@ interface StatusBadgeProps {
 }
 
 const statusColors = {
-  success: { bg: "rgba(16, 185, 129, 0.12)", text: theme.colors.success },
-  warning: { bg: "rgba(245, 158, 11, 0.12)", text: theme.colors.warning },
-  error: { bg: "rgba(239, 68, 68, 0.12)", text: theme.colors.error },
-  info: { bg: "rgba(59, 130, 246, 0.12)", text: theme.colors.info },
-  purple: { bg: "rgba(139, 92, 246, 0.12)", text: theme.colors.purple },
+  success: { bg: "#d1fae5", text: "#047857" },  // Light emerald bg, dark emerald text
+  warning: { bg: "#fef3c7", text: "#b45309" },  // Light amber bg, dark amber text
+  error: { bg: "#fee2e2", text: "#b91c1c" },    // Light red bg, dark red text
+  info: { bg: "#dbeafe", text: "#1d4ed8" },     // Light blue bg, dark blue text
+  purple: { bg: "#ede9fe", text: "#6d28d9" },   // Light purple bg, dark purple text
 };
 
 export const StatusBadge = ({ label, status }: StatusBadgeProps) => (
@@ -421,8 +421,8 @@ export const TrackingInfo = ({ trackingNumber, carrier }: TrackingInfoProps) => 
     border={0}
     width="100%"
     style={{
-      backgroundColor: "rgba(139, 92, 246, 0.08)",
-      border: `1px solid rgba(139, 92, 246, 0.2)`,
+      backgroundColor: "#ede9fe",
+      border: "1px solid #c4b5fd",
       borderRadius: theme.radius.lg,
       marginBottom: theme.spacing[4],
     }}
@@ -479,8 +479,8 @@ export const BankInfo = ({ orderNumber }: BankInfoProps) => (
     border={0}
     width="100%"
     style={{
-      backgroundColor: "rgba(245, 158, 11, 0.06)",
-      border: `1px solid rgba(245, 158, 11, 0.2)`,
+      backgroundColor: "#fef3c7",
+      border: "1px solid #fcd34d",
       borderRadius: theme.radius.lg,
       marginBottom: theme.spacing[4],
     }}
@@ -575,7 +575,7 @@ export const BankInfo = ({ orderNumber }: BankInfoProps) => (
           <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: `${theme.spacing[4]} 0` }}>
             <tbody>
               <tr>
-                <td style={{ borderTop: "1px solid rgba(255, 255, 255, 0.08)", height: "1px" }}>&nbsp;</td>
+                <td style={{ borderTop: "1px solid #fcd34d", height: "1px" }}>&nbsp;</td>
               </tr>
             </tbody>
           </table>

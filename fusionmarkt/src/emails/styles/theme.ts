@@ -1,10 +1,10 @@
 /**
  * Email Theme - FusionMarkt
- * Glassmorphism + Minimal + Corporate
+ * Clean + Minimal + Corporate
  * 
  * Design Principles:
- * - Dark theme with subtle transparency
- * - Minimal color palette
+ * - Light theme for maximum email client compatibility
+ * - Solid hex colors (no rgba for consistency)
  * - Mobile-first responsive
  * - shadcn/ui inspired spacing and typography
  */
@@ -21,22 +21,22 @@ export const theme = {
     logoYellow: "#ffcc00",
     logoWhite: "#ffffff",
     
-    // Backgrounds
-    bgDark: "#030303",
-    bgCard: "rgba(10, 10, 10, 0.95)",
-    bgGlass: "rgba(255, 255, 255, 0.03)",
-    bgGlassHover: "rgba(255, 255, 255, 0.05)",
+    // Backgrounds (Light Theme)
+    bgDark: "#f5f5f5",       // Light gray outer background
+    bgCard: "#ffffff",        // White card background
+    bgGlass: "#f8f9fa",       // Subtle gray for panels
+    bgGlassHover: "#f0f1f2",  // Slightly darker hover
     
-    // Borders
-    border: "rgba(255, 255, 255, 0.06)",
-    borderLight: "rgba(255, 255, 255, 0.08)",
-    borderAccent: "rgba(16, 185, 129, 0.3)",
+    // Borders (Solid hex colors)
+    border: "#e5e7eb",        // Light gray border
+    borderLight: "#f0f0f0",   // Lighter border
+    borderAccent: "#a7f3d0",  // Light emerald border
     
-    // Text
-    text: "#ffffff",
-    textMuted: "rgba(255, 255, 255, 0.7)",
-    textFaded: "rgba(255, 255, 255, 0.5)",
-    textDim: "rgba(255, 255, 255, 0.3)",
+    // Text (Dark for light background)
+    text: "#1a1a1a",          // Near black
+    textMuted: "#4b5563",     // Dark gray
+    textFaded: "#6b7280",     // Medium gray
+    textDim: "#9ca3af",       // Light gray
     
     // Status colors
     success: "#10b981",
