@@ -21,6 +21,25 @@ interface SiteSettings {
   robotsTxt: string | null;
 }
 
+// Varsayılan değerler (veritabanında yoksa bunlar gösterilir)
+const defaultValues = {
+  siteTitle: "FusionMarkt - Güç İstasyonları ve Solar Paneller",
+  siteDescription: "Türkiye'nin en kapsamlı taşınabilir güç çözümleri mağazası. POWERTECH, EcoFlow ve daha fazlası.",
+  keywords: "güç istasyonu, solar panel, taşınabilir enerji, kamp ekipmanları, powerstation",
+  ogImage: "https://fusionmarkt.com/og-image.jpg",
+  twitterHandle: "@fusionmarkt",
+  googleAnalyticsId: "G-1YH2BWBZTQ",
+  googleTagManagerId: "GTM-P92SX9GL",
+  facebookPixelId: "",
+  gaPropertyId: "504466773",
+  gaServiceAccountEmail: "fusionmarkt-analytics@fusionmarkt-new.iam.gserviceaccount.com",
+  gaServiceAccountKey: "", // Private Key admin panelden girilecek - güvenlik için koda eklenmez!
+  gscSiteUrl: "https://fusionmarkt.com",
+  gscServiceAccountEmail: "", // GA ile aynı olabilir
+  gscServiceAccountKey: "", // GA ile aynı olabilir
+  robotsTxt: "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /hesabim/\nSitemap: https://fusionmarkt.com/sitemap.xml",
+};
+
 export default function SeoPage() {
   const [settings, setSettings] = useState<SiteSettings>({
     siteTitle: "",
@@ -47,25 +66,6 @@ export default function SeoPage() {
     text: string;
   } | null>(null);
   const [showServiceKey, setShowServiceKey] = useState(false);
-
-  // Varsayılan değerler (veritabanında yoksa bunlar gösterilir)
-  const defaultValues = {
-    siteTitle: "FusionMarkt - Güç İstasyonları ve Solar Paneller",
-    siteDescription: "Türkiye'nin en kapsamlı taşınabilir güç çözümleri mağazası. POWERTECH, EcoFlow ve daha fazlası.",
-    keywords: "güç istasyonu, solar panel, taşınabilir enerji, kamp ekipmanları, powerstation",
-    ogImage: "https://fusionmarkt.com/og-image.jpg",
-    twitterHandle: "@fusionmarkt",
-    googleAnalyticsId: "G-1YH2BWBZTQ",
-    googleTagManagerId: "GTM-P92SX9GL",
-    facebookPixelId: "",
-    gaPropertyId: "504466773",
-    gaServiceAccountEmail: "fusionmarkt-analytics@fusionmarkt-new.iam.gserviceaccount.com",
-    gaServiceAccountKey: "", // Private Key admin panelden girilecek - güvenlik için koda eklenmez!
-    gscSiteUrl: "https://fusionmarkt.com",
-    gscServiceAccountEmail: "", // GA ile aynı olabilir
-    gscServiceAccountKey: "", // GA ile aynı olabilir
-    robotsTxt: "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /hesabim/\nSitemap: https://fusionmarkt.com/sitemap.xml",
-  };
 
   // Ayarları yükle
   const fetchSettings = useCallback(async () => {
@@ -530,7 +530,7 @@ export default function SeoPage() {
             {/* GSC Bilgi Kutusu */}
             <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
               <p className="text-xs text-amber-700 dark:text-amber-300">
-                <strong>⚠️ Önemli:</strong> Service Account'u Search Console'a "Tam" yetkili kullanıcı olarak eklemeniz gerekiyor.
+                <strong>⚠️ Önemli:</strong> Service Account&apos;u Search Console&apos;a &quot;Tam&quot; yetkili kullanıcı olarak eklemeniz gerekiyor.
                 <br />
                 Search Console {">"} Ayarlar {">"} Kullanıcılar ve izinler {">"} Kullanıcı ekle {">"} Service Account Email
               </p>
