@@ -895,9 +895,14 @@ export default function PowerCalculator() {
                     {/* ALT: içerik */}
                     <div className="p-2 flex flex-col gap-2 bg-white/5">
                       {/* Ürün Adı */}
-                      <h4 className="text-[11px] md:text-sm font-bold text-foreground leading-tight truncate">
-                        {result.powerStation.station.name}
-                      </h4>
+                      <div>
+                        <h4 className="text-[11px] md:text-sm font-bold text-foreground leading-tight truncate">
+                          {result.powerStation.station.name}
+                        </h4>
+                        <p className="text-[9px] text-foreground-secondary">
+                          LiFePO4 Batarya
+                        </p>
+                      </div>
 
                       {/* Stats: 2x2 grid, her hücre ayrı */}
                       <div className="grid grid-cols-2 gap-1 text-[9px] md:text-[10px]">

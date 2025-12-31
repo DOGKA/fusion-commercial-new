@@ -192,28 +192,24 @@ const CHARGE_MODE_MAP: Record<string, Record<ChargeSpeedPreference, { panel: str
 };
 
 /**
- * Solar panel öneri algoritması
+ * Şarj hızı fallback sırası: fast -> balanced -> economic
  */
-export function recommendSolarPanel(
+const CHARGE_SPEED_FALLBACK: Record<ChargeSpeedPreference, ChargeSpeedPreference | null> = {
+  'fast': 'balanced',
+  'balanced': 'economic',
+  'economic': null
+};
+
+/**
+ * Solar panel öneri algoritması - tek bir şarj hızı için dener
+ */
+function tryRecommendSolarPanel(
   dailyWh: number,
   psh: number,
   powerStation: PowerStation,
-  chargeSpeed: ChargeSpeedPreference
+  chargeSpeed: ChargeSpeedPreference,
+  stationKey: string
 ): RecommendedSolarPanel | null {
-  // Güç kaynağı için şarj tablosu anahtarını bul
-  let stationKey: string | null = null;
-  for (const key of Object.keys(CHARGE_MODE_MAP)) {
-    if (powerStation.name.includes(key)) {
-      stationKey = key;
-      break;
-    }
-  }
-  
-  if (!stationKey) {
-    console.warn('Güç kaynağı şarj tablosunda bulunamadı:', powerStation.name);
-    return null;
-  }
-  
   const recommendation = CHARGE_MODE_MAP[stationKey][chargeSpeed];
   if (!recommendation) {
     return null;
@@ -230,11 +226,10 @@ export function recommendSolarPanel(
   
   // Voltaj hesaplamaları (seri bağlantıda katlanır)
   const arrayVoc = isSeries ? selectedPanel.voc * panelCount : selectedPanel.voc;
-  const arrayVmp = isSeries ? selectedPanel.vmp * panelCount : selectedPanel.vmp;
   
   // MPPT uyumluluk kontrolü
   if (powerStation.mpptMax && arrayVoc > powerStation.mpptMax) {
-    console.warn('Array Voc MPPT limitini aşıyor');
+    // MPPT limiti aşıldığında bu panel uygun değil
     return null;
   }
   
@@ -269,6 +264,45 @@ export function recommendSolarPanel(
     isLimited: actualArrayW < neededPV_W,
     chargeSpeed
   };
+}
+
+/**
+ * Solar panel öneri algoritması
+ * MPPT uyumsuzluğunda fallback ile bir önceki hız modunu dener
+ */
+export function recommendSolarPanel(
+  dailyWh: number,
+  psh: number,
+  powerStation: PowerStation,
+  chargeSpeed: ChargeSpeedPreference
+): RecommendedSolarPanel | null {
+  // Güç kaynağı için şarj tablosu anahtarını bul
+  let stationKey: string | null = null;
+  for (const key of Object.keys(CHARGE_MODE_MAP)) {
+    if (powerStation.name.includes(key)) {
+      stationKey = key;
+      break;
+    }
+  }
+  
+  if (!stationKey) {
+    return null;
+  }
+  
+  // İstenen hız modunu dene
+  let currentSpeed: ChargeSpeedPreference | null = chargeSpeed;
+  
+  while (currentSpeed !== null) {
+    const result = tryRecommendSolarPanel(dailyWh, psh, powerStation, currentSpeed, stationKey);
+    if (result) {
+      return result;
+    }
+    // Uygun değilse bir önceki modu dene
+    currentSpeed = CHARGE_SPEED_FALLBACK[currentSpeed];
+  }
+  
+  // Hiçbir mod uygun değilse null döndür
+  return null;
 }
 
 /**

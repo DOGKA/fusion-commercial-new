@@ -104,7 +104,7 @@ export function generateMetadata({
     
     // Other
     other: {
-      "apple-mobile-web-app-capable": "yes",
+      "mobile-web-app-capable": "yes",
       "apple-mobile-web-app-status-bar-style": "black-translucent",
       "format-detection": "telephone=no",
     },
@@ -166,7 +166,7 @@ export function generateProductMetadata({
   return {
     ...metadata,
     other: {
-      "apple-mobile-web-app-capable": "yes",
+      "mobile-web-app-capable": "yes",
       "apple-mobile-web-app-status-bar-style": "black-translucent",
       "format-detection": "telephone=no",
       "product:price:amount": String(discountPrice || price || 0),
