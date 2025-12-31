@@ -55,12 +55,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Toplam stok hesapla
   const totalStock = product.variants?.reduce((sum: number, v: { stock: number | null }) => sum + (v.stock || 0), 0) || product.stock || 0;
-  
-  // Ortalama rating hesapla
-  const reviews = product.reviews || [];
-  const avgRating = reviews.length > 0 
-    ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length 
-    : 0;
 
   // Görsel URL'si
   const imageUrl = product.thumbnail || (product.images as string[])?.[0];

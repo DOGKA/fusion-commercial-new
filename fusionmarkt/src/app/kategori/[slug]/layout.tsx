@@ -12,13 +12,18 @@ interface Props {
   children: React.ReactNode;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CategoryData = any;
+type CategoryData = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image: string | null;
+};
 
 // Kategori verisini getir
 async function getCategory(slug: string): Promise<CategoryData | null> {
   try {
-    const category = await (prisma as any).category.findUnique({
+    const category = await prisma.category.findUnique({
       where: { slug },
       select: {
         id: true,

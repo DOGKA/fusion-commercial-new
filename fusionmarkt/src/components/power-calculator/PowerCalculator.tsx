@@ -124,7 +124,6 @@ interface DBProduct {
 }
 
 export default function PowerCalculator() {
-  const t = translations['tr'];
   const { addItem, openCart } = useCart();
 
   // Wizard step
