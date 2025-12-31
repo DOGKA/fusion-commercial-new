@@ -7,7 +7,7 @@ import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 import { siteConfig } from "@/lib/seo";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = "Ürün - FusionMarkt";
 export const size = {
   width: 1200,

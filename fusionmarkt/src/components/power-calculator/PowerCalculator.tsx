@@ -13,7 +13,6 @@ import {
 import { SCENARIOS, getScenarioById } from '@/lib/power-calculator/scenarios';
 import { TURKEY_CITIES } from '@/lib/power-calculator/turkey-solar-data';
 import { PRESET_DEVICES } from '@/lib/power-calculator/products';
-import { translations } from '@/lib/power-calculator/translations';
 import { calculate, getPSH, formatHours } from '@/lib/power-calculator/calculate';
 import { useCart } from '@/context/CartContext';
 
