@@ -119,11 +119,9 @@ const DEFAULT_FILTERS: FilterDefinition[] = [
     displayStyle: "LIST",
     isCollapsible: true,
     options: [
-      { name: "500W ve altı", value: "0-500" },
       { name: "500W - 1000W", value: "500-1000" },
-      { name: "1000W - 2000W", value: "1000-2000" },
-      { name: "2000W - 3000W", value: "2000-3000" },
-      { name: "3000W ve üzeri", value: "3000+" },
+      { name: "1000W - 3000W", value: "1000-3000" },
+      { name: "3000W - 5000W", value: "3000-5000" },
     ],
   },
   {
@@ -175,17 +173,17 @@ const DEFAULT_FILTERS: FilterDefinition[] = [
     ],
   },
   {
-    name: "Solar Panel Desteği",
+    name: "Max. Solar Şarj Gücü (W)",
     categorySlug: "tasinabilir-guc-kaynaklari",
     sourceType: "CUSTOM",
     filterType: "CHECKBOX",
     displayStyle: "LIST",
     isCollapsible: true,
     options: [
-      { name: "300W ve altı", value: "0-300" },
+      { name: "200W - 300W", value: "200-300" },
       { name: "300W - 500W", value: "300-500" },
       { name: "500W - 1000W", value: "500-1000" },
-      { name: "1000W ve üzeri", value: "1000+" },
+      { name: "1000W - 4000W", value: "1000-4000" },
     ],
   },
 

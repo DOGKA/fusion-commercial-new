@@ -1133,20 +1133,47 @@ export default function CheckoutPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 style={{ fontSize: "14px", fontWeight: "500", color: "rgba(255,255,255,0.9)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
                     {item.variant && <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{item.variant.value}</p>}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px", backgroundColor: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "2px" }}>
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.4)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
-                          <Minus size={12} />
+                    
+                    {/* Price, Discount, Quantity - Stacked layout */}
+                    <div className="flex flex-col gap-1.5 mt-2">
+                      {/* Row 1: Original price */}
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-[15px] font-semibold text-white">
+                          {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
+                        </span>
+                        <span className="text-[11px] text-white/40">₺</span>
+                      </div>
+                      
+                      {/* Row 2: Discounted price + savings - only if there's a discount */}
+                      {item.originalPrice && item.originalPrice > item.price && (
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                          <span className="text-[10px] text-white/50">İndirimli Fiyat:</span>
+                          <span className="text-[11px] text-white font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
+                          <span className="text-[10px] text-white/30">•</span>
+                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
+                        </div>
+                      )}
+                      
+                      {/* Row 3: Quantity Controls - smaller on mobile */}
+                      <div className="checkout-quantity-controls flex items-center self-start bg-white/[0.04] border border-white/[0.06] rounded p-px md:rounded-md md:p-0.5">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
+                          type="button"
+                        >
+                          <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
-                        <span style={{ width: "24px", textAlign: "center", fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.8)" }}>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.4)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
-                          <Plus size={12} />
+                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-medium text-white/80">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
+                          type="button"
+                        >
+                          <Plus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
                       </div>
-                      {/* Always show original price in white - discount shown in totals */}
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>
-                        {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
-                      </span>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>

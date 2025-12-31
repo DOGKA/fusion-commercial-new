@@ -1,11 +1,16 @@
-"use client";
+/**
+ * Checkout Layout - SEO Metadata & Provider Wrapper
+ */
 
-import { CheckoutProvider } from "@/context/CheckoutContext";
+import { staticPageMetadata } from "@/lib/seo";
+import CheckoutWrapper from "./CheckoutWrapper";
+
+export const metadata = staticPageMetadata.checkout;
 
 export default function CheckoutLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <CheckoutProvider>{children}</CheckoutProvider>;
+  return <CheckoutWrapper>{children}</CheckoutWrapper>;
 }

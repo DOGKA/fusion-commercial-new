@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogHeader, BlogContent, BlogShare, BlogCard } from "@/components/blog";
+import { JsonLd } from "@/components/seo";
+import { generateBlogMetadata, generateArticleSchema, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
 import "@/styles/blog.css";
 
 interface BlogPostPageProps {
@@ -152,22 +154,15 @@ export async function generateMetadata({
 
     const description = post.excerpt || createExcerpt(post.content);
 
-    return {
-      title: `${post.title} | FusionMarkt Blog`,
-      description,
-      openGraph: {
-        title: post.title,
-        description,
-        type: "article",
-        images: post.featuredImage ? [post.featuredImage] : [],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: post.title,
-        description,
-        images: post.featuredImage ? [post.featuredImage] : [],
-      },
-    };
+    return generateBlogMetadata({
+      title: post.title,
+      excerpt: description,
+      slug: post.slug,
+      image: post.featuredImage || undefined,
+      publishedAt: post.publishedAt?.toISOString(),
+      updatedAt: post.updatedAt?.toISOString(),
+      tags: post.category ? [post.category] : undefined,
+    });
   } catch {
     return {
       title: "Blog | FusionMarkt",
@@ -211,50 +206,72 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = await getRelatedPosts(post.id, post.category);
 
   const readingTime = calculateReadingTime(post.content);
-  const pageUrl = `https://fusionmarkt.com/blog/${slug}`;
+  const pageUrl = `${siteConfig.url}/blog/${slug}`;
+
+  // JSON-LD Article Schema
+  const articleSchema = generateArticleSchema({
+    title: post.title,
+    description: post.excerpt || createExcerpt(post.content),
+    image: post.featuredImage || undefined,
+    publishedAt: post.publishedAt?.toISOString() || new Date().toISOString(),
+    updatedAt: post.updatedAt?.toISOString(),
+    url: `/blog/${slug}`,
+  });
+
+  // Breadcrumb Schema
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Ana Sayfa", url: "/" },
+    { name: "Blog", url: "/blog" },
+    { name: post.title, url: `/blog/${slug}` },
+  ]);
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
-      <div className="container px-4 md:px-6 lg:px-8 pt-[120px] pb-12 md:pb-16">
-        <article className="blog-article">
-          {/* Header */}
-          <BlogHeader
-            title={post.title}
-            publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
-            updatedAt={post.updatedAt?.toISOString()}
-            category={post.category || undefined}
-            readingTime={readingTime}
-          />
+    <>
+      {/* JSON-LD Structured Data */}
+      <JsonLd data={[articleSchema, breadcrumbSchema]} />
+      
+      <main className="min-h-screen bg-[var(--background)]">
+        <div className="container px-4 md:px-6 lg:px-8 pt-[120px] pb-12 md:pb-16">
+          <article className="blog-article">
+            {/* Header */}
+            <BlogHeader
+              title={post.title}
+              publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
+              updatedAt={post.updatedAt?.toISOString()}
+              category={post.category || undefined}
+              readingTime={readingTime}
+            />
 
-          {/* Content */}
-          <BlogContent content={post.content} title={post.title} />
+            {/* Content */}
+            <BlogContent content={post.content} title={post.title} />
 
-          {/* Share */}
-          <BlogShare title={post.title} url={pageUrl} />
-        </article>
+            {/* Share */}
+            <BlogShare title={post.title} url={pageUrl} />
+          </article>
 
-        {/* Related Posts */}
-        {relatedPosts.length > 0 && (
-          <section className="blog-related">
-            <h2 className="blog-related__title">İlgili Yazılar</h2>
-            <div className="blog-grid">
-              {relatedPosts.map((relatedPost) => (
-                <BlogCard
-                  key={relatedPost.id}
-                  slug={relatedPost.slug}
-                  title={relatedPost.title}
-                  excerpt={
-                    relatedPost.excerpt || createExcerpt(relatedPost.content)
-                  }
-                  publishedAt={relatedPost.publishedAt?.toISOString() || new Date().toISOString()}
-                  category={relatedPost.category || undefined}
-                  readingTime={calculateReadingTime(relatedPost.content)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
-    </main>
+          {/* Related Posts */}
+          {relatedPosts.length > 0 && (
+            <section className="blog-related">
+              <h2 className="blog-related__title">İlgili Yazılar</h2>
+              <div className="blog-grid">
+                {relatedPosts.map((relatedPost) => (
+                  <BlogCard
+                    key={relatedPost.id}
+                    slug={relatedPost.slug}
+                    title={relatedPost.title}
+                    excerpt={
+                      relatedPost.excerpt || createExcerpt(relatedPost.content)
+                    }
+                    publishedAt={relatedPost.publishedAt?.toISOString() || new Date().toISOString()}
+                    category={relatedPost.category || undefined}
+                    readingTime={calculateReadingTime(relatedPost.content)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+    </>
   );
 }

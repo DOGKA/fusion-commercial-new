@@ -511,16 +511,35 @@ export default function CategoryPage() {
         }
         // ═══════════════════════════════════════════════════════════════════
         // ÇIKIŞ GÜCÜ FİLTRESİ (W) - Teknik özelliklerden çek
+        // P800 (800W), Singo1000 (1000W) → 500-1000W
+        // P1800 (1800W), Singo2000Pro (2000W) → 1000-3000W
+        // P3200 (3200W), SH4000 (4000W) → 3000-5000W
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "output_power") {
           const powerValue = getProductFeatureValue(product, "cikis-gucu");
           const power = typeof powerValue === 'number' ? powerValue : parseFloat(String(powerValue)) || 0;
           
           matchFound = values.some((range: string) => {
-            if (range === "1000-2000") return power >= 1000 && power < 2000;
-            if (range === "2000-3000") return power >= 2000 && power < 3000;
-            if (range === "3000-5000") return power >= 3000 && power < 5000;
-            if (range === "5000+") return power >= 5000;
+            if (range === "500-1000") return power >= 500 && power <= 1000;
+            if (range === "1000-3000") return power > 1000 && power <= 3000;
+            if (range === "3000-5000") return power > 3000 && power <= 5000;
+            return false;
+          });
+        }
+        // ═══════════════════════════════════════════════════════════════════
+        // MAX. SOLAR ŞARJ FİLTRESİ (W) - Teknik özelliklerden çek
+        // Singo1000 (200W), P800 (300W) → 200-300W
+        // P1800 (500W), Singo2000Pro (500W), P3200 (500W) → 500-1000W
+        // SH4000 (3000W) → 1000-4000W
+        // ═══════════════════════════════════════════════════════════════════
+        else if (filterId === "max_solar_charging") {
+          const solarValue = getProductFeatureValue(product, "max-solar-sarj");
+          const solarPower = typeof solarValue === 'number' ? solarValue : parseFloat(String(solarValue)) || 0;
+          
+          matchFound = values.some((range: string) => {
+            if (range === "200-300") return solarPower >= 200 && solarPower <= 300;
+            if (range === "500-1000") return solarPower >= 500 && solarPower <= 1000;
+            if (range === "1000-4000") return solarPower > 1000 && solarPower <= 4000;
             return false;
           });
         }

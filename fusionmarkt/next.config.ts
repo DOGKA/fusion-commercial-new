@@ -60,10 +60,11 @@ const nextConfig: NextConfig = {
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SECURITY HEADERS
+  // SECURITY & CACHE HEADERS
   // ═══════════════════════════════════════════════════════════════════════════
   async headers() {
     return [
+      // Security headers - tüm sayfalar
       {
         source: "/:path*",
         headers: [
@@ -82,6 +83,88 @@ const nextConfig: NextConfig = {
           {
             key: "X-XSS-Protection",
             value: "1; mode=block",
+          },
+        ],
+      },
+      // ═══════════════════════════════════════════════════════════════════════
+      // CACHE HEADERS - Cloudflare & Browser Caching
+      // ═══════════════════════════════════════════════════════════════════════
+      // Public API endpoints - 1 saat CDN cache, 24 saat stale-while-revalidate
+      {
+        source: "/api/public/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Ürün detay API - 30 dakika cache
+      {
+        source: "/api/public/products/:slug*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=1800, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Kategori API - 1 saat cache
+      {
+        source: "/api/public/categories/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Banner/Slider API - 2 saat cache
+      {
+        source: "/api/public/banners",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=7200, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
+        source: "/api/public/sliders",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=7200, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Settings API - 6 saat cache
+      {
+        source: "/api/public/settings",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=21600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      // Statik dosyalar (fonts, icons) - 1 yıl cache
+      {
+        source: "/fonts/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // Next.js static assets - 1 yıl cache
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

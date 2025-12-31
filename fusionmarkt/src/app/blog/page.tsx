@@ -1,18 +1,8 @@
-import { Metadata } from "next";
 import BlogCard from "@/components/blog/BlogCard";
+import { staticPageMetadata } from "@/lib/seo";
 import "@/styles/blog.css";
 
-export const metadata: Metadata = {
-  title: "Blog | FusionMarkt",
-  description:
-    "FusionMarkt blog - Endüstriyel ekipmanlar, taşınabilir enerji çözümleri ve daha fazlası hakkında güncel yazılar.",
-  openGraph: {
-    title: "Blog | FusionMarkt",
-    description:
-      "Endüstriyel ekipmanlar, taşınabilir enerji çözümleri ve daha fazlası hakkında güncel yazılar.",
-    type: "website",
-  },
-};
+export const metadata = staticPageMetadata.blog;
 
 // Blog post type
 interface BlogPost {

@@ -447,36 +447,47 @@ export default function MiniCart() {
                       )}
                     </div>
                     
-                    {/* Bottom: Price + Quantity */}
-                    <div className="flex items-center justify-between mt-2">
+                    {/* Bottom: Price + Quantity - Stacked on mobile, inline on desktop */}
+                    <div className="flex flex-col gap-1.5 mt-2">
+                      {/* Row 1: Original price */}
                       <div className="flex items-baseline gap-1">
-                        {/* Always show original price in white - discount shown in totals */}
-                        <span className="text-[16px] font-semibold text-white">
+                        <span className="text-[15px] font-semibold text-white">
                           {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
                         </span>
-                        <span className="text-[12px] text-white/40">₺</span>
+                        <span className="text-[11px] text-white/40">₺</span>
                       </div>
                       
-                      {/* Quantity Controls - Compact */}
-                      <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.06]" style={{ borderRadius: '8px', padding: '2px' }} onClick={(e) => e.stopPropagation()}>
+                      {/* Row 2: Discounted price + savings - only if there's a discount */}
+                      {item.originalPrice && item.originalPrice > item.price && (
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                          <span className="text-[10px] text-white/50">İndirimli Fiyat:</span>
+                          <span className="text-[11px] text-white font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
+                          <span className="text-[10px] text-white/30">•</span>
+                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
+                        </div>
+                      )}
+                      
+                      {/* Row 3: Quantity Controls - smaller on mobile */}
+                      <div
+                        className="flex items-center self-start bg-white/[0.04] border border-white/[0.06] rounded p-px md:rounded-md md:p-0.5"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
-                          className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all"
-                          style={{ borderRadius: '6px' }}
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
                         >
-                          <Minus size={13} />
+                          <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
-                        <span className="w-6 text-center text-[13px] font-semibold text-white/80">
+                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-semibold text-white/80">
                           {item.quantity}
                         </span>
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
-                          className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all"
-                          style={{ borderRadius: '6px' }}
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
                         >
-                          <Plus size={13} />
+                          <Plus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
                       </div>
                     </div>

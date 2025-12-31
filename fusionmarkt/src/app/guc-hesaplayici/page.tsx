@@ -1,17 +1,7 @@
-import { Metadata } from 'next';
 import PowerCalculator from '@/components/power-calculator/PowerCalculator';
+import { staticPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: 'Güç & Solar Panel Hesaplayıcı | FusionMarkt',
-  description: 'Enerji ihtiyacınızı hesaplayın. Cihazlarınızı ekleyin, ihtiyacınıza uygun güç kaynağı ve solar panel kombinasyonunu hesaplayalım.',
-  keywords: ['güç hesaplayıcı', 'solar panel', 'taşınabilir güç kaynağı', 'enerji hesaplama', 'power station', 'off-grid'],
-  openGraph: {
-    title: 'Güç & Solar Panel Hesaplayıcı | FusionMarkt',
-    description: 'Enerji ihtiyacınızı hesaplayın. Cihazlarınızı ekleyin, ihtiyacınıza uygun güç kaynağı ve solar panel kombinasyonunu hesaplayalım.',
-    type: 'website',
-    locale: 'tr_TR',
-  },
-};
+export const metadata = staticPageMetadata.powerCalculator;
 
 export default function GucHesaplayiciPage() {
   return (

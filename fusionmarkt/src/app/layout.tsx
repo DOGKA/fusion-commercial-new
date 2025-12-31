@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -13,40 +13,97 @@ import { MysteryBoxModal } from "@/components/campaign";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { JsonLd } from "@/components/seo";
+import { 
+  siteConfig, 
+  generateOrganizationSchema, 
+  generateWebSiteSchema 
+} from "@/lib/seo";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
+// Viewport configuration
+export const viewport: Viewport = {
+  themeColor: siteConfig.themeColor,
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+// Global SEO metadata
 export const metadata: Metadata = {
-  title: "FusionMarkt | Taşınabilir Güç Kaynakları & Enerji Çözümleri",
-  description: "EcoFlow, Bluetti, Jackery taşınabilir güç kaynakları, güneş panelleri ve enerji depolama sistemleri. Yetkili distribütör garantisiyle güvenli alışveriş.",
-  keywords: ["taşınabilir güç kaynağı", "power station", "güneş paneli", "solar panel", "ecoflow", "bluetti", "jackery"],
-  authors: [{ name: "FusionMarkt" }],
-  creator: "FusionMarkt",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: "FusionMarkt | Taşınabilir Güç Kaynakları & Enerji Çözümleri",
+    template: "%s | FusionMarkt",
+  },
+  description: siteConfig.description,
+  keywords: [...siteConfig.keywords],
+  authors: [{ name: siteConfig.creator }],
+  creator: siteConfig.creator,
+  publisher: siteConfig.publisher,
+  
+  // Icons
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
+  
+  // Manifest
+  manifest: "/manifest.json",
+  
+  // Open Graph
   openGraph: {
     type: "website",
-    locale: "tr_TR",
-    url: "https://fusionmarkt.com",
-    siteName: "FusionMarkt",
+    locale: siteConfig.locale,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
     title: "FusionMarkt | Taşınabilir Güç Kaynakları & Enerji Çözümleri",
-    description: "Taşınabilir güç kaynakları, güneş panelleri ve enerji depolama sistemleri. Yetkili distribütör garantisiyle güvenli alışveriş.",
+    description: siteConfig.description,
+    images: [
+      {
+        url: "/images/og-default.jpg",
+        width: 1200,
+        height: 630,
+        alt: "FusionMarkt - Taşınabilir Güç Kaynakları",
+      },
+    ],
   },
+  
+  // Twitter
   twitter: {
     card: "summary_large_image",
     title: "FusionMarkt | Taşınabilir Güç Kaynakları",
-    description: "Taşınabilir güç kaynakları, güneş panelleri ve enerji çözümleri.",
+    description: siteConfig.description,
+    site: siteConfig.social.twitter,
+    creator: siteConfig.social.twitter,
   },
+  
+  // Robots
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
+  
+  // Verification (gerekirse eklenecek)
+  verification: {
+    // google: "google-site-verification-code",
+    // yandex: "yandex-verification-code",
+  },
+  
+  // Category
+  category: "e-commerce",
 };
 
 export default function RootLayout({
@@ -54,8 +111,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Global JSON-LD schemas
+  const organizationSchema = generateOrganizationSchema();
+  const webSiteSchema = generateWebSiteSchema();
+
   return (
     <html lang="tr" className="dark" data-scroll-behavior="smooth">
+      <head>
+        {/* Global JSON-LD Structured Data */}
+        <JsonLd data={[organizationSchema, webSiteSchema]} />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         <CookieConsentProvider>
           {/* Google Analytics, GTM, FB Pixel - API'den dinamik + Consent Mode v2 */}

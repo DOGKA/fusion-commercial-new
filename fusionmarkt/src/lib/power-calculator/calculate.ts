@@ -152,37 +152,42 @@ export function recommendPowerStation(
 /**
  * Şarj modu haritası (Güç Kaynağı → Panel kombinasyonları)
  * Datasheet'lere göre MPPT uyumluluğu kontrol edildi
+ * 
+ * Panel Özellikleri:
+ * - SP100: 100W, Voc=21.6V, Vmp=18V
+ * - SP200: 200W, Voc=28.8V, Vmp=24V
+ * - SP400: 400W, Voc=52.8V, Vmp=44V
  */
 const CHARGE_MODE_MAP: Record<string, Record<ChargeSpeedPreference, { panel: string; count: number; connection: 'single' | 'parallel' | 'series' }>> = {
   // P800: Max 300W solar, MPPT 12-60V
   'P800': {
-    'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W, Vmp 18V ✓
-    'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W, Vmp 24V ✓
-    'fast': { panel: 'SP200', count: 1, connection: 'single' }       // Max 300W limit
+    'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W
+    'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W
+    'fast': { panel: 'SP200', count: 1, connection: 'single' }       // 200W (Max limit: 300W)
   },
   // P1800: Max 500W solar, MPPT 10-52V
   'P1800': {
-    'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W, Vmp 18V ✓
-    'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W, Vmp 24V ✓
-    'fast': { panel: 'SP200', count: 2, connection: 'parallel' }     // 400W, Vmp 24V (paralel) ✓
+    'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W
+    'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W
+    'fast': { panel: 'SP400', count: 1, connection: 'single' }       // 400W, Voc=52.8V ✓
   },
   // Singo2000Pro: Max 500W solar, MPPT 10-50V
   'Singo': {
-    'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W, Vmp 18V ✓
-    'balanced': { panel: 'SP200', count: 2, connection: 'parallel' }, // 400W, Vmp 24V ✓
-    'fast': { panel: 'SP200', count: 2, connection: 'parallel' }      // Max 500W limit
+    'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W
+    'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W
+    'fast': { panel: 'SP400', count: 1, connection: 'single' }       // 400W, Voc=52.8V → 50V limitine çok yakın!
   },
   // P3200: Max 1000W solar, MPPT 12-80V
   'P3200': {
-    'economic': { panel: 'SP200', count: 1, connection: 'single' },  // 200W, Vmp 24V ✓
-    'balanced': { panel: 'SP200', count: 2, connection: 'parallel' }, // 400W, Vmp 24V ✓
-    'fast': { panel: 'SP400', count: 2, connection: 'parallel' }      // 800W, Vmp 44V ✓
+    'economic': { panel: 'SP200', count: 1, connection: 'single' },  // 200W
+    'balanced': { panel: 'SP400', count: 1, connection: 'single' },  // 400W
+    'fast': { panel: 'SP400', count: 2, connection: 'parallel' }     // 800W, Voc=52.8V (paralel) ✓
   },
   // SH4000: HV MPPT 70-450V (3000W), LV MPPT 12-50V (600W)
   'SH4000': {
     'economic': { panel: 'SP200', count: 2, connection: 'parallel' }, // 400W, LV input ✓
-    'balanced': { panel: 'SP400', count: 2, connection: 'series' },   // 800W, Vmp 88V → HV ✓
-    'fast': { panel: 'SP400', count: 4, connection: 'series' }        // 1600W, Vmp 176V → HV ✓
+    'balanced': { panel: 'SP400', count: 2, connection: 'series' },   // 800W, Voc=105.6V → HV ✓
+    'fast': { panel: 'SP400', count: 4, connection: 'series' }        // 1600W, Voc=211.2V → HV ✓
   }
 };
 
