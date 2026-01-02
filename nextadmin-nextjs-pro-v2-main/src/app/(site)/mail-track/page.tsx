@@ -16,6 +16,7 @@ type EmailType =
   | "WELCOME"
   | "PASSWORD_RESET"
   | "ABANDONED_CART"
+  | "REVIEW_REMINDER"
   | "MARKETING"
   | "OTHER";
 
@@ -65,6 +66,7 @@ const typeConfig: Record<EmailType, { label: string; color: string }> = {
   WELCOME: { label: "Hoş Geldin", color: "bg-green-100 text-green-600 dark:bg-green-500/10" },
   PASSWORD_RESET: { label: "Şifre Sıfırlama", color: "bg-amber-100 text-amber-600 dark:bg-amber-500/10" },
   ABANDONED_CART: { label: "Terk Edilmiş Sepet", color: "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/10" },
+  REVIEW_REMINDER: { label: "Yorum Hatırlatma", color: "bg-pink-100 text-pink-600 dark:bg-pink-500/10" },
   MARKETING: { label: "Pazarlama", color: "bg-purple-100 text-purple-600 dark:bg-purple-500/10" },
   OTHER: { label: "Diğer", color: "bg-gray-100 text-gray-600 dark:bg-gray-500/10" },
 };

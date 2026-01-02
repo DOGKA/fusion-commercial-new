@@ -20,6 +20,9 @@ interface ApiReview {
   rating: number;
   title?: string;
   comment?: string;
+  images?: string[];
+  adminReply?: string | null;
+  adminReplyAt?: string | null;
   createdAt?: string;
   isVerifiedPurchase?: boolean;
 }
@@ -111,6 +114,9 @@ interface Review {
   rating: number;
   title: string;
   comment: string;
+  images: string[]; // Yorum görselleri
+  adminReply: string | null; // Satıcı yanıtı
+  adminReplyAt: string | null; // Yanıt tarihi
   createdAt: string;
   isVerifiedPurchase: boolean;
 }
@@ -288,6 +294,9 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               rating: r.rating,
               title: r.title || "",
               comment: r.comment || "",
+              images: r.images || [],
+              adminReply: r.adminReply || null,
+              adminReplyAt: r.adminReplyAt || null,
               createdAt: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : "",
               isVerifiedPurchase: r.isVerifiedPurchase || false,
             }));
@@ -318,6 +327,9 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [reviewHoverRating, setReviewHoverRating] = useState(0);
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewComment, setReviewComment] = useState("");
+  const [reviewImages, setReviewImages] = useState<File[]>([]); // Yüklenen görseller
+  const [reviewImagePreviews, setReviewImagePreviews] = useState<string[]>([]); // Görsel önizlemeleri
+  const [reviewImageUploading, setReviewImageUploading] = useState(false); // Görsel yükleniyor mu
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false); // Yorum gönderildi mi
   const [reviewIsUpdate, setReviewIsUpdate] = useState(false); // Güncelleme mi
@@ -326,6 +338,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Kullanıcı giriş yapmış mı
   const [userName, setUserName] = useState(""); // Giriş yapmış kullanıcının adı
   const [nameDisplayPreference, setNameDisplayPreference] = useState<"masked" | "full">("masked"); // İsim gösterim tercihi
+  const reviewImageInputRef = useRef<HTMLInputElement>(null);
   
   // İsim maskeleme fonksiyonu: "DOĞUKAN ARIK" -> "D*** A***"
   const maskName = (fullName: string): string => {
@@ -355,6 +368,80 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) 
     : "0.0";
 
+  // Görsel seçme handler
+  const handleReviewImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    // Max 3 görsel
+    const remainingSlots = 3 - reviewImages.length;
+    const newFiles = Array.from(files).slice(0, remainingSlots);
+    
+    // Dosya boyutu kontrolü (max 5MB)
+    const validFiles = newFiles.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} dosyası 5MB'dan büyük olamaz`);
+        return false;
+      }
+      return true;
+    });
+    
+    if (validFiles.length > 0) {
+      setReviewImages(prev => [...prev, ...validFiles]);
+      // Önizleme oluştur
+      validFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setReviewImagePreviews(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // Input'u sıfırla
+    if (reviewImageInputRef.current) {
+      reviewImageInputRef.current.value = '';
+    }
+  };
+  
+  // Görsel silme
+  const handleRemoveReviewImage = (index: number) => {
+    setReviewImages(prev => prev.filter((_, i) => i !== index));
+    setReviewImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+  
+  // Görselleri S3'e yükle
+  const uploadReviewImages = async (): Promise<string[]> => {
+    if (reviewImages.length === 0) return [];
+    
+    setReviewImageUploading(true);
+    const uploadedUrls: string[] = [];
+    
+    try {
+      for (const file of reviewImages) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'product-comments');
+        
+        const response = await fetch('/api/upload/review-image', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          uploadedUrls.push(data.url);
+        }
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+    } finally {
+      setReviewImageUploading(false);
+    }
+    
+    return uploadedUrls;
+  };
+  
   // Yorum gönderme
   const handleSubmitReview = async () => {
     if (!reviewRating || !reviewComment.trim()) {
@@ -367,9 +454,18 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
       return;
     }
     
+    // Guest kullanıcılar görsel yükleyemez
+    if (!isLoggedIn && reviewImages.length > 0) {
+      alert("Görsel eklemek için giriş yapmanız gerekmektedir");
+      return;
+    }
+    
     setReviewSubmitting(true);
     
     try {
+      // Önce görselleri yükle
+      const imageUrls = await uploadReviewImages();
+      
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: {
@@ -380,8 +476,9 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
           rating: reviewRating,
           title: reviewTitle || null,
           comment: reviewComment,
+          images: imageUrls, // Yüklenen görsel URL'leri
           guestName: !isLoggedIn ? guestName.trim() : undefined,
-          nameDisplayPreference: isLoggedIn ? nameDisplayPreference : "masked", // Logged-in kullanıcılar için tercih
+          nameDisplayPreference: isLoggedIn ? nameDisplayPreference : "masked",
         }),
       });
       
@@ -392,10 +489,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
         setReviewIsUpdate(!!result.isUpdate);
         // Form kapat
         setReviewFormOpen(false);
-      // Form temizle
-      setReviewRating(0);
-      setReviewTitle("");
-      setReviewComment("");
+        // Form temizle
+        setReviewRating(0);
+        setReviewTitle("");
+        setReviewComment("");
+        setReviewImages([]);
+        setReviewImagePreviews([]);
         setGuestName("");
       } else {
         const data = await response.json();
@@ -1292,6 +1391,62 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                                 <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'white', marginBottom: '8px' }}>{review.title}</h4>
                               )}
                               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' }}>{review.comment}</p>
+                              
+                              {/* Yorum Görselleri */}
+                              {review.images && review.images.length > 0 && (
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                                  {review.images.map((img, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => window.open(img, '_blank')}
+                                      style={{
+                                        width: '80px',
+                                        height: '80px',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                        background: 'none',
+                                      }}
+                                    >
+                                      <Image
+                                        src={img}
+                                        alt={`Yorum görseli ${idx + 1}`}
+                                        width={80}
+                                        height={80}
+                                        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                                      />
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Satıcı Yanıtı */}
+                              {review.adminReply && (
+                                <div style={{
+                                  marginTop: '16px',
+                                  padding: '14px',
+                                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                  borderLeft: '3px solid #10B981',
+                                  borderRadius: '0 10px 10px 0',
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#10B981">
+                                      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                                    </svg>
+                                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#10B981' }}>Satıcı Yanıtı</span>
+                                    {review.adminReplyAt && (
+                                      <span style={{ fontSize: '10px', color: 'rgba(16, 185, 129, 0.7)' }}>
+                                        • {new Date(review.adminReplyAt).toLocaleDateString('tr-TR')}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.5' }}>
+                                    {review.adminReply}
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1533,6 +1688,102 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                           style={{ width: '100%', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '14px', outline: 'none', resize: 'vertical' }}
                         />
                       </div>
+                      
+                      {/* Görsel Yükleme - Sadece Üyeler */}
+                      {isLoggedIn ? (
+                        <div style={{ marginBottom: '16px' }}>
+                          <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>
+                            Görsel Ekle (Opsiyonel - Max 3 adet)
+                          </label>
+                          
+                          {/* Görsel Önizlemeleri */}
+                          {reviewImagePreviews.length > 0 && (
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                              {reviewImagePreviews.map((preview, idx) => (
+                                <div key={idx} style={{ position: 'relative' }}>
+                                  <Image
+                                    src={preview}
+                                    alt={`Önizleme ${idx + 1}`}
+                                    width={80}
+                                    height={80}
+                                    style={{ borderRadius: '8px', objectFit: 'cover' }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveReviewImage(idx)}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '-6px',
+                                      right: '-6px',
+                                      width: '20px',
+                                      height: '20px',
+                                      borderRadius: '50%',
+                                      backgroundColor: '#EF4444',
+                                      border: 'none',
+                                      color: 'white',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                    }}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {/* Görsel Ekleme Butonu */}
+                          {reviewImages.length < 3 && (
+                            <>
+                              <input
+                                ref={reviewImageInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleReviewImageSelect}
+                                style={{ display: 'none' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => reviewImageInputRef.current?.click()}
+                                disabled={reviewImageUploading}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  padding: '10px 16px',
+                                  backgroundColor: 'rgba(255,255,255,0.05)',
+                                  border: '1px dashed rgba(255,255,255,0.2)',
+                                  borderRadius: '10px',
+                                  color: 'rgba(255,255,255,0.6)',
+                                  fontSize: '13px',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s ease',
+                                }}
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                                  <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                {reviewImageUploading ? 'Yükleniyor...' : 'Görsel Ekle'}
+                              </button>
+                              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                                JPG, PNG veya WebP • Max 5MB • {3 - reviewImages.length} görsel daha ekleyebilirsiniz
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <div style={{ marginBottom: '16px', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '10px' }}>
+                          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                            Görsel eklemek için <a href="/hesabim" style={{ color: '#10B981', textDecoration: 'underline' }}>giriş yapın</a>
+                          </p>
+                        </div>
+                      )}
                       
                     {/* Gönder Butonu */}
                     {(() => {

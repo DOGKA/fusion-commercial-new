@@ -9,6 +9,7 @@
  */
 
 import { render } from "@react-email/components";
+import { prisma } from "@/lib/prisma";
 
 // Import all email templates
 import { ActivationEmail } from "@/emails/templates/ActivationEmail";
@@ -21,6 +22,7 @@ import { InvoiceReadyEmail } from "@/emails/templates/InvoiceReadyEmail";
 import { PaymentConfirmedEmail } from "@/emails/templates/PaymentConfirmedEmail";
 import { CartReminderEmail } from "@/emails/templates/CartReminderEmail";
 import { AdminNewOrderEmail } from "@/emails/templates/AdminNewOrderEmail";
+import { ReviewReminderEmail } from "@/emails/templates/ReviewReminderEmail";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -318,6 +320,63 @@ export async function sendCartReminderEmail(
     subject,
     html,
   });
+}
+
+/**
+ * Send review reminder email
+ * Sent 7 days after order delivery to encourage reviews
+ */
+export async function sendReviewReminderEmail(
+  to: string,
+  params: {
+    name?: string;
+    orderNumber: string;
+    orderId?: string;
+    userId?: string;
+    deliveryDate: Date | string;
+    products: Array<{
+      id: string;
+      name: string;
+      thumbnail?: string;
+      slug: string;
+    }>;
+  }
+) {
+  const subject = `FusionMarkt - Siparişinizi Değerlendirin #${params.orderNumber}`;
+  
+  const html = await render(ReviewReminderEmail({
+    name: params.name,
+    orderNumber: params.orderNumber,
+    deliveryDate: params.deliveryDate,
+    products: params.products,
+  }));
+  
+  const result = await sendEmail({
+    to,
+    subject,
+    html,
+  });
+  
+  // Email log kaydı
+  if (result.success && result.messageId && result.messageId !== "email-disabled") {
+    try {
+      await prisma.emailLog.create({
+        data: {
+          resendId: result.messageId,
+          to,
+          subject,
+          type: "REVIEW_REMINDER" as "REVIEW_REMINDER",
+          status: "SENT",
+          orderId: params.orderId,
+          userId: params.userId,
+        },
+      });
+    } catch (logError) {
+      console.error("Failed to create email log:", logError);
+    }
+  }
+  
+  return result;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

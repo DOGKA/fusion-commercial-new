@@ -13,15 +13,16 @@ export const siteConfig = {
   // Şirket bilgileri
   company: {
     name: "FusionMarkt",
-    legalName: "FusionMarkt Ticaret A.Ş.",
+    legalName: "ASDTC MÜHENDİSLİK TİCARET A.Ş.",
     foundingDate: "2023",
     email: "info@fusionmarkt.com",
-    phone: "+90 850 XXX XX XX",
+    salesEmail: "sales@fusionmarkt.com",
+    phone: "+90 850 840 6160",
     address: {
-      streetAddress: "Merkez Mah. Enerji Cad. No: 123",
-      addressLocality: "Kadıköy",
-      addressRegion: "İstanbul",
-      postalCode: "34000",
+      streetAddress: "Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler",
+      addressLocality: "Çankaya",
+      addressRegion: "Ankara",
+      postalCode: "06550",
       addressCountry: "TR",
     },
   },

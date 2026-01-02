@@ -497,14 +497,21 @@ model Review {
   rating  Int // 1-5
   title   String?
   comment String   @db.Text
-  images  String[] // Review görselleri
+  images  String[] // Review görselleri (S3: product-comments/{userId}/)
 
   isVerified Boolean @default(false) // Doğrulanmış satın alma
   isApproved Boolean @default(false) // Admin onayı
 
+  // Admin yanıtı
+  adminReply   String?   @db.Text // Satıcı/Admin cevabı
+  adminReplyAt DateTime? // Cevap tarihi
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([productId])
+  @@index([userId])
+  @@index([isApproved])
   @@map("reviews")
 }
 
@@ -607,6 +614,9 @@ model Order {
   refundedAt  DateTime? // İade tarihi
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  // Marketing
+  reviewReminderSent Boolean @default(false) // Yorum hatırlatma emaili gönderildi mi?
 
   // Sipariş Kalemleri
   items OrderItem[]
@@ -1653,6 +1663,7 @@ enum EmailType {
   WELCOME // Hoş geldin e-postası
   PASSWORD_RESET // Şifre sıfırlama
   ABANDONED_CART // Terk edilmiş sepet
+  REVIEW_REMINDER // Yorum hatırlatma
   MARKETING // Pazarlama e-postası
   OTHER // Diğer
 }

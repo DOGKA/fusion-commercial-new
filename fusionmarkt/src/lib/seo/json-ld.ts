@@ -271,8 +271,8 @@ export function generateLocalBusinessSchema() {
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 40.9863, // İstanbul koordinatları (güncellenmeli)
-      longitude: 29.0257,
+      latitude: 39.8956, // Ankara/Çankaya - Yıldızevler
+      longitude: 32.8093,
     },
     priceRange: "₺₺₺",
     openingHoursSpecification: [

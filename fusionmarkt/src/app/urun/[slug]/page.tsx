@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Toplam stok hesapla
   const totalStock = product.variants?.reduce((sum: number, v: { stock: number | null }) => sum + (v.stock || 0), 0) || product.stock || 0;
-
+  
   // Görsel URL'si
   const imageUrl = product.thumbnail || (product.images as string[])?.[0];
   const fullImageUrl = imageUrl?.startsWith("http") 

@@ -1628,6 +1628,12 @@
     min-width: 44px;
   }
   
+  /* MiniCart selection checkbox - küçük kalmalı */
+  .minicart-checkbox {
+    min-height: unset !important;
+    min-width: unset !important;
+  }
+  
   /* Input alanları daha büyük */
   input[type="text"],
   input[type="email"],

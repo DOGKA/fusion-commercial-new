@@ -86,6 +86,12 @@ export const NAV_DATA: NavGroup[] = [
         items: [],
       },
       {
+        title: "Yorum Hatırlatıcı",
+        url: "/marketing/review-reminder",
+        icon: Icons.Star,
+        items: [],
+      },
+      {
         title: "Mail Takip",
         url: "/mail-track",
         icon: Icons.Envelope,

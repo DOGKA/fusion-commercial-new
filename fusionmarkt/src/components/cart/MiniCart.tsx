@@ -402,14 +402,13 @@ export default function MiniCart() {
                         toggleItemSelection(item.id);
                       }}
                       className={cn(
-                        "absolute top-3 left-3 z-20 w-6 h-6 border-2 flex items-center justify-center transition-all cursor-pointer shadow-lg",
+                        "minicart-checkbox absolute top-3 left-3 sm:top-3 sm:left-3 z-20 w-5 h-5 sm:w-5 sm:h-5 border sm:border-2 flex items-center justify-center transition-all cursor-pointer shadow-lg rounded sm:rounded-md",
                         selectedItems.has(item.id) 
                           ? "bg-emerald-500 border-emerald-500 text-white" 
                           : "bg-black/80 border-white/40 text-transparent hover:border-emerald-400"
                       )}
-                      style={{ borderRadius: '8px' }}
                     >
-                      <Check size={14} strokeWidth={3} />
+                      <Check className="w-3 h-3 sm:w-3 sm:h-3" strokeWidth={3} />
                     </button>
                   )}
 
