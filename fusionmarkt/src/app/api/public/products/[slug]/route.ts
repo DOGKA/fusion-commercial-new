@@ -86,7 +86,16 @@ export async function GET(
             createdAt: 'desc',
           },
           take: 50,
-          include: {
+          select: {
+            id: true,
+            rating: true,
+            title: true,
+            comment: true,
+            images: true,
+            isVerified: true,
+            adminReply: true,
+            adminReplyAt: true,
+            createdAt: true,
             user: {
               select: {
                 name: true,

@@ -114,7 +114,10 @@ export async function POST(request: NextRequest) {
               rating: rating,
               title: data.title || null,
               comment: data.comment,
+              images: data.images || existingReview.images || [],
               isApproved: false, // Tekrar onay bekliyor
+              adminReply: null, // Admin yanıtı sıfırla
+              adminReplyAt: null,
             },
             include: {
               user: { select: { name: true, email: true } },
@@ -124,7 +127,7 @@ export async function POST(request: NextRequest) {
 
           return NextResponse.json({
             success: true,
-            message: "Yorum güncelleme talebiniz gönderildi",
+            message: "Yorum güncelleme talebiniz alındı ve onay bekliyor",
             isUpdate: true,
             displayName,
             isVerified,

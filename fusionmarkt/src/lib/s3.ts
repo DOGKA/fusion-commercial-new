@@ -16,10 +16,11 @@ const s3Client = new S3Client({
 });
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET || "fusionmarkt";
+const S3_PREFIX = process.env.S3_PREFIX || "fusionmarkt";
 
 /**
  * Generate S3 key for review image
- * Format: product-comments/<userId>/<timestamp>-<uuid>.webp
+ * Format: <prefix>/product-comments/<userId>/<timestamp>-<uuid>.webp
  */
 export function generateReviewImageKey(userId: string, filename: string): string {
   const safeFilename = filename
@@ -32,7 +33,7 @@ export function generateReviewImageKey(userId: string, filename: string): string
   const timestamp = Date.now();
   const ext = safeFilename.split('.').pop() || 'webp';
   
-  return `product-comments/${userId}/${timestamp}-${uuid}.${ext}`;
+  return `${S3_PREFIX}/product-comments/${userId}/${timestamp}-${uuid}.${ext}`;
 }
 
 /**
