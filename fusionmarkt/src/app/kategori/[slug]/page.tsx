@@ -533,7 +533,7 @@ export default function CategoryPage() {
         // SH4000 (3000W) → 1000-4000W
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "max_solar_charging") {
-          const solarValue = getProductFeatureValue(product, "max-solar-sarj");
+          const solarValue = getProductFeatureValue(product, "solar-giris");
           const solarPower = typeof solarValue === 'number' ? solarValue : parseFloat(String(solarValue)) || 0;
           
           matchFound = values.some((range: string) => {
