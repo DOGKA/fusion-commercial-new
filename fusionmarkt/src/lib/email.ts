@@ -365,7 +365,7 @@ export async function sendReviewReminderEmail(
           resendId: result.messageId,
           to,
           subject,
-          type: "REVIEW_REMINDER" as "REVIEW_REMINDER",
+          type: "REVIEW_REMINDER" as const,
           status: "SENT",
           orderId: params.orderId,
           userId: params.userId,

@@ -4,7 +4,7 @@
  * Single unified style - matches OrderConfirmationEmail
  */
 
-import { Link } from "@react-email/components";
+import { Link, Img } from "@react-email/components";
 import { Layout } from "../components/Layout";
 import { theme } from "../styles/theme";
 import { maskName, formatDateTime } from "../utils/mask";
@@ -126,7 +126,7 @@ export const ReviewReminderEmail = ({
             <div style={{ display: "flex", alignItems: "center" }}>
               {/* Product Thumbnail */}
               {product.thumbnail && (
-                <img
+                <Img
                   src={product.thumbnail}
                   alt={product.name}
                   width={60}
