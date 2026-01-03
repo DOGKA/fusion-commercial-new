@@ -170,8 +170,24 @@ const mockKeyFeatures: KeyFeature[] = [
   },
 ];
 
-interface SingleProductViewProps {
+interface BundleProductViewProps {
   slug?: string;
+}
+
+interface BundleItem {
+  id: string;
+  quantity: number;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    thumbnail: string | null;
+    price: number;
+    comparePrice?: number | null;
+    stock: number;
+    brand?: string;
+    shortDescription?: string;
+  } | null;
 }
 
 // HTML içeriğini temizleme ve güvenlik sanitizer fonksiyonu
@@ -242,7 +258,7 @@ const SQUIRCLE = {
   md: '14px',
 };
 
-export default function SingleProductView({ slug }: SingleProductViewProps) {
+export default function BundleProductView({ slug }: BundleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [favoriteHover, setFavoriteHover] = useState(false);
   const [activeTab, setActiveTab] = useState("Açıklama");
@@ -250,9 +266,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const [showExpandButton, setShowExpandButton] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
   
-  // Teknik Özellikler için expand state
-  const [techSpecsExpanded, setTechSpecsExpanded] = useState(false);
-  const INITIAL_SPECS_COUNT = 6; // Başlangıçta gösterilecek özellik sayısı
   // countdown artık KargoTimer component'inden geliyor
   const [productData, setProductData] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(!!slug);
@@ -275,16 +288,28 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     }
   }, [productData?.description, activeTab]);
 
-  // Eğer slug varsa API'den ürün bilgilerini çek
+  // Bundle state'leri
+  const [bundleItems, setBundleItems] = useState<BundleItem[]>([]);
+  const [totalValue, setTotalValue] = useState(0);
+  const [savings, setSavings] = useState(0);
+  const [savingsPercent, setSavingsPercent] = useState(0);
+  const [relatedBundles, setRelatedBundles] = useState<any[]>([]);
+
+  // Eğer slug varsa API'den bundle bilgilerini çek
   useEffect(() => {
     if (!slug) return;
     
-    const fetchProduct = async () => {
+    const fetchBundle = async () => {
       try {
-        const res = await fetch(`/api/public/products/${slug}`);
+        const res = await fetch(`/api/public/bundles/${slug}`);
         if (res.ok) {
           const data = await res.json();
           setProductData(data);
+          setBundleItems(data.items || []);
+          setTotalValue(data.totalValue || 0);
+          setSavings(data.savings || 0);
+          setSavingsPercent(data.savingsPercent || 0);
+          
           // API'den gelen yorumları component formatına map et
           if (data.reviews) {
             const mappedReviews = data.reviews.map((r: ApiReview) => ({
@@ -302,15 +327,57 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             }));
             setReviews(mappedReviews);
           }
+          
+          // Aynı kategorideki veya tüm paketleri çek
+          try {
+            // Önce kategoriye göre dene
+            let bundlesUrl = data.category?.id 
+              ? `/api/public/bundles?categoryId=${data.category.id}&limit=8`
+              : `/api/public/bundles?limit=8`;
+            
+            const bundlesRes = await fetch(bundlesUrl);
+            if (bundlesRes.ok) {
+              const bundlesData = await bundlesRes.json();
+              // Kendisini hariç tut
+              let otherBundles = (bundlesData.bundles || []).filter((b: any) => b.id !== data.id);
+              
+              // Eğer kategoriden yeterli bundle yoksa, tüm bundle'lardan getir
+              if (otherBundles.length < 2 && data.category?.id) {
+                const allBundlesRes = await fetch(`/api/public/bundles?limit=8`);
+                if (allBundlesRes.ok) {
+                  const allBundlesData = await allBundlesRes.json();
+                  otherBundles = (allBundlesData.bundles || []).filter((b: any) => b.id !== data.id);
+                }
+              }
+              
+              // Eğer hiç başka bundle yoksa, aynı bundle'ı göster
+              if (otherBundles.length === 0) {
+                otherBundles = [{
+                  id: data.id,
+                  name: data.name,
+                  slug: data.slug,
+                  thumbnail: data.thumbnail,
+                  price: data.price,
+                  totalValue: data.totalValue || data.comparePrice || data.price,
+                  itemCount: data.items?.length || data.itemCount || 0,
+                  shortDescription: data.shortDescription,
+                }];
+              }
+              
+              setRelatedBundles(otherBundles.slice(0, 4));
+            }
+          } catch (err) {
+            console.error("Error fetching related bundles:", err);
+          }
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error fetching bundle:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    fetchBundle();
   }, [slug]);
 
   // CSS Transform carousel for key features strip - ultra-smooth GPU scrolling
@@ -796,16 +863,14 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             </div>
           </div>
 
-          {/* SAG - Info Panel */}
+          {/* SAG - Info Panel - Kompakt 600px */}
           <div className="product-info-column" style={{
             backgroundColor: 'rgba(19, 19, 19, 0.9)',
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: '20px',
-            padding: '20px',
-            width: '100%',
-            maxWidth: '600px',
-            height: 'auto',
-            minHeight: '600px',
+            padding: '16px',
+            width: '600px',
+            height: '600px',
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
@@ -852,101 +917,161 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             )}
 
             {/* Title */}
-            <h1 style={{ fontSize: '22px', fontWeight: '600', color: 'white', lineHeight: '1.3', marginBottom: '10px' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: '600', color: 'white', lineHeight: '1.25', marginBottom: '6px' }}>
               {product.name}
             </h1>
 
             {/* Subtitle */}
             {product.shortDescription && (
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', marginBottom: '12px', lineHeight: '1.45' }}>
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', marginBottom: '8px', lineHeight: '1.4' }}>
                 {product.shortDescription}
               </p>
             )}
 
             {/* Kargo Timer */}
-            <div style={{ marginBottom: '12px' }}>
+            <div style={{ marginBottom: '8px' }}>
               <KargoTimer 
                 variant="siparis" 
                 inStock={(product?.stock ?? 0) > 0 || (productData?.stock ?? 0) > 0}
               />
             </div>
 
-            {/* KEY FEATURES - Auto-scroll with momentum drag support */}
-            <div style={{ marginBottom: '12px', position: 'relative' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Özellikler
+            {/* PAKET İÇERİĞİ - Compact version for 4 items */}
+            <div className="bundle-items-section" style={{ marginBottom: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                  Paket İçeriği
                 </span>
-                {/* Drag hint */}
-                <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)' }}>
-                  ← sürükle →
+                <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
+                  {bundleItems.length} ürün
                 </span>
               </div>
-              
-              {/* Container - viewport */}
-              <div 
-                ref={featuresContainerRef}
-                style={{ 
-                  ...featuresContainerStyle,
-                  paddingBottom: '4px',
+
+              {/* Items - compact grid */}
+              <div
+                className="bundle-items-list"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  minWidth: 0,
                 }}
               >
-                {/* Wrapper - content moves via transform */}
-                <div
-                  ref={featuresWrapperRef}
-                  style={{ 
-                    ...featuresWrapperStyle,
-                    gap: '8px',
-                    userSelect: 'none',
-                  }}
-                  {...featuresHandlers}
-                >
-                  {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
-                  {[...features, ...features].map((feature, idx) => (
+                {bundleItems.map((item) => {
+                  const p = item.product;
+                  const hasCompare = !!p?.comparePrice && (p.comparePrice ?? 0) > (p?.price ?? 0);
+
+                  return (
                     <div
-                      key={`${feature.id}-${idx}`}
+                      key={item.id}
+                      className="bundle-item-row"
                       style={{
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        backgroundColor: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '10px',
-                        cursor: 'default',
-                        transition: 'all 0.2s ease',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        backgroundColor: 'rgba(255,255,255,0.02)',
+                        display: 'grid',
+                        gridTemplateColumns: '48px 1fr',
+                        minWidth: 0,
+                        overflow: 'hidden',
                       }}
                     >
-                      {/* SVG Icon - Backend'ten gelir */}
-                      {feature.iconSvg && (
+                      {/* Sol - Görsel (compact) */}
+                      <div
+                        className="bundle-item-image"
+                        style={{
+                          width: 48,
+                          height: 48,
+                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '7px',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {p?.thumbnail ? (
+                          <Image
+                            src={p.thumbnail}
+                            alt={p.name || ''}
+                            width={48}
+                            height={48}
+                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.05)' }} />
+                        )}
+                      </div>
+
+                      {/* Sağ - Bilgiler (compact) */}
+                      <div
+                        className="bundle-item-info"
+                        style={{
+                          height: 48,
+                          padding: '4px 8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          gap: '2px',
+                          minWidth: 0,
+                        }}
+                      >
+                        {/* Ürün Adı */}
                         <div
-                          style={{ 
-                            color: feature.color,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                          className="bundle-item-name"
+                          style={{
+                            fontSize: '10px',
+                            color: 'white',
+                            fontWeight: 500,
+                            lineHeight: 1.25,
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: 'vertical',
                           }}
-                          dangerouslySetInnerHTML={{ __html: feature.iconSvg }}
-                        />
-                      )}
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}>
-                        {feature.label}
-                      </span>
+                        >
+                          {p?.name || 'Ürün'}
+                        </div>
+
+                        {/* Fiyat + Adet Satırı */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'nowrap', overflow: 'hidden' }}>
+                            {hasCompare && (
+                              <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through', whiteSpace: 'nowrap' }}>
+                                {formatPrice(p?.comparePrice || 0)}
+                              </span>
+                            )}
+                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                              {formatPrice(p?.price || 0)}
+                            </span>
+                            {hasCompare && (
+                              <span className="bundle-item-discount-label" style={{ fontSize: '8px', color: '#10B981', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                Tekli İndirimli Fiyat
+                              </span>
+                            )}
+                          </div>
+                          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            x{item.quantity}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Stock & Taksit & SKU */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              fontSize: '11px', 
-              marginBottom: '10px' 
-            }}>
+            <div 
+              className="bundle-stock-info"
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                fontSize: '10px', 
+                marginBottom: '6px' 
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ color: (selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 ? 'rgba(255,255,255,0.45)' : '#EF4444' }}>
                   {selectedVariant 
@@ -1125,10 +1250,25 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
                     {/* Mobilde: Price + CTA aynı satırda olacak */}
                     <div className="product-price-cta-wrapper">
-                      <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '16px' }}>
+                      <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
                         <span className="product-main-price" style={{ fontSize: '30px', fontWeight: 'bold', color: 'white' }}>{formatPrice(displayPrice)}</span>
                         <span className="product-price-currency" style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)' }}>TL</span>
-                        <span className="product-kdv-text" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', marginLeft: '8px' }}>KDV Dahil</span>
+                        <span className="product-kdv-text" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>KDV Dahil</span>
+                        <span
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            color: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                            border: '1px solid rgba(16, 185, 129, 0.25)',
+                            padding: '3px 8px',
+                            borderRadius: '999px',
+                            lineHeight: 1.1,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Pakete Özel İndirim
+                        </span>
                     </div>
 
                     {/* CTA Buttons */}
@@ -1292,7 +1432,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
         {/* TABS */}
         <div style={{ marginTop: '48px' }}>
           <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
-            {['Açıklama', 'Teknik Özellikler', 'Yorumlar'].map((tab, idx) => (
+            {['Açıklama', 'Yorumlar'].map((tab, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveTab(tab)}
@@ -1922,243 +2062,15 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   )}
                 </div>
               </>
-            ) : (
-              <>
-                <h2 style={{ fontSize: '18px', fontWeight: '600', color: 'white', marginBottom: '16px' }}>
-                  Teknik Özellikler
-                </h2>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6' }}>
-                  {/* Önce kategori bazlı teknik özellikleri göster */}
-                  {/* Silinmiş özellikleri filtrele (feature null olanları gösterme) */}
-                  {(() => {
-                    const filteredSpecs = product.productFeatureValues?.filter((pfv: ApiProductFeatureValue) => pfv.feature !== null && pfv.feature !== undefined) || [];
-                    const techSpecs = product.technicalSpecs || [];
-                    const hasProductFeatureValues = filteredSpecs.length > 0;
-                    const hasTechSpecs = techSpecs.length > 0;
-                    const specsToShow = hasProductFeatureValues ? filteredSpecs : techSpecs;
-                    const totalCount = specsToShow.length;
-                    const showExpandBtn = totalCount > INITIAL_SPECS_COUNT;
-                    const displaySpecs = techSpecsExpanded ? specsToShow : specsToShow.slice(0, INITIAL_SPECS_COUNT);
-
-                    if (hasProductFeatureValues) {
-                      return (
-                        <div style={{ position: 'relative' }}>
-                          <div style={{
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                          }}>
-                            <table style={{
-                              width: '100%',
-                              borderCollapse: 'collapse',
-                            }}>
-                              <tbody>
-                                {displaySpecs.map((pfv: ApiProductFeatureValue, index: number) => (
-                                  <tr 
-                                    key={pfv.id || index}
-                                    style={{
-                                      backgroundColor: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                                    }}
-                                  >
-                                    <td style={{
-                                      padding: '14px 16px',
-                                      fontWeight: '500',
-                                      color: 'rgba(255,255,255,0.7)',
-                                      width: '40%',
-                                      borderBottom: index < displaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                                    }}>
-                                      {pfv.feature?.name || 'Özellik'}
-                                    </td>
-                                    <td style={{
-                                      padding: '14px 16px',
-                                      fontWeight: '600',
-                                      color: 'white',
-                                      borderBottom: index < displaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                                    }}>
-                                      {pfv.valueText || (pfv.valueNumber !== null ? pfv.valueNumber : '')}
-                                      {(pfv.unit || pfv.feature?.unit) && (
-                                        <span style={{ 
-                                          color: 'rgba(255,255,255,0.5)', 
-                                          fontWeight: '400',
-                                          marginLeft: '4px',
-                                        }}>
-                                          {pfv.unit || pfv.feature?.unit}
-                                        </span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          {/* Devamını Göster Butonu */}
-                          {showExpandBtn && (
-                            <div style={{ 
-                              textAlign: 'center', 
-                              marginTop: '16px',
-                            }}>
-                              <button
-                                onClick={() => setTechSpecsExpanded(!techSpecsExpanded)}
-                                style={{
-                                  padding: '12px 32px',
-                                  backgroundColor: 'rgba(255,255,255,0.08)',
-                                  border: '1px solid rgba(255,255,255,0.15)',
-                                  borderRadius: '12px',
-                                  color: 'white',
-                                  fontSize: '13px',
-                                  fontWeight: '500',
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  transition: 'all 0.2s ease',
-                                }}
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)';
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
-                                }}
-                              >
-                                {techSpecsExpanded ? 'Daha Az Göster' : `Tümünü Göster (${totalCount})`}
-                                <svg 
-                                  style={{ 
-                                    width: '16px', 
-                                    height: '16px',
-                                    transform: techSpecsExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                    transition: 'transform 0.3s ease',
-                                  }}
-                                  fill="none" 
-                                  stroke="currentColor" 
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    } else if (hasTechSpecs) {
-                      const techDisplaySpecs = displaySpecs as TechnicalSpec[];
-                      return (
-                        <div style={{ position: 'relative' }}>
-                          <div style={{
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                          }}>
-                            <table style={{
-                              width: '100%',
-                              borderCollapse: 'collapse',
-                            }}>
-                              <tbody>
-                                {techDisplaySpecs.map((spec: TechnicalSpec, index: number) => (
-                                  <tr 
-                                    key={spec.id}
-                                    style={{
-                                      backgroundColor: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                                    }}
-                                  >
-                                    <td style={{
-                                      padding: '14px 16px',
-                                      fontWeight: '500',
-                                      color: 'rgba(255,255,255,0.7)',
-                                      width: '40%',
-                                      borderBottom: index < techDisplaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                                    }}>
-                                      {spec.name || spec.label}
-                                    </td>
-                                    <td style={{
-                                      padding: '14px 16px',
-                                      fontWeight: '600',
-                                      color: 'white',
-                                      borderBottom: index < techDisplaySpecs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                                    }}>
-                                      {spec.value}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          {/* Devamını Göster Butonu */}
-                          {showExpandBtn && (
-                            <div style={{ 
-                              textAlign: 'center', 
-                              marginTop: '16px',
-                            }}>
-                              <button
-                                onClick={() => setTechSpecsExpanded(!techSpecsExpanded)}
-                                style={{
-                                  padding: '12px 32px',
-                                  backgroundColor: 'rgba(255,255,255,0.08)',
-                                  border: '1px solid rgba(255,255,255,0.15)',
-                                  borderRadius: '12px',
-                                  color: 'white',
-                                  fontSize: '13px',
-                                  fontWeight: '500',
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  transition: 'all 0.2s ease',
-                                }}
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)';
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
-                                }}
-                              >
-                                {techSpecsExpanded ? 'Daha Az Göster' : `Tümünü Göster (${totalCount})`}
-                                <svg 
-                                  style={{ 
-                                    width: '16px', 
-                                    height: '16px',
-                                    transform: techSpecsExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                    transition: 'transform 0.3s ease',
-                                  }}
-                                  fill="none" 
-                                  stroke="currentColor" 
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div style={{
-                          textAlign: 'center',
-                          padding: '32px',
-                          color: 'rgba(255,255,255,0.4)',
-                        }}>
-                          <svg 
-                            style={{ width: '48px', height: '48px', margin: '0 auto 12px', opacity: 0.3 }}
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                          <p>Teknik özellikler bulunmamaktadır.</p>
-                        </div>
-                      );
-                    }
-                  })()}
-                </div>
-              </>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {/* ONERILEN URUNLER SECTION - Birlikte Sıkça Alınan */}
-        {product.frequentlyBought && product.frequentlyBought.length > 0 && (
-          <div style={{ marginTop: '48px', marginBottom: '48px' }}>
+        {/* DİĞER PAKETLER SECTION - Aynı kategorideki diğer paketler */}
+        {/* Web: Yatay scroll, Mobil: Dikey liste - RelatedProductCard tarzı */}
+        <div style={{ marginTop: '48px', marginBottom: '80px', minHeight: '100px' }}>
+        {relatedBundles && relatedBundles.length > 0 ? (
+          <div>
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: '600', 
@@ -2168,61 +2080,50 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               alignItems: 'center',
               gap: '8px',
             }}>
-              <span>Birlikte Sıkça Alınan Ürünler</span>
+              <span>Benzer Paketler</span>
               <span style={{ 
                 fontSize: '11px', 
                 color: 'rgba(255,255,255,0.4)', 
                 fontWeight: '400',
                 marginLeft: '8px',
               }}>
-                Bu ürünle birlikte alınabilir
+                Bu kategorideki diğer paketler
               </span>
             </h2>
 
+            {/* Benzer Paketler - RelatedProductCard ile aynı component */}
             <div className="frequently-bought-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {product.frequentlyBought.map((relatedProduct: RelatedProduct) => (
+              {relatedBundles.map((bundle: any) => (
                 <RelatedProductCard 
-                  key={relatedProduct.id} 
-                  product={relatedProduct}
+                  key={bundle.id} 
+                  product={{
+                    id: bundle.id,
+                    slug: bundle.slug,
+                    name: bundle.name,
+                    price: bundle.price,
+                    comparePrice: bundle.totalValue > bundle.price ? bundle.totalValue : null,
+                    thumbnail: bundle.thumbnail,
+                    brand: 'Bundle / Paket',
+                    stock: bundle.stock || 10,
+                    freeShipping: false,
+                    shortDescription: bundle.shortDescription?.trim(),
+                  }}
                 />
               ))}
             </div>
           </div>
-        )}
-
-        {/* CROSS-SELL SECTION - Kullanicilar bu urunlere de baktilar */}
-        {product.alsoViewed && product.alsoViewed.length > 0 && (
-          <div style={{ marginTop: '48px', marginBottom: '64px' }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: '600', 
-              color: 'white', 
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}>
-              <span>Kullanıcılar Bu Ürünlere de Baktı</span>
-              <span style={{ 
-                fontSize: '11px', 
-                color: 'rgba(255,255,255,0.4)', 
-                fontWeight: '400',
-                marginLeft: '8px',
-              }}>
-                İlginizi çekebilir
-              </span>
-            </h2>
-
-            <div className="also-viewed-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {product.alsoViewed.map((relatedProduct: RelatedProduct) => (
-                <RelatedProductCard 
-                  key={relatedProduct.id} 
-                  product={relatedProduct}
-                />
-              ))}
-            </div>
+        ) : (
+          // Benzer paket yoksa da boşluk bırak
+          <div style={{ 
+            padding: '24px', 
+            textAlign: 'center', 
+            color: 'rgba(255,255,255,0.3)',
+            fontSize: '13px',
+          }}>
+            {/* Boş alan */}
           </div>
         )}
+        </div>
 
       </div>
     </div>

@@ -463,8 +463,6 @@ export default function NewProductPage() {
                     >
                       <option value="simple">Basit Ürün</option>
                       <option value="variable">Varyasyonlu Ürün</option>
-                      <option value="grouped">Gruplu Ürün</option>
-                      <option value="external">Harici/Affiliate Ürün</option>
                     </select>
                   </div>
                 </div>

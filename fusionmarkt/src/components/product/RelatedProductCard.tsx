@@ -261,7 +261,8 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
               productId: product.id,
               slug: product.slug,
               title: product.name,
-              brand: product.brand || 'FusionMarkt',
+              // Brand boşsa "FusionMarkt" gibi mock fallback basma
+              brand: product.brand || '',
               price: product.price,
               originalPrice: product.comparePrice,
               image: productImage,
@@ -285,7 +286,8 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                 productId: String(product.id),
                 slug: product.slug,
                 title: product.name,
-                brand: product.brand || 'FusionMarkt',
+                // Brand boşsa "FusionMarkt" gibi mock fallback basma
+                brand: product.brand || '',
                 price: product.price,
                 originalPrice: product.comparePrice,
                 image: productImage,

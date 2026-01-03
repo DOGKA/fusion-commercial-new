@@ -34,8 +34,10 @@ export default function SigninWithPassword() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (loading) return;
 
     if (!data.email) {
       return toast.error("E-posta adresinizi girin");
@@ -47,29 +49,32 @@ export default function SigninWithPassword() {
 
     setLoading(true);
 
-    signIn("credentials", { ...data, redirect: false }).then((callback) => {
+    try {
+      const callback = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
       if (callback?.error) {
-        // Hata mesajlarını Türkçeleştir
-        let errorMessage = callback.error;
-        if (callback.error.includes("password")) {
-          errorMessage = "Şifre yanlış";
-        } else if (callback.error.includes("email") || callback.error.includes("user")) {
-          errorMessage = "Kullanıcı bulunamadı";
-        } else if (callback.error.includes("yetki") || callback.error.includes("admin")) {
-          errorMessage = callback.error;
-        }
-        toast.error(errorMessage);
-        setLoading(false);
+        // next-auth credentials genelde "CredentialsSignin" döner (detay vermez)
+        const msg =
+          callback.error === "CredentialsSignin"
+            ? "E-posta veya şifre hatalı"
+            : callback.error;
+        toast.error(msg);
+        return;
       }
 
-      if (callback?.ok && !callback?.error) {
+      if (callback?.ok) {
         toast.success("Giriş başarılı!");
-        setLoading(false);
         setData({ email: "", password: "", remember: false });
         router.push("/");
         router.refresh();
       }
-    });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

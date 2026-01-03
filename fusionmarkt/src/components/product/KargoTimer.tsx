@@ -177,42 +177,62 @@ export function KargoTimer(props: KargoTimerProps) {
   const maxSeconds = 16 * 3600; // 16 saat maksimum
   const progressPercent = Math.min(100, (totalSeconds / maxSeconds) * 100);
 
-  // Ürün sayfasında minimal, kurumsal banner
+  // Ürün sayfasında minimal, kurumsal banner - compact version
   return (
     <div 
       className={className}
       style={{
-        padding: '14px 16px',
+        padding: '10px 14px',
         backgroundColor: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: SQUIRCLE.md,
       }}
     >
-      {/* Header */}
+      {/* Header + Timer inline */}
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
+        justifyContent: 'space-between',
         gap: '8px',
-        marginBottom: '10px',
+        marginBottom: '6px',
       }}>
-        <span style={{ fontSize: '14px' }}>⚡</span>
-        <span style={{ 
-          fontSize: '13px', 
-          fontWeight: 700, 
-          color: 'white',
-          letterSpacing: '0.02em',
-        }}>
-          HIZLI TESLİMAT FIRSATI
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '12px' }}>⚡</span>
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: 700, 
+            color: 'white',
+            letterSpacing: '0.02em',
+          }}>
+            HIZLI TESLİMAT
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: 600, 
+            color: 'white',
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            {String(timer.hours).padStart(2, '0')}:{String(timer.minutes).padStart(2, '0')}:{String(timer.seconds).padStart(2, '0')}
+          </span>
+          <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: 600, 
+            color: '#10B981',
+          }}>
+            {timer.dayText === 'bugün' ? 'Bugün' : timer.dayText} Kargoda
+          </span>
+        </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - compact */}
       <div style={{
         width: '100%',
-        height: '4px',
+        height: '3px',
         backgroundColor: 'rgba(16, 185, 129, 0.2)',
         borderRadius: '2px',
-        marginBottom: '10px',
         overflow: 'hidden',
       }}>
         <div style={{
@@ -222,37 +242,6 @@ export function KargoTimer(props: KargoTimerProps) {
           borderRadius: '2px',
           transition: 'width 1s linear',
         }} />
-      </div>
-
-      {/* Timer Text */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '6px',
-        flexWrap: 'wrap',
-      }}>
-        <span style={{ 
-          fontSize: '12px', 
-          color: 'rgba(255,255,255,0.5)',
-        }}>
-          Kalan Süre:
-        </span>
-        <span style={{ 
-          fontSize: '12px', 
-          fontWeight: 600, 
-          color: 'white',
-          fontVariantNumeric: 'tabular-nums',
-        }}>
-          {String(timer.hours).padStart(2, '0')} sa {String(timer.minutes).padStart(2, '0')} dk {String(timer.seconds).padStart(2, '0')} sn
-        </span>
-        <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-        <span style={{ 
-          fontSize: '12px', 
-          fontWeight: 600, 
-          color: '#10B981',
-        }}>
-          {timer.dayText === 'bugün' ? 'Bugün' : timer.dayText} Kargoda
-        </span>
       </div>
     </div>
   );

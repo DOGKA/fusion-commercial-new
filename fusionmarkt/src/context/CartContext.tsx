@@ -34,6 +34,9 @@ export interface CartItem {
     type: string;
     value: string;
   };
+  // Bundle/Paket ürün desteği
+  isBundle?: boolean;
+  bundleId?: string;
 }
 
 interface CartContextType {
@@ -108,7 +111,7 @@ export function CartProvider({ children }: CartProviderProps) {
   }, 0);
   const totalSavings = originalSubtotal - subtotal;
 
-  // Add item with animation trigger
+  // Add item with animation trigger (supports both products and bundles)
   const addItem = useCallback(async (newItem: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => {
     // Trigger animation
     setIsAnimating(true);
@@ -117,12 +120,22 @@ export function CartProvider({ children }: CartProviderProps) {
     await new Promise((resolve) => setTimeout(resolve, 800));
     
     setItems((prevItems) => {
-      // Check if item already exists (same product + variant)
-      const existingIndex = prevItems.findIndex(
-        (item) =>
-          item.productId === newItem.productId &&
-          item.variant?.id === newItem.variant?.id
-      );
+      // Check if item already exists
+      // For bundles: check bundleId
+      // For products: check productId + variant
+      const existingIndex = prevItems.findIndex((item) => {
+        if (newItem.isBundle && newItem.bundleId) {
+          // Bundle: sadece bundleId'ye bak
+          return item.isBundle && item.bundleId === newItem.bundleId;
+        } else {
+          // Normal ürün: productId + variant
+          return (
+            !item.isBundle &&
+            item.productId === newItem.productId &&
+            item.variant?.id === newItem.variant?.id
+          );
+        }
+      });
 
       if (existingIndex > -1) {
         // Update quantity
@@ -134,7 +147,9 @@ export function CartProvider({ children }: CartProviderProps) {
       // Add new item
       const cartItem: CartItem = {
         ...newItem,
-        id: `${newItem.productId}-${newItem.variant?.id || "default"}-${Date.now()}`,
+        id: newItem.isBundle 
+          ? `bundle-${newItem.bundleId}-${Date.now()}`
+          : `${newItem.productId}-${newItem.variant?.id || "default"}-${Date.now()}`,
         quantity: newItem.quantity || 1,
       };
 

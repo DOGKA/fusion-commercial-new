@@ -29,6 +29,8 @@ export const NAV_DATA: NavGroup[] = [
         items: [
           { title: "Tüm Ürünler", url: "/products" },
           { title: "Yeni Ürün Ekle", url: "/products/new" },
+          { title: "Paket Ürünler", url: "/bundles" },
+          { title: "Yeni Paket Oluştur", url: "/bundles/new" },
           { title: "Kategoriler", url: "/categories" },
           { title: "Markalar", url: "/brands" },
           { title: "Özellikler", url: "/attributes" },

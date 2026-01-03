@@ -79,6 +79,49 @@
     padding: 16px !important;
   }
   
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BUNDLE ITEMS - Paket İçeriği Mobile
+     Not: Inline style override için !important gerekli
+  ═══════════════════════════════════════════════════════════════════════════ */
+  
+  .bundle-items-section {
+    margin-bottom: 80px !important; /* 1 ürünlük boşluk (~64px item + gap) */
+  }
+  
+  .bundle-items-list {
+    gap: 10px !important;
+  }
+  
+  .bundle-item-row {
+    grid-template-columns: 70px 1fr !important;
+  }
+  
+  .bundle-item-image {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  
+  .bundle-item-info {
+    height: 70px !important;
+    padding: 8px 12px !important;
+  }
+  
+  .bundle-item-name {
+    font-size: 12px !important;
+    -webkit-line-clamp: 2 !important;
+    line-height: 1.4 !important;
+  }
+  
+  .bundle-item-discount-label {
+    display: inline !important;
+    font-size: 9px !important;
+  }
+  
+  /* Stock & Taksit satırı - price border'a yakın */
+  .bundle-stock-info {
+    margin-bottom: 2px !important;
+  }
+  
   /* Container padding */
   .product-page-container {
     padding: 0 16px !important;
@@ -355,20 +398,26 @@
   /* İndirim satırı - tek satır */
   .related-product-discount {
     flex-wrap: nowrap !important;
-    gap: 6px !important;
+    gap: 4px !important;
     justify-content: flex-start !important;
     margin-bottom: 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
   }
   
   .related-product-discount span:first-child {
-    font-size: 11px !important;
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
   
   .related-savings-badge {
-    font-size: 10px !important;
-    padding: 2px 6px !important;
+    font-size: 9px !important;
+    padding: 2px 5px !important;
     background: rgba(16, 185, 129, 0.1) !important;
     border-radius: 4px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
   
   /* Ana fiyat - büyük ve belirgin */
@@ -569,6 +618,25 @@
   
   .store-search-container input {
     border-radius: 14px !important;
+  }
+  
+  /* Related Product - Küçük ekranlar için indirim satırı */
+  .related-product-discount {
+    gap: 3px !important;
+  }
+  
+  .related-product-discount span:first-child {
+    font-size: 9px !important;
+  }
+  
+  .related-savings-badge {
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+  }
+  
+  .related-main-price,
+  span.related-main-price {
+    font-size: 20px !important;
   }
 }
 
@@ -2099,6 +2167,111 @@
   @keyframes fadeInOut {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 0.8; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RELATED BUNDLE CARDS - BundleProductView Benzer Paketler Mobile
+   RelatedProductCard ile aynı mobil layout
+═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  /* RelatedBundleCard - Mobil dikey layout */
+  .related-bundle-card {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    width: 100% !important;
+  }
+  
+  /* Resim container - Büyük, 1:1 aspect ratio */
+  .related-bundle-card > div:first-child {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    max-width: 100% !important;
+    min-height: 200px !important;
+  }
+  
+  /* İçerik bölümü - tam genişlik */
+  .related-bundle-card > div:nth-child(2) {
+    width: 100% !important;
+    flex: none !important;
+  }
+  
+  /* Ürün başlığı - 2 satıra sığdır */
+  .related-bundle-card > div:nth-child(2) h3 {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* Fiyat ve buton bölümü - Actions Container */
+  .related-bundle-actions {
+    width: 100% !important;
+    min-width: auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 12px !important;
+    margin-top: 4px !important;
+    gap: 8px !important;
+  }
+  
+  /* Fiyat bölümü - sol taraf */
+  .related-bundle-price-section {
+    text-align: left !important;
+    flex: 1 !important;
+  }
+  
+  /* İndirim satırı - tek satır */
+  .related-bundle-discount {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .related-bundle-discount span:first-child {
+    font-size: 11px !important;
+  }
+  
+  /* Ana fiyat - büyük ve belirgin */
+  .related-bundle-current-price {
+    align-items: center !important;
+  }
+  
+  .related-bundle-current-price span:first-child {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: white !important;
+  }
+  
+  .related-bundle-current-price span:last-child {
+    font-size: 12px !important;
+  }
+  
+  /* Butonlar - sağ taraf */
+  .related-bundle-buttons {
+    flex-shrink: 0 !important;
+    gap: 8px !important;
+  }
+  
+  .related-bundle-buttons span {
+    border-radius: 12px !important;
+    min-width: 90px !important;
+    padding: 10px 14px !important;
+    font-size: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 

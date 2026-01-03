@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
+import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
 import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import WaveMesh from "@/components/ui/WaveMesh";
@@ -215,68 +216,154 @@ export default function StorePage() {
     fetchBanners();
   }, []);
 
-  // Fetch all products and group by category
+  // Fetch all categories, products AND bundles
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/public/products?limit=100");
-        if (!res.ok) {
-          setLoading(false);
-          return;
-        }
-        const data = await res.json();
-        const apiProducts = (data.products || []) as ApiProduct[];
+        // Fetch categories, products and bundles in parallel
+        const [categoriesRes, productsRes, bundlesRes] = await Promise.all([
+          fetch("/api/public/categories"),
+          fetch("/api/public/products?limit=100"),
+          fetch("/api/public/bundles?limit=100"),
+        ]);
 
-        // Kategorilere göre grupla
         const categoryMap = new Map<string, CategoryWithProducts>();
 
-        apiProducts.forEach((product: ApiProduct) => {
-          const catId = product.categoryId || "uncategorized";
-          const catName = product.category?.name || "Diğer";
-          const catSlug = product.category?.slug || "diger";
-          const catThemeColor = product.category?.themeColor || null;
+        // First, add ALL active categories from API (even empty ones)
+        if (categoriesRes.ok) {
+          const catData = await categoriesRes.json();
+          const apiCategories = (catData.categories || catData || []) as any[];
+          
+          apiCategories.forEach((cat: any) => {
+            if (cat.isActive !== false) { // Only active categories
+              categoryMap.set(cat.id, {
+                id: cat.id,
+                name: cat.name,
+                slug: cat.slug,
+                themeColor: cat.themeColor || null,
+                products: [],
+              });
+            }
+          });
+        }
 
-          // Convert ApiProduct to ProductWithCategory
-          const stockQty = product.stock || 0;
-          const productWithCategory = {
-            id: product.id,
-            title: product.title || product.name,
-            name: product.name,
-            slug: product.slug,
-            price: product.price,
-            originalPrice: product.comparePrice || product.originalPrice,
-            discountPercent: product.discountPercentage,
-            brand: product.brand || "",
-            stockStatus: (stockQty > 10 ? "in_stock" : stockQty > 0 ? "low_stock" : "out_of_stock") as "in_stock" | "low_stock" | "out_of_stock",
-            stockQuantity: stockQty,
-            stock: stockQty,
-            image: product.images?.[0],
-            images: product.images,
-            categoryId: catId,
-            categoryName: catName,
-            categorySlug: catSlug,
-            createdAt: product.createdAt,
-            comparePrice: product.comparePrice,
-            saleEndDate: product.saleEndDate,
-            productBadges: product.productBadges,
-            productType: product.productType,
-            variants: product.variants,
-            shortDescription: product.shortDescription,
-          };
+        // Process products and add to their categories
+        if (productsRes.ok) {
+          const data = await productsRes.json();
+          const apiProducts = (data.products || []) as ApiProduct[];
 
-          if (!categoryMap.has(catId)) {
-            categoryMap.set(catId, {
-              id: catId,
-              name: catName,
-              slug: catSlug,
-              themeColor: catThemeColor,
-              products: [],
-            });
-          }
-          categoryMap.get(catId)!.products.push(productWithCategory as ProductWithCategory);
-        });
+          apiProducts.forEach((product: ApiProduct) => {
+            const catId = product.categoryId || "uncategorized";
+            const catName = product.category?.name || "Diğer";
+            const catSlug = product.category?.slug || "diger";
+            const catThemeColor = product.category?.themeColor || null;
 
+            const stockQty = product.stock || 0;
+            const productWithCategory = {
+              id: product.id,
+              title: product.title || product.name,
+              name: product.name,
+              slug: product.slug,
+              price: product.price,
+              originalPrice: product.comparePrice || product.originalPrice,
+              discountPercent: product.discountPercentage,
+              brand: product.brand || "",
+              stockStatus: (stockQty > 10 ? "in_stock" : stockQty > 0 ? "low_stock" : "out_of_stock") as "in_stock" | "low_stock" | "out_of_stock",
+              stockQuantity: stockQty,
+              stock: stockQty,
+              image: product.images?.[0],
+              images: product.images,
+              categoryId: catId,
+              categoryName: catName,
+              categorySlug: catSlug,
+              createdAt: product.createdAt,
+              comparePrice: product.comparePrice,
+              saleEndDate: product.saleEndDate,
+              productBadges: product.productBadges,
+              productType: product.productType,
+              variants: product.variants,
+              shortDescription: product.shortDescription,
+              isBundle: false,
+            };
+
+            // Create category if not exists (fallback)
+            if (!categoryMap.has(catId)) {
+              categoryMap.set(catId, {
+                id: catId,
+                name: catName,
+                slug: catSlug,
+                themeColor: catThemeColor,
+                products: [],
+              });
+            }
+            categoryMap.get(catId)!.products.push(productWithCategory as ProductWithCategory);
+          });
+        }
+
+        // Process bundles and add to their categories
+        if (bundlesRes.ok) {
+          const bundleData = await bundlesRes.json();
+          const apiBundles = (bundleData.bundles || []) as any[];
+
+          apiBundles.forEach((bundle: any) => {
+            // Bundle'ın kategorisini al (API'den tek category objesi dönüyor)
+            const catId = bundle.category?.id || "bundle-category";
+            const catName = bundle.category?.name || "Bundle / Paket Ürünler";
+            const catSlug = bundle.category?.slug || "bundle-paket-urunler";
+
+            const stockQty = bundle.stock || 0;
+            const totalValue = bundle.totalValue || bundle.comparePrice || bundle.price;
+            const bundlePrice = Number(bundle.price) || 0;
+            const savings = totalValue > bundlePrice ? totalValue - bundlePrice : 0;
+            const savingsPercent = totalValue > bundlePrice ? Math.round((savings / totalValue) * 100) : 0;
+            
+            const bundleAsProduct = {
+              id: bundle.id,
+              title: bundle.name,
+              name: bundle.name,
+              slug: bundle.slug,
+              price: bundlePrice,
+              originalPrice: totalValue,
+              discountPercent: savingsPercent || undefined,
+              brand: bundle.brand || "",
+              stockStatus: (stockQty > 10 ? "in_stock" : stockQty > 0 ? "low_stock" : "out_of_stock") as "in_stock" | "low_stock" | "out_of_stock",
+              stockQuantity: stockQty,
+              stock: stockQty,
+              image: bundle.thumbnail,
+              images: bundle.images || [bundle.thumbnail].filter(Boolean),
+              categoryId: catId,
+              categoryName: catName,
+              categorySlug: catSlug,
+              createdAt: bundle.createdAt,
+              comparePrice: totalValue,
+              saleEndDate: null,
+              productBadges: [],
+              isBundle: true,
+              // Bundle-specific fields for BundleProductCard
+              shortDescription: bundle.shortDescription || null,
+              totalValue: totalValue,
+              savings: savings,
+              savingsPercent: savingsPercent,
+              items: bundle.items || [],
+              itemCount: bundle.itemCount || (bundle.items?.length || 0),
+            };
+
+            // Create category if not exists (fallback)
+            if (!categoryMap.has(catId)) {
+              categoryMap.set(catId, {
+                id: catId,
+                name: catName,
+                slug: catSlug,
+                themeColor: "#8B5CF6", // Purple theme for bundles
+                products: [],
+              });
+            }
+            categoryMap.get(catId)!.products.push(bundleAsProduct as ProductWithCategory);
+          });
+        }
+
+        // Filter out empty categories and sort by product count
         const categoriesArray = Array.from(categoryMap.values())
           .filter((cat) => cat.products.length > 0)
           .sort((a, b) => b.products.length - a.products.length);
@@ -820,8 +907,12 @@ function CategoryCarousel({
   const bannerSubtitle = bannerData?.subtitle || "Kaliteli ürünleri keşfedin";
   const bannerButtonText = bannerData?.buttonText || "Tümünü Gör";
 
-  // Always duplicate products for 360° infinite scroll - both mobile and desktop
-  const displayProducts = [...category.products, ...category.products, ...category.products];
+  // Dynamic repeat for 360° infinite scroll - ensures enough items to scroll
+  // Minimum 12 cards to guarantee scrollWidth > containerWidth on all screens
+  const minCardsNeeded = 12;
+  const productCount = category.products.length;
+  const repeatCount = productCount > 0 ? Math.max(3, Math.ceil(minCardsNeeded / productCount)) : 3;
+  const displayProducts = Array(repeatCount).fill(category.products).flat();
 
   return (
     <div className="container">
@@ -935,10 +1026,32 @@ function CategoryCarousel({
                   key={`${product.id}-${idx}`} 
                   className="flex-shrink-0 w-[280px]"
                 >
-                  <ProductCard 
-                    product={mapApiProductToCard(product)} 
-                    priority={idx < 4}
-                  />
+                  {(product as any).isBundle ? (
+                    <BundleProductCard 
+                      bundle={{
+                        id: String(product.id),
+                        slug: product.slug,
+                        name: product.title,
+                        shortDescription: (product as any).shortDescription,
+                        price: product.price,
+                        totalValue: (product as any).totalValue || product.originalPrice || product.price,
+                        savings: (product as any).savings || 0,
+                        savingsPercent: (product as any).savingsPercent || 0,
+                        thumbnail: product.image,
+                        stock: (product as any).stock || product.stockQuantity || 0,
+                        items: (product as any).items || [],
+                        itemCount: (product as any).itemCount || 0,
+                        ratingAverage: product.ratingAverage,
+                        ratingCount: product.ratingCount,
+                      }}
+                      priority={idx < 4}
+                    />
+                  ) : (
+                    <ProductCard 
+                      product={mapApiProductToCard(product)} 
+                      priority={idx < 4}
+                    />
+                  )}
                 </div>
               ))}
             </div>

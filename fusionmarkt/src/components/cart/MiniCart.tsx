@@ -433,9 +433,11 @@ export default function MiniCart() {
                   <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
                     {/* Top: Brand + Title + Variant */}
                     <div className="pr-6">
-                      <p className="text-[11px] text-white/40 uppercase tracking-wider font-medium">
-                        {item.brand}
-                      </p>
+                      {!!item.brand?.trim() && (
+                        <p className="text-[11px] text-white/40 uppercase tracking-wider font-medium">
+                          {item.brand}
+                        </p>
+                      )}
                       <h4 className="text-[14px] font-medium text-white/90 leading-snug line-clamp-1 mt-0.5">
                         {item.title}
                       </h4>

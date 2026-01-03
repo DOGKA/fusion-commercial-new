@@ -45,6 +45,12 @@ export interface Product {
   variants?: ProductVariant[];
   badge?: string; // Legacy - deprecated, use badges array instead
   badges?: ProductBadge[];
+  // Bundle/Paket ürün desteği
+  isBundle?: boolean;
+  bundleId?: string;
+  itemCount?: number;
+  savings?: number;
+  savingsPercent?: number;
 }
 
 interface ProductCardProps {
@@ -149,11 +155,36 @@ export default function ProductCard({ product, className, priority = false }: Pr
               Yeni sistem: Tüm rozetler (sistem + manuel) badges array'de geliyor.
               Sistem rozetleri: İndirim yüzdesi, Düşük stok, Yeni ürün
               Manuel rozetler: Admin tarafından atanan rozetler
+              Bundle/Paket rozeti: isBundle=true olan ürünler için
               
               NOT: hasDiscount ve isLowStock artık kullanılmıyor,
               bu bilgiler badges array içinde geliyor.
             */}
             <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+              {/* Bundle/Paket Badge - En üstte göster */}
+              {product.isBundle && (
+                <span 
+                  className="inline-flex items-center justify-center gap-1 text-[11px] font-bold backdrop-blur-md text-center"
+                  style={{ 
+                    minWidth: 75, 
+                    height: 28, 
+                    padding: '0 12px', 
+                    borderRadius: SQUIRCLE.sm,
+                    background: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(139, 92, 246, 0.4)',
+                    boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                    <path d="M12 22V12"/>
+                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                    <path d="M12 2v10"/>
+                  </svg>
+                  PAKET
+                </span>
+              )}
               {/* Badges array system - tüm rozetler burada */}
               {badges && badges.length > 0 && badges.map((badgeItem, idx) => {
                 // Badge label'ın geçerli olduğunu kontrol et

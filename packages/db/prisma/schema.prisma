@@ -162,6 +162,7 @@ model Category {
   products         Product[]
   categoryFeatures CategoryFeature[]
   filters          Filter[]          @relation("CategoryFilters")
+  bundleCategories BundleCategory[]
 
   @@map("categories")
 }
@@ -244,6 +245,9 @@ model Product {
   // İlişkili Ürünler
   relatedFrom RelatedProduct[] @relation("RelatedFrom")
   relatedTo   RelatedProduct[] @relation("RelatedTo")
+
+  // Bundle İlişkisi
+  bundleItems BundleItem[]
 
   @@map("products")
 }
@@ -653,6 +657,10 @@ model OrderItem {
 
   variantInfo String? // JSON string - varyant detayları
 
+  // Bundle için (opsiyonel)
+  bundleId String?
+  bundle   Bundle? @relation(fields: [bundleId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
 
   @@map("order_items")
@@ -688,6 +696,10 @@ model CartItem {
 
   quantity    Int     @default(1)
   variantInfo String? // JSON string - seçilen varyant
+
+  // Bundle için (opsiyonel)
+  bundleId String?
+  bundle   Bundle? @relation(fields: [bundleId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1801,4 +1813,117 @@ model Faq {
   @@index([isActive])
   @@index([order])
   @@map("faqs")
+}
+
+// ============================================
+// BUNDLE / PAKET ÜRÜN SİSTEMİ
+// ============================================
+
+model Bundle {
+  id               String            @id @default(cuid())
+  name             String
+  slug             String            @unique
+
+  // Açıklamalar
+  description      String?           @db.Text
+  shortDescription String?           @db.Text
+
+  // Fiyatlandırma
+  pricingType      BundlePricingType @default(FIXED)
+  price            Decimal           @db.Decimal(10, 2) // Paket satış fiyatı
+  comparePrice     Decimal?          @db.Decimal(10, 2) // Karşılaştırma fiyatı (ürünlerin toplamı)
+
+  // Görseller
+  thumbnail        String?
+  images           String[]
+  videoUrl         String?
+
+  // Detaylar
+  brand            String?
+  sku              String?           @unique
+
+  // SEO
+  metaTitle        String?
+  metaDescription  String?           @db.Text
+  metaKeywords     String[]
+
+  // Durum
+  isActive         Boolean           @default(true)
+  isFeatured       Boolean           @default(false)
+
+  // Çoklu Kategori Desteği
+  categories       BundleCategory[]
+
+  // Paket İçeriği
+  items            BundleItem[]
+
+  // Sipariş & Sepet İlişkileri
+  orderItems       OrderItem[]
+  cartItems        CartItem[]
+
+  // Tarihler
+  publishedAt      DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([isActive])
+  @@index([slug])
+  @@map("bundles")
+}
+
+enum BundlePricingType {
+  FIXED        // Sabit fiyat belirle
+  SUM          // Ürünlerin toplamı
+  SUM_DISCOUNT // Toplam - indirim yüzdesi
+}
+
+// Bundle - Category Many-to-Many Pivot
+model BundleCategory {
+  id         String   @id @default(cuid())
+
+  bundleId   String
+  bundle     Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Ana kategori mi? (breadcrumb için)
+  isPrimary  Boolean  @default(false)
+
+  // Bu kategorideki sıralama
+  sortOrder  Int      @default(0)
+
+  createdAt  DateTime @default(now())
+
+  @@unique([bundleId, categoryId])
+  @@index([bundleId])
+  @@index([categoryId])
+  @@map("bundle_categories")
+}
+
+// Paket İçindeki Ürünler
+model BundleItem {
+  id        String   @id @default(cuid())
+
+  bundleId  String
+  bundle    Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Spesifik varyant (null = ana ürün)
+  variantId String?
+
+  // Adet
+  quantity  Int      @default(1)
+
+  // Sıralama
+  sortOrder Int      @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([bundleId, productId, variantId])
+  @@index([bundleId])
+  @@index([productId])
+  @@map("bundle_items")
 }
