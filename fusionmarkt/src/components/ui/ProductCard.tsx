@@ -103,7 +103,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
   const {
     slug,
     title,
-    subtitle,
+    // subtitle removed - no longer rendered in card
     brand,
     price,
     originalPrice,

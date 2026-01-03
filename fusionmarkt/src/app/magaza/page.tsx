@@ -1094,7 +1094,6 @@ function CategoryCarousel({
                         id: String(product.id),
                         slug: product.slug,
                         name: product.title,
-                        shortDescription: product.shortDescription,
                         price: product.price,
                         totalValue: product.totalValue || product.originalPrice || product.price,
                         savings: product.savings || 0,
