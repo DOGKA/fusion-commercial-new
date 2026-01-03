@@ -46,7 +46,7 @@ async function getProduct(slug: string) {
 // Bundle verisini fetch eden yardımcı fonksiyon
 async function getBundle(slug: string) {
   try {
-    const bundle = await (prisma.bundle as any).findFirst({
+    const bundle = await prisma.bundle.findFirst({
       where: { 
         slug,
         isActive: true,
@@ -71,12 +71,12 @@ async function getBundle(slug: string) {
 
     // Stok ve toplam değer hesapla
     const minStock = bundle.items.length > 0
-      ? Math.min(...bundle.items.map((item: any) =>
+      ? Math.min(...bundle.items.map((item) =>
           Math.floor((item.product?.stock || 0) / item.quantity)
         ))
       : 0;
 
-    const totalValue = bundle.items.reduce((sum: number, item: any) => {
+    const totalValue = bundle.items.reduce((sum, item) => {
       return sum + (Number(item.product?.price || 0) * item.quantity);
     }, 0);
 
@@ -102,7 +102,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   if (product) {
     // Toplam stok hesapla
-    const totalStock = product.variants?.reduce((sum: number, v: { stock: number | null }) => sum + (v.stock || 0), 0) || product.stock || 0;
+    const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || product.stock || 0;
     
     // Görsel URL'si
     const imageUrl = product.thumbnail || (product.images as string[])?.[0];
@@ -166,12 +166,12 @@ export default async function ProductPage({ params }: Props) {
 
   if (product) {
     // Toplam stok hesapla
-    const totalStock = product.variants?.reduce((sum: number, v: { stock: number | null }) => sum + (v.stock || 0), 0) || product.stock || 0;
+    const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || product.stock || 0;
     
     // Ortalama rating hesapla
     const reviews = product.reviews || [];
     const avgRating = reviews.length > 0 
-      ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length 
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
       : 0;
 
     // Görsel URL'leri

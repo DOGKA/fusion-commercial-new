@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { cn } from "@/lib/utils";
 
@@ -40,11 +40,7 @@ export default function ReviewReminderPage() {
     ready: 0,
   });
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filter]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/marketing/review-reminder?filter=${filter}`);
@@ -56,7 +52,11 @@ export default function ReviewReminderPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const sendReminder = async (orderId: string) => {
     setSending(orderId);

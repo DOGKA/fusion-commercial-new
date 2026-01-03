@@ -81,6 +81,18 @@ interface RelatedProduct {
   variants?: RelatedProductVariant[];
 }
 
+interface RelatedBundle {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail?: string;
+  price: number;
+  totalValue?: number;
+  itemCount?: number;
+  shortDescription?: string;
+  stock?: number;
+}
+
 interface ProductData {
   id: string;
   name: string;
@@ -120,55 +132,6 @@ interface Review {
   createdAt: string;
   isVerifiedPurchase: boolean;
 }
-
-// Backend'ten gelecek key features tipi
-interface KeyFeature {
-  id: string;
-  label: string;
-  color: string;
-  iconSvg?: string; // Backend'ten SVG string olarak gelecek
-}
-
-// Mock key features - Backend'ten gelecek data örneği
-// iconSvg: SVG string olarak eklenirse o gösterilecek
-const mockKeyFeatures: KeyFeature[] = [
-  { 
-    id: "1", 
-    label: "2000Wh Kapasite", 
-    color: "#10B981",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/><line x1="10" x2="10" y1="11" y2="13"/></svg>`
-  },
-  { 
-    id: "2", 
-    label: "3600W Güç", 
-    color: "#3B82F6",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>`
-  },
-  { 
-    id: "3", 
-    label: "LiFePO4 Batarya", 
-    color: "#8B5CF6",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>`
-  },
-  { 
-    id: "4", 
-    label: "10 Yıl Ömür", 
-    color: "#F59E0B",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>`
-  },
-  { 
-    id: "5", 
-    label: "12 Port", 
-    color: "#EC4899",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>`
-  },
-  { 
-    id: "6", 
-    label: "Solar Uyumlu", 
-    color: "#06B6D4",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`
-  },
-];
 
 interface BundleProductViewProps {
   slug?: string;
@@ -290,10 +253,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
   // Bundle state'leri
   const [bundleItems, setBundleItems] = useState<BundleItem[]>([]);
-  const [totalValue, setTotalValue] = useState(0);
-  const [savings, setSavings] = useState(0);
-  const [savingsPercent, setSavingsPercent] = useState(0);
-  const [relatedBundles, setRelatedBundles] = useState<any[]>([]);
+  const [relatedBundles, setRelatedBundles] = useState<RelatedBundle[]>([]);
 
   // Eğer slug varsa API'den bundle bilgilerini çek
   useEffect(() => {
@@ -306,9 +266,6 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
           const data = await res.json();
           setProductData(data);
           setBundleItems(data.items || []);
-          setTotalValue(data.totalValue || 0);
-          setSavings(data.savings || 0);
-          setSavingsPercent(data.savingsPercent || 0);
           
           // API'den gelen yorumları component formatına map et
           if (data.reviews) {
@@ -331,7 +288,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
           // Aynı kategorideki veya tüm paketleri çek
           try {
             // Önce kategoriye göre dene
-            let bundlesUrl = data.category?.id 
+            const bundlesUrl = data.category?.id 
               ? `/api/public/bundles?categoryId=${data.category.id}&limit=8`
               : `/api/public/bundles?limit=8`;
             
@@ -339,14 +296,14 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
             if (bundlesRes.ok) {
               const bundlesData = await bundlesRes.json();
               // Kendisini hariç tut
-              let otherBundles = (bundlesData.bundles || []).filter((b: any) => b.id !== data.id);
+              let otherBundles: RelatedBundle[] = (bundlesData.bundles || []).filter((b: RelatedBundle) => b.id !== data.id);
               
               // Eğer kategoriden yeterli bundle yoksa, tüm bundle'lardan getir
               if (otherBundles.length < 2 && data.category?.id) {
                 const allBundlesRes = await fetch(`/api/public/bundles?limit=8`);
                 if (allBundlesRes.ok) {
                   const allBundlesData = await allBundlesRes.json();
-                  otherBundles = (allBundlesData.bundles || []).filter((b: any) => b.id !== data.id);
+                  otherBundles = (allBundlesData.bundles || []).filter((b: RelatedBundle) => b.id !== data.id);
                 }
               }
               
@@ -356,11 +313,12 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                   id: data.id,
                   name: data.name,
                   slug: data.slug,
-                  thumbnail: data.thumbnail,
+                  thumbnail: data.thumbnail || undefined,
                   price: data.price,
                   totalValue: data.totalValue || data.comparePrice || data.price,
                   itemCount: data.items?.length || data.itemCount || 0,
-                  shortDescription: data.shortDescription,
+                  shortDescription: data.shortDescription || undefined,
+                  stock: data.stock || 0,
                 }];
               }
               
@@ -381,7 +339,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   }, [slug]);
 
   // CSS Transform carousel for key features strip - ultra-smooth GPU scrolling
-  const { containerRef: featuresContainerRef, wrapperRef: featuresWrapperRef, containerStyle: featuresContainerStyle, wrapperStyle: featuresWrapperStyle, handlers: featuresHandlers } = useTransformCarousel({
+  // Not: Bu carousel şu an kullanılmıyor ama ileride key features için lazım olabilir
+  useTransformCarousel({
     autoScroll: true,
     autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
@@ -607,28 +566,6 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
   // Galeri görselleri - images string array
   const galleryImages = product.images || [];
-
-  // Features - API'den gelecek (keyFeatures olarak geliyor)
-  // Renk paleti - her feature için sırayla renk atanır
-  const featureColors = [
-    "#10B981", // emerald
-    "#3B82F6", // blue
-    "#8B5CF6", // purple
-    "#F59E0B", // amber
-    "#EC4899", // pink
-    "#06B6D4", // cyan
-    "#EF4444", // red
-    "#84CC16", // lime
-  ];
-  
-  const features = product.keyFeatures && product.keyFeatures.length > 0 
-    ? product.keyFeatures.map((f: ApiKeyFeature, idx: number) => ({
-        id: f.id,
-        label: f.title, // API'den title olarak geliyor
-        color: featureColors[idx % featureColors.length],
-        iconSvg: f.icon, // API'den icon olarak geliyor
-      }))
-    : mockKeyFeatures;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#050505', paddingTop: '120px' }}>
@@ -2093,7 +2030,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
             {/* Benzer Paketler - RelatedProductCard ile aynı component */}
             <div className="frequently-bought-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {relatedBundles.map((bundle: any) => (
+              {relatedBundles.map((bundle: RelatedBundle) => (
                 <RelatedProductCard 
                   key={bundle.id} 
                   product={{
@@ -2101,7 +2038,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                     slug: bundle.slug,
                     name: bundle.name,
                     price: bundle.price,
-                    comparePrice: bundle.totalValue > bundle.price ? bundle.totalValue : null,
+                    comparePrice: (bundle.totalValue || 0) > bundle.price ? bundle.totalValue : undefined,
                     thumbnail: bundle.thumbnail,
                     brand: 'Bundle / Paket',
                     stock: bundle.stock || 10,

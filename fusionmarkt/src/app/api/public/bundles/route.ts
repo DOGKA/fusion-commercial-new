@@ -1,5 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { Prisma } from "@prisma/client";
+
+// Bundle listesi için Prisma include tipi
+const bundleListInclude = {
+  categories: {
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
+    where: {
+      isPrimary: true,
+    },
+    take: 1,
+  },
+  items: {
+    include: {
+      product: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          thumbnail: true,
+          price: true,
+          stock: true,
+        },
+      },
+    },
+    orderBy: {
+      sortOrder: "asc" as const,
+    },
+  },
+} satisfies Prisma.BundleInclude;
 
 // GET - Public bundle listesi (frontend için)
 export async function GET(request: NextRequest) {
@@ -10,7 +47,7 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get("featured");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    let whereClause: any = {
+    const whereClause: Prisma.BundleWhereInput = {
       isActive: true,
     };
 
@@ -34,71 +71,40 @@ export async function GET(request: NextRequest) {
       whereClause.isFeatured = true;
     }
 
-    const bundles = await (prisma.bundle as any).findMany({
+    const bundles = await prisma.bundle.findMany({
       where: whereClause,
-      include: {
-        categories: {
-          include: {
-            category: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
-          },
-          where: {
-            isPrimary: true,
-          },
-          take: 1,
-        },
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                thumbnail: true,
-                price: true,
-                stock: true,
-              },
-            },
-          },
-          orderBy: {
-            sortOrder: "asc",
-          },
-        },
-      },
+      include: bundleListInclude,
       orderBy: { createdAt: "desc" },
       take: limit,
     });
 
     // Bundle'ları frontend formatına dönüştür
-    const transformedBundles = bundles.map((bundle: any) => {
+    const transformedBundles = bundles.map((bundle) => {
       // Stok hesaplama
       const minStock = bundle.items.length > 0
         ? Math.min(
-            ...bundle.items.map((item: any) =>
+            ...bundle.items.map((item) =>
               Math.floor((item.product?.stock || 0) / item.quantity)
             )
           )
         : 0;
 
       // Ürünlerin toplam değeri
-      const totalValue = bundle.items.reduce((sum: number, item: any) => {
+      const totalValue = bundle.items.reduce((sum, item) => {
         return sum + (Number(item.product?.price || 0) * item.quantity);
       }, 0);
 
       // Ana kategori
       const primaryCategory = bundle.categories[0]?.category || null;
+      
+      const bundlePrice = Number(bundle.price);
 
       return {
         id: bundle.id,
         name: bundle.name,
         slug: bundle.slug,
         shortDescription: bundle.shortDescription,
-        price: Number(bundle.price),
+        price: bundlePrice,
         comparePrice: bundle.comparePrice ? Number(bundle.comparePrice) : totalValue,
         totalValue: totalValue,
         thumbnail: bundle.thumbnail,
@@ -108,7 +114,7 @@ export async function GET(request: NextRequest) {
         stock: minStock,
         itemCount: bundle.items.length,
         // Bundle items - paket içeriği için
-        items: bundle.items.map((item: any) => ({
+        items: bundle.items.map((item) => ({
           id: item.id,
           quantity: item.quantity,
           product: item.product ? {
@@ -123,9 +129,9 @@ export async function GET(request: NextRequest) {
         isBundle: true,
         category: primaryCategory,
         // Kazanç hesaplama
-        savings: totalValue - Number(bundle.price),
+        savings: totalValue - bundlePrice,
         savingsPercent: totalValue > 0 
-          ? Math.round(((totalValue - Number(bundle.price)) / totalValue) * 100) 
+          ? Math.round(((totalValue - bundlePrice) / totalValue) * 100) 
           : 0,
       };
     });
@@ -139,4 +145,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

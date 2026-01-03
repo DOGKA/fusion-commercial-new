@@ -1,5 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { Prisma } from "@prisma/client";
+
+// Bundle için Prisma include tipi
+const bundleInclude = {
+  categories: {
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
+    orderBy: {
+      sortOrder: "asc" as const,
+    },
+  },
+  items: {
+    include: {
+      product: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          thumbnail: true,
+          price: true,
+          comparePrice: true,
+          stock: true,
+          brand: true,
+          shortDescription: true,
+        },
+      },
+    },
+    orderBy: {
+      sortOrder: "asc" as const,
+    },
+  },
+} satisfies Prisma.BundleInclude;
 
 // GET - Tek bundle detayı (frontend için)
 export async function GET(
@@ -9,47 +48,12 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    const bundle = await (prisma.bundle as any).findFirst({
+    const bundle = await prisma.bundle.findFirst({
       where: { 
         slug,
         isActive: true,
       },
-      include: {
-        categories: {
-          include: {
-            category: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
-          },
-          orderBy: {
-            sortOrder: "asc",
-          },
-        },
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                thumbnail: true,
-                price: true,
-                comparePrice: true,
-                stock: true,
-                brand: true,
-                shortDescription: true,
-              },
-            },
-          },
-          orderBy: {
-            sortOrder: "asc",
-          },
-        },
-      },
+      include: bundleInclude,
     });
 
     if (!bundle) {
@@ -62,19 +66,19 @@ export async function GET(
     // Stok hesaplama
     const minStock = bundle.items.length > 0
       ? Math.min(
-          ...bundle.items.map((item: any) =>
+          ...bundle.items.map((item) =>
             Math.floor((item.product?.stock || 0) / item.quantity)
           )
         )
       : 0;
 
     // Ürünlerin toplam değeri
-    const totalValue = bundle.items.reduce((sum: number, item: any) => {
+    const totalValue = bundle.items.reduce((sum, item) => {
       return sum + (Number(item.product?.price || 0) * item.quantity);
     }, 0);
 
     // Kategorileri düzenle
-    const categories = bundle.categories.map((bc: any) => ({
+    const categories = bundle.categories.map((bc) => ({
       id: bc.category.id,
       name: bc.category.name,
       slug: bc.category.slug,
@@ -82,10 +86,10 @@ export async function GET(
     }));
 
     // Ana kategori (breadcrumb için)
-    const primaryCategory = categories.find((c: any) => c.isPrimary) || categories[0] || null;
+    const primaryCategory = categories.find((c) => c.isPrimary) || categories[0] || null;
 
     // Bundle items'ı düzenle
-    const items = bundle.items.map((item: any) => ({
+    const items = bundle.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,
       product: item.product
@@ -112,11 +116,13 @@ export async function GET(
       images.push(...bundle.images);
     }
     // Ürün thumbnaillerini de ekle (alternatif görsel olarak)
-    items.forEach((item: any) => {
+    for (const item of items) {
       if (item.product?.thumbnail && !images.includes(item.product.thumbnail)) {
         images.push(item.product.thumbnail);
       }
-    });
+    }
+
+    const bundlePrice = Number(bundle.price);
 
     return NextResponse.json({
       id: bundle.id,
@@ -124,7 +130,7 @@ export async function GET(
       slug: bundle.slug,
       description: bundle.description,
       shortDescription: bundle.shortDescription,
-      price: Number(bundle.price),
+      price: bundlePrice,
       comparePrice: bundle.comparePrice ? Number(bundle.comparePrice) : totalValue,
       pricingType: bundle.pricingType,
       thumbnail: bundle.thumbnail,
@@ -141,9 +147,9 @@ export async function GET(
       // Hesaplanan değerler
       stock: minStock,
       totalValue,
-      savings: totalValue - Number(bundle.price),
+      savings: totalValue - bundlePrice,
       savingsPercent: totalValue > 0 
-        ? Math.round(((totalValue - Number(bundle.price)) / totalValue) * 100) 
+        ? Math.round(((totalValue - bundlePrice) / totalValue) * 100) 
         : 0,
       
       // İlişkiler
@@ -166,4 +172,3 @@ export async function GET(
     );
   }
 }
-

@@ -12,7 +12,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 export interface BundleItem {
   id: string;
   quantity: number;
-  product: {
+  product?: {
     id: string;
     name: string;
     slug: string;

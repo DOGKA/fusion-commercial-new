@@ -14,7 +14,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
-import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
+import BundleProductCard from "@/components/ui/BundleProductCard";
 import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import WaveMesh from "@/components/ui/WaveMesh";
@@ -48,6 +48,25 @@ interface ProductWithCategory extends Product {
   comparePrice?: number | null;
   saleEndDate?: string | null;
   productBadges?: ApiProductBadge[];
+  // Bundle-specific fields (when isBundle is true)
+  isBundle?: boolean;
+  totalValue?: number;
+  savings?: number;
+  savingsPercent?: number;
+  shortDescription?: string | null;
+  stock?: number;
+  items?: {
+    id: string;
+    quantity: number;
+    product?: {
+      id: string;
+      name: string;
+      slug: string;
+      thumbnail: string | null;
+      price: number;
+    } | null | undefined;
+  }[];
+  itemCount?: number;
 }
 
 interface CategoryWithProducts {
@@ -103,6 +122,49 @@ interface ApiProduct {
   productType?: "SIMPLE" | "VARIABLE";
   variants?: ApiVariant[];
   shortDescription?: string;
+}
+
+interface ApiCategory {
+  id: string;
+  name: string;
+  slug: string;
+  themeColor?: string | null;
+  isActive?: boolean;
+}
+
+interface ApiBundle {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  comparePrice?: number | null;
+  totalValue?: number;
+  thumbnail?: string | null;
+  images?: string[];
+  brand?: string | null;
+  stock?: number;
+  itemCount?: number;
+  items?: {
+    id: string;
+    quantity: number;
+    product?: {
+      id: string;
+      name: string;
+      slug: string;
+      thumbnail: string | null;
+      price: number;
+    } | null;
+  }[];
+  isBundle?: boolean;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
+  savings?: number;
+  savingsPercent?: number;
+  shortDescription?: string | null;
+  createdAt?: string;
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "name_asc";
@@ -233,9 +295,9 @@ export default function StorePage() {
         // First, add ALL active categories from API (even empty ones)
         if (categoriesRes.ok) {
           const catData = await categoriesRes.json();
-          const apiCategories = (catData.categories || catData || []) as any[];
+          const apiCategories = (catData.categories || catData || []) as ApiCategory[];
           
-          apiCategories.forEach((cat: any) => {
+          apiCategories.forEach((cat: ApiCategory) => {
             if (cat.isActive !== false) { // Only active categories
               categoryMap.set(cat.id, {
                 id: cat.id,
@@ -304,9 +366,9 @@ export default function StorePage() {
         // Process bundles and add to their categories
         if (bundlesRes.ok) {
           const bundleData = await bundlesRes.json();
-          const apiBundles = (bundleData.bundles || []) as any[];
+          const apiBundles = (bundleData.bundles || []) as ApiBundle[];
 
-          apiBundles.forEach((bundle: any) => {
+          apiBundles.forEach((bundle: ApiBundle) => {
             // Bundle'ın kategorisini al (API'den tek category objesi dönüyor)
             const catId = bundle.category?.id || "bundle-category";
             const catName = bundle.category?.name || "Bundle / Paket Ürünler";
@@ -1021,26 +1083,26 @@ function CategoryCarousel({
               {...handlers}
               className="flex items-start"
             >
-              {displayProducts.map((product, idx) => (
+              {displayProducts.map((product: ProductWithCategory, idx: number) => (
                 <div 
                   key={`${product.id}-${idx}`} 
                   className="flex-shrink-0 w-[280px]"
                 >
-                  {(product as any).isBundle ? (
+                  {product.isBundle ? (
                     <BundleProductCard 
                       bundle={{
                         id: String(product.id),
                         slug: product.slug,
                         name: product.title,
-                        shortDescription: (product as any).shortDescription,
+                        shortDescription: product.shortDescription,
                         price: product.price,
-                        totalValue: (product as any).totalValue || product.originalPrice || product.price,
-                        savings: (product as any).savings || 0,
-                        savingsPercent: (product as any).savingsPercent || 0,
+                        totalValue: product.totalValue || product.originalPrice || product.price,
+                        savings: product.savings || 0,
+                        savingsPercent: product.savingsPercent || 0,
                         thumbnail: product.image,
-                        stock: (product as any).stock || product.stockQuantity || 0,
-                        items: (product as any).items || [],
-                        itemCount: (product as any).itemCount || 0,
+                        stock: product.stock || product.stockQuantity || 0,
+                        items: product.items || [],
+                        itemCount: product.itemCount || 0,
                         ratingAverage: product.ratingAverage,
                         ratingCount: product.ratingCount,
                       }}
