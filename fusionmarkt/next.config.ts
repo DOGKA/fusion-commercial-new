@@ -57,6 +57,9 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    // Next.js 16+ için özel kalite değerleri (next/image quality prop)
+    // RelatedProductCard gibi yerlerde quality={85} kullanıyoruz.
+    qualities: [60, 75, 85, 90],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

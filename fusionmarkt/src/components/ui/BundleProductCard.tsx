@@ -25,7 +25,6 @@ export interface BundleProduct {
   id: string;
   slug: string;
   name: string;
-  shortDescription?: string | null;
   price: number;
   totalValue: number;
   savings: number;
@@ -65,7 +64,6 @@ export default function BundleProductCard({ bundle, className, priority = false 
     id,
     slug,
     name,
-    shortDescription,
     price,
     totalValue,
     savings,
@@ -81,7 +79,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
   const isOutOfStock = stock <= 0;
 
   return (
-    <div className={cn("relative", className, isOutOfStock && "opacity-60")} style={{ height: '640px', display: 'flex', flexDirection: 'column' }}>
+    <div className={cn("relative", className)} style={{ height: '640px', display: 'flex', flexDirection: 'column' }}>
       <Link href={`/urun/${slug}`} className="block" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* IMAGE AREA */}
         <div 
@@ -146,6 +144,40 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 }}
               >
                 %{savingsPercent} İndirim
+              </span>
+            )}
+            {/* Stock Badge - Son 1 adet */}
+            {stock === 1 && !isOutOfStock && (
+              <span 
+                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                style={{ 
+                  minWidth: 85, 
+                  height: 28, 
+                  padding: '0 14px', 
+                  borderRadius: SQUIRCLE.sm,
+                  backgroundColor: '#F97316',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                Son 1 adet
+              </span>
+            )}
+            {/* Stock Badge - Stok Yok */}
+            {isOutOfStock && (
+              <span 
+                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                style={{ 
+                  minWidth: 85, 
+                  height: 28, 
+                  padding: '0 14px', 
+                  borderRadius: SQUIRCLE.sm,
+                  backgroundColor: '#6B7280',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                Stok Yok
               </span>
             )}
           </div>
@@ -228,12 +260,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
             </button>
           </div>
 
-          {/* Out of Stock Overlay */}
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
-              <span className="text-sm font-medium text-white/80">Stokta Yok</span>
-            </div>
-          )}
+{/* Out of Stock Overlay - REMOVED, using badge instead */}
         </div>
 
         {/* CONTENT AREA */}
@@ -267,13 +294,8 @@ export default function BundleProductCard({ bundle, className, priority = false 
             </h3>
           </div>
 
-          {/* ORTA KISIM - Kısa açıklama & Paket İçeriği KOMPAKT GRİD */}
+          {/* ORTA KISIM - Paket İçeriği KOMPAKT GRİD */}
           <div className="flex flex-col gap-1.5 mt-2">
-            {/* Kısa Açıklama */}
-            <p className="text-[11px] text-white/45 truncate">
-              {shortDescription || "\u00A0"}
-            </p>
-
             {/* Paket İçeriği - her ürün satırı kendi GRID'i (outer card grid'inden bağımsız) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {items && items.length > 0 ? (
@@ -386,17 +408,15 @@ export default function BundleProductCard({ bundle, className, priority = false 
               </span>
             </div>
 
-            {/* Stock & Taksit */}
-            <div className="flex items-center gap-2 text-[11px]">
-              <span className="text-white/45">
-                {stock > 0 && !isOutOfStock ? `Stok: ${stock} adet` : "\u00A0"}
+            {/* 12 Taksit İmkanı */}
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1 text-[10px] text-violet-400 font-medium">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
+                  <rect width="20" height="14" x="2" y="5" rx="2"/>
+                  <line x1="2" x2="22" y1="10" y2="10"/>
+                </svg>
+                12 Taksit İmkanı
               </span>
-              {stock > 0 && !isOutOfStock && (
-                <>
-                  <span className="text-white/20">•</span>
-                  <span className="text-violet-400 font-medium">12 Taksit İmkanı</span>
-                </>
-              )}
             </div>
           </div>
 

@@ -131,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       orderBy: { updatedAt: "desc" },
     });
 
-    productPages = products.map((product) => ({
+    productPages = products.map((product: { slug: string; updatedAt: Date }) => ({
       url: `${baseUrl}/urun/${product.slug}`,
       lastModified: product.updatedAt,
       changeFrequency: "weekly" as const,
@@ -152,7 +152,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     });
 
-    categoryPages = categories.map((category) => ({
+    categoryPages = categories.map((category: { slug: string; updatedAt: Date }) => ({
       url: `${baseUrl}/kategori/${category.slug}`,
       lastModified: category.updatedAt,
       changeFrequency: "weekly" as const,
@@ -164,10 +164,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Markalar - Sabit liste (Brand modeli yok, product.brand string alanı)
   const brandPages: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/marka/ieetek`, changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${baseUrl}/marka/traffi`, changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${baseUrl}/marka/kevlar`, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${baseUrl}/marka/ieetek`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.75 },
+    { url: `${baseUrl}/marka/traffi`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${baseUrl}/marka/telesteps`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${baseUrl}/marka/rgp-balls`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.65 },
   ];
+
+  // Dinamik sayfalar - Bundle / Paket Ürünler
+  let bundlePages: MetadataRoute.Sitemap = [];
+  try {
+    const bundles = await prisma.bundle.findMany({
+      where: { 
+        isActive: true,
+      },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    bundlePages = bundles.map((bundle: { slug: string; updatedAt: Date }) => ({
+      url: `${baseUrl}/urun/${bundle.slug}`,
+      lastModified: bundle.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.85, // Paketler biraz daha yüksek öncelikli (yüksek değer ürünler)
+    }));
+  } catch (error) {
+    console.error("Sitemap: Error fetching bundles", error);
+  }
 
   // Dinamik sayfalar - Blog yazıları
   let blogPages: MetadataRoute.Sitemap = [];
@@ -183,7 +208,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       orderBy: { publishedAt: "desc" },
     });
 
-    blogPages = blogPosts.map((post) => ({
+    blogPages = blogPosts.map((post: { slug: string; updatedAt: Date }) => ({
       url: `${baseUrl}/blog/${post.slug}`,
       lastModified: post.updatedAt,
       changeFrequency: "monthly" as const,
@@ -196,6 +221,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...productPages,
+    ...bundlePages, // Paketler ürünlerden hemen sonra
     ...categoryPages,
     ...brandPages,
     ...blogPages,

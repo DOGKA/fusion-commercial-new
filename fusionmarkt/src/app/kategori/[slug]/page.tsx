@@ -18,6 +18,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
+import BundleProductCard from "@/components/ui/BundleProductCard";
 import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
@@ -270,6 +271,7 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isBundleCategory, setIsBundleCategory] = useState(false);
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>(
@@ -325,11 +327,13 @@ export default function CategoryPage() {
         if (res.ok) {
           const data = await res.json();
           setCategory(data.category);
+          setIsBundleCategory(Boolean(data.isBundle));
           setAllProducts(data.products || []);
           setProducts(data.products || []);
           setPagination(data.pagination);
         } else {
           setCategory(null);
+          setIsBundleCategory(false);
           setAllProducts([]);
           setProducts([]);
         }
@@ -838,7 +842,28 @@ export default function CategoryPage() {
                       key={`${product.id}-${idx}`} 
                       className="flex-shrink-0 w-[280px]"
                     >
-                      <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
+                      {isBundleCategory || product.isBundle ? (
+                        <BundleProductCard
+                          bundle={{
+                            id: String(product.id),
+                            slug: product.slug,
+                            name: product.title || product.name,
+                            price: Number(product.price) || 0,
+                            totalValue: Number(product.totalValue || product.comparePrice || product.originalPrice || product.price) || 0,
+                            savings: Number(product.savings) || 0,
+                            savingsPercent: Number(product.savingsPercent) || 0,
+                            thumbnail: product.thumbnail || product.image || null,
+                            stock: Number(product.stock || 0),
+                            items: product.items || [],
+                            itemCount: Number(product.itemCount || 0),
+                            ratingAverage: product.ratingAverage,
+                            ratingCount: product.ratingCount,
+                          }}
+                          priority={idx < 4}
+                        />
+                      ) : (
+                        <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -847,8 +872,31 @@ export default function CategoryPage() {
 
             {/* DESKTOP: Grid - 4 ürün per satır */}
             <div className="hidden md:grid grid-cols-4 gap-5">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={mapApiProductToCard(product)} />
+              {products.map((product, idx) => (
+                <div key={product.id} className="w-full">
+                  {isBundleCategory || product.isBundle ? (
+                    <BundleProductCard
+                      bundle={{
+                        id: String(product.id),
+                        slug: product.slug,
+                        name: product.title || product.name,
+                        price: Number(product.price) || 0,
+                        totalValue: Number(product.totalValue || product.comparePrice || product.originalPrice || product.price) || 0,
+                        savings: Number(product.savings) || 0,
+                        savingsPercent: Number(product.savingsPercent) || 0,
+                        thumbnail: product.thumbnail || product.image || null,
+                        stock: Number(product.stock || 0),
+                        items: product.items || [],
+                        itemCount: Number(product.itemCount || 0),
+                        ratingAverage: product.ratingAverage,
+                        ratingCount: product.ratingCount,
+                      }}
+                      priority={idx < 4}
+                    />
+                  ) : (
+                    <ProductCard product={mapApiProductToCard(product)} />
+                  )}
+                </div>
               ))}
             </div>
           </>

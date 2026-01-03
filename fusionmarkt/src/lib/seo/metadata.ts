@@ -125,6 +125,10 @@ export interface ProductMetaParams {
   slug: string;
   sku?: string;
   inStock?: boolean;
+  // DB'den gelen SEO alanları (öncelikli)
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string[];
 }
 
 export function generateProductMetadata({
@@ -138,13 +142,21 @@ export function generateProductMetadata({
   slug,
   sku,
   inStock = true,
+  metaTitle,
+  metaDescription,
+  metaKeywords,
 }: ProductMetaParams): Metadata {
-  const title = titleTemplates.product.replace("%s", name);
-  const productDescription = description 
-    ? `${name} - ${description.slice(0, 150)}...`
-    : `${name} ${brand ? `- ${brand}` : ""} taşınabilir güç kaynağı. ${inStock ? "Stokta mevcut" : "Stokta yok"}. FusionMarkt güvencesiyle satın alın.`;
+  // DB'den gelen metaTitle varsa onu kullan, yoksa template'den üret
+  const title = metaTitle || titleTemplates.product.replace("%s", name);
   
-  const keywords = [
+  // DB'den gelen metaDescription varsa onu kullan, yoksa otomatik üret
+  const productDescription = metaDescription 
+    || (description 
+      ? `${name} - ${description.slice(0, 150)}...`
+      : `${name} ${brand ? `- ${brand}` : ""} taşınabilir güç kaynağı. ${inStock ? "Stokta mevcut" : "Stokta yok"}. FusionMarkt güvencesiyle satın alın.`);
+  
+  // DB'den gelen metaKeywords varsa onları da ekle
+  const baseKeywords = [
     name.toLowerCase(),
     brand?.toLowerCase(),
     category?.toLowerCase(),
@@ -152,6 +164,10 @@ export function generateProductMetadata({
     "power station",
     sku?.toLowerCase(),
   ].filter(Boolean) as string[];
+  
+  const keywords = metaKeywords && metaKeywords.length > 0
+    ? [...new Set([...metaKeywords, ...baseKeywords])]
+    : baseKeywords;
 
   const metadata = generateMetadata({
     title,

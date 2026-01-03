@@ -110,7 +110,8 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
             alt={product.name}
             fill
             className="object-cover"
-            sizes="120px"
+            sizes="(max-width: 767px) calc(100vw - 40px), 120px"
+            quality={85}
           />
         ) : (
           <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>

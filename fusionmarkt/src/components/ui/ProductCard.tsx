@@ -126,7 +126,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
   const hasVariants = variants && variants.length > 0;
 
   return (
-    <div className={cn("relative", className, isOutOfStock && "opacity-60")}>
+    <div className={cn("relative", className)}>
       <Link href={`/urun/${slug}`} className="block">
         {/* IMAGE AREA - Tam genişlik, card'ın üstünde */}
         <div 
@@ -219,6 +219,40 @@ export default function ProductCard({ product, className, priority = false }: Pr
                   {badge}
                 </span>
               )}
+              {/* Stock Badge - Son 1 adet */}
+              {!hasVariants && stockQuantity === 1 && !isOutOfStock && (
+                <span 
+                  className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                  style={{ 
+                    minWidth: 85, 
+                    height: 28, 
+                    padding: '0 14px', 
+                    borderRadius: SQUIRCLE.sm,
+                    backgroundColor: '#F97316',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  Son 1 adet
+                </span>
+              )}
+              {/* Stock Badge - Stok Yok */}
+              {!hasVariants && isOutOfStock && (
+                <span 
+                  className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                  style={{ 
+                    minWidth: 85, 
+                    height: 28, 
+                    padding: '0 14px', 
+                    borderRadius: SQUIRCLE.sm,
+                    backgroundColor: '#6B7280',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  Stok Yok
+                </span>
+              )}
             </div>
 
             {/* Action Buttons - Glassmorphism Squircle - Bağımsız hover */}
@@ -299,12 +333,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               </button>
             </div>
 
-            {/* Out of Stock Overlay */}
-            {isOutOfStock && (
-              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-20">
-                <span className="text-sm font-medium text-white/80">Stokta Yok</span>
-              </div>
-            )}
+{/* Out of Stock Overlay - REMOVED, using badge instead */}
           </div>
 
           {/* CONTENT AREA - Ayrı container, image'ın altında */}
@@ -337,11 +366,8 @@ export default function ProductCard({ product, className, priority = false }: Pr
               </h3>
             </div>
 
-            {/* ORTA KISIM - Subtitle, Variants, Video Label - gap-2 (8px) */}
+            {/* ORTA KISIM - Variants, Video Label - gap-2 (8px) */}
             <div className="flex flex-col gap-2 mt-2">
-              <p className="text-[12px] text-white/45 truncate min-h-[18px]">
-                {subtitle || "\u00A0"}
-              </p>
 
               {/* Variants - yatay scroll, taşma yok */}
               <div style={{ 
@@ -580,17 +606,15 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 </span>
               </div>
 
-              {/* Stock & Taksit */}
-              <div className="flex items-center gap-2 text-[11px]">
-                <span className="text-white/45">
-                  {stockQuantity && !isOutOfStock ? `Stok: ${stockQuantity} adet` : "\u00A0"}
+              {/* 12 Taksit İmkanı */}
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-1 text-[10px] text-violet-400 font-medium">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
+                    <rect width="20" height="14" x="2" y="5" rx="2"/>
+                    <line x1="2" x2="22" y1="10" y2="10"/>
+                  </svg>
+                  12 Taksit İmkanı
                 </span>
-                {stockQuantity && !isOutOfStock && (
-                  <>
-                    <span className="text-white/20">•</span>
-                    <span className="text-violet-400 font-medium">12 Taksit İmkanı</span>
-                  </>
-                )}
               </div>
             </div>
 

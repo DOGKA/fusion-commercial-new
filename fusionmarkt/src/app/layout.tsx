@@ -118,6 +118,8 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark" data-scroll-behavior="smooth">
       <head>
+        {/* External help/manual resource */}
+        <link rel="help" href={siteConfig.resources.appManual.url} title={siteConfig.resources.appManual.name} />
         {/* Global JSON-LD Structured Data */}
         <JsonLd data={[organizationSchema, webSiteSchema]} />
       </head>

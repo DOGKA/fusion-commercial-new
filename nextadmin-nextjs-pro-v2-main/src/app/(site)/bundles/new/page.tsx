@@ -735,14 +735,17 @@ export default function NewBundlePage() {
               {activeTab === "seo" && (
                 <div className="space-y-6">
                   <div>
-                    <label className="mb-2 block text-sm font-medium">Meta Başlık</label>
+                    <label className="mb-2 block text-sm font-medium">SEO Başlık</label>
                     <input
                       type="text"
                       value={metaTitle}
                       onChange={(e) => setMetaTitle(e.target.value)}
-                      placeholder="SEO başlığı..."
+                      placeholder="Arama sonuçlarında görünecek başlık..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
+                    <p className={`mt-1 text-xs ${metaTitle.length > 60 ? 'text-red-500' : metaTitle.length > 50 ? 'text-yellow-500' : 'text-gray-500'}`}>
+                      {metaTitle.length}/60 karakter {metaTitle.length > 60 && '(çok uzun!)'}
+                    </p>
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-medium">Meta Açıklama</label>
@@ -750,9 +753,25 @@ export default function NewBundlePage() {
                       rows={3}
                       value={metaDescription}
                       onChange={(e) => setMetaDescription(e.target.value)}
-                      placeholder="SEO açıklaması..."
+                      placeholder="Arama sonuçlarında görünecek açıklama..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
+                    <p className={`mt-1 text-xs ${metaDescription.length > 160 ? 'text-red-500' : metaDescription.length > 150 ? 'text-yellow-500' : 'text-gray-500'}`}>
+                      {metaDescription.length}/160 karakter {metaDescription.length > 160 && '(çok uzun!)'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">URL Slug</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">fusionmarkt.com/urun/</span>
+                      <input
+                        type="text"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                        placeholder="paket-adi"
+                        className="flex-1 rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-medium">Anahtar Kelimeler</label>
@@ -763,6 +782,25 @@ export default function NewBundlePage() {
                       placeholder="anahtar, kelimeler, virgülle, ayrılmış"
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Virgülle ayırın (örn: solar paket, güç istasyonu, taşınabilir enerji)
+                    </p>
+                  </div>
+                  
+                  {/* Google Önizleme */}
+                  <div className="rounded-lg border border-stroke p-4 dark:border-dark-3 bg-gray-50 dark:bg-dark-2">
+                    <p className="text-sm font-medium mb-3">Google Önizleme</p>
+                    <div className="space-y-1">
+                      <p className="text-[#1a0dab] text-lg hover:underline cursor-pointer truncate">
+                        {metaTitle || name || "Paket Adı"} - FusionMarkt
+                      </p>
+                      <p className="text-[#006621] text-sm">
+                        fusionmarkt.com › urun › {slug || "paket-adi"}
+                      </p>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {metaDescription || shortDescription || "Meta açıklama buraya gelecek. Arama sonuçlarında kullanıcıların göreceği açıklama metni..."}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

@@ -70,13 +70,14 @@ async function getBundle(slug: string) {
     if (!bundle) return null;
 
     // Stok ve toplam değer hesapla
+    type BundleItemType = { quantity: number; product: { stock: number; price: unknown } | null };
     const minStock = bundle.items.length > 0
-      ? Math.min(...bundle.items.map((item) =>
+      ? Math.min(...bundle.items.map((item: BundleItemType) =>
           Math.floor((item.product?.stock || 0) / item.quantity)
         ))
       : 0;
 
-    const totalValue = bundle.items.reduce((sum, item) => {
+    const totalValue = bundle.items.reduce((sum: number, item: BundleItemType) => {
       return sum + (Number(item.product?.price || 0) * item.quantity);
     }, 0);
 
@@ -102,7 +103,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   if (product) {
     // Toplam stok hesapla
-    const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || product.stock || 0;
+    type VariantType = { stock: number | null };
+    const totalStock = product.variants?.reduce((sum: number, v: VariantType) => sum + (v.stock || 0), 0) || product.stock || 0;
     
     // Görsel URL'si
     const imageUrl = product.thumbnail || (product.images as string[])?.[0];
@@ -123,6 +125,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug: product.slug,
       sku: product.sku || undefined,
       inStock: totalStock > 0,
+      // DB'den gelen SEO alanları (öncelikli)
+      metaTitle: product.metaTitle,
+      metaDescription: product.metaDescription,
+      metaKeywords: product.metaKeywords as string[] | undefined,
     });
   }
 
@@ -138,7 +144,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         : undefined;
 
     return generateProductMetadata({
-      name: `${bundle.name} (Paket)`,
+      name: bundle.metaTitle ? bundle.name : `${bundle.name} (Paket)`,
       description: bundle.shortDescription || bundle.description?.slice(0, 160),
       price: Number(bundle.price) || 0,
       discountPrice: bundle.totalValue > Number(bundle.price) ? Number(bundle.price) : undefined,
@@ -148,6 +154,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug: bundle.slug,
       sku: bundle.sku || undefined,
       inStock: bundle.stock > 0,
+      // DB'den gelen SEO alanları (öncelikli)
+      metaTitle: bundle.metaTitle,
+      metaDescription: bundle.metaDescription,
+      metaKeywords: bundle.metaKeywords as string[] | undefined,
     });
   }
 
@@ -166,12 +176,14 @@ export default async function ProductPage({ params }: Props) {
 
   if (product) {
     // Toplam stok hesapla
-    const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || product.stock || 0;
+    type PageVariantType = { stock: number | null };
+    type ReviewType = { rating: number };
+    const totalStock = product.variants?.reduce((sum: number, v: PageVariantType) => sum + (v.stock || 0), 0) || product.stock || 0;
     
     // Ortalama rating hesapla
     const reviews = product.reviews || [];
     const avgRating = reviews.length > 0 
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
+      ? reviews.reduce((sum: number, r: ReviewType) => sum + r.rating, 0) / reviews.length 
       : 0;
 
     // Görsel URL'leri

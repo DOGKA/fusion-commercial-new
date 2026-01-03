@@ -57,6 +57,13 @@ export function generateWebSiteSchema() {
     publisher: {
       "@id": `${siteConfig.url}/#organization`,
     },
+    hasPart: [
+      {
+        "@type": "CreativeWork",
+        name: siteConfig.resources.appManual.name,
+        url: siteConfig.resources.appManual.url,
+      },
+    ],
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -70,7 +77,7 @@ export function generateWebSiteSchema() {
 }
 
 /**
- * Product Schema - Ürün detay sayfası için
+ * Product Schema - Ürün detay sayfası için (Google Rich Results optimized)
  */
 export interface ProductSchemaParams {
   name: string;
@@ -78,17 +85,26 @@ export interface ProductSchemaParams {
   image?: string | string[];
   price: number;
   discountPrice?: number;
+  comparePrice?: number;
   currency?: string;
   sku?: string;
   gtin?: string;
+  mpn?: string;
   brand?: string;
   category?: string;
   inStock?: boolean;
+  stockCount?: number;
   rating?: {
     value: number;
     count: number;
   };
   url: string;
+  // Ek SEO alanları
+  weight?: string;
+  dimensions?: { width: string; height: string; depth: string };
+  color?: string;
+  material?: string;
+  isBundle?: boolean;
 }
 
 export function generateProductSchema({
@@ -97,24 +113,33 @@ export function generateProductSchema({
   image,
   price,
   discountPrice,
+  comparePrice,
   currency = "TRY",
   sku,
   gtin,
+  mpn,
   brand,
   category,
   inStock = true,
+  stockCount,
   rating,
   url,
+  weight,
+  dimensions,
+  color,
+  material,
+  isBundle = false,
 }: ProductSchemaParams) {
   const images = Array.isArray(image) ? image : image ? [image] : [];
   const finalPrice = discountPrice || price;
+  const originalPrice = comparePrice || price;
 
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": isBundle ? "ProductGroup" : "Product",
     "@id": `${siteConfig.url}${url}#product`,
     name,
-    description: description || `${name} - FusionMarkt'ta satışta`,
+    description: description || `${name} - Türkiye'nin güvenilir enerji marketi FusionMarkt'ta satışta. 2 yıl garanti, ücretsiz kargo.`,
     image: images,
     url: `${siteConfig.url}${url}`,
     brand: {
@@ -131,16 +156,94 @@ export function generateProductSchema({
       availability: inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
       seller: {
         "@type": "Organization",
         name: siteConfig.name,
+        url: siteConfig.url,
+      },
+      // Kargo bilgisi
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0",
+          currency: "TRY",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "TR",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 3,
+            unitCode: "DAY",
+          },
+        },
+      },
+      // İade politikası
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "TR",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
       },
     },
   };
 
+  // Ürün tanımlayıcıları
   if (sku) schema.sku = sku;
   if (gtin) schema.gtin13 = gtin;
+  if (mpn) schema.mpn = mpn;
+  
+  // Stok bilgisi
+  if (stockCount !== undefined && stockCount > 0) {
+    (schema.offers as Record<string, unknown>).inventoryLevel = {
+      "@type": "QuantitativeValue",
+      value: stockCount,
+    };
+  }
 
+  // Fiyat karşılaştırma (indirim gösterimi)
+  if (originalPrice > finalPrice) {
+    (schema.offers as Record<string, unknown>).priceSpecification = {
+      "@type": "PriceSpecification",
+      price: finalPrice,
+      priceCurrency: currency,
+      valueAddedTaxIncluded: true,
+    };
+  }
+
+  // Fiziksel özellikler
+  if (weight) {
+    schema.weight = {
+      "@type": "QuantitativeValue",
+      value: weight,
+      unitCode: "KGM",
+    };
+  }
+  
+  if (dimensions) {
+    schema.depth = { "@type": "QuantitativeValue", value: dimensions.depth, unitCode: "CMT" };
+    schema.width = { "@type": "QuantitativeValue", value: dimensions.width, unitCode: "CMT" };
+    schema.height = { "@type": "QuantitativeValue", value: dimensions.height, unitCode: "CMT" };
+  }
+
+  if (color) schema.color = color;
+  if (material) schema.material = material;
+
+  // Rating
   if (rating && rating.count > 0) {
     schema.aggregateRating = {
       "@type": "AggregateRating",

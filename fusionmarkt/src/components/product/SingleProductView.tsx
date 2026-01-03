@@ -939,7 +939,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               </div>
             </div>
 
-            {/* Stock & Taksit & SKU */}
+            {/* Taksit & SKU */}
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -948,18 +948,13 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               marginBottom: '10px' 
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: (selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 ? 'rgba(255,255,255,0.45)' : '#EF4444' }}>
-                  {selectedVariant 
-                    ? (selectedVariant.stock > 0 ? `Stok: ${selectedVariant.stock} adet` : 'Stokta Yok')
-                    : ((product.stock ?? 0) > 0 ? `Stok: ${product.stock} adet` : 'Stokta Yok')
-                  }
+                <span style={{ color: '#A78BFA', fontWeight: 500 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginRight: '4px', verticalAlign: 'middle' }}>
+                    <rect width="20" height="14" x="2" y="5" rx="2"/>
+                    <line x1="2" x2="22" y1="10" y2="10"/>
+                  </svg>
+                  12 Taksit İmkanı
                 </span>
-                {(selectedVariant ? selectedVariant.stock : (product.stock ?? 0)) > 0 && (
-                  <>
-                    <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-                    <span style={{ color: '#A78BFA', fontWeight: 500 }}>12 Taksit İmkanı</span>
-                  </>
-                )}
               </div>
               <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>
                 SKU: {selectedVariant 

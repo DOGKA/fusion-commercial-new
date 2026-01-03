@@ -6,9 +6,16 @@
 export const siteConfig = {
   name: "FusionMarkt",
   shortName: "FusionMarkt",
-  description: "IEETek taşınabilir güç kaynakları, güneş panelleri, Traffi iş eldivenleri ve Kevlar yalıtkan merdivenler. Yetkili distribütör garantisiyle güvenli alışveriş.",
+  description: "Taşınabilir güç kaynağı, LiFePO4 batarya, solar panel, yalıtkan merdiven ve iş güvenliği eldiveni. IEETek, Traffi, Telesteps yetkili distribütörü. Türkiye'nin en güvenilir enerji ve iş güvenliği marketi.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://fusionmarkt.com",
   ogImage: "/images/og-default.jpg",
+  // Ürün ek kaynakları
+  resources: {
+    appManual: {
+      name: "App Kullanım Kılavuzu",
+      url: "https://ieetek.vercel.app/",
+    },
+  },
   
   // Şirket bilgileri
   company: {
@@ -41,20 +48,37 @@ export const siteConfig = {
   language: "tr",
   themeColor: "#8B5CF6",
   
-  // Keywords
+  // Hedef Keywords (Google ranking için öncelikli)
   keywords: [
+    // Birincil hedefler
     "taşınabilir güç kaynağı",
-    "power station",
-    "güneş paneli",
     "solar panel",
+    "güneş enerjisi",
+    "lifepo4",
+    "lifepo4 batarya",
+    "yalıtkan merdiven",
+    "iş güvenliği eldiveni",
+    // İkincil hedefler
+    "power station",
+    "güç istasyonu",
+    "güneş paneli",
+    "taşınabilir enerji",
+    "enerji depolama",
+    "off-grid enerji",
+    "kamp güç kaynağı",
+    "karavan güç kaynağı",
+    "acil durum jeneratör",
+    // Marka bazlı
     "ieetek",
     "traffi",
+    "telesteps",
     "kevlar merdiven",
-    "iş eldiveni",
-    "enerji depolama",
-    "portable power",
-    "off-grid enerji",
-    "yalıtkan merdiven",
+    // Uzun kuyruk (long-tail)
+    "taşınabilir güç kaynağı fiyatları",
+    "solar panel seti",
+    "lifepo4 güç istasyonu",
+    "katlanır güneş paneli",
+    "yalıtkan merdiven fiyatları",
   ],
   
   // Creator & Publisher
@@ -73,27 +97,31 @@ export const titleTemplates = {
   blog: "%s | Blog",
 } as const;
 
-// Varsayılan meta açıklamaları
+// Varsayılan meta açıklamaları (SEO optimized)
 export const defaultDescriptions = {
-  home: "IEETek taşınabilir güç kaynakları, güneş panelleri, Traffi iş eldivenleri ve Kevlar yalıtkan merdivenler. Yetkili distribütör garantisiyle güvenli alışveriş.",
-  shop: "Tüm taşınabilir güç kaynakları, güneş panelleri, iş eldivenleri ve yalıtkan merdivenler. En iyi fiyat garantisi ve hızlı kargo ile kapınızda.",
-  blog: "Taşınabilir enerji, iş güvenliği, yalıtkan merdivenler ve ürün incelemeleri. Sektörel gelişmeler hakkında her şey.",
-  contact: "FusionMarkt ile iletişime geçin. Sorularınız, önerileriniz ve destek talepleriniz için buradayız.",
-  about: "FusionMarkt hakkında. Türkiye'nin önde gelen endüstriyel ekipman ve enerji çözümleri distribütörü.",
+  home: "Taşınabilir güç kaynağı, LiFePO4 batarya, solar panel, yalıtkan merdiven ve iş güvenliği eldiveni satışı. IEETek, Traffi, Telesteps yetkili distribütörü. Ücretsiz kargo, 2 yıl garanti.",
+  shop: "En iyi taşınabilir güç kaynakları, güneş panelleri, LiFePO4 bataryalar, yalıtkan merdivenler ve iş eldivenleri. Fiyat karşılaştırma, hızlı teslimat, 12 taksit imkanı.",
+  blog: "Taşınabilir güç kaynağı rehberi, solar panel kurulumu, LiFePO4 batarya karşılaştırması, iş güvenliği ipuçları ve ürün incelemeleri.",
+  contact: "FusionMarkt iletişim. Taşınabilir güç kaynağı, solar panel, yalıtkan merdiven siparişi ve teknik destek için bize ulaşın.",
+  about: "FusionMarkt - Türkiye'nin önde gelen taşınabilir güç kaynağı, solar panel ve iş güvenliği ekipmanları distribütörü. 2023'ten beri güvenilir hizmet.",
 } as const;
 
-// Kategori SEO açıklamaları
+// Kategori SEO açıklamaları (hedef keywordler dahil)
 export const categoryDescriptions: Record<string, string> = {
-  "power-station": "Taşınabilir güç istasyonları ile her yerde elektrik. Kamp, outdoor, acil durum ve ev kullanımı için ideal çözümler.",
-  "solar-panel": "Yüksek verimli güneş panelleri. Taşınabilir ve katlanabilir modeller ile enerjinizi güneşten alın.",
-  "aksesuarlar": "Güç istasyonu aksesuarları, kablolar, adaptörler ve yedek parçalar. Sisteminizi genişletin.",
-  "bundle": "Özel paket fırsatları. Güç istasyonu + güneş paneli setleri ile maksimum tasarruf.",
+  "power-station": "Taşınabilir güç kaynağı modelleri - LiFePO4 bataryalı power station. Kamp, karavan, acil durum ve ev kullanımı için 500W-3000W güç istasyonları. Fiyat ve özellik karşılaştırması.",
+  "solar-panel": "Güneş enerjisi panelleri - Katlanır solar panel modelleri. Taşınabilir güç kaynağı ile uyumlu 100W-400W güneş paneli seçenekleri. En iyi fiyat garantisi.",
+  "aksesuarlar": "Güç istasyonu aksesuarları - Kablo, adaptör, çanta ve yedek parçalar. LiFePO4 batarya, solar panel bağlantı ekipmanları.",
+  "bundle": "Taşınabilir güç kaynağı + solar panel paket setleri. Hazır off-grid enerji çözümleri, %20'ye varan tasarruf fırsatları.",
+  "bundle-paket-urunler": "Özel paket fırsatları - Güç istasyonu + güneş paneli setleri. LiFePO4 bataryalı taşınabilir enerji paketleri ile maksimum tasarruf.",
+  "yalitkan-merdiven": "Yalıtkan merdiven modelleri - Elektrik işleri için güvenli fiberglas merdivenler. EN 50528 sertifikalı, 1000V yalıtımlı teleskopik ve atlas merdivenler.",
+  "is-guvenligi-eldiveni": "İş güvenliği eldiveni modelleri - Kesim dayanımlı, dokunmatik ekran uyumlu Traffi güvenlik eldivenleri. CE ve EN 388 sertifikalı.",
 };
 
-// Marka SEO açıklamaları
+// Marka SEO açıklamaları (hedef keywordler dahil)
 export const brandDescriptions: Record<string, string> = {
-  ieetek: "IEETek taşınabilir güç istasyonları ve güneş panelleri. P800, P1800, P2400 serileri ile profesyonel enerji çözümleri.",
-  traffi: "Traffi iş eldivenleri. Karbon-nötr, kesim dayanımlı ve dokunmatik ekran uyumlu güvenlik eldivenleri.",
-  kevlar: "Kevlar yalıtkan merdivenler. Elektrik işlerinde güvenli çalışma için yüksek gerilim yalıtımlı merdivenler.",
+  ieetek: "IEETek taşınabilir güç kaynağı ve solar panel modelleri. P800, P1800,p3200, SH4000 P2400 LiFePO4 bataryalı power station serileri. Türkiye yetkili distribütörü, 2 yıl garanti.",
+  traffi: "Traffi iş güvenliği eldiveni modelleri. Karbon-nötr, kesim dayanımlı ve dokunmatik ekran uyumlu koruyucu eldivenler. EN 388 sertifikalı, CE onaylı.",
+  telesteps: "Telesteps yalıtkan merdiven modelleri. Profesyonel elektrik işleri için 1000V yalıtımlı, katlanır fiberglas merdivenler. EN 50528 sertifikalı.",
+  kevlar: "Kevlar yalıtkan merdivenler. Yüksek gerilim elektrik işlerinde güvenli çalışma için izolasyonlu merdivenler. DGUV sertifikalı.",
 };
 
