@@ -1,3 +1,4 @@
+export { default as PreviewFrame } from "./PreviewFrame";
 /**
  * FusionMarkt Admin Studio - Preview Components
  * 
