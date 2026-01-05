@@ -73,12 +73,14 @@ export async function GET(request: NextRequest) {
       // Variants - ProductCard'daki size swatches için
       variants: p.variants?.map((v: any) => ({
         id: v.id,
-        name: v.name,
-        type: 'size', // Default to size for now
-        value: v.name?.split(' / ')?.[0] || v.name || '',
-        inStock: v.stock > 0,
-        color: null,
+        name: v.type || v.name || 'Varyasyon', // Attribute adı (örn: "Eldiven Numarası", "Renk")
+        type: v.type || 'size',
+        value: v.value || v.name?.split(' / ')?.[0] || '', // Gerçek değer (örn: "09", "Beyaz")
+        stock: v.stock ?? 0,
+        inStock: (v.stock ?? 0) > 0,
+        color: v.colorCode || null,
         image: v.image,
+        price: v.price ? Number(v.price) : null,
       })) || [],
       category: p.category ? { name: p.category.name } : null,
       productBadges: p.productBadges,

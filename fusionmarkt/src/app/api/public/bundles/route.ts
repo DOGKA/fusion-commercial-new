@@ -20,7 +20,10 @@ const bundleListInclude = {
     take: 1,
   },
   items: {
-    include: {
+    select: {
+      id: true,
+      quantity: true,
+      variantId: true,
       product: {
         select: {
           id: true,
@@ -117,6 +120,7 @@ export async function GET(request: NextRequest) {
         items: bundle.items.map((item) => ({
           id: item.id,
           quantity: item.quantity,
+          variantId: item.variantId || null,
           product: item.product ? {
             id: item.product.id,
             name: item.product.name,
@@ -125,6 +129,8 @@ export async function GET(request: NextRequest) {
             price: Number(item.product.price),
           } : null,
         })),
+        // Varyasyonlu ürün var mı kontrol
+        hasVariants: bundle.items.some((item) => !!item.variantId),
         // ProductCardView uyumluluğu için
         isBundle: true,
         category: primaryCategory,

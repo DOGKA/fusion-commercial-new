@@ -39,31 +39,57 @@ interface ShippingCalculationResult {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { items } = body as { items: CartItem[]; city?: string };
+    const { items, cartTotal: providedCartTotal } = body as { 
+      items?: CartItem[]; 
+      city?: string;
+      cartTotal?: number; // Tam sepet toplamı (bundle dahil)
+    };
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json(
-        { error: "Sepet boş" },
-        { status: 400 }
-      );
+    // cartTotal gönderilmişse items boş olabilir (bundle-only sepet)
+    const hasItems = items && Array.isArray(items) && items.length > 0;
+    const hasCartTotal = typeof providedCartTotal === 'number' && providedCartTotal > 0;
+
+    // Items ve cartTotal yoksa sadece threshold bilgisini döndür (settings için)
+    if (!hasItems && !hasCartTotal) {
+      // Kargo ayarlarını al
+      const shippingSettings = await prisma.shippingSettings.findUnique({
+        where: { id: "default" },
+      });
+      const freeShippingLimit = shippingSettings?.freeShippingLimit 
+        ? Number(shippingSettings.freeShippingLimit) 
+        : DEFAULT_FREE_SHIPPING_LIMIT;
+      
+      return NextResponse.json({
+        options: [],
+        freeShippingThreshold: freeShippingLimit,
+        amountToFreeShipping: freeShippingLimit,
+        hasFreeShipping: false,
+        hasHeavyClass: false,
+        message: null,
+      });
     }
 
-    // Sepet toplamını hesapla
-    const cartTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Sepet toplamını hesapla - cartTotal gönderilmişse onu kullan (bundle dahil toplam)
+    const itemsTotal = hasItems 
+      ? items.reduce((sum, item) => sum + (item.price * item.quantity), 0) 
+      : 0;
+    const cartTotal = providedCartTotal || itemsTotal;
 
-    // Ürünlerin kargo bilgilerini al
-    const productIds = items.map(item => item.productId);
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        freeShipping: true,
-        shippingClass: true,
-        weight: true,
-      },
-    });
+    // Ürünlerin kargo bilgilerini al (items varsa)
+    const productIds = hasItems ? items.map(item => item.productId) : [];
+    const products = productIds.length > 0 
+      ? await prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            freeShipping: true,
+            shippingClass: true,
+            weight: true,
+          },
+        })
+      : [];
 
     // Kargo ayarlarını veritabanından al
     const shippingSettings = await prisma.shippingSettings.findUnique({

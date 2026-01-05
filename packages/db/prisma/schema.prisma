@@ -1753,6 +1753,16 @@ model SiteSettings {
   googleTagManagerId  String? // GTM-XXXXXXX
   facebookPixelId     String? // 123456789012345
 
+  // Cookie Banner Settings (Storefront)
+  cookieBannerEnabled  Boolean @default(true) // Çerez uyarısını göster
+  cookieBannerPosition String  @default("bottom") // bottom | top | center
+  cookieBannerText     String  @default("Bu web sitesi deneyiminizi geliştirmek için çerezler kullanmaktadır.")
+
+  // Varsayılan çerez izinleri (kullanıcı henüz seçim yapmadıysa)
+  cookieDefaultAnalytics   Boolean @default(true) // Analytics varsayılan açık
+  cookieDefaultMarketing   Boolean @default(false) // Marketing varsayılan kapalı
+  cookieDefaultPreferences Boolean @default(true) // Tercihler varsayılan açık
+
   // Google Analytics Data API (Dashboard için)
   gaPropertyId             String? // 123456789 (Property ID - rakam)
   gaServiceAccountEmail    String? // analytics@project.iam.gserviceaccount.com

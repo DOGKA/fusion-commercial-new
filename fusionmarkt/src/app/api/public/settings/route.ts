@@ -16,6 +16,12 @@ export async function GET() {
         googleAnalyticsId: true,
         googleTagManagerId: true,
         facebookPixelId: true,
+        cookieBannerEnabled: true,
+        cookieBannerPosition: true,
+        cookieBannerText: true,
+        cookieDefaultAnalytics: true,
+        cookieDefaultMarketing: true,
+        cookieDefaultPreferences: true,
         // NOT: Service account bilgileri public'e açık değil!
       },
     });
@@ -30,6 +36,12 @@ export async function GET() {
         googleAnalyticsId: null,
         googleTagManagerId: null,
         facebookPixelId: null,
+        cookieBannerEnabled: true,
+        cookieBannerPosition: "bottom",
+        cookieBannerText: "Bu web sitesi deneyiminizi geliştirmek için çerezler kullanmaktadır.",
+        cookieDefaultAnalytics: true,
+        cookieDefaultMarketing: false,
+        cookieDefaultPreferences: true,
       });
     }
 

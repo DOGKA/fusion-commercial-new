@@ -148,15 +148,19 @@ export default function CheckoutPage() {
       
       setLoadingShipping(true);
       try {
+        // Bundle olmayan ürünleri filtrele
+        const productItems = items.filter(item => !item.isBundle && item.productId);
+        
         const res = await fetch("/api/public/shipping/calculate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            items: items.map(item => ({
+            items: productItems.map(item => ({
               productId: item.productId,
               quantity: item.quantity,
               price: item.price,
             })),
+            cartTotal: subtotal, // Bundle dahil tam sepet toplamı
             city: city || undefined,
           }),
         });

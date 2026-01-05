@@ -37,6 +37,14 @@ export interface CartItem {
   // Bundle/Paket ürün desteği
   isBundle?: boolean;
   bundleId?: string;
+  // Bundle içindeki ürünlerin seçilen varyantları
+  // { productId: { variantId, variantName, variantValue } }
+  bundleItemVariants?: Record<string, {
+    variantId: string;
+    variantName: string;
+    variantValue: string;
+    productName: string;
+  }>;
 }
 
 interface CartContextType {

@@ -88,26 +88,53 @@ export async function GET(
     // Ana kategori (breadcrumb için)
     const primaryCategory = categories.find((c) => c.isPrimary) || categories[0] || null;
 
+    // Variant ID'lerini topla
+    const variantIds = bundle.items
+      .map((item: { variantId?: string | null }) => item.variantId)
+      .filter((id): id is string => !!id);
+    
+    // Variant bilgilerini çek
+    const variantMap = new Map<string, { id: string; name: string | null; type: string | null; value: string | null; colorCode: string | null }>();
+    if (variantIds.length > 0) {
+      const variants = await prisma.productVariant.findMany({
+        where: { id: { in: variantIds } },
+        select: { id: true, name: true, type: true, value: true, colorCode: true },
+      });
+      for (const v of variants) {
+        variantMap.set(v.id, v);
+      }
+    }
+
     // Bundle items'ı düzenle
-    const items = bundle.items.map((item) => ({
-      id: item.id,
-      quantity: item.quantity,
-      product: item.product
-        ? {
-            id: item.product.id,
-            name: item.product.name,
-            slug: item.product.slug,
-            thumbnail: item.product.thumbnail,
-            price: Number(item.product.price),
-            comparePrice: item.product.comparePrice
-              ? Number(item.product.comparePrice)
-              : null,
-            stock: item.product.stock,
-            brand: item.product.brand,
-            shortDescription: item.product.shortDescription,
-          }
-        : null,
-    }));
+    const items = bundle.items.map((item: { id: string; quantity: number; variantId?: string | null; product?: { id: string; name: string; slug: string; thumbnail: string | null; price: unknown; comparePrice?: unknown; stock: number; brand?: string | null; shortDescription?: string | null } | null }) => {
+      const variant = item.variantId ? variantMap.get(item.variantId) : null;
+      return {
+        id: item.id,
+        quantity: item.quantity,
+        variantId: item.variantId || null,
+        variant: variant ? {
+          id: variant.id,
+          name: variant.type || variant.name || 'Varyasyon',
+          value: variant.value || '',
+          colorCode: variant.colorCode || null,
+        } : null,
+        product: item.product
+          ? {
+              id: item.product.id,
+              name: item.product.name,
+              slug: item.product.slug,
+              thumbnail: item.product.thumbnail,
+              price: Number(item.product.price),
+              comparePrice: item.product.comparePrice
+                ? Number(item.product.comparePrice)
+                : null,
+              stock: item.product.stock,
+              brand: item.product.brand,
+              shortDescription: item.product.shortDescription,
+            }
+          : null,
+      };
+    });
 
     // Galeri görselleri (bundle görselleri + ürün görselleri)
     const images: string[] = [];

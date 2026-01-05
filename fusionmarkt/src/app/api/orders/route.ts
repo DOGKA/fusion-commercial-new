@@ -305,13 +305,33 @@ export async function POST(request: NextRequest) {
         statusHistory: initialStatusHistory, // Sözleşme onaylarını dahil et
         // Create order items
         items: {
-          create: items.map((item: { productId: string; variant?: { id: string }; price: number; quantity: number }) => ({
-            productId: item.productId,
-            price: item.price,
-            quantity: item.quantity,
-            subtotal: item.price * item.quantity,
-            variantInfo: item.variant ? JSON.stringify(item.variant) : null,
-          })),
+          create: items.map((item: { 
+            productId: string; 
+            variant?: { id: string }; 
+            price: number; 
+            quantity: number;
+            isBundle?: boolean;
+            bundleId?: string;
+            bundleItemVariants?: Record<string, { variantId: string; variantName: string; variantValue: string; productName: string }>;
+          }) => {
+            // variantInfo: normal varyant + bundle içi varyantlar
+            let variantInfo = null;
+            if (item.variant || item.bundleItemVariants) {
+              variantInfo = JSON.stringify({
+                variant: item.variant || null,
+                bundleItemVariants: item.bundleItemVariants || null,
+              });
+            }
+            
+            return {
+              productId: item.productId,
+              bundleId: item.isBundle ? item.bundleId : null,
+              price: item.price,
+              quantity: item.quantity,
+              subtotal: item.price * item.quantity,
+              variantInfo,
+            };
+          }),
         },
       },
     });

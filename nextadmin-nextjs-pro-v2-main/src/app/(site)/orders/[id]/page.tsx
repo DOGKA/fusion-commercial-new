@@ -623,8 +623,13 @@ export default function OrderDetailPage() {
             <div className="divide-y divide-stroke dark:divide-dark-3">
               {order.items.map((item) => {
                 const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
+                // Yeni format: { variant: {...}, bundleItemVariants: {...} }
+                // Eski format: { name: "...", value: "..." }
+                const variant = variantInfo?.variant || (variantInfo?.name ? variantInfo : null);
+                const bundleItemVariants = variantInfo?.bundleItemVariants;
+                
                 return (
-                  <div key={item.id} className="flex items-center gap-4 p-4">
+                  <div key={item.id} className="flex items-start gap-4 p-4">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-dark-2">
                       {item.product.thumbnail || item.product.images?.[0] ? (
                         <Image
@@ -644,13 +649,27 @@ export default function OrderDetailPage() {
                       <p className="font-medium text-dark dark:text-white line-clamp-1">
                         {item.product.name}
                       </p>
-                      {variantInfo && (
+                      {/* Normal ürün varyantı */}
+                      {variant && (
                         <p className="text-sm text-gray-500">
-                          {variantInfo.name}: {variantInfo.value}
+                          {variant.name}: {variant.value}
                         </p>
                       )}
+                      {/* Bundle içi seçilen varyantlar */}
+                      {bundleItemVariants && Object.keys(bundleItemVariants).length > 0 && (
+                        <div className="mt-2 space-y-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-2">
+                          <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">
+                            📦 Paket İçi Seçimler:
+                          </p>
+                          {(Object.values(bundleItemVariants) as Array<{ productName: string; variantName: string; variantValue: string }>).map((bv, idx) => (
+                            <p key={idx} className="text-xs text-blue-600 dark:text-blue-400">
+                              • {bv.productName}: <span className="font-medium">{bv.variantName} - {bv.variantValue}</span>
+                            </p>
+                          ))}
+                        </div>
+                      )}
                       {item.product.sku && (
-                        <p className="text-xs text-gray-400">SKU: {item.product.sku}</p>
+                        <p className="text-xs text-gray-400 mt-1">SKU: {item.product.sku}</p>
                       )}
                     </div>
                     <div className="text-right">

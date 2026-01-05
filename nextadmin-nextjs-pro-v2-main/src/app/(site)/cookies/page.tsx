@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CookiesPage() {
   const [settings, setSettings] = useState({
@@ -12,6 +12,74 @@ export default function CookiesPage() {
     bannerPosition: "bottom",
     bannerText: "Bu web sitesi deneyiminizi geliştirmek için çerezler kullanmaktadır.",
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // Load persisted settings
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("/api/admin/settings");
+        if (!res.ok) throw new Error("Ayarlar getirilemedi");
+        const data = await res.json();
+
+        if (!mounted) return;
+        setSettings((prev) => ({
+          ...prev,
+          showBanner: data.cookieBannerEnabled ?? prev.showBanner,
+          bannerPosition: data.cookieBannerPosition ?? prev.bannerPosition,
+          bannerText: data.cookieBannerText ?? prev.bannerText,
+          analytics: data.cookieDefaultAnalytics ?? prev.analytics,
+          marketing: data.cookieDefaultMarketing ?? prev.marketing,
+          preferences: data.cookieDefaultPreferences ?? prev.preferences,
+        }));
+      } catch (e) {
+        if (!mounted) return;
+        setError(e instanceof Error ? e.message : "Beklenmeyen hata");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cookieBannerEnabled: settings.showBanner,
+          cookieBannerPosition: settings.bannerPosition,
+          cookieBannerText: settings.bannerText,
+          cookieDefaultAnalytics: settings.analytics,
+          cookieDefaultMarketing: settings.marketing,
+          cookieDefaultPreferences: settings.preferences,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "Kaydetme başarısız");
+      }
+      setSuccess("Kaydedildi");
+      setTimeout(() => setSuccess(null), 1500);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Beklenmeyen hata");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -19,6 +87,22 @@ export default function CookiesPage() {
         <h1 className="text-2xl font-bold text-dark dark:text-white">Çerez Ayarları</h1>
         <p className="text-gray-500">Çerez politikası ve izin yönetimi</p>
       </div>
+
+      {loading && (
+        <div className="rounded-xl border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark text-sm text-gray-500">
+          Yükleniyor…
+        </div>
+      )}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-300">
+          {success}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Cookie Types */}
@@ -130,7 +214,11 @@ export default function CookiesPage() {
       </div>
 
       <div className="flex justify-end">
-        <button className="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
           Kaydet
         </button>
       </div>

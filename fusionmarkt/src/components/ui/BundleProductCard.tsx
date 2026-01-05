@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useState, Fragment, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Star, Heart, Eye, BadgeCheck, Truck } from "lucide-react";
@@ -12,6 +12,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 export interface BundleItem {
   id: string;
   quantity: number;
+  variantId?: string | null;
   product?: {
     id: string;
     name: string;
@@ -36,6 +37,7 @@ export interface BundleProduct {
   ratingAverage?: number;
   ratingCount?: number;
   freeShipping?: boolean;
+  hasVariants?: boolean;
 }
 
 interface BundleProductCardProps {
@@ -76,9 +78,39 @@ export default function BundleProductCard({ bundle, className, priority = false 
     ratingAverage,
     ratingCount,
     freeShipping,
+    hasVariants,
   } = bundle;
 
   const isOutOfStock = stock <= 0;
+
+  // Items'ı productId'ye göre grupla - aynı ürün 1 kere gösterilsin
+  // Varyasyonlu ürünlerde miktar 1 olarak gösterilir (paket 1 ürün içerir, varyant seçimi yapılacak)
+  const groupedItems = useMemo(() => {
+    if (!items || items.length === 0) return [];
+    
+    const groupMap = new Map<string, { productName: string; quantity: number }>();
+    
+    for (const item of items) {
+      if (!item.product) continue;
+      const pid = item.product.id;
+      
+      if (!groupMap.has(pid)) {
+        // İlk item'ın quantity'sini al (varyasyonlar aynı quantity'ye sahip olmalı)
+        groupMap.set(pid, {
+          productName: item.product.name,
+          quantity: item.quantity,
+        });
+      }
+      // Aynı ürünün farklı varyantları için quantity'yi toplamıyoruz
+      // Çünkü paket 1 ürün içeriyor, sadece varyant seçimi yapılacak
+    }
+    
+    return Array.from(groupMap.entries()).map(([id, data]) => ({
+      id,
+      productName: data.productName,
+      quantity: data.quantity,
+    }));
+  }, [items]);
 
   return (
     <div className={cn("relative", className)} style={{ height: '640px', display: 'flex', flexDirection: 'column' }}>
@@ -298,13 +330,13 @@ export default function BundleProductCard({ bundle, className, priority = false 
 
           {/* ORTA KISIM - Paket İçeriği KOMPAKT GRİD */}
           <div className="flex flex-col gap-1.5 mt-2">
-            {/* Paket İçeriği - her ürün satırı kendi GRID'i (outer card grid'inden bağımsız) */}
+            {/* Paket İçeriği - ürünler productId'ye göre gruplandırılmış */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {items && items.length > 0 ? (
+              {groupedItems.length > 0 ? (
                 <>
-                  {items.slice(0, 4).map((item) => (
+                  {groupedItems.slice(0, 4).map((group) => (
                     <div
-                      key={item.id}
+                      key={group.id}
                       style={{
                         padding: '4px 6px',
                         borderRadius: SQUIRCLE.sm,
@@ -326,7 +358,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                         lineHeight: '16px',
                         minWidth: 0,
                       }}>
-                        {item.product?.name || 'Ürün'}
+                        {group.productName}
                       </span>
                       <span style={{ 
                         fontSize: '10px', 
@@ -336,18 +368,18 @@ export default function BundleProductCard({ bundle, className, priority = false 
                         lineHeight: '16px',
                         whiteSpace: 'nowrap',
                       }}>
-                        x{item.quantity}
+                        x{group.quantity}
                       </span>
                     </div>
                   ))}
-                  {items.length > 4 && (
+                  {groupedItems.length > 4 && (
                     <div style={{ 
                       fontSize: '9px', 
                       color: 'rgba(255,255,255,0.35)',
                       textAlign: 'center',
                       paddingTop: '2px',
                     }}>
-                      +{items.length - 4} ürün daha
+                      +{groupedItems.length - 4} ürün daha
                     </div>
                   )}
                 </>
@@ -450,23 +482,56 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 {formatPrice(price)}
               </span>
 
-              {/* Sepete Ekle Button - ProductCard ile aynı */}
-              <AddToCartButton
-                product={{
-                  productId: id,
-                  slug,
-                  title: name,
-                  brand: "Bundle / Paket",
-                  price,
-                  originalPrice: totalValue,
-                  image: thumbnail || undefined,
-                  isBundle: true,
-                  bundleId: id,
-                }}
-                variant="icon"
-                disabled={isOutOfStock}
-                size="md"
-              />
+              {/* Sepete Ekle veya Varyasyon Seç Button */}
+              {hasVariants ? (
+                // Varyasyonlu bundle - sayfa yönlendirmesi
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = `/urun/${slug}`;
+                  }}
+                  title="Varyasyon seçmek için tıklayın"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: SQUIRCLE.md,
+                    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                    border: '1px solid rgba(139, 92, 246, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                    opacity: isOutOfStock ? 0.5 : 1,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4"/>
+                    <path d="M12 8h.01"/>
+                  </svg>
+                </button>
+              ) : (
+                // Basit bundle - direkt sepete ekle
+                <AddToCartButton
+                  product={{
+                    productId: id,
+                    slug,
+                    title: name,
+                    brand: "Bundle / Paket",
+                    price,
+                    originalPrice: totalValue,
+                    image: thumbnail || undefined,
+                    isBundle: true,
+                    bundleId: id,
+                  }}
+                  variant="icon"
+                  disabled={isOutOfStock}
+                  size="md"
+                />
+              )}
             </div>
           </div>
         </div>

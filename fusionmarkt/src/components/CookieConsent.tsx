@@ -6,6 +6,8 @@ import { Cookie, X, Check, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCookieConsent, CookiePreferences } from "@/context/CookieConsentContext";
 
+type BannerPosition = "bottom" | "top" | "center";
+
 export default function CookieConsent() {
   const {
     preferences,
@@ -16,25 +18,76 @@ export default function CookieConsent() {
     updatePreferences,
   } = useCookieConsent();
 
+  const [bannerConfig, setBannerConfig] = useState<{
+    enabled: boolean;
+    position: BannerPosition;
+    text: string;
+    defaultAnalytics: boolean;
+    defaultMarketing: boolean;
+    defaultPreferences: boolean;
+  } | null>(null);
+
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [localPrefs, setLocalPrefs] = useState<CookiePreferences>(preferences);
 
-  // Sync local prefs with context
+  // Load banner config from DB-backed public settings
   useEffect(() => {
-    setLocalPrefs(preferences);
-  }, [preferences]);
+    let mounted = true;
+    async function load() {
+      try {
+        const res = await fetch("/api/public/settings");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        setBannerConfig({
+          enabled: data.cookieBannerEnabled ?? true,
+          position: (data.cookieBannerPosition as BannerPosition) || "bottom",
+          text:
+            data.cookieBannerText ||
+            "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.",
+          defaultAnalytics: data.cookieDefaultAnalytics ?? true,
+          defaultMarketing: data.cookieDefaultMarketing ?? false,
+          defaultPreferences: data.cookieDefaultPreferences ?? true,
+        });
+      } catch {
+        // Ignore – fall back to current UI defaults
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Sync local prefs with context OR apply admin defaults for new users
+  useEffect(() => {
+    if (hasConsent) {
+      // User already made a choice - use their saved preferences
+      setLocalPrefs(preferences);
+    } else if (bannerConfig) {
+      // New user - apply admin defaults
+      setLocalPrefs({
+        ...preferences,
+        analytics: bannerConfig.defaultAnalytics,
+        marketing: bannerConfig.defaultMarketing,
+        preferences: bannerConfig.defaultPreferences,
+      });
+    }
+  }, [preferences, hasConsent, bannerConfig]);
 
   // Show banner for first-time visitors
   useEffect(() => {
+    if (bannerConfig && !bannerConfig.enabled) return;
     if (isLoaded && !hasConsent) {
       const timer = setTimeout(() => setShowBanner(true), 1000);
       return () => clearTimeout(timer);
     }
-  }, [isLoaded, hasConsent]);
+  }, [isLoaded, hasConsent, bannerConfig]);
 
   const handleAcceptAll = () => {
-    acceptAll();
+    // Use admin defaults (stored in localPrefs) instead of accepting everything
+    updatePreferences(localPrefs);
     setShowBanner(false);
     setShowSettings(false);
   };
@@ -52,6 +105,22 @@ export default function CookieConsent() {
   };
 
   if (!isLoaded) return null;
+  if (bannerConfig && !bannerConfig.enabled) return null;
+
+  const position: BannerPosition = bannerConfig?.position || "bottom";
+  const modalWrapperClass =
+    position === "center"
+      ? "fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4"
+      : position === "top"
+      ? "fixed top-4 right-4 md:top-6 md:right-6 z-[9999] w-[calc(100%-32px)] max-w-md"
+      : "fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] w-[calc(100%-32px)] max-w-md";
+
+  const floatingButtonClass =
+    position === "center"
+      ? "fixed bottom-4 right-4 md:bottom-6 md:right-6"
+      : position === "top"
+      ? "fixed top-4 right-4 md:top-6 md:right-6"
+      : "fixed bottom-4 right-4 md:bottom-6 md:right-6";
 
   return (
     <>
@@ -66,7 +135,7 @@ export default function CookieConsent() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             onClick={() => setShowBanner(true)}
-            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group"
+            className={`${floatingButtonClass} z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group`}
             style={{
               background: "linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%)",
               border: "1px solid rgba(255,255,255,0.1)",
@@ -100,7 +169,7 @@ export default function CookieConsent() {
               animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
               exit={{ x: 100, y: 100, opacity: 0, scale: 0.8 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] w-[calc(100%-32px)] max-w-md"
+              className={modalWrapperClass}
             >
               <div
                 className="relative overflow-hidden rounded-2xl border border-white/10"
@@ -139,7 +208,7 @@ export default function CookieConsent() {
                       </div>
 
                       <p className="text-sm text-white/60 leading-relaxed mb-5">
-                        Size en iyi deneyimi sunmak için çerezler kullanıyoruz. Detaylı bilgi için{" "}
+                        {(bannerConfig?.text || "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.")} Detaylı bilgi için{" "}
                         <Link
                           href="/cerez-politikasi"
                           className="text-amber-400 hover:text-amber-300 underline underline-offset-2"

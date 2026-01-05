@@ -3,6 +3,7 @@
 import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { useCookieConsent } from "@/context/CookieConsentContext";
 
 interface TrackingSettings {
   googleAnalyticsId: string | null;
@@ -10,28 +11,11 @@ interface TrackingSettings {
   facebookPixelId: string | null;
 }
 
-// Consent durumunu localStorage'dan oku
-function getConsentState() {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem("cookie_consent");
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch {
-    // Ignore
-  }
-  return null;
-}
-
 function GoogleAnalyticsInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [settings, setSettings] = useState<TrackingSettings | null>(null);
-  const [consent, setConsent] = useState<{
-    analytics: boolean;
-    marketing: boolean;
-  } | null>(null);
+  const { canUseAnalytics, canUseMarketing } = useCookieConsent();
 
   // Settings'i API'den çek
   useEffect(() => {
@@ -53,29 +37,9 @@ function GoogleAnalyticsInner() {
     fetchSettings();
   }, []);
 
-  // Consent durumunu dinle
-  useEffect(() => {
-    const checkConsent = () => {
-      const stored = getConsentState();
-      setConsent(stored);
-    };
-
-    checkConsent();
-
-    // Storage değişikliklerini dinle
-    window.addEventListener("storage", checkConsent);
-    // Custom event dinle (aynı tab için)
-    window.addEventListener("cookieConsentUpdated", checkConsent);
-
-    return () => {
-      window.removeEventListener("storage", checkConsent);
-      window.removeEventListener("cookieConsentUpdated", checkConsent);
-    };
-  }, []);
-
   // Sayfa değişikliklerinde pageview gönder
   useEffect(() => {
-    if (!settings?.googleAnalyticsId || !consent?.analytics) return;
+    if (!settings?.googleAnalyticsId || !canUseAnalytics) return;
 
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
@@ -85,14 +49,14 @@ function GoogleAnalyticsInner() {
         page_path: url,
       });
     }
-  }, [pathname, searchParams, settings?.googleAnalyticsId, consent?.analytics]);
+  }, [pathname, searchParams, settings?.googleAnalyticsId, canUseAnalytics]);
 
   // Settings yüklenmediyse veya ID yoksa hiçbir şey render etme
   if (!settings) return null;
 
   const { googleAnalyticsId, googleTagManagerId, facebookPixelId } = settings;
-  const hasAnalyticsConsent = consent?.analytics ?? false;
-  const hasMarketingConsent = consent?.marketing ?? false;
+  const hasAnalyticsConsent = canUseAnalytics;
+  const hasMarketingConsent = canUseMarketing;
 
   return (
     <>

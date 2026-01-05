@@ -62,16 +62,21 @@ export default function MiniCart() {
     const fetchShippingInfo = async () => {
       if (items.length === 0) return;
       
+      // Bundle olmayan ve productId'si olan ürünleri filtrele
+      const productItems = items.filter(item => !item.isBundle && item.productId);
+      
       try {
+        // Her zaman API'yi çağır - bundle-only sepet için cartTotal yeterli
         const res = await fetch("/api/public/shipping/calculate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            items: items.map(item => ({
+            items: productItems.map(item => ({
               productId: item.productId,
               quantity: item.quantity,
               price: item.price,
             })),
+            cartTotal: subtotal, // Tam sepet toplamı (bundle dahil)
           }),
         });
         
@@ -356,9 +361,9 @@ export default function MiniCart() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
-            CART ITEMS LIST
+            CART ITEMS LIST (Scrollable area)
         ═══════════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-16 text-center">
               <div 
@@ -412,8 +417,19 @@ export default function MiniCart() {
                     </button>
                   )}
 
-                  {/* Image - 1:1 Square */}
-                  <div className="relative w-[72px] h-[72px] flex-shrink-0 bg-[#0a0a0a] m-2" style={{ borderRadius: '10px', overflow: 'hidden' }}>
+                  {/* Image - 1:1 Square - Clickable */}
+                  <Link 
+                    href={`/urun/${item.slug}`}
+                    onClick={(e) => {
+                      if (isSelectionMode) {
+                        e.preventDefault();
+                        return;
+                      }
+                      closeCart();
+                    }}
+                    className="relative w-[72px] h-[72px] flex-shrink-0 bg-[#0a0a0a] m-2 hover:opacity-80 transition-opacity" 
+                    style={{ borderRadius: '10px', overflow: 'hidden' }}
+                  >
                     {item.image ? (
                       <Image
                         src={item.image}
@@ -427,12 +443,22 @@ export default function MiniCart() {
                         <ImagePlaceholder type="product" iconSize="sm" />
                       </div>
                     )}
-                  </div>
+                  </Link>
 
                   {/* Content - Right side */}
                   <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
-                    {/* Top: Brand + Title + Variant */}
-                    <div className="pr-6">
+                    {/* Top: Brand + Title + Variant - Clickable */}
+                    <Link 
+                      href={`/urun/${item.slug}`}
+                      onClick={(e) => {
+                        if (isSelectionMode) {
+                          e.preventDefault();
+                          return;
+                        }
+                        closeCart();
+                      }}
+                      className="pr-6 hover:opacity-80 transition-opacity"
+                    >
                       {!!item.brand?.trim() && (
                         <p className="text-[11px] text-white/40 uppercase tracking-wider font-medium">
                           {item.brand}
@@ -446,7 +472,7 @@ export default function MiniCart() {
                           {item.variant.value}
                         </p>
                       )}
-                    </div>
+                    </Link>
                     
                     {/* Bottom: Price + Quantity - Stacked on mobile, inline on desktop */}
                     <div className="flex flex-col gap-1.5 mt-2">
@@ -513,10 +539,10 @@ export default function MiniCart() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
-            FOOTER - Summary & CTAs
+            FOOTER - Summary & CTAs (Sticky at bottom)
         ═══════════════════════════════════════════════════════════════════ */}
         {items.length > 0 && (
-          <div className="border-t border-white/[0.06] bg-gradient-to-t from-black/40 to-transparent">
+          <div className="flex-shrink-0 border-t border-white/[0.06] bg-gradient-to-t from-[#080808] via-[#0a0a0a] to-[#0d0d0d]">
             <div className="p-5 space-y-4">
               
               {/* Free Shipping Progress / Message */}

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -146,6 +146,7 @@ interface BundleItem {
     id: string;
     name: string;
     value: string;
+    colorCode?: string | null;
   } | null;
   product: {
     id: string;
@@ -261,6 +262,91 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   // Bundle state'leri
   const [bundleItems, setBundleItems] = useState<BundleItem[]>([]);
   const [relatedBundles, setRelatedBundles] = useState<RelatedBundle[]>([]);
+  
+  // Seçilen varyasyonlar: { productId: variantId }
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+
+  // Bundle item'ları productId'ye göre grupla
+  // Aynı ürün 1 kere gösterilecek, varyasyonları seçilebilir olacak
+  interface GroupedBundleItem {
+    productId: string;
+    product: BundleItem['product'];
+    totalQuantity: number;
+    variants: Array<{
+      id: string;
+      variantId: string | null;
+      variant: BundleItem['variant'];
+      quantity: number;
+    }>;
+    hasMultipleVariants: boolean;
+  }
+
+  const groupedBundleItems = useMemo((): GroupedBundleItem[] => {
+    const groupMap = new Map<string, GroupedBundleItem>();
+    
+    for (const item of bundleItems) {
+      if (!item.product) continue;
+      const pid = item.product.id;
+      
+      if (!groupMap.has(pid)) {
+        groupMap.set(pid, {
+          productId: pid,
+          product: item.product,
+          totalQuantity: 0,
+          variants: [],
+          hasMultipleVariants: false,
+        });
+      }
+      
+      const group = groupMap.get(pid)!;
+      group.totalQuantity += item.quantity;
+      group.variants.push({
+        id: item.id,
+        variantId: item.variantId || null,
+        variant: item.variant,
+        quantity: item.quantity,
+      });
+    }
+    
+    // hasMultipleVariants hesapla
+    for (const group of groupMap.values()) {
+      group.hasMultipleVariants = group.variants.length > 1;
+      // İlk varyasyonu varsayılan seç
+      if (group.hasMultipleVariants && !selectedVariants[group.productId] && group.variants[0]?.variantId) {
+        setSelectedVariants(prev => ({ ...prev, [group.productId]: group.variants[0].variantId! }));
+      }
+    }
+    
+    return Array.from(groupMap.values());
+  }, [bundleItems, selectedVariants]);
+
+  // Bundle için seçilen varyantları CartItem formatında hazırla
+  // Bu bilgi sipariş detayında admin tarafından görülebilecek
+  const bundleItemVariantsForCart = useMemo(() => {
+    const result: Record<string, {
+      variantId: string;
+      variantName: string;
+      variantValue: string;
+      productName: string;
+    }> = {};
+
+    for (const group of groupedBundleItems) {
+      if (group.hasMultipleVariants) {
+        const selectedVarId = selectedVariants[group.productId];
+        const selectedVar = group.variants.find(v => v.variantId === selectedVarId);
+        if (selectedVar && selectedVar.variant) {
+          result[group.productId] = {
+            variantId: selectedVar.variantId || '',
+            variantName: selectedVar.variant.name || '',
+            variantValue: selectedVar.variant.value || '',
+            productName: group.product?.name || '',
+          };
+        }
+      }
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined;
+  }, [groupedBundleItems, selectedVariants]);
 
   // Eğer slug varsa API'den bundle bilgilerini çek
   useEffect(() => {
@@ -880,18 +966,18 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
               />
             </div>
 
-            {/* PAKET İÇERİĞİ - Compact version for 4 items */}
+            {/* PAKET İÇERİĞİ - Grouped by product with variant selection */}
             <div className="bundle-items-section" style={{ marginBottom: '6px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
                 <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                   Paket İçeriği
                 </span>
                 <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
-                  {bundleItems.length} ürün
+                  {groupedBundleItems.length} ürün
                 </span>
               </div>
 
-              {/* Items - compact grid */}
+              {/* Items - grouped by product */}
               <div
                 className="bundle-items-list"
                 style={{
@@ -901,79 +987,79 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                   minWidth: 0,
                 }}
               >
-                {bundleItems.map((item) => {
-                  const p = item.product;
+                {groupedBundleItems.map((group) => {
+                  const p = group.product;
                   const hasCompare = !!p?.comparePrice && (p.comparePrice ?? 0) > (p?.price ?? 0);
                   const productSlug = p?.slug;
+                  const selectedVarId = selectedVariants[group.productId];
+                  const selectedVar = group.variants.find(v => v.variantId === selectedVarId) || group.variants[0];
 
                   return (
-                    <Link
-                      key={item.id}
-                      href={productSlug ? `/urun/${productSlug}` : '#'}
+                    <div
+                      key={group.productId}
                       className="bundle-item-row"
                       style={{
                         borderRadius: '8px',
                         border: '1px solid rgba(255,255,255,0.06)',
                         backgroundColor: 'rgba(255,255,255,0.02)',
                         display: 'grid',
-                        gridTemplateColumns: '48px 1fr auto',
-                        minWidth: 0,
-                        overflow: 'hidden',
-                        textDecoration: 'none',
-                        transition: 'all 0.2s ease',
-                        cursor: productSlug ? 'pointer' : 'default',
+                        gridTemplateColumns: '44px 1fr auto',
+                        gap: '10px',
+                        padding: '6px',
+                        alignItems: 'center',
                       }}
-                      onClick={(e) => !productSlug && e.preventDefault()}
                     >
-                      {/* Sol - Görsel (compact) */}
-                      <div
-                        className="bundle-item-image"
+                      {/* Sol - Görsel */}
+                      <Link
+                        href={productSlug ? `/urun/${productSlug}` : '#'}
                         style={{
-                          width: 48,
-                          height: 48,
+                          width: 44,
+                          height: 44,
                           backgroundColor: 'rgba(255,255,255,0.03)',
                           flexShrink: 0,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          borderRadius: '7px',
+                          borderRadius: '8px',
                           overflow: 'hidden',
                         }}
+                        onClick={(e) => !productSlug && e.preventDefault()}
                       >
                         {p?.thumbnail ? (
                           <Image
                             src={p.thumbnail}
                             alt={p.name || ''}
-                            width={48}
-                            height={48}
+                            width={44}
+                            height={44}
                             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                           />
                         ) : (
                           <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.05)' }} />
                         )}
-                      </div>
+                      </Link>
 
-                      {/* Orta - Bilgiler (compact) */}
-                      <div
+                      {/* Orta - Bilgiler (Başlık + Fiyat) */}
+                      <Link
+                        href={productSlug ? `/urun/${productSlug}` : '#'}
                         className="bundle-item-info"
                         style={{
-                          height: 48,
-                          padding: '4px 8px',
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'center',
                           gap: '2px',
                           minWidth: 0,
+                          textDecoration: 'none',
                         }}
+                        onClick={(e) => !productSlug && e.preventDefault()}
                       >
                         {/* Ürün Adı */}
-                        <div
+                        <span
                           className="bundle-item-name"
                           style={{
                             fontSize: '10px',
                             color: 'white',
                             fontWeight: 500,
-                            lineHeight: 1.25,
+                            lineHeight: 1.2,
                             overflow: 'hidden',
                             display: '-webkit-box',
                             WebkitLineClamp: 1,
@@ -981,22 +1067,18 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           }}
                         >
                           {p?.name || 'Ürün'}
-                          {item.variant && (
-                            <span style={{ color: '#F59E0B', marginLeft: '4px', fontSize: '9px' }}>
-                              ({item.variant.name}: {item.variant.value})
-                            </span>
-                          )}
-                        </div>
+                        </span>
 
-                        {/* Fiyat + Adet Satırı */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'nowrap', overflow: 'hidden' }}>
+                        {/* Fiyat satırı - varyasyonlar sağda */}
+                        <div className="bundle-item-price-row" style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'space-between' }}>
+                          {/* Sol: Fiyatlar */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', minWidth: 0, flex: 1 }}>
                             {hasCompare && (
-                              <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through', whiteSpace: 'nowrap' }}>
+                              <span className="bundle-item-compare-price" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through', whiteSpace: 'nowrap' }}>
                                 {formatPrice(p?.comparePrice || 0)}
                               </span>
                             )}
-                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            <span className="bundle-item-current-price" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                               {formatPrice(p?.price || 0)}
                             </span>
                             {hasCompare && (
@@ -1005,27 +1087,98 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               </span>
                             )}
                           </div>
-                          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                            x{item.quantity}
-                          </span>
-                        </div>
-                      </div>
 
-                      {/* Sağ - Link İkonu */}
-                      {productSlug && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '0 8px',
-                            color: 'rgba(255,255,255,0.3)',
-                          }}
-                        >
-                          <ExternalLink size={12} />
+                          {/* Sağ: Varyasyonlar */}
+                          {(group.hasMultipleVariants || (selectedVar?.variant && selectedVar.variant.value)) && (
+                            <div className="bundle-item-variants-row" style={{ display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
+                              {group.hasMultipleVariants && group.variants.map((v) => {
+                                const isSelected = selectedVarId === v.variantId || (!selectedVarId && v === group.variants[0]);
+                                return (
+                                  <button
+                                    key={v.id}
+                                    type="button"
+                                    className="bundle-variant-btn"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (v.variantId) {
+                                        setSelectedVariants(prev => ({ ...prev, [group.productId]: v.variantId! }));
+                                      }
+                                    }}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      width: '20px',
+                                      height: '20px',
+                                      fontSize: '8px',
+                                      fontWeight: 600,
+                                      borderRadius: '5px',
+                                      backgroundColor: v.variant?.colorCode || 'rgba(255,255,255,0.06)',
+                                      color: v.variant?.colorCode ? '#fff' : 'rgba(255,255,255,0.7)',
+                                      border: isSelected ? '2px solid #10B981' : '1px solid rgba(255,255,255,0.12)',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s ease',
+                                      textTransform: 'uppercase',
+                                      padding: 0,
+                                      flexShrink: 0,
+                                    }}
+                                    title={v.variant ? `${v.variant.name}: ${v.variant.value}` : 'Standart'}
+                                  >
+                                    {v.variant?.value || 'S'}
+                                  </button>
+                                );
+                              })}
+                              
+                              {/* Tek varyasyon badge */}
+                              {!group.hasMultipleVariants && selectedVar?.variant && selectedVar.variant.value && (
+                                <span
+                                  className="bundle-variant-btn"
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '20px',
+                                    height: '20px',
+                                    fontSize: '8px',
+                                    fontWeight: 600,
+                                    borderRadius: '5px',
+                                    backgroundColor: selectedVar.variant.colorCode || 'rgba(255,255,255,0.06)',
+                                    color: selectedVar.variant.colorCode ? '#fff' : 'rgba(255,255,255,0.6)',
+                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    textTransform: 'uppercase',
+                                    flexShrink: 0,
+                                  }}
+                                  title={`${selectedVar.variant.name}: ${selectedVar.variant.value}`}
+                                >
+                                  {selectedVar.variant.value}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </Link>
+                      </Link>
+
+                      {/* Sağ - Adet */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {/* Adet - her zaman x1 */}
+                        <span style={{ 
+                          fontSize: '9px', 
+                          color: 'rgba(255,255,255,0.5)', 
+                          fontWeight: 600, 
+                          whiteSpace: 'nowrap',
+                        }}>
+                          x1
+                        </span>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -1316,6 +1469,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               type: selectedVariant.type || 'size',
                               value: selectedVariant.value || '',
                             } : undefined,
+                            // Bundle bilgileri - eğer bundle ise
+                            isBundle: bundleItems.length > 0,
+                            bundleId: bundleItems.length > 0 ? (productData?.id || product.id || '') : undefined,
+                            bundleItemVariants: bundleItemVariantsForCart,
                           }}
                           variant="text"
                           size="lg"
