@@ -81,9 +81,12 @@ export default function KullanimKilavuzlariClient() {
           <div className="container mx-auto px-4">
             <h1 className="text-center text-2xl md:text-4xl font-bold mb-6">
               <span className="bg-gradient-to-r from-white via-slate-300 to-slate-400 bg-clip-text text-transparent">
-                Kataloglar & Kullanım Kılavuzları
+                IEETek Kullanım Kılavuzları PDF İndir
               </span>
             </h1>
+            <p className="text-center text-slate-400 text-sm md:text-base mb-4 max-w-2xl mx-auto">
+              IEETek taşınabilir güç istasyonları ve güneş panelleri için Türkçe kullanım kılavuzları, teknik veri sayfaları ve kurulum rehberleri
+            </p>
             <div className="flex flex-wrap justify-center gap-2">
               {catalogues.map((catalogue) => (
                 <a
@@ -161,7 +164,7 @@ export default function KullanimKilavuzlariClient() {
                     }
                   }
                 `}</style>
-                {categoryProducts.map((product) => (
+                {categoryProducts.map((product, productIndex) => (
                   <div
                     key={product.slug}
                     className="bg-white rounded-lg overflow-hidden border border-slate-200 hover:shadow-md transition-all"
@@ -171,10 +174,11 @@ export default function KullanimKilavuzlariClient() {
                       <div className="w-full h-full relative">
                         <Image
                           src={product.imageUrl}
-                          alt={product.name}
+                          alt={`${product.name} Türkçe Kullanım Kılavuzu PDF İndir`}
                           fill
                           className="object-contain"
                           sizes="(max-width: 640px) 50vw, 25vw"
+                          priority={productIndex < 4}
                         />
                       </div>
                     </div>
