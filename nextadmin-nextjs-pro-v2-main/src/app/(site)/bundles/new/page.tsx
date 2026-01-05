@@ -13,6 +13,14 @@ interface Category {
   slug: string;
 }
 
+interface ProductVariant {
+  id: string;
+  name: string;
+  value: string;
+  stock: number;
+  price?: number;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -21,13 +29,14 @@ interface Product {
   price: number;
   stock: number;
   brand: string | null;
-  variants?: { id: string; name: string; value: string; stock: number }[];
+  variants?: ProductVariant[];
 }
 
 interface BundleItem {
   id: string;
   productId: string;
   variantId: string | null;
+  variantName?: string;
   product: Product;
   quantity: number;
 }
@@ -72,6 +81,10 @@ export default function NewBundlePage() {
   const [bundleItems, setBundleItems] = useState<BundleItem[]>([]);
   const [productSearch, setProductSearch] = useState("");
   const [showProductPicker, setShowProductPicker] = useState(false);
+  
+  // Varyasyon seçici
+  const [selectedProductForVariant, setSelectedProductForVariant] = useState<Product | null>(null);
+  const [showVariantPicker, setShowVariantPicker] = useState(false);
   
   // Media
   const [showMediaModal, setShowMediaModal] = useState(false);
@@ -171,13 +184,28 @@ export default function NewBundlePage() {
     );
   };
 
+  // Ürün seçildiğinde çağrılır
+  const handleProductSelect = (product: Product) => {
+    // Eğer ürünün varyasyonları varsa varyasyon seçici göster
+    if (product.variants && product.variants.length > 0) {
+      setSelectedProductForVariant(product);
+      setShowVariantPicker(true);
+    } else {
+      // Varyasyon yoksa direkt ekle
+      addProduct(product, undefined, undefined);
+    }
+  };
+
   // Ürün ekle
-  const addProduct = (product: Product, variantId?: string) => {
+  const addProduct = (product: Product, variantId?: string, variantName?: string) => {
     // Duplicate kontrolü
     const exists = bundleItems.find(
       item => item.productId === product.id && item.variantId === (variantId || null)
     );
-    if (exists) return;
+    if (exists) {
+      toast.error("Bu ürün/varyasyon zaten pakette mevcut");
+      return;
+    }
 
     setBundleItems(prev => [
       ...prev,
@@ -185,10 +213,47 @@ export default function NewBundlePage() {
         id: `temp-${Date.now()}`,
         productId: product.id,
         variantId: variantId || null,
+        variantName: variantName,
         product,
         quantity: 1,
       },
     ]);
+    setShowProductPicker(false);
+    setShowVariantPicker(false);
+    setSelectedProductForVariant(null);
+    setProductSearch("");
+  };
+
+  // Tüm varyasyonları ekle
+  const addAllVariants = (product: Product) => {
+    if (!product.variants) return;
+    
+    let addedCount = 0;
+    product.variants.forEach(variant => {
+      const exists = bundleItems.find(
+        item => item.productId === product.id && item.variantId === variant.id
+      );
+      if (!exists) {
+        setBundleItems(prev => [
+          ...prev,
+          {
+            id: `temp-${Date.now()}-${variant.id}`,
+            productId: product.id,
+            variantId: variant.id,
+            variantName: `${variant.name}: ${variant.value}`,
+            product,
+            quantity: 1,
+          },
+        ]);
+        addedCount++;
+      }
+    });
+    
+    if (addedCount > 0) {
+      toast.success(`${addedCount} varyasyon eklendi`);
+    }
+    setShowVariantPicker(false);
+    setSelectedProductForVariant(null);
     setShowProductPicker(false);
     setProductSearch("");
   };
@@ -586,8 +651,14 @@ export default function NewBundlePage() {
                           {/* Bilgiler */}
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-dark dark:text-white truncate">{item.product.name}</p>
+                            {item.variantName && (
+                              <p className="text-xs text-amber-500 font-medium">{item.variantName}</p>
+                            )}
                             <p className="text-sm text-gray-500">
-                              {item.product.price.toLocaleString("tr-TR")} ₺ • Stok: {item.product.stock}
+                              {item.product.price.toLocaleString("tr-TR")} ₺ • Stok: {item.variantId 
+                                ? item.product.variants?.find(v => v.id === item.variantId)?.stock || item.product.stock
+                                : item.product.stock
+                              }
                             </p>
                           </div>
 
@@ -946,7 +1017,7 @@ export default function NewBundlePage() {
                     <button
                       key={product.id}
                       type="button"
-                      onClick={() => addProduct(product)}
+                      onClick={() => handleProductSelect(product)}
                       className="w-full flex items-center gap-3 p-3 rounded-lg border border-stroke hover:border-primary hover:bg-primary/5 transition-colors dark:border-dark-3"
                     >
                       <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-dark-2 overflow-hidden flex-shrink-0">
@@ -968,17 +1039,123 @@ export default function NewBundlePage() {
                       </div>
                       <div className="flex-1 text-left min-w-0">
                         <p className="font-medium text-dark dark:text-white truncate">{product.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {product.price.toLocaleString("tr-TR")} ₺ • Stok: {product.stock}
-                        </p>
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <span>{product.price.toLocaleString("tr-TR")} ₺</span>
+                          <span>•</span>
+                          <span>Stok: {product.stock}</span>
+                          {product.variants && product.variants.length > 0 && (
+                            <>
+                              <span>•</span>
+                              <span className="text-amber-500 font-medium">{product.variants.length} varyasyon</span>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
+                      {product.variants && product.variants.length > 0 ? (
+                        <svg className="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      )}
                     </button>
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Varyasyon Seçici Modal */}
+      {showVariantPicker && selectedProductForVariant && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg rounded-xl bg-white dark:bg-gray-dark">
+            <div className="p-4 border-b border-stroke dark:border-dark-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-dark dark:text-white">Varyasyon Seçin</h3>
+                  <p className="text-sm text-gray-500">{selectedProductForVariant.name}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowVariantPicker(false);
+                    setSelectedProductForVariant(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-dark-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-4 max-h-[400px] overflow-y-auto">
+              {/* Tümünü Ekle Butonu */}
+              <button
+                type="button"
+                onClick={() => addAllVariants(selectedProductForVariant)}
+                className="w-full mb-3 p-3 rounded-lg border-2 border-dashed border-primary/50 bg-primary/5 text-primary font-medium hover:bg-primary/10 transition-colors"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+                  </svg>
+                  Tüm Varyasyonları Ekle ({selectedProductForVariant.variants?.length})
+                </div>
+              </button>
+
+              <div className="text-xs text-gray-500 text-center mb-3">veya tek tek seçin</div>
+
+              {/* Varyasyon Listesi */}
+              <div className="space-y-2">
+                {selectedProductForVariant.variants?.map((variant) => {
+                  const isAlreadyAdded = bundleItems.some(
+                    item => item.productId === selectedProductForVariant.id && item.variantId === variant.id
+                  );
+                  
+                  return (
+                    <button
+                      key={variant.id}
+                      type="button"
+                      onClick={() => {
+                        if (!isAlreadyAdded) {
+                          addProduct(selectedProductForVariant, variant.id, `${variant.name}: ${variant.value}`);
+                        }
+                      }}
+                      disabled={isAlreadyAdded}
+                      className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                        isAlreadyAdded 
+                          ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed dark:border-dark-3 dark:bg-dark-2"
+                          : "border-stroke hover:border-primary hover:bg-primary/5 dark:border-dark-3"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-dark-2 flex items-center justify-center">
+                          <span className="text-xs font-medium text-gray-500">{variant.value.slice(0, 2).toUpperCase()}</span>
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium text-dark dark:text-white">{variant.name}: {variant.value}</p>
+                          <p className="text-sm text-gray-500">
+                            {variant.price ? `${variant.price.toLocaleString("tr-TR")} ₺ • ` : ""}
+                            Stok: {variant.stock}
+                          </p>
+                        </div>
+                      </div>
+                      {isAlreadyAdded ? (
+                        <span className="text-xs text-gray-400">Eklendi</span>
+                      ) : (
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

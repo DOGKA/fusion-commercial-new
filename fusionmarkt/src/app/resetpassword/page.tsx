@@ -37,10 +37,8 @@ function ResetPasswordContent() {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
 
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -99,7 +97,6 @@ function ResetPasswordContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          currentPassword,
           newPassword,
           confirmPassword,
         }),
@@ -225,28 +222,6 @@ function ResetPasswordContent() {
                 {error}
               </div>
             )}
-
-            {/* Current Password */}
-            <div className="space-y-2">
-              <label className="text-[13px] text-white/60">Mevcut Şifre</label>
-              <div className="relative">
-                <input
-                  type={showCurrentPassword ? "text" : "password"}
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  className="w-full h-12 px-4 pr-12 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 transition-all"
-                  placeholder="Mevcut şifrenizi girin"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                >
-                  {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
 
             {/* New Password */}
             <div className="space-y-2">

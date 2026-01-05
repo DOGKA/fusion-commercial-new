@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
+import Link from "next/link";
+import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus, ExternalLink } from "lucide-react";
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -140,6 +141,12 @@ interface BundleProductViewProps {
 interface BundleItem {
   id: string;
   quantity: number;
+  variantId?: string | null;
+  variant?: {
+    id: string;
+    name: string;
+    value: string;
+  } | null;
   product: {
     id: string;
     name: string;
@@ -897,20 +904,26 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                 {bundleItems.map((item) => {
                   const p = item.product;
                   const hasCompare = !!p?.comparePrice && (p.comparePrice ?? 0) > (p?.price ?? 0);
+                  const productSlug = p?.slug;
 
                   return (
-                    <div
+                    <Link
                       key={item.id}
+                      href={productSlug ? `/urun/${productSlug}` : '#'}
                       className="bundle-item-row"
                       style={{
                         borderRadius: '8px',
                         border: '1px solid rgba(255,255,255,0.06)',
                         backgroundColor: 'rgba(255,255,255,0.02)',
                         display: 'grid',
-                        gridTemplateColumns: '48px 1fr',
+                        gridTemplateColumns: '48px 1fr auto',
                         minWidth: 0,
                         overflow: 'hidden',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s ease',
+                        cursor: productSlug ? 'pointer' : 'default',
                       }}
+                      onClick={(e) => !productSlug && e.preventDefault()}
                     >
                       {/* Sol - Görsel (compact) */}
                       <div
@@ -940,7 +953,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         )}
                       </div>
 
-                      {/* Sağ - Bilgiler (compact) */}
+                      {/* Orta - Bilgiler (compact) */}
                       <div
                         className="bundle-item-info"
                         style={{
@@ -968,6 +981,11 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           }}
                         >
                           {p?.name || 'Ürün'}
+                          {item.variant && (
+                            <span style={{ color: '#F59E0B', marginLeft: '4px', fontSize: '9px' }}>
+                              ({item.variant.name}: {item.variant.value})
+                            </span>
+                          )}
                         </div>
 
                         {/* Fiyat + Adet Satırı */}
@@ -992,7 +1010,22 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           </span>
                         </div>
                       </div>
-                    </div>
+
+                      {/* Sağ - Link İkonu */}
+                      {productSlug && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0 8px',
+                            color: 'rgba(255,255,255,0.3)',
+                          }}
+                        >
+                          <ExternalLink size={12} />
+                        </div>
+                      )}
+                    </Link>
                   );
                 })}
               </div>

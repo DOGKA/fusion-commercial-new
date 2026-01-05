@@ -3,7 +3,7 @@
 import { useState, Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Heart, Eye, BadgeCheck } from "lucide-react";
+import { Star, Heart, Eye, BadgeCheck, Truck } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -35,6 +35,7 @@ export interface BundleProduct {
   itemCount: number;
   ratingAverage?: number;
   ratingCount?: number;
+  freeShipping?: boolean;
 }
 
 interface BundleProductCardProps {
@@ -74,6 +75,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
     itemCount,
     ratingAverage,
     ratingCount,
+    freeShipping,
   } = bundle;
 
   const isOutOfStock = stock <= 0;
@@ -402,6 +404,12 @@ export default function BundleProductCard({ bundle, className, priority = false 
 
             {/* Shipping & Distribütör */}
             <div className="flex items-center gap-3 flex-wrap">
+              {freeShipping && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
+                  <Truck size={12} />
+                  Ücretsiz Kargo
+                </span>
+              )}
               <span className="inline-flex items-center gap-1 text-[10px] text-amber-400/90 font-medium">
                 <BadgeCheck size={12} className="text-amber-400" />
                 Yetkili Distribütör

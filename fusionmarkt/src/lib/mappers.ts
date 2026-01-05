@@ -244,7 +244,7 @@ export function mapApiProductToCard(apiProduct: any): Product {
     slug: apiProduct.slug || "",
     title: apiProduct.name || apiProduct.title || "Ürün",
     subtitle: apiProduct.shortDescription || apiProduct.subtitle || undefined,
-    videoLabel: apiProduct.videoUrl ? "Video İncele" : undefined,
+    videoLabel: apiProduct.videoUrl ? "Videolu Ürün" : undefined,
     brand: apiProduct.brand || "",
     price: displayPrice,
     originalPrice: originalPrice,

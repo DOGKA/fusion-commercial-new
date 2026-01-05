@@ -2696,12 +2696,12 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
 
       {/* Password Section */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <span className="text-[14px] font-medium text-white/50 block">Şifre</span>
           <button
             onClick={handleSendPasswordResetLink}
             disabled={passwordLoading}
-            className="account-password-btn inline-flex items-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[17px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50"
+            className="account-password-btn inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[14px] sm:text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50 w-full sm:w-auto"
           >
             {passwordLoading ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
             {passwordLoading ? "Gönderiliyor..." : "Şifre Sıfırlama Linki Gönder"}

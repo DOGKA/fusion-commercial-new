@@ -922,8 +922,8 @@ export default function BadgesPage() {
       ? product.comparePrice 
       : undefined;
 
-    // Video label - videoUrl varsa "ÜRÜN VİDEOSU" göster
-    const videoLabel = product.videoUrl ? "ÜRÜN VİDEOSU" : undefined;
+    // Video label - videoUrl varsa "Videolu Ürün" göster
+    const videoLabel = product.videoUrl ? "Videolu Ürün" : undefined;
 
     // Variants dönüşümü
     const variants: ProductVariant[] | undefined = product.variants?.map(v => ({

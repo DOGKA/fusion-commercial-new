@@ -67,6 +67,7 @@ interface ProductWithCategory extends Product {
     } | null | undefined;
   }[];
   itemCount?: number;
+  freeShipping?: boolean;
 }
 
 interface CategoryWithProducts {
@@ -283,12 +284,24 @@ export default function StorePage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch categories, products and bundles in parallel
-        const [categoriesRes, productsRes, bundlesRes] = await Promise.all([
+        // Fetch categories, products, bundles and shipping settings in parallel
+        const [categoriesRes, productsRes, bundlesRes, shippingRes] = await Promise.all([
           fetch("/api/public/categories"),
           fetch("/api/public/products?limit=100"),
           fetch("/api/public/bundles?limit=100"),
+          fetch("/api/public/shipping/calculate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: [] }),
+          }).catch(() => null),
         ]);
+
+        // Get free shipping threshold from shipping API
+        let freeShippingThreshold = 2000; // Default
+        if (shippingRes && shippingRes.ok) {
+          const shippingData = await shippingRes.json();
+          freeShippingThreshold = shippingData.freeShippingThreshold || 2000;
+        }
 
         const categoryMap = new Map<string, CategoryWithProducts>();
 
@@ -409,6 +422,7 @@ export default function StorePage() {
               savingsPercent: savingsPercent,
               items: bundle.items || [],
               itemCount: bundle.itemCount || (bundle.items?.length || 0),
+              freeShipping: bundlePrice >= freeShippingThreshold,
             };
 
             // Create category if not exists (fallback)
@@ -1104,6 +1118,7 @@ function CategoryCarousel({
                         itemCount: product.itemCount || 0,
                         ratingAverage: product.ratingAverage,
                         ratingCount: product.ratingCount,
+                        freeShipping: product.freeShipping,
                       }}
                       priority={idx < 4}
                     />

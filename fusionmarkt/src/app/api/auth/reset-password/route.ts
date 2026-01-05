@@ -52,14 +52,14 @@ export async function GET(request: NextRequest) {
 // Reset password
 export async function POST(request: NextRequest) {
   try {
-    const { token, currentPassword, newPassword, confirmPassword } = await request.json();
+    const { token, newPassword, confirmPassword } = await request.json();
 
     // Validation
     if (!token) {
       return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
     }
 
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       return NextResponse.json({ error: "Tüm alanları doldurun" }, { status: 400 });
     }
 
@@ -85,20 +85,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Şifre sıfırlama linkinin süresi dolmuş" }, { status: 400 });
     }
 
-    // Verify current password
-    if (!user.password) {
-      return NextResponse.json({ error: "Bu hesap şifre ile giriş yapmıyor" }, { status: 400 });
-    }
-
-    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
-    if (!isValidPassword) {
-      return NextResponse.json({ error: "Mevcut şifre yanlış" }, { status: 400 });
-    }
-
-    // Check if new password is same as current
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
-    if (isSamePassword) {
-      return NextResponse.json({ error: "Yeni şifre eskisiyle aynı olamaz" }, { status: 400 });
+    // Check if new password is same as current (if user has a password)
+    if (user.password) {
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        return NextResponse.json({ error: "Yeni şifre eskisiyle aynı olamaz" }, { status: 400 });
+      }
     }
 
     // Hash new password

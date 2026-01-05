@@ -216,18 +216,14 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
           </div>
         )}
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {product.freeShipping && (
-            <>
-              <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Truck size={10} />
-                Ücretsiz Kargo
-              </span>
-              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>•</span>
-            </>
-          )}
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Stok: {product.stock} adet</span>
-        </div>
+        {product.freeShipping && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Truck size={10} />
+              Ücretsiz Kargo
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="related-product-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px', minWidth: '180px' }}>
