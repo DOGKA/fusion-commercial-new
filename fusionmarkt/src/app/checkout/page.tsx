@@ -190,7 +190,7 @@ export default function CheckoutPage() {
     };
     
     fetchShippingOptions();
-  }, [items, city]);
+  }, [items, city, subtotal]);
 
   // Kupon uygula
   const applyCoupon = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Cookie, X, Check, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,28 +8,30 @@ import { useCookieConsent, CookiePreferences } from "@/context/CookieConsentCont
 
 type BannerPosition = "bottom" | "top" | "center";
 
+interface BannerConfig {
+  enabled: boolean;
+  position: BannerPosition;
+  text: string;
+  defaultAnalytics: boolean;
+  defaultMarketing: boolean;
+  defaultPreferences: boolean;
+}
+
 export default function CookieConsent() {
   const {
     preferences,
     hasConsent,
     isLoaded,
-    acceptAll,
     acceptNecessary,
     updatePreferences,
   } = useCookieConsent();
 
-  const [bannerConfig, setBannerConfig] = useState<{
-    enabled: boolean;
-    position: BannerPosition;
-    text: string;
-    defaultAnalytics: boolean;
-    defaultMarketing: boolean;
-    defaultPreferences: boolean;
-  } | null>(null);
-
+  const [bannerConfig, setBannerConfig] = useState<BannerConfig | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [localPrefs, setLocalPrefs] = useState<CookiePreferences>(preferences);
+  
+  // Local prefs için kullanıcı değişikliklerini takip et
+  const [userModifiedPrefs, setUserModifiedPrefs] = useState<Partial<CookiePreferences> | null>(null);
 
   // Load banner config from DB-backed public settings
   useEffect(() => {
@@ -60,21 +62,40 @@ export default function CookieConsent() {
     };
   }, []);
 
-  // Sync local prefs with context OR apply admin defaults for new users
-  useEffect(() => {
+  // Derive localPrefs from context/config - no setState in effect
+  const localPrefs = useMemo((): CookiePreferences => {
+    // Kullanıcı değişiklik yaptıysa onu kullan
+    if (userModifiedPrefs) {
+      return { ...preferences, ...userModifiedPrefs };
+    }
+    // Kullanıcı daha önce tercih yaptıysa onu kullan
     if (hasConsent) {
-      // User already made a choice - use their saved preferences
-      setLocalPrefs(preferences);
-    } else if (bannerConfig) {
-      // New user - apply admin defaults
-      setLocalPrefs({
+      return preferences;
+    }
+    // Yeni kullanıcı - admin varsayılanlarını kullan
+    if (bannerConfig) {
+      return {
         ...preferences,
         analytics: bannerConfig.defaultAnalytics,
         marketing: bannerConfig.defaultMarketing,
         preferences: bannerConfig.defaultPreferences,
-      });
+      };
     }
-  }, [preferences, hasConsent, bannerConfig]);
+    return preferences;
+  }, [preferences, hasConsent, bannerConfig, userModifiedPrefs]);
+
+  // setLocalPrefs yerine userModifiedPrefs'i güncelle
+  const setLocalPrefs = useCallback((newPrefs: CookiePreferences | ((prev: CookiePreferences) => CookiePreferences)) => {
+    if (typeof newPrefs === 'function') {
+      setUserModifiedPrefs(prev => {
+        const currentPrefs = prev ? { ...preferences, ...prev } : preferences;
+        const updated = newPrefs(currentPrefs as CookiePreferences);
+        return updated;
+      });
+    } else {
+      setUserModifiedPrefs(newPrefs);
+    }
+  }, [preferences]);
 
   // Show banner for first-time visitors
   useEffect(() => {

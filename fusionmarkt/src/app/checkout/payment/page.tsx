@@ -206,7 +206,7 @@ export default function PaymentPage() {
     };
     
     fetchShippingCost();
-  }, [items]);
+  }, [items, subtotal]);
 
   // Fetch installment options when card number has 6+ digits
   useEffect(() => {
