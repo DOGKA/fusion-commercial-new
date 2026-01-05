@@ -51,6 +51,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@rushstack/eslint-patch": "^1.10.4",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^22",
     "@types/nodemailer": "^6.4.17",
