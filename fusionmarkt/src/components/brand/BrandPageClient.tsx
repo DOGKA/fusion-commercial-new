@@ -9,6 +9,8 @@ import {
   Minimize2, Shield, MousePointer, Plane, Hand, Palette, Leaf, BadgeCheck,
   LucideIcon
 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useSyncExternalStore } from "react";
 import ParticleField from "@/components/three/ParticleField";
 import type { Partner } from "@/lib/partners-data";
 
@@ -19,16 +21,34 @@ const iconMap: Record<string, LucideIcon> = {
   hand: Hand, palette: Palette, leaf: Leaf, badge: BadgeCheck,
 };
 
+// Hydration-safe mounted check
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
+
 interface BrandPageClientProps {
   partner: Partner;
 }
 
 export default function BrandPageClient({ partner }: BrandPageClientProps) {
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = mounted ? resolvedTheme === "dark" : true;
+
+  // Particle color based on theme
+  const particleColor = isDark ? "#ffffff" : "#000000";
+
+  // Logo filter: dark mode = white logo, light mode = black logo
+  const logoFilter = isDark ? "brightness-0 invert" : "brightness-0";
+
   return (
     <main className="min-h-screen bg-background relative">
-      {/* Full Page Particle Background - Neutral White */}
+      {/* Full Page Particle Background - Theme-aware */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <ParticleField className="opacity-20" particleCount={50} color="#ffffff" />
+        <ParticleField className="opacity-20" particleCount={50} color={particleColor} />
       </div>
       
       {/* Content */}
@@ -44,14 +64,14 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
             >
               <Link 
                 href="/" 
-                className="inline-flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors mb-8 group"
+                className="inline-flex items-center gap-1.5 text-xs text-foreground-muted hover:text-foreground-secondary transition-colors mb-8 group"
               >
                 <ChevronLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
                 <span>Ana Sayfa</span>
               </Link>
             </motion.div>
             
-            {/* Logo as Title */}
+            {/* Logo as Title - Theme-aware */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -63,7 +83,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
                   src={partner.logo}
                   alt={partner.name}
                   fill
-                  className="object-contain object-left brightness-0 invert"
+                  className={`object-contain object-left ${logoFilter}`}
                   priority
                 />
               </div>
@@ -74,7 +94,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-sm lg:text-base text-white/40 mb-6 max-w-lg"
+              className="text-sm lg:text-base text-foreground-muted mb-6 max-w-lg"
             >
               {partner.tagline}
             </motion.p>
@@ -88,14 +108,13 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
             >
               <Link
                 href={partner.productLink}
-                className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors"
-                style={{ backgroundColor: '#ffffff', color: '#000000' }}
+                className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors bg-foreground text-background hover:opacity-90"
               >
                 <span>Ürünleri Gör</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               
-              <span className="text-xs text-white/25">
+              <span className="text-xs text-foreground-disabled">
                 FusionMarkt Satış Platformu
               </span>
             </motion.div>
@@ -103,7 +122,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
         </section>
 
         {/* Features - Horizontal Scroll */}
-        <section className="py-8 border-y border-white/[0.04] overflow-hidden">
+        <section className="py-8 border-y border-border overflow-hidden">
           <div className="container">
             <motion.div
               initial={{ opacity: 0 }}
@@ -123,11 +142,11 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
                     transition={{ delay: idx * 0.1 }}
                     className="flex items-center gap-3 flex-shrink-0"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-white/30" />
+                    <div className="w-8 h-8 rounded-lg bg-glass-bg flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-foreground-muted" />
                     </div>
                     <div>
-                      <span className="text-xs font-medium text-white/70 whitespace-nowrap">
+                      <span className="text-xs font-medium text-foreground-secondary whitespace-nowrap">
                         {feature.title}
                       </span>
                     </div>
@@ -143,14 +162,14 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
           <div className="container">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
               <div>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-3 block">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-muted mb-3 block">
                   Hakkında
                 </span>
                 <div className="space-y-4">
                   {partner.about.map((paragraph, idx) => (
                     <p 
                       key={idx} 
-                      className="text-sm text-white/50 leading-relaxed"
+                      className="text-sm text-foreground-tertiary leading-relaxed"
                     >
                       {paragraph}
                     </p>
@@ -160,7 +179,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
               
               {/* Features Detail */}
               <div>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-3 block">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-muted mb-3 block">
                   Özellikler
                 </span>
                 <div className="space-y-4">
@@ -168,14 +187,14 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
                     const Icon = iconMap[feature.icon] || Package;
                     return (
                       <div key={idx} className="flex gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-white/[0.03] flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-4 h-4 text-white/40" />
+                        <div className="w-8 h-8 rounded-lg bg-glass-bg flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-4 h-4 text-foreground-muted" />
                         </div>
                         <div>
-                          <h4 className="text-xs font-medium text-white/80 mb-0.5">
+                          <h4 className="text-xs font-medium text-foreground-secondary mb-0.5">
                             {feature.title}
                           </h4>
-                          <p className="text-xs text-white/40">
+                          <p className="text-xs text-foreground-muted">
                             {feature.description}
                           </p>
                         </div>
@@ -189,16 +208,16 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
         </section>
 
         {/* Categories */}
-        <section className="py-10 border-t border-white/[0.04]">
+        <section className="py-10 border-t border-border">
           <div className="container">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-4 block">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-muted mb-4 block">
               Ürün Kategorileri
             </span>
             <div className="flex flex-wrap gap-2">
               {partner.categories.map((category, idx) => (
                 <span 
                   key={idx}
-                  className="px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05] text-xs text-white/50"
+                  className="px-3 py-1.5 rounded-full bg-glass-bg border border-border text-xs text-foreground-tertiary"
                 >
                   {category}
                 </span>
@@ -209,23 +228,23 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
 
         {/* Mission & Vision */}
         {(partner.mission || partner.vision) && (
-          <section className="py-10 border-t border-white/[0.04]">
+          <section className="py-10 border-t border-border">
             <div className="container">
               <div className="grid md:grid-cols-2 gap-8">
                 {partner.mission && (
                   <div>
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-white/20 mb-2 block">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-disabled mb-2 block">
                       Misyon
                     </span>
-                    <p className="text-sm text-white/50">{partner.mission}</p>
+                    <p className="text-sm text-foreground-tertiary">{partner.mission}</p>
                   </div>
                 )}
                 {partner.vision && (
                   <div>
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-white/20 mb-2 block">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-disabled mb-2 block">
                       Vizyon
                     </span>
-                    <p className="text-sm text-white/50">{partner.vision}</p>
+                    <p className="text-sm text-foreground-tertiary">{partner.vision}</p>
                   </div>
                 )}
               </div>
@@ -235,12 +254,12 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
 
         {/* Extra Section */}
         {partner.extraSection && (
-          <section className="py-10 border-t border-white/[0.04]">
+          <section className="py-10 border-t border-border">
             <div className="container">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-white/20 mb-2 block">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-disabled mb-2 block">
                 {partner.extraSection.title}
               </span>
-              <p className="text-sm text-white/50 max-w-2xl">
+              <p className="text-sm text-foreground-tertiary max-w-2xl">
                 {partner.extraSection.content}
               </p>
             </div>
@@ -249,16 +268,16 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
 
         {/* Use Cases - if available */}
         {partner.useCases && partner.useCases.length > 0 && (
-          <section className="py-10 border-t border-white/[0.04]">
+          <section className="py-10 border-t border-border">
             <div className="container">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-4 block">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-muted mb-4 block">
                 Kullanım Alanları
               </span>
               <div className="flex flex-wrap gap-2">
                 {partner.useCases.map((useCase, idx) => (
                   <span 
                     key={idx}
-                    className="px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-white/50"
+                    className="px-3 py-1.5 rounded-full bg-glass-bg border border-border text-xs text-foreground-tertiary"
                   >
                     {useCase}
                   </span>
@@ -269,13 +288,12 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
         )}
 
         {/* CTA Footer */}
-        <section className="py-12 border-t border-white/[0.04]">
+        <section className="py-12 border-t border-border">
           <div className="container">
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href={partner.productLink}
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-colors"
-                style={{ backgroundColor: '#ffffff', color: '#000000' }}
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-colors bg-foreground text-background hover:opacity-90"
               >
                 <span>Ürünleri Keşfet</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -286,7 +304,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
                   href={partner.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-3 text-xs text-white/40 hover:text-white/60 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-3 text-xs text-foreground-muted hover:text-foreground-secondary transition-colors"
                 >
                   <span>Resmi Web Sitesi</span>
                   <ExternalLink className="w-3.5 h-3.5" />

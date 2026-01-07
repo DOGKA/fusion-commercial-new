@@ -390,7 +390,7 @@ export default function PowerCalculator() {
                 </button>
                 {idx < steps.length - 1 && (
                   <div className={`w-8 h-px hidden sm:block ${
-                    idx < currentStepIndex ? 'bg-emerald-500' : 'bg-foreground/20 dark:bg-white/20'
+                    idx < currentStepIndex ? 'bg-emerald-500' : 'bg-glass-bg-hover'
                   }`} />
                 )}
               </React.Fragment>
@@ -400,7 +400,7 @@ export default function PowerCalculator() {
       </div>
 
       {/* Step Content - Glassmorphism Card */}
-      <div className="relative p-6 md:p-8 rounded-3xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 backdrop-blur-xl shadow-2xl">
+      <div className="relative p-6 md:p-8 rounded-3xl bg-surface-secondary border border-border backdrop-blur-xl shadow-2xl">
         {/* STEP 1: Senaryo Seçimi + Hızlı Cihaz Ekleme */}
         {currentStep === 'scenario' && (
           <div className="animate-fade-in">
@@ -425,14 +425,14 @@ export default function PowerCalculator() {
                     className={`group relative flex flex-col items-center gap-1 md:gap-2 p-2 md:p-3 rounded-lg md:rounded-xl border backdrop-blur-sm transition-all duration-300 ${
                       isSelected
                         ? 'border-fusion-primary bg-fusion-primary/15 shadow-[0_0_20px_rgba(0,255,170,0.15)]'
-                        : 'border-foreground/10 dark:border-white/10 bg-foreground/[0.03] dark:bg-white/5 hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:border-foreground/20 dark:hover:border-white/20'
+                        : 'border-border bg-surface-secondary hover:bg-background-hover hover:border-border-hover'
                     }`}
                   >
                     {/* Icon */}
                     <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg flex items-center justify-center transition-all ${
                       isSelected 
                         ? 'bg-fusion-primary text-white' 
-                        : 'bg-foreground/10 dark:bg-white/10 text-foreground-secondary group-hover:bg-foreground/20 dark:group-hover:bg-white/20'
+                        : 'bg-glass-bg text-foreground-secondary group-hover:bg-foreground/20 dark:group-hover:bg-white/20'
                     }`}>
                       <Icon className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
@@ -583,7 +583,7 @@ export default function PowerCalculator() {
             
             <div className="max-w-lg mx-auto space-y-6">
               {/* Energy Input Card */}
-              <div className="relative p-6 rounded-2xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 backdrop-blur-sm">
+              <div className="relative p-6 rounded-2xl bg-surface-secondary border border-border backdrop-blur-sm">
                 <div className="absolute -top-3 left-4 px-3 py-1 bg-fusion-primary/20 border border-fusion-primary/30 rounded-full">
                   <span className="text-xs font-medium text-fusion-primary">Günlük Tüketim</span>
                 </div>
@@ -601,7 +601,7 @@ export default function PowerCalculator() {
               </div>
 
               {/* Power Input Card */}
-              <div className="relative p-6 rounded-2xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 backdrop-blur-sm">
+              <div className="relative p-6 rounded-2xl bg-surface-secondary border border-border backdrop-blur-sm">
                 <div className="absolute -top-3 left-4 px-3 py-1 bg-fusion-secondary/20 border border-fusion-secondary/30 rounded-full">
                   <span className="text-xs font-medium text-fusion-secondary">Maksimum Güç</span>
                 </div>
@@ -625,7 +625,7 @@ export default function PowerCalculator() {
         {currentStep === 'charge' && (
           <div className="animate-fade-in">
             {/* Enerji Değerleri Özeti - Senaryo seçilince görünsün */}
-            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 border border-foreground/10 dark:border-white/10 backdrop-blur-sm">
+            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 border border-border backdrop-blur-sm">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Zap size={16} className="text-emerald-400" />
@@ -640,7 +640,7 @@ export default function PowerCalculator() {
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10">
+                <div className="p-3 rounded-xl bg-surface-secondary border border-border">
                   <label className="block text-xs text-foreground-muted mb-1">Günlük Tüketim</label>
                   <div className="flex items-center gap-2">
                     <input
@@ -652,7 +652,7 @@ export default function PowerCalculator() {
                     <span className="text-sm text-foreground-muted">Wh/gün</span>
                   </div>
                 </div>
-                <div className="p-3 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10">
+                <div className="p-3 rounded-xl bg-surface-secondary border border-border">
                   <label className="block text-xs text-foreground-muted mb-1">Maksimum Güç</label>
                   <div className="flex items-center gap-2">
                     <input
@@ -693,7 +693,7 @@ export default function PowerCalculator() {
                     className={`group relative p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 text-center ${
                       isSelected
                         ? 'border-emerald-500 bg-emerald-500/10'
-                        : 'border-foreground/10 dark:border-white/10 bg-foreground/[0.03] dark:bg-white/5 hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:border-foreground/20 dark:hover:border-white/20'
+                        : 'border-border bg-surface-secondary hover:bg-background-hover hover:border-border-hover'
                     }`}
                   >
                     {mode.badge && (
@@ -702,7 +702,7 @@ export default function PowerCalculator() {
                       </div>
                     )}
                     <div className={`w-10 h-10 mx-auto rounded-lg flex items-center justify-center mb-2 transition-all ${
-                      isSelected ? 'bg-emerald-500 text-white' : 'bg-foreground/10 dark:bg-white/10 text-foreground-secondary group-hover:bg-foreground/20 dark:group-hover:bg-white/20'
+                      isSelected ? 'bg-emerald-500 text-white' : 'bg-glass-bg text-foreground-secondary group-hover:bg-foreground/20 dark:group-hover:bg-white/20'
                     }`}>
                       <Icon size={20} />
                     </div>
@@ -722,7 +722,7 @@ export default function PowerCalculator() {
 
             {/* Solar Ayarları */}
             {(chargeMode === 'hybrid' || chargeMode === 'solar-only') && (
-              <div className="space-y-6 p-6 rounded-2xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 backdrop-blur-sm">
+              <div className="space-y-6 p-6 rounded-2xl bg-surface-secondary border border-border backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground-secondary">
                   <Sun size={16} className="text-amber-400" />
                   Güneş Paneli Ayarları
@@ -734,7 +734,7 @@ export default function PowerCalculator() {
                     <select
                       value={selectedCity}
                       onChange={(e) => setSelectedCity(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-foreground outline-none focus:border-fusion-primary transition-colors"
+                      className="w-full px-4 py-3 rounded-xl bg-surface-secondary border border-border text-foreground outline-none focus:border-fusion-primary transition-colors"
                     >
                       <option value="">— İl Seçin —</option>
                       {TURKEY_CITIES.map((city) => (
@@ -752,7 +752,7 @@ export default function PowerCalculator() {
                       value={manualPsh || ''}
                       onChange={(e) => setManualPsh(e.target.value ? Number(e.target.value) : null)}
                       placeholder="Örn: 4.5"
-                      className="w-full px-4 py-3 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-foreground outline-none focus:border-fusion-primary transition-colors placeholder:text-foreground-muted/50"
+                      className="w-full px-4 py-3 rounded-xl bg-surface-secondary border border-border text-foreground outline-none focus:border-fusion-primary transition-colors placeholder:text-foreground-muted/50"
                     />
                   </div>
                 </div>
@@ -772,7 +772,7 @@ export default function PowerCalculator() {
                         className={`p-4 rounded-xl border transition-all ${
                           isSelected
                             ? 'border-amber-400 bg-amber-400/10'
-                            : 'border-foreground/10 dark:border-white/10 bg-foreground/[0.03] dark:bg-white/5 hover:bg-foreground/[0.06] dark:hover:bg-white/10'
+                            : 'border-border bg-surface-secondary hover:bg-background-hover'
                         }`}
                       >
                         <div className={`text-sm font-medium ${isSelected ? 'text-amber-400' : 'text-foreground-secondary'}`}>
@@ -796,7 +796,7 @@ export default function PowerCalculator() {
             {/* Tercihler - Compact */}
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               {/* Taşınabilirlik */}
-              <div className="p-4 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10">
+              <div className="p-4 rounded-xl bg-surface-secondary border border-border">
                 <div className="flex items-center gap-2 text-xs font-medium text-foreground-muted mb-3">
                   <Leaf size={14} className="text-emerald-400" />
                   Taşınabilirlik
@@ -815,7 +815,7 @@ export default function PowerCalculator() {
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                           isSelected
                             ? 'bg-emerald-500 text-white'
-                            : 'bg-foreground/[0.03] dark:bg-white/5 text-foreground-muted hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:text-foreground'
+                            : 'bg-surface-secondary text-foreground-muted hover:bg-background-hover hover:text-foreground'
                         }`}
                       >
                         {opt.label}
@@ -827,7 +827,7 @@ export default function PowerCalculator() {
 
               {/* Şarj Hızı */}
               {(chargeMode === 'hybrid' || chargeMode === 'solar-only') && (
-                <div className="p-4 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10">
+                <div className="p-4 rounded-xl bg-surface-secondary border border-border">
                   <div className="flex items-center gap-2 text-xs font-medium text-foreground-muted mb-3">
                     <Zap size={14} className="text-amber-400" />
                     Şarj Hızı
@@ -846,7 +846,7 @@ export default function PowerCalculator() {
                           className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                             isSelected
                               ? 'bg-amber-500 text-white'
-                              : 'bg-foreground/[0.03] dark:bg-white/5 text-foreground-muted hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:text-foreground'
+                              : 'bg-surface-secondary text-foreground-muted hover:bg-background-hover hover:text-foreground'
                           }`}
                         >
                           {opt.label}
@@ -876,7 +876,7 @@ export default function PowerCalculator() {
                 </div>
 
                 {result.powerStation.station && (
-                  <div className="border border-foreground/10 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
+                  <div className="border border-border rounded-xl overflow-hidden flex flex-col">
                     {/* ÜST: Görsel 1:1, kartın üst kenarına yapışık, padding yok */}
                     <div className="relative aspect-square bg-neutral-900">
                       <Image
@@ -893,7 +893,7 @@ export default function PowerCalculator() {
                     </div>
 
                     {/* ALT: içerik */}
-                    <div className="p-2 flex flex-col gap-2 bg-foreground/[0.03] dark:bg-white/5">
+                    <div className="p-2 flex flex-col gap-2 bg-surface-secondary">
                       {/* Ürün Adı */}
                       <div>
                       <h4 className="text-[11px] md:text-sm font-bold text-foreground leading-tight truncate">
@@ -931,7 +931,7 @@ export default function PowerCalculator() {
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label="İncele"
-                          className="flex items-center justify-center h-9 rounded-lg bg-foreground/10 dark:bg-white/10 border border-foreground/10 dark:border-white/10 text-foreground-secondary hover:bg-foreground/20 dark:hover:bg-white/20 transition-colors"
+                          className="flex items-center justify-center h-9 rounded-lg bg-glass-bg border border-border text-foreground-secondary hover:bg-glass-bg-hover transition-colors"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
@@ -974,7 +974,7 @@ export default function PowerCalculator() {
                 </div>
 
                 {result.solarPanel ? (
-                  <div className="border border-foreground/10 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
+                  <div className="border border-border rounded-xl overflow-hidden flex flex-col">
                     {/* ÜST: Görsel 1:1 */}
                     <div className="relative aspect-square bg-gradient-to-br from-amber-900/50 to-orange-900/50">
                       <Image
@@ -991,7 +991,7 @@ export default function PowerCalculator() {
                     </div>
 
                     {/* ALT: içerik */}
-                    <div className="p-2 flex flex-col gap-2 bg-foreground/[0.03] dark:bg-white/5">
+                    <div className="p-2 flex flex-col gap-2 bg-surface-secondary">
                       {/* Ürün Adı */}
                       <div>
                         <h4 className="text-[11px] md:text-sm font-bold text-foreground leading-tight truncate">
@@ -1029,7 +1029,7 @@ export default function PowerCalculator() {
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label="İncele"
-                          className="flex items-center justify-center h-9 rounded-lg bg-foreground/10 dark:bg-white/10 border border-foreground/10 dark:border-white/10 text-foreground-secondary hover:bg-foreground/20 dark:hover:bg-white/20 transition-colors"
+                          className="flex items-center justify-center h-9 rounded-lg bg-glass-bg border border-border text-foreground-secondary hover:bg-glass-bg-hover transition-colors"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
@@ -1062,7 +1062,7 @@ export default function PowerCalculator() {
                     </div>
                   </div>
                 ) : (
-                  <div className="border border-foreground/10 dark:border-white/10 rounded-xl p-4 text-center flex-1 flex flex-col items-center justify-center bg-foreground/[0.03] dark:bg-white/5">
+                  <div className="border border-border rounded-xl p-4 text-center flex-1 flex flex-col items-center justify-center bg-surface-secondary">
                     <Sun className="w-6 h-6 mb-1 opacity-30" />
                     <p className="text-[10px] text-foreground-muted">
                       {chargeMode === 'grid-only' || chargeMode === 'no-charge' ? 'Solar yok' : 'Bulunamadı'}
@@ -1082,7 +1082,7 @@ export default function PowerCalculator() {
         {currentStep !== 'scenario' ? (
           <button
             onClick={goPrev}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-foreground-secondary hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:text-foreground transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
           >
             <ChevronLeft size={18} />
             <span className="hidden sm:inline">Geri</span>
@@ -1097,8 +1097,8 @@ export default function PowerCalculator() {
             disabled={!canGoNext}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 ${
               canGoNext
-                ? 'bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-foreground-secondary hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:text-foreground'
-                : 'bg-foreground/10 dark:bg-white/10 text-foreground-muted cursor-not-allowed border border-transparent'
+                ? 'bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground'
+                : 'bg-glass-bg text-foreground-muted cursor-not-allowed border border-transparent'
             }`}
           >
             <span className="hidden sm:inline">{currentStep === 'preferences' ? 'Sonuçları Gör' : 'Devam Et'}</span>
@@ -1109,7 +1109,7 @@ export default function PowerCalculator() {
         {currentStep === 'results' && (
           <button
             onClick={handleReset}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground/[0.03] dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-foreground-secondary hover:bg-foreground/[0.06] dark:hover:bg-white/10 hover:text-foreground transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
           >
             <RotateCcw size={18} />
             Yeniden Başla

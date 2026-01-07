@@ -121,9 +121,9 @@ function PartnerCard({ partner }: { partner: Partner }) {
             className="absolute inset-0 rounded-2xl overflow-hidden backface-hidden"
             style={{ backfaceVisibility: "hidden" }}
           >
-            {/* Glassmorphism Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.04] to-foreground/[0.02] dark:from-white/[0.08] dark:to-white/[0.02] backdrop-blur-xl" />
-            <div className="absolute inset-0 border border-border dark:border-white/[0.1] rounded-2xl" />
+            {/* Glassmorphism Background with subtle green tint */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] via-foreground/[0.02] to-cyan-500/[0.02] dark:from-emerald-500/[0.05] dark:via-white/[0.04] dark:to-cyan-500/[0.03] backdrop-blur-xl" />
+            <div className="absolute inset-0 border border-border rounded-2xl" />
             
             {/* Animated Gradient Border */}
             <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
