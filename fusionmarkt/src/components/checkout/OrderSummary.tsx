@@ -195,7 +195,7 @@ function OrderSummaryContent(props: OrderSummaryContentProps) {
             className="flex gap-3 p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl group"
           >
             {/* Image */}
-            <div className="relative w-14 h-14 bg-gray-100 dark:bg-[#0d0d0d] rounded-lg overflow-hidden flex-shrink-0">
+            <div className="relative w-14 h-14 bg-background-muted dark:bg-background-muted rounded-lg overflow-hidden flex-shrink-0">
               {item.image ? (
                 <Image
                   src={item.image}

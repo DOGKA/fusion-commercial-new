@@ -301,7 +301,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
         <div 
           className={cn(
             "flex-1 flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
-            "bg-surface/90 dark:bg-[rgba(19,19,19,0.90)]",
+            "bg-surface/90 dark:bg-surface/90",
             "hover:border-border-hover"
           )}
           style={{ 

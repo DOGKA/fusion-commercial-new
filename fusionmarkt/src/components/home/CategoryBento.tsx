@@ -221,8 +221,8 @@ export default function CategoryBento() {
 
   return (
     <section className="category-bento-section pt-16 lg:pt-12 pb-16 lg:pb-20 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-background dark:bg-[#0A0A0A]" />
+      {/* Background - Theme-aware */}
+      <div className="absolute inset-0 bg-background" />
       
       {/* Mesh gradient overlay - Admin panel ile birebir aynı */}
       <div 
@@ -287,8 +287,8 @@ export default function CategoryBento() {
                     borderRadius: "24px",
                   }}
                 >
-                  {/* Dark overlay for contrast - Admin panel ile aynı */}
-                  <div className="absolute inset-0 bg-black/25" />
+                  {/* Theme-aware overlay for contrast */}
+                  <div className="absolute inset-0 bg-foreground/20 dark:bg-black/25" />
                   
                   {/* Badge - Top Left - Admin panel ile birebir aynı stiller */}
                   {category.badge && (

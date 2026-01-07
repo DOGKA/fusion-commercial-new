@@ -89,7 +89,8 @@ export default function HeroSlider() {
     setMounted(true);
   }, []);
   
-  const isDarkMode = mounted ? resolvedTheme === "dark" : true; // Default to dark during SSR
+  // İlk girişte dark tema, kullanıcı değiştirirse ona göre
+  const isDarkMode = mounted ? resolvedTheme === "dark" : true;
   
   // Touch/swipe state
   const touchStartX = useRef<number>(0);
@@ -310,10 +311,9 @@ export default function HeroSlider() {
             alt={slide.title} 
             fill 
             className="object-cover"
-            style={{ opacity: (100 - overlayOpacity) / 100 }}
             priority
           />
-          {/* Dynamic Overlay - Theme-aware */}
+          {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && (
             <div 
               className="absolute inset-0"
@@ -328,9 +328,6 @@ export default function HeroSlider() {
       
       {/* Grid Pattern Background */}
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-      
-      {/* Radial Gradient Overlay */}
-      <div className="absolute inset-0 bg-foreground [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] opacity-[0.12] dark:opacity-100" />
       
       {/* Animated Gradient Orbs */}
       <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />

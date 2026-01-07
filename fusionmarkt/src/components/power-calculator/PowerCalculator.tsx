@@ -906,19 +906,19 @@ export default function PowerCalculator() {
 
                       {/* Stats: 2x2 grid, her hücre ayrı */}
                       <div className="grid grid-cols-2 gap-1 text-[9px] md:text-[10px]">
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Kapasite</span>
                           <span className="text-foreground font-bold">{result.powerStation.capacity} Wh</span>
                         </div>
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Çıkış</span>
                           <span className="text-foreground font-bold">{result.powerStation.outputPower} W</span>
                         </div>
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Tepe</span>
                           <span className="text-foreground font-bold">{result.powerStation.station.surgePower} W</span>
                         </div>
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Süre</span>
                           <span className="text-foreground font-bold">{result.powerStation.runtimeHours ? formatHours(result.powerStation.runtimeHours, 'tr') : '-'}</span>
                         </div>
@@ -1004,19 +1004,19 @@ export default function PowerCalculator() {
 
                       {/* Stats: 2x2 grid */}
                       <div className="grid grid-cols-2 gap-1 text-[9px] md:text-[10px]">
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Güç</span>
                           <span className="text-foreground font-bold">{result.solarPanel.totalWattage} W</span>
                         </div>
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Üretim</span>
                           <span className="text-foreground font-bold">{result.solarPanel.dailyProduction} Wh</span>
                         </div>
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Şarj</span>
                           <span className="text-foreground font-bold">{result.solarPanel.chargeHours ? formatHours(result.solarPanel.chargeHours, 'tr') : '-'}</span>
                         </div>
-                        <div className="bg-black/30 rounded px-1.5 py-1 flex flex-col">
+                        <div className="bg-foreground/20 dark:bg-black/30 rounded px-1.5 py-1 flex flex-col">
                           <span className="text-foreground-muted">Ağırlık</span>
                           <span className="text-foreground font-bold">{result.solarPanel.panel?.weight ? `${result.solarPanel.panel.weight * result.solarPanel.panelCount} kg` : '-'}</span>
                         </div>

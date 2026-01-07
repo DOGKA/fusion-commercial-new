@@ -20,23 +20,81 @@
 
 /* Tailwind Theme Inline - Token Mapping */
 @theme inline {
-  /* Core Colors */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BACKGROUND SYSTEM - Light/Dark otomatik geçiş
+  ═══════════════════════════════════════════════════════════════════════════ */
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-hover: var(--background-hover);
+  --color-background-muted: var(--background-muted);
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     FOREGROUND SYSTEM - Light/Dark otomatik geçiş
+  ═══════════════════════════════════════════════════════════════════════════ */
   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-tertiary: var(--foreground-tertiary);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-disabled: var(--foreground-disabled);
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SURFACE SYSTEM - Light/Dark otomatik geçiş
+  ═══════════════════════════════════════════════════════════════════════════ */
   --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BORDER SYSTEM - Light/Dark otomatik geçiş
+  ═══════════════════════════════════════════════════════════════════════════ */
   --color-border: var(--border);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-hover: var(--border-hover);
+  --color-border-focus: var(--border-focus);
   
-  /* Brand */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     GLASS SYSTEM - Light/Dark otomatik geçiş (Glassmorphism)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-bg-hover: var(--glass-bg-hover);
+  --color-glass-bg-active: var(--glass-bg-active);
+  --color-glass-bg-solid: var(--glass-bg-solid);
+  --color-glass-border: var(--glass-border);
+  --color-glass-border-hover: var(--glass-border-hover);
+  --color-glass-border-active: var(--glass-border-active);
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BRAND COLORS
+  ═══════════════════════════════════════════════════════════════════════════ */
   --color-primary: var(--fusion-primary);
+  --color-primary-light: var(--fusion-primary-light);
+  --color-primary-dark: var(--fusion-primary-dark);
   --color-secondary: var(--fusion-secondary);
+  --color-secondary-light: var(--fusion-secondary-light);
+  --color-secondary-dark: var(--fusion-secondary-dark);
+  --color-accent: var(--fusion-accent);
   
-  /* Semantic */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SEMANTIC COLORS
+  ═══════════════════════════════════════════════════════════════════════════ */
   --color-success: var(--fusion-success);
   --color-warning: var(--fusion-warning);
   --color-error: var(--fusion-error);
   --color-info: var(--fusion-info);
   
-  /* Fonts */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     INPUT/BUTTON SYSTEM - Light/Dark otomatik geçiş
+  ═══════════════════════════════════════════════════════════════════════════ */
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-placeholder: var(--input-placeholder);
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     FONTS
+  ═══════════════════════════════════════════════════════════════════════════ */
   --font-sans: var(--font-sf-pro);
   --font-mono: var(--font-geist-mono);
 }
