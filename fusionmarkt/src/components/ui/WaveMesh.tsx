@@ -105,7 +105,7 @@ export default function WaveMesh({
   return (
     <canvas
       ref={canvasRef}
-      className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
+      className={`absolute inset-0 w-full h-full pointer-events-none rounded-[inherit] ${className}`}
       style={{ opacity }}
     />
   );
