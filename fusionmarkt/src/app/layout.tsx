@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   // Manifest
   manifest: "/manifest.json",
   
-  // Open Graph
+  // Open Graph - Dynamic OG image via opengraph-image.tsx
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
@@ -65,14 +65,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     title: "FusionMarkt | Taşınabilir Güç Kaynakları & Enerji Çözümleri",
     description: siteConfig.description,
-    images: [
-      {
-        url: "/images/og-default.jpg",
-        width: 1200,
-        height: 630,
-        alt: "FusionMarkt - Taşınabilir Güç Kaynakları",
-      },
-    ],
+    // OG image is auto-generated from opengraph-image.tsx (uses slider visuals)
   },
   
   // Twitter

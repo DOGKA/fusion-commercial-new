@@ -8,7 +8,8 @@ export const siteConfig = {
   shortName: "FusionMarkt",
   description: "Taşınabilir güç kaynağı, LiFePO4 batarya, solar panel, yalıtkan merdiven ve iş güvenliği eldiveni. IEETek, Traffi, Telesteps yetkili distribütörü. Türkiye'nin en güvenilir enerji ve iş güvenliği marketi.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://fusionmarkt.com",
-  ogImage: "/images/og-default.jpg",
+  // OG image dynamically generated via /opengraph-image (uses slider visuals)
+  ogImage: "/opengraph-image",
   // Ürün ek kaynakları
   resources: {
     appManual: {
