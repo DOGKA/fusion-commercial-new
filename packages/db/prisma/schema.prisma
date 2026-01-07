@@ -1094,9 +1094,41 @@ model Slider {
   gradientFrom String? // Gradient başlangıç
   gradientTo   String? // Gradient bitiş
 
-  // Stil - Overlay
-  overlayColor   String? // Overlay rengi (ör: rgba(0,0,0,0.5))
+  // Stil - Overlay (Dark Theme - Varsayılan)
+  overlayColor   String? // Overlay rengi dark tema (ör: #000000)
   overlayOpacity Int     @default(50) // 0-100
+  
+  // Stil - Overlay (Light Theme)
+  overlayColorLight   String? // Overlay rengi light tema (ör: #FFFFFF)
+  overlayOpacityLight Int? // 0-100, null ise dark değeri kullanılır
+  
+  // Stil - İçerik Renkleri (Dark Theme - Varsayılan)
+  titleColor       String? // Başlık rengi dark tema
+  subtitleColor    String? // Alt başlık rengi dark tema
+  badgeBgColor     String? // Rozet arka plan rengi dark tema
+  badgeTextColor   String? // Rozet yazı rengi dark tema
+  buttonBgColor    String? // Buton arka plan rengi dark tema
+  buttonTextColor  String? // Buton yazı rengi dark tema
+  button2BgColor   String? // İkinci buton arka plan rengi dark tema
+  button2TextColor String? // İkinci buton yazı rengi dark tema
+  
+  // Stil - İçerik Renkleri (Light Theme)
+  titleColorLight       String? // Başlık rengi light tema
+  subtitleColorLight    String? // Alt başlık rengi light tema
+  badgeBgColorLight     String? // Rozet arka plan rengi light tema
+  badgeTextColorLight   String? // Rozet yazı rengi light tema
+  buttonBgColorLight    String? // Buton arka plan rengi light tema
+  buttonTextColorLight  String? // Buton yazı rengi light tema
+  button2BgColorLight   String? // İkinci buton arka plan rengi light tema
+  button2TextColorLight String? // İkinci buton yazı rengi light tema
+  
+  // Stil - Vurgulu Başlık Gradient (Dark Theme - Varsayılan)
+  titleHighlightFrom String? // Vurgulu başlık gradient başlangıç dark tema (ör: #10b981)
+  titleHighlightTo   String? // Vurgulu başlık gradient bitiş dark tema (ör: #06b6d4)
+  
+  // Stil - Vurgulu Başlık Gradient (Light Theme)
+  titleHighlightFromLight String? // Vurgulu başlık gradient başlangıç light tema
+  titleHighlightToLight   String? // Vurgulu başlık gradient bitiş light tema
 
   // Stil - Genel
   textAlign TextAlign   @default(LEFT)

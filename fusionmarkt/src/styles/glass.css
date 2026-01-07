@@ -27,24 +27,24 @@
    GLASS INTENSITY VARIANTS
 ───────────────────────────────────────────────────────────────────────── */
 .glass-light {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
 }
 
 .glass-medium {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg-hover);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--glass-border-hover);
 }
 
 .glass-heavy {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--glass-bg-active);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--glass-border-active);
 }
 
 .glass-solid {

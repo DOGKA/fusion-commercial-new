@@ -565,12 +565,11 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Rating - Video Label ile aynı biçim, beyaz arka plan, sarı yıldızlar */}
               <div className="min-h-[28px]">
                 <span 
-                  className="inline-flex items-center justify-center gap-1.5"
+                  className="inline-flex items-center justify-center gap-1.5 bg-glass-bg"
                   style={{
                     minWidth: 150,
                     height: 26,
                     padding: '0 14px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     border: '1px solid rgba(251, 191, 36, 0.35)',
                     borderRadius: SQUIRCLE.sm,
                   }}

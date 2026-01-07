@@ -197,7 +197,7 @@ export default function CookieConsent() {
                 {hasConsent && (
                   <button
                     onClick={() => setShowBanner(false)}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all z-10"
+                    className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center text-foreground-muted hover:text-foreground transition-all z-10"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -212,12 +212,12 @@ export default function CookieConsent() {
                           <Cookie className="w-6 h-6 text-amber-400" />
                         </div>
                         <div>
-                          <h3 className="text-white font-bold text-lg">Çerez Kullanımı</h3>
-                          <p className="text-white/40 text-xs">fusionmarkt.com</p>
+                          <h3 className="text-foreground font-bold text-lg">Çerez Kullanımı</h3>
+                          <p className="text-foreground-muted text-xs">fusionmarkt.com</p>
                         </div>
                       </div>
 
-                      <p className="text-sm text-white/60 leading-relaxed mb-5">
+                      <p className="text-sm text-foreground-secondary leading-relaxed mb-5">
                         {(bannerConfig?.text || "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.")} Detaylı bilgi için{" "}
                         <Link
                           href="/cerez-politikasi"
@@ -232,14 +232,14 @@ export default function CookieConsent() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setShowSettings(true)}
-                          className="flex items-center justify-center gap-1 px-2.5 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+                          className="flex items-center justify-center gap-1 px-2.5 py-2.5 rounded-xl border border-border text-foreground-secondary hover:text-foreground hover:bg-foreground/5 hover:border-border-hover transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
                         >
                           <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span className="hidden sm:inline">Ayarlar</span>
                         </button>
                         <button
                           onClick={handleAcceptNecessary}
-                          className="flex items-center justify-center px-2.5 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+                          className="flex items-center justify-center px-2.5 py-2.5 rounded-xl border border-border text-foreground-secondary hover:text-foreground hover:bg-foreground/5 hover:border-border-hover transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
                         >
                           <span className="sm:hidden">Gerekli</span>
                           <span className="hidden sm:inline">Sadece Gerekli</span>
@@ -264,13 +264,13 @@ export default function CookieConsent() {
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => setShowSettings(false)}
-                            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                            className="w-8 h-8 rounded-lg bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center text-foreground-secondary hover:text-foreground transition-colors"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                           </button>
-                          <h3 className="text-white font-bold text-lg">Çerez Tercihleri</h3>
+                          <h3 className="text-foreground font-bold text-lg">Çerez Tercihleri</h3>
                         </div>
                       </div>
 
@@ -305,7 +305,7 @@ export default function CookieConsent() {
                       <div className="flex gap-2">
                         <button
                           onClick={handleAcceptNecessary}
-                          className="flex-1 flex items-center justify-center px-3 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-sm font-medium"
+                          className="flex-1 flex items-center justify-center px-3 py-2.5 rounded-xl border border-border text-foreground-secondary hover:text-foreground hover:bg-foreground/5 hover:border-border-hover transition-all text-sm font-medium"
                         >
                           Sadece Gerekli
                         </button>
@@ -350,15 +350,15 @@ function CookieOption({
     <label
       className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
         disabled
-          ? "bg-white/[0.02] border-white/5 cursor-not-allowed opacity-60"
+          ? "bg-foreground/[0.02] border-border/50 cursor-not-allowed opacity-60"
           : checked
           ? "bg-emerald-500/5 border-emerald-500/20"
-          : "bg-white/[0.02] border-white/5 hover:border-white/10"
+          : "bg-foreground/[0.02] border-border/50 hover:border-border"
       }`}
     >
       <div
         className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${
-          disabled ? "bg-white/10" : checked ? "bg-emerald-500" : "bg-white/15"
+          disabled ? "bg-foreground/10" : checked ? "bg-emerald-500" : "bg-foreground/15"
         }`}
       >
         <div
@@ -369,14 +369,14 @@ function CookieOption({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium">{title}</span>
+          <span className="text-foreground text-sm font-medium">{title}</span>
           {disabled && (
-            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-white/40 uppercase tracking-wide">
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-foreground/10 text-foreground-muted uppercase tracking-wide">
               Zorunlu
             </span>
           )}
         </div>
-        <p className="text-xs text-white/40">{description}</p>
+        <p className="text-xs text-foreground-muted">{description}</p>
       </div>
       <input
         type="checkbox"

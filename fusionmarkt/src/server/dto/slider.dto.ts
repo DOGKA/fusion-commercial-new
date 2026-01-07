@@ -27,8 +27,35 @@ export const SliderPublicDTOSchema = z.object({
   desktopImage: z.string().nullable(),
   mobileImage: z.string().nullable(),
   backgroundVideo: z.string().nullable(),
+  // Overlay - Dark Theme
   overlayColor: z.string().nullable(),
   overlayOpacity: z.number().int().min(0).max(100),
+  // Overlay - Light Theme
+  overlayColorLight: z.string().nullable(),
+  overlayOpacityLight: z.number().int().min(0).max(100).nullable(),
+  // Content Colors - Dark Theme
+  titleColor: z.string().nullable(),
+  subtitleColor: z.string().nullable(),
+  badgeBgColor: z.string().nullable(),
+  badgeTextColor: z.string().nullable(),
+  buttonBgColor: z.string().nullable(),
+  buttonTextColor: z.string().nullable(),
+  button2BgColor: z.string().nullable(),
+  button2TextColor: z.string().nullable(),
+  // Content Colors - Light Theme
+  titleColorLight: z.string().nullable(),
+  subtitleColorLight: z.string().nullable(),
+  badgeBgColorLight: z.string().nullable(),
+  badgeTextColorLight: z.string().nullable(),
+  buttonBgColorLight: z.string().nullable(),
+  buttonTextColorLight: z.string().nullable(),
+  button2BgColorLight: z.string().nullable(),
+  button2TextColorLight: z.string().nullable(),
+  // Title Highlight Gradient
+  titleHighlightFrom: z.string().nullable(),
+  titleHighlightTo: z.string().nullable(),
+  titleHighlightFromLight: z.string().nullable(),
+  titleHighlightToLight: z.string().nullable(),
   textAlign: z.string(), // Enum as string
   theme: z.string(), // Enum as string
   order: z.number().int().min(0),
@@ -77,8 +104,35 @@ export function mapSliderToPublicDTO(slider: SliderPublic): SliderPublicDTO {
     desktopImage: slider.desktopImage,
     mobileImage: slider.mobileImage,
     backgroundVideo: slider.backgroundVideo,
+    // Overlay - Dark Theme
     overlayColor: slider.overlayColor,
     overlayOpacity: slider.overlayOpacity,
+    // Overlay - Light Theme
+    overlayColorLight: slider.overlayColorLight,
+    overlayOpacityLight: slider.overlayOpacityLight,
+    // Content Colors - Dark Theme
+    titleColor: slider.titleColor,
+    subtitleColor: slider.subtitleColor,
+    badgeBgColor: slider.badgeBgColor,
+    badgeTextColor: slider.badgeTextColor,
+    buttonBgColor: slider.buttonBgColor,
+    buttonTextColor: slider.buttonTextColor,
+    button2BgColor: slider.button2BgColor,
+    button2TextColor: slider.button2TextColor,
+    // Content Colors - Light Theme
+    titleColorLight: slider.titleColorLight,
+    subtitleColorLight: slider.subtitleColorLight,
+    badgeBgColorLight: slider.badgeBgColorLight,
+    badgeTextColorLight: slider.badgeTextColorLight,
+    buttonBgColorLight: slider.buttonBgColorLight,
+    buttonTextColorLight: slider.buttonTextColorLight,
+    button2BgColorLight: slider.button2BgColorLight,
+    button2TextColorLight: slider.button2TextColorLight,
+    // Title Highlight Gradient
+    titleHighlightFrom: slider.titleHighlightFrom,
+    titleHighlightTo: slider.titleHighlightTo,
+    titleHighlightFromLight: slider.titleHighlightFromLight,
+    titleHighlightToLight: slider.titleHighlightToLight,
     textAlign: String(slider.textAlign),
     theme: String(slider.theme),
     order: slider.order,

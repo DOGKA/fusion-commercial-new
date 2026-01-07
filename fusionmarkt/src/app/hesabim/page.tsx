@@ -2779,14 +2779,13 @@ function FavoritesPane() {
         </div>
         
         {/* Empty State - Only CTA */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
           <Link 
             href="/magaza"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 rounded-xl text-[17px] font-medium transition-all shadow-lg shadow-pink-500/25"
-            style={{ color: '#ffffff' }}
+            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 rounded-xl text-[17px] font-medium transition-all shadow-lg shadow-pink-500/25 text-white"
           >
             Ürünleri Keşfet
-            <ChevronRight size={18} style={{ color: '#ffffff' }} />
+            <ChevronRight size={18} className="text-white" />
           </Link>
         </div>
       </div>

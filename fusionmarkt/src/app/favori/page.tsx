@@ -218,9 +218,8 @@ export default function FavoritesPage() {
               <Link
                 href="/magaza"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white font-medium text-base rounded-xl transition-all shadow-lg shadow-pink-500/25"
-                style={{ color: '#ffffff' }}
               >
-                <Sparkles size={16} style={{ color: '#ffffff' }} />
+                <Sparkles size={16} className="text-white" />
                 Ürünleri Keşfet
               </Link>
             </div>

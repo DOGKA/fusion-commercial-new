@@ -24,8 +24,36 @@ export const CreateSliderSchema = z.object({
   backgroundVideo: z.string().nullable().optional(),
   gradientFrom: z.string().nullable().optional(),
   gradientTo: z.string().nullable().optional(),
+  // Overlay - Dark Theme (Default)
   overlayColor: z.string().nullable().optional(),
   overlayOpacity: z.number().int().min(0).max(100).default(50),
+  // Overlay - Light Theme
+  overlayColorLight: z.string().nullable().optional(),
+  overlayOpacityLight: z.number().int().min(0).max(100).nullable().optional(),
+  // Content Colors - Dark Theme (Default)
+  titleColor: z.string().nullable().optional(),
+  subtitleColor: z.string().nullable().optional(),
+  badgeBgColor: z.string().nullable().optional(),
+  badgeTextColor: z.string().nullable().optional(),
+  buttonBgColor: z.string().nullable().optional(),
+  buttonTextColor: z.string().nullable().optional(),
+  button2BgColor: z.string().nullable().optional(),
+  button2TextColor: z.string().nullable().optional(),
+  // Content Colors - Light Theme
+  titleColorLight: z.string().nullable().optional(),
+  subtitleColorLight: z.string().nullable().optional(),
+  badgeBgColorLight: z.string().nullable().optional(),
+  badgeTextColorLight: z.string().nullable().optional(),
+  buttonBgColorLight: z.string().nullable().optional(),
+  buttonTextColorLight: z.string().nullable().optional(),
+  button2BgColorLight: z.string().nullable().optional(),
+  button2TextColorLight: z.string().nullable().optional(),
+  // Title Highlight Gradient - Dark Theme
+  titleHighlightFrom: z.string().nullable().optional(),
+  titleHighlightTo: z.string().nullable().optional(),
+  // Title Highlight Gradient - Light Theme
+  titleHighlightFromLight: z.string().nullable().optional(),
+  titleHighlightToLight: z.string().nullable().optional(),
   textAlign: z.enum(["LEFT", "CENTER", "RIGHT"]).default("LEFT"),
   theme: z.enum(["DARK", "LIGHT", "GRADIENT", "CUSTOM"]).default("DARK"),
   effect: z.enum(["NONE", "FADE", "SLIDE", "PARALLAX", "ZOOM", "CUBE"]).default("FADE"),
@@ -62,8 +90,36 @@ export const UpdateSliderSchema = z.object({
   backgroundVideo: z.string().nullable().optional(),
   gradientFrom: z.string().nullable().optional(),
   gradientTo: z.string().nullable().optional(),
+  // Overlay - Dark Theme (Default)
   overlayColor: z.string().nullable().optional(),
   overlayOpacity: z.number().int().min(0).max(100).optional(),
+  // Overlay - Light Theme
+  overlayColorLight: z.string().nullable().optional(),
+  overlayOpacityLight: z.number().int().min(0).max(100).nullable().optional(),
+  // Content Colors - Dark Theme (Default)
+  titleColor: z.string().nullable().optional(),
+  subtitleColor: z.string().nullable().optional(),
+  badgeBgColor: z.string().nullable().optional(),
+  badgeTextColor: z.string().nullable().optional(),
+  buttonBgColor: z.string().nullable().optional(),
+  buttonTextColor: z.string().nullable().optional(),
+  button2BgColor: z.string().nullable().optional(),
+  button2TextColor: z.string().nullable().optional(),
+  // Content Colors - Light Theme
+  titleColorLight: z.string().nullable().optional(),
+  subtitleColorLight: z.string().nullable().optional(),
+  badgeBgColorLight: z.string().nullable().optional(),
+  badgeTextColorLight: z.string().nullable().optional(),
+  buttonBgColorLight: z.string().nullable().optional(),
+  buttonTextColorLight: z.string().nullable().optional(),
+  button2BgColorLight: z.string().nullable().optional(),
+  button2TextColorLight: z.string().nullable().optional(),
+  // Title Highlight Gradient - Dark Theme
+  titleHighlightFrom: z.string().nullable().optional(),
+  titleHighlightTo: z.string().nullable().optional(),
+  // Title Highlight Gradient - Light Theme
+  titleHighlightFromLight: z.string().nullable().optional(),
+  titleHighlightToLight: z.string().nullable().optional(),
   textAlign: z.enum(["LEFT", "CENTER", "RIGHT"]).optional(),
   theme: z.enum(["DARK", "LIGHT", "GRADIENT", "CUSTOM"]).optional(),
   effect: z.enum(["NONE", "FADE", "SLIDE", "PARALLAX", "ZOOM", "CUBE"]).optional(),

@@ -266,7 +266,7 @@
   .product-kdv-text {
     font-size: 11px !important;
     margin-left: 8px !important;
-    color: rgba(255, 255, 255, 0.35) !important;
+    color: var(--foreground-muted) !important;
   }
   
   /* CTA Row - yatay, tam genişlik */
@@ -502,8 +502,8 @@
     height: 36px !important;
     min-width: auto !important;
     border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
   }
   
   /* Sıralama dropdown - orta üst, squircle */
@@ -514,8 +514,8 @@
     height: 36px !important;
     justify-self: start !important;
     border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
   }
   
   .store-sort-button span {
@@ -589,8 +589,8 @@
     height: 40px !important;
     font-size: 14px !important;
     border-radius: 16px !important; /* SQUIRCLE */
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
   }
   
   /* Arama container - squircle wrapper */
@@ -663,16 +663,16 @@
 .store-filter-button,
 .store-sort-button {
   border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
 }
 
 .store-filter-button:hover,
 .store-sort-button:hover {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
+  background: var(--glass-bg-hover) !important;
+  border-color: var(--glass-border-hover) !important;
 }
 
 .store-coupon-button {
@@ -727,7 +727,7 @@
 
 .related-product-buttons button:hover {
   transform: scale(1.02);
-  background-color: rgba(255, 255, 255, 0.12) !important;
+  background-color: var(--glass-bg-hover) !important;
 }
 
 .store-coupon-button:hover {
@@ -737,13 +737,13 @@
 
 .store-search-container input {
   border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
 }
 
 .store-search-container input:focus {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: rgba(255, 255, 255, 0.20) !important;
+  background: var(--glass-bg-hover) !important;
+  border-color: var(--glass-border-hover) !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1299,7 +1299,7 @@
     font-size: 11px !important;
     margin-top: 0 !important;
     margin-left: auto !important;
-    color: rgba(255, 255, 255, 0.4) !important;
+    color: var(--foreground-muted) !important;
   }
   
   /* Yatay connector - gizle */
@@ -1316,7 +1316,7 @@
     transform: translateX(-50%) !important;
     width: 2px !important;
     height: 24px !important;
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: var(--glass-border) !important;
   }
   
   /* Done step için yeşil çizgi */
@@ -1548,7 +1548,7 @@
     padding: 16px !important;
     margin: 0 -16px !important;
     width: calc(100% + 32px) !important;
-    background: rgba(255, 255, 255, 0.02) !important;
+    background: var(--glass-bg) !important;
     border-radius: 0 !important;
   }
 }
@@ -1592,7 +1592,7 @@
     width: 100% !important;
     margin-top: 8px !important;
     padding-top: 12px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-top: 1px solid var(--glass-border) !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -2173,7 +2173,7 @@
     width: 6px !important;
     height: 6px !important;
     border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.3) !important;
+    background: var(--foreground-muted) !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
     padding: 4px !important;
@@ -2182,7 +2182,7 @@
   .carousel-dot.active {
     width: 24px !important;
     border-radius: 3px !important;
-    background: white !important;
+    background: var(--foreground) !important;
   }
   
   /* Hero slider mobile swipe indicator */
@@ -2194,7 +2194,7 @@
     display: flex !important;
     align-items: center !important;
     gap: 4px !important;
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: var(--foreground-muted) !important;
     font-size: 10px !important;
     animation: fadeInOut 2s ease-in-out infinite !important;
   }
@@ -2254,7 +2254,7 @@
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--glass-border);
     padding-top: 12px !important;
     margin-top: 4px !important;
     gap: 8px !important;

@@ -1890,10 +1890,10 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                             onClick={() => setDescriptionExpanded(!descriptionExpanded)}
                             style={{
                               padding: '12px 32px',
-                              backgroundColor: isDark ? 'var(--border)' : '#1a1a1a',
-                              border: isDark ? '1px solid var(--border-secondary)' : '1px solid #2a2a2a',
+                              backgroundColor: isDark ? 'var(--border)' : 'var(--surface)',
+                              border: '1px solid var(--border-secondary)',
                               borderRadius: '12px',
-                              color: '#ffffff',
+                              color: 'var(--foreground)',
                               fontSize: '13px',
                               fontWeight: '600',
                               cursor: 'pointer',
@@ -1905,14 +1905,14 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                           >
                             {descriptionExpanded ? (
                               <>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <path d="m18 15-6-6-6 6"/>
                                 </svg>
                                 Daralt
                               </>
                             ) : (
                               <>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <path d="m6 9 6 6 6-6"/>
                                 </svg>
                                 Devamını Oku

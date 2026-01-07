@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ArrowRight, Zap, Star, Flame, Gift, Tag, Per
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/Spotlight";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 
 // Veritabanindan gelecek slide yapisi
 interface Slide {
@@ -22,8 +23,36 @@ interface Slide {
   button2Style?: string;
   desktopImage?: string;
   mobileImage?: string;
+  // Overlay - Dark Theme
   overlayColor?: string;
   overlayOpacity?: number;
+  // Overlay - Light Theme
+  overlayColorLight?: string;
+  overlayOpacityLight?: number | null;
+  // Content Colors - Dark Theme
+  titleColor?: string;
+  subtitleColor?: string;
+  badgeBgColor?: string;
+  badgeTextColor?: string;
+  buttonBgColor?: string;
+  buttonTextColor?: string;
+  button2BgColor?: string;
+  button2TextColor?: string;
+  // Content Colors - Light Theme
+  titleColorLight?: string;
+  subtitleColorLight?: string;
+  badgeBgColorLight?: string;
+  badgeTextColorLight?: string;
+  buttonBgColorLight?: string;
+  buttonTextColorLight?: string;
+  button2BgColorLight?: string;
+  button2TextColorLight?: string;
+  // Title Highlight Gradient - Dark Theme
+  titleHighlightFrom?: string;
+  titleHighlightTo?: string;
+  // Title Highlight Gradient - Light Theme
+  titleHighlightFromLight?: string;
+  titleHighlightToLight?: string;
   textAlign?: string;
   theme?: string;
   showOnMobile: boolean;
@@ -52,6 +81,15 @@ export default function HeroSlider() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Mount state for hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  const isDarkMode = mounted ? resolvedTheme === "dark" : true; // Default to dark during SSR
   
   // Touch/swipe state
   const touchStartX = useRef<number>(0);
@@ -190,6 +228,34 @@ export default function HeroSlider() {
 
   const slide = slides[currentSlide];
   const backgroundImage = isMobile ? slide.mobileImage : slide.desktopImage;
+  
+  // Theme-aware color resolution - uses light variant if available and theme is light
+  const getThemedColor = (darkValue?: string, lightValue?: string, defaultDark?: string, defaultLight?: string) => {
+    if (isDarkMode) {
+      return darkValue || defaultDark || undefined;
+    } else {
+      return lightValue || darkValue || defaultLight || defaultDark || undefined;
+    }
+  };
+  
+  // Theme-aware overlay settings
+  const overlayColor = getThemedColor(slide.overlayColor, slide.overlayColorLight, "#000000", "#FFFFFF");
+  const overlayOpacity = isDarkMode 
+    ? (slide.overlayOpacity ?? 50) 
+    : (slide.overlayOpacityLight ?? slide.overlayOpacity ?? 50);
+  
+  // Theme-aware content colors
+  const titleColor = getThemedColor(slide.titleColor, slide.titleColorLight, "#FFFFFF", "#111827");
+  const subtitleColor = getThemedColor(slide.subtitleColor, slide.subtitleColorLight, "rgba(255,255,255,0.7)", "rgba(75,85,99,1)");
+  const badgeBgColor = getThemedColor(slide.badgeBgColor, slide.badgeBgColorLight);
+  const badgeTextColor = getThemedColor(slide.badgeTextColor, slide.badgeTextColorLight);
+  const buttonBgColor = getThemedColor(slide.buttonBgColor, slide.buttonBgColorLight);
+  const buttonTextColor = getThemedColor(slide.buttonTextColor, slide.buttonTextColorLight);
+  const button2BgColor = getThemedColor(slide.button2BgColor, slide.button2BgColorLight);
+  const button2TextColor = getThemedColor(slide.button2TextColor, slide.button2TextColorLight);
+  // Title Highlight Gradient
+  const titleHighlightFrom = getThemedColor(slide.titleHighlightFrom, slide.titleHighlightFromLight, "#10b981", "#10b981");
+  const titleHighlightTo = getThemedColor(slide.titleHighlightTo, slide.titleHighlightToLight, "#06b6d4", "#06b6d4");
 
   // Buton stilini belirle
   const getButtonClasses = (style?: string, isPrimary = true) => {
@@ -244,16 +310,16 @@ export default function HeroSlider() {
             alt={slide.title} 
             fill 
             className="object-cover"
-            style={{ opacity: (100 - (slide.overlayOpacity ?? 50)) / 100 }}
+            style={{ opacity: (100 - overlayOpacity) / 100 }}
             priority
           />
-          {/* Dynamic Overlay */}
-          {slide.overlayColor && (
+          {/* Dynamic Overlay - Theme-aware */}
+          {overlayColor && (
             <div 
               className="absolute inset-0"
               style={{ 
-                backgroundColor: slide.overlayColor,
-                opacity: (slide.overlayOpacity ?? 50) / 100
+                backgroundColor: overlayColor,
+                opacity: overlayOpacity / 100
               }}
             />
           )}
@@ -280,11 +346,21 @@ export default function HeroSlider() {
           {/* ROW 1: Eyebrow Badge */}
           <div className="h-[36px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
             {slide.badge && (
-              <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-glass-bg backdrop-blur-sm border border-glass-border">
-                <span style={{ width: '16px', height: '16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <BadgeIcon name={slide.badgeIcon} className="text-foreground dark:text-white" />
+              <div 
+                className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full backdrop-blur-sm border border-glass-border"
+                style={{ 
+                  backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
+                }}
+              >
+                <span style={{ width: '16px', height: '16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}>
+                  <BadgeIcon name={slide.badgeIcon} className="" />
                 </span>
-                <span className="text-xs md:text-sm font-medium text-foreground dark:text-white whitespace-nowrap" style={{ lineHeight: '16px' }}>{slide.badge}</span>
+                <span 
+                  className="text-xs md:text-sm font-medium whitespace-nowrap" 
+                  style={{ lineHeight: '16px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
+                >
+                  {slide.badge}
+                </span>
               </div>
             )}
           </div>
@@ -294,11 +370,13 @@ export default function HeroSlider() {
 
           {/* ROW 2: Title Line 1 */}
           <div className="animate-fade-in-up opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
-            <span className={cn(
-              "block font-bold leading-[1.15] tracking-tight",
-              slide.theme === "LIGHT" ? "text-gray-900" : "text-white",
-              "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
-            )}>
+            <span 
+              className={cn(
+                "block font-bold leading-[1.15] tracking-tight",
+                "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+              )}
+              style={{ color: titleColor }}
+            >
               {slide.title}
             </span>
           </div>
@@ -309,11 +387,19 @@ export default function HeroSlider() {
           {/* ROW 3: Title Line 2 (Highlight - Gradient) */}
           {slide.titleHighlight && (
             <div className="animate-fade-in-up opacity-0 [animation-delay:500ms] [animation-fill-mode:forwards]">
-              <span className={cn(
-                "block font-bold leading-[1.15] tracking-tight",
-                "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
-                "bg-clip-text text-transparent bg-gradient-to-r from-[var(--fusion-primary)] via-orange-400 to-yellow-400"
-              )}>
+              <span 
+                className={cn(
+                  "block font-bold leading-[1.15] tracking-tight",
+                  "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+                )}
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${titleHighlightFrom}, ${titleHighlightTo})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  color: 'transparent'
+                }}
+              >
                 {slide.titleHighlight}
               </span>
             </div>
@@ -325,11 +411,13 @@ export default function HeroSlider() {
           {/* ROW 4: Description */}
           {slide.subtitle && (
             <div className="animate-fade-in-up opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
-              <p className={cn(
-                "text-sm md:text-lg lg:text-xl max-w-xl md:max-w-2xl leading-relaxed",
-                "line-clamp-2 md:line-clamp-3",
-                slide.theme === "LIGHT" ? "text-gray-600" : "text-white/70"
-              )}>
+              <p 
+                className={cn(
+                  "text-sm md:text-lg lg:text-xl max-w-xl md:max-w-2xl leading-relaxed",
+                  "line-clamp-2 md:line-clamp-3"
+                )}
+                style={{ color: subtitleColor }}
+              >
                 {slide.subtitle}
               </p>
             </div>
@@ -345,6 +433,10 @@ export default function HeroSlider() {
                 <a 
                   href={slide.buttonLink} 
                   className={cn(getButtonClasses(slide.buttonStyle, true), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base")}
+                  style={{ 
+                    backgroundColor: buttonBgColor || undefined,
+                    color: buttonTextColor || undefined,
+                  }}
                 >
                   <span>{slide.buttonText}</span>
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -354,6 +446,10 @@ export default function HeroSlider() {
                 <a 
                   href={slide.button2Link} 
                   className={cn(getButtonClasses(slide.button2Style, false), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base")}
+                  style={{ 
+                    backgroundColor: button2BgColor || undefined,
+                    color: button2TextColor || undefined,
+                  }}
                 >
                   <span>{slide.button2Text}</span>
                 </a>
