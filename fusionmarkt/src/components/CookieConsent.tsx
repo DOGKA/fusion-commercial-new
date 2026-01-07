@@ -156,7 +156,7 @@ export default function CookieConsent() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             onClick={() => setShowBanner(true)}
-            className={`${floatingButtonClass} z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group bg-background-elevated dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#141414] border border-border`}
+            className={`${floatingButtonClass} z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group bg-background-elevated border border-border`}
             aria-label="Çerez Ayarları"
           >
             <Cookie className="w-5 h-5 md:w-6 md:h-6 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
@@ -188,7 +188,7 @@ export default function CookieConsent() {
               className={modalWrapperClass}
             >
               <div
-                className="relative overflow-hidden rounded-2xl border border-border bg-background-elevated dark:bg-gradient-to-br dark:from-[#121212] dark:to-[#0a0a0a] backdrop-blur-2xl shadow-2xl"
+                className="relative overflow-hidden rounded-2xl border border-border bg-background-elevated backdrop-blur-2xl shadow-2xl"
               >
                 {/* Top gradient accent */}
                 <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500" />

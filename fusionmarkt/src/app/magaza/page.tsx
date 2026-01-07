@@ -619,7 +619,7 @@ export default function StorePage() {
   const { canOpen, hasClaim, coupon, openModal, isLoading: mysteryBoxLoading } = useMysteryBox();
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#060606] relative">
+    <div className="min-h-screen bg-background relative">
       {/* Filter Side Panel */}
       <FilterSidePanel
         isOpen={filtersOpen}

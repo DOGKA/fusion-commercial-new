@@ -93,7 +93,7 @@ function CampaignBackground() {
     // İlk render - basit gradient arka plan
     return (
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0f0f0f] dark:to-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background-secondary via-background-tertiary to-background-secondary" />
       </div>
     );
   }
@@ -101,7 +101,7 @@ function CampaignBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
       {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0f0f0f] dark:to-[#0a0a0a]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background-secondary via-background-tertiary to-background-secondary" />
 
       {/* Radial glow - center */}
       <motion.div

@@ -221,7 +221,7 @@ export default function PartnerLogos() {
   return (
     <section className="py-20 lg:py-24 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-500/[0.03] to-background dark:from-black dark:via-emerald-950/5 dark:to-black pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-500/[0.03] to-background pointer-events-none" />
       
       {/* Animated Background Orbs */}
       <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />

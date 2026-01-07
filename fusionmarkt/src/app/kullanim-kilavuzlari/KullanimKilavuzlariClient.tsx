@@ -73,9 +73,9 @@ export default function KullanimKilavuzlariClient() {
   }, {} as Record<string, Product[]>);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#060606]">
+    <div className="min-h-screen bg-background">
       {/* Header Altı - Theme-aware Smooth Geçiş */}
-      <div className="pt-[120px] bg-gradient-to-b from-slate-100 via-slate-200 to-white dark:from-black dark:via-slate-900 dark:to-[#060606]">
+      <div className="pt-[120px] bg-gradient-to-b from-background-secondary via-background-tertiary to-background">
         {/* Kataloglar */}
         <section className="py-10">
           <div className="container mx-auto px-4">
@@ -231,7 +231,7 @@ export default function KullanimKilavuzlariClient() {
       </section>
 
       {/* Alt Bölüm - Theme-aware Smooth Geçiş */}
-      <div className="bg-gradient-to-b from-white via-slate-200 to-slate-100 dark:from-[#060606] dark:via-slate-900 dark:to-black">
+      <div className="bg-gradient-to-b from-background via-background-tertiary to-background-secondary">
         {/* İletişim CTA */}
         <section className="py-6">
           <div className="container mx-auto px-4 text-center">

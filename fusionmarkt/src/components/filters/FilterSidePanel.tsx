@@ -157,8 +157,8 @@ export default function FilterSidePanel({
         ref={panelRef}
         className={cn(
           "absolute right-0 top-0 bottom-0 w-full max-w-[420px]",
-          "bg-white dark:bg-gradient-to-b dark:from-[#0d0d0d] dark:to-[#080808]",
-          "border-l border-gray-200 dark:border-white/[0.06]",
+          "bg-background-elevated",
+          "border-l border-border",
           "flex flex-col shadow-2xl shadow-black/60",
           "animate-in slide-in-from-right duration-300"
         )}
@@ -491,7 +491,7 @@ export default function FilterSidePanel({
         {/* ═══════════════════════════════════════════════════════════════════
             FOOTER - Apply Button
         ═══════════════════════════════════════════════════════════════════ */}
-        <div className="border-t border-border bg-background-secondary dark:bg-gradient-to-t dark:from-black/40 dark:to-transparent">
+        <div className="border-t border-border bg-background-secondary">
           <div className="p-5 space-y-3">
             {/* Apply Button */}
             <button
