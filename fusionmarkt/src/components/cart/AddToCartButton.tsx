@@ -139,7 +139,7 @@ export default function AddToCartButton({
               ? "rgba(16, 185, 129, 0.95)"
               : buttonState === "error"
               ? "rgba(239, 68, 68, 0.95)"
-              : "rgba(255, 255, 255, 0.1)",
+              : "var(--glass-bg)",
           backdropFilter: disabled ? "none" : "blur(16px)",
           WebkitBackdropFilter: disabled ? "none" : "blur(16px)",
           border:
@@ -147,8 +147,8 @@ export default function AddToCartButton({
               ? "1px solid rgba(16, 185, 129, 0.6)"
               : buttonState === "error"
               ? "1px solid rgba(239, 68, 68, 0.6)"
-              : "1px solid rgba(255, 255, 255, 0.15)",
-          color: "white",
+              : "1px solid var(--glass-border)",
+          color: "var(--foreground)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -226,15 +226,20 @@ export default function AddToCartButton({
             ? "rgba(16, 185, 129, 0.15)"
             : buttonState === "error"
             ? "rgba(239, 68, 68, 0.15)"
-            : "rgba(255, 255, 255, 0.08)",
+            : "var(--glass-bg)",
         border:
           buttonState === "success"
             ? "1px solid rgba(16, 185, 129, 0.4)"
             : buttonState === "error"
             ? "1px solid rgba(239, 68, 68, 0.4)"
-            : "1px solid rgba(255, 255, 255, 0.12)",
+            : "1px solid var(--glass-border)",
         borderRadius: SQUIRCLE.md, // 14px squircle
-        color: buttonState === "success" ? "#34d399" : buttonState === "error" ? "#f87171" : "white",
+        color:
+          buttonState === "success"
+            ? "#34d399"
+            : buttonState === "error"
+            ? "#f87171"
+            : "var(--foreground)",
         fontSize: config.text.fontSize,
         fontWeight: 600,
         cursor: disabled ? "not-allowed" : "pointer",

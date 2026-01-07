@@ -145,6 +145,10 @@ export default function EditProductPage() {
   const [skuPrefix, setSkuPrefix] = useState("");
   const [variantImageSelect, setVariantImageSelect] = useState<string | null>(null);
   
+  // Gallery drag & drop state
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
+  
   // Bağlantılı Ürünler State'leri
   const [frequentlyBoughtTogether, setFrequentlyBoughtTogether] = useState<string[]>([]);
   const [customersAlsoViewed, setCustomersAlsoViewed] = useState<string[]>([]);
@@ -706,6 +710,47 @@ export default function EditProductPage() {
     } else if (thumbnail === imageUrl) {
       setThumbnail("");
     }
+  };
+
+  // Gallery drag & drop handlers
+  const handleGalleryDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedImageIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', ''); // Required for Firefox
+  };
+
+  const handleGalleryDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (draggedImageIndex !== index) {
+      setDragOverImageIndex(index);
+    }
+  };
+
+  const handleGalleryDragLeave = () => {
+    setDragOverImageIndex(null);
+  };
+
+  const handleGalleryDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedImageIndex === null || draggedImageIndex === dropIndex) {
+      setDraggedImageIndex(null);
+      setDragOverImageIndex(null);
+      return;
+    }
+
+    const newImages = [...productImages];
+    const draggedImage = newImages[draggedImageIndex];
+    newImages.splice(draggedImageIndex, 1);
+    newImages.splice(dropIndex, 0, draggedImage);
+    setProductImages(newImages);
+    setDraggedImageIndex(null);
+    setDragOverImageIndex(null);
+  };
+
+  const handleGalleryDragEnd = () => {
+    setDraggedImageIndex(null);
+    setDragOverImageIndex(null);
   };
 
   if (loading) {
@@ -1923,11 +1968,40 @@ export default function EditProductPage() {
 
           {/* Ürün Galerisi */}
           <div className="rounded-xl border border-stroke bg-white p-5 dark:border-dark-3 dark:bg-gray-dark">
-            <h3 className="mb-4 font-semibold text-dark dark:text-white">Ürün Galerisi ({productImages.length} görsel)</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-dark dark:text-white">Ürün Galerisi ({productImages.length} görsel)</h3>
+              {productImages.length > 1 && (
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                  Sıralamak için sürükleyin
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-3 gap-2 mb-3">
               {productImages.length > 0 ? productImages.map((img, i) => (
-                <div key={i} className={`group relative aspect-square rounded-lg overflow-hidden border-2 ${img === thumbnail ? 'border-primary' : 'border-stroke dark:border-dark-3'}`}>
-                  <Image src={img} alt={`${productName} - ${i + 1}`} fill className="object-cover" unoptimized />
+                <div 
+                  key={img}
+                  draggable
+                  onDragStart={(e) => handleGalleryDragStart(e, i)}
+                  onDragOver={(e) => handleGalleryDragOver(e, i)}
+                  onDragLeave={handleGalleryDragLeave}
+                  onDrop={(e) => handleGalleryDrop(e, i)}
+                  onDragEnd={handleGalleryDragEnd}
+                  className={`group relative aspect-square rounded-lg overflow-hidden border-2 cursor-grab active:cursor-grabbing transition-all duration-200 ${
+                    img === thumbnail 
+                      ? 'border-primary' 
+                      : dragOverImageIndex === i 
+                        ? 'border-primary border-dashed scale-105' 
+                        : 'border-stroke dark:border-dark-3'
+                  } ${draggedImageIndex === i ? 'opacity-50 scale-95' : ''}`}
+                >
+                  <Image src={img} alt={`${productName} - ${i + 1}`} fill className="object-cover pointer-events-none" unoptimized />
+                  {/* Sıra numarası */}
+                  <div className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white text-[10px] font-medium rounded flex items-center justify-center">
+                    {i + 1}
+                  </div>
                   {img === thumbnail && (
                     <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-primary text-white text-[10px] rounded">Ana</div>
                   )}
@@ -1935,7 +2009,7 @@ export default function EditProductPage() {
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                     {img !== thumbnail && (
                       <button
-                        onClick={() => selectAsThumbnail(img)}
+                        onClick={(e) => { e.stopPropagation(); selectAsThumbnail(img); }}
                         className="p-1.5 bg-white rounded-lg hover:bg-primary hover:text-white transition-colors"
                         title="Ana görsel yap"
                       >
@@ -1945,7 +2019,7 @@ export default function EditProductPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => removeFromGallery(img)}
+                      onClick={(e) => { e.stopPropagation(); removeFromGallery(img); }}
                       className="p-1.5 bg-white rounded-lg hover:bg-red-500 hover:text-white transition-colors"
                       title="Sil"
                     >

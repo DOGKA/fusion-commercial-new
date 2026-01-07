@@ -156,12 +156,7 @@ export default function CookieConsent() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             onClick={() => setShowBanner(true)}
-            className={`${floatingButtonClass} z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group`}
-            style={{
-              background: "linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            }}
+            className={`${floatingButtonClass} z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group bg-background-elevated dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#141414] border border-border`}
             aria-label="Çerez Ayarları"
           >
             <Cookie className="w-5 h-5 md:w-6 md:h-6 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
@@ -175,12 +170,12 @@ export default function CookieConsent() {
       <AnimatePresence>
         {showBanner && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop - sadece koyu overlay, blur yok */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+              className="fixed inset-0 bg-black/40 z-[9998]"
               onClick={() => hasConsent && setShowBanner(false)}
             />
 
@@ -193,13 +188,7 @@ export default function CookieConsent() {
               className={modalWrapperClass}
             >
               <div
-                className="relative overflow-hidden rounded-2xl border border-white/10"
-                style={{
-                  background: "linear-gradient(145deg, rgba(18, 18, 18, 0.98) 0%, rgba(10, 10, 10, 0.99) 100%)",
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
-                }}
+                className="relative overflow-hidden rounded-2xl border border-border bg-background-elevated dark:bg-gradient-to-br dark:from-[#121212] dark:to-[#0a0a0a] backdrop-blur-2xl shadow-2xl"
               >
                 {/* Top gradient accent */}
                 <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500" />

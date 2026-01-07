@@ -107,8 +107,8 @@ function GlassBanner({
         <div 
           className="relative rounded-xl backdrop-blur-md px-4 py-2.5 flex items-center gap-3"
           style={{
-            background: `linear-gradient(90deg, ${themeColor}12 0%, ${themeColor}08 100%)`,
-            border: `1px solid ${themeColor}25`,
+            background: `linear-gradient(90deg, ${themeColor}35 0%, ${themeColor}20 100%)`,
+            border: `1px solid ${themeColor}50`,
           }}
         >
           {/* Shimmer Effect - Sadece Banner İçinde */}
@@ -116,7 +116,7 @@ function GlassBanner({
             <div 
               className="absolute inset-0 opacity-40"
               style={{
-                background: `linear-gradient(90deg, transparent 0%, ${themeColor}40 50%, transparent 100%)`,
+                background: `linear-gradient(90deg, transparent 0%, ${themeColor}60 50%, transparent 100%)`,
                 animation: 'banner-shimmer 2.5s ease-in-out infinite',
               }}
             />
@@ -125,19 +125,19 @@ function GlassBanner({
           {/* Mağaza Link - Sol */}
           <Link
             href="/magaza"
-            className="relative z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="relative z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-foreground/[0.05] transition-colors"
           >
-            <Store className="w-4 h-4 text-white/80" />
-            <span className="text-white/90 text-sm font-medium">Mağaza</span>
+            <Store className="w-4 h-4 text-foreground-secondary" />
+            <span className="text-foreground text-sm font-medium">Mağaza</span>
           </Link>
 
           {/* Filtre Button */}
           <button
             onClick={onFilterClick}
-            className="relative z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="relative z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-foreground/[0.05] transition-colors"
           >
-            <SlidersHorizontal className="w-4 h-4 text-white/80" />
-            <span className="text-white/90 text-sm font-medium">Filtre</span>
+            <SlidersHorizontal className="w-4 h-4 text-foreground-secondary" />
+            <span className="text-foreground text-sm font-medium">Filtre</span>
             {activeFilterCount > 0 && (
               <span 
                 className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white rounded-full"
@@ -158,8 +158,8 @@ function GlassBanner({
               isListening ? "bg-red-500/20 animate-pulse" : "hover:bg-white/5"
             )}
           >
-            <Mic className="w-4 h-4 text-white/80" />
-            <span className="text-white/90 text-sm font-medium hidden sm:inline">
+            <Mic className="w-4 h-4 text-foreground-secondary" />
+            <span className="text-foreground text-sm font-medium hidden sm:inline">
               {isListening ? "Okuyor..." : "Sesli Oku"}
             </span>
           </button>
@@ -171,8 +171,8 @@ function GlassBanner({
               onClick={() => setSortOpen(!sortOpen)}
               className="relative flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <span className="text-white/90 text-sm font-medium">Sırala</span>
-              <ChevronDown className={cn("w-4 h-4 text-white/80 transition-transform duration-200", sortOpen && "rotate-180")} />
+              <span className="text-foreground text-sm font-medium">Sırala</span>
+              <ChevronDown className={cn("w-4 h-4 text-foreground-secondary transition-transform duration-200", sortOpen && "rotate-180")} />
             </button>
 
             {/* Portal Dropdown */}
@@ -185,13 +185,14 @@ function GlassBanner({
                 />
                 {/* Dropdown Menu */}
                 <div 
-                  className="fixed z-[9999] w-56 rounded-2xl border border-white/[0.12] shadow-2xl overflow-hidden"
+                  className="fixed z-[9999] w-56 rounded-2xl shadow-2xl overflow-hidden"
                   style={{ 
                     top: dropdownPos.top,
                     right: dropdownPos.right,
-                    background: 'rgba(18, 18, 18, 0.85)',
+                    background: 'var(--background)',
                     backdropFilter: 'blur(20px)',
                     WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid var(--border)',
                   }}
                 >
                   {SORT_OPTIONS.map((option) => (
@@ -204,8 +205,8 @@ function GlassBanner({
                       className={cn(
                         "w-full px-4 py-3 text-left text-sm transition-all duration-150",
                         sortBy === option.value
-                          ? "bg-white/[0.12] text-white font-medium"
-                          : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                          ? "bg-black/[0.05] dark:bg-white/[0.08] text-foreground font-medium"
+                          : "text-foreground-secondary hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:text-foreground"
                       )}
                     >
                       {option.label}
@@ -754,13 +755,13 @@ export default function CategoryPage() {
   // Loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div
             className="w-16 h-16 rounded-full border-2 border-t-transparent animate-spin"
             style={{ borderColor: `${themeColor}40`, borderTopColor: themeColor }}
           />
-          <span className="text-white/60">Yükleniyor...</span>
+          <span className="text-foreground-muted">Yükleniyor...</span>
         </div>
       </div>
     );
@@ -769,11 +770,11 @@ export default function CategoryPage() {
   // Not found
   if (!category) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-6 px-4">
-        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center">
-          <Package className="w-12 h-12 text-white/30" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 px-4">
+        <div className="w-24 h-24 rounded-full bg-foreground/5 flex items-center justify-center">
+          <Package className="w-12 h-12 text-foreground-muted" />
         </div>
-        <h1 className="text-2xl font-bold text-white">Kategori Bulunamadı</h1>
+        <h1 className="text-2xl font-bold text-foreground">Kategori Bulunamadı</h1>
         <Link href="/magaza" className="px-6 py-3 rounded-xl bg-primary text-white font-medium">
           Mağazaya Git
         </Link>
@@ -782,7 +783,7 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-background">
       {/* ============================================ */}
       {/* GLASSMORPHISM BANNER - Shimmer sadece içinde */}
       {/* ============================================ */}
@@ -902,11 +903,11 @@ export default function CategoryPage() {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/5 flex items-center justify-center mb-4 sm:mb-6">
-              <Package className="w-8 h-8 sm:w-10 sm:h-10 text-white/30" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-foreground/5 flex items-center justify-center mb-4 sm:mb-6">
+              <Package className="w-8 h-8 sm:w-10 sm:h-10 text-foreground-muted" />
             </div>
-            <h2 className="text-lg sm:text-xl font-semibold text-white mb-2">Bu kategoride ürün bulunamadı</h2>
-            <p className="text-white/60 mb-6 text-sm sm:text-base">Henüz bu kategoriye ürün eklenmemiş.</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Bu kategoride ürün bulunamadı</h2>
+            <p className="text-foreground-muted mb-6 text-sm sm:text-base">Henüz bu kategoriye ürün eklenmemiş.</p>
             <Link href="/magaza" className="px-6 py-3 rounded-xl bg-primary text-white font-medium">
               Tüm Ürünleri Gör
             </Link>
@@ -925,7 +926,7 @@ export default function CategoryPage() {
             disabled={!pagination.hasPrevPage}
             className={cn(
               "flex items-center gap-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border transition-colors text-sm",
-              pagination.hasPrevPage ? "border-white/10 text-white hover:bg-white/5" : "border-white/5 text-white/30 cursor-not-allowed"
+              pagination.hasPrevPage ? "border-border text-foreground hover:bg-foreground/5" : "border-border text-foreground-disabled cursor-not-allowed"
             )}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -940,13 +941,13 @@ export default function CategoryPage() {
                 const showDots = prev && page - prev > 1;
                 return (
                   <div key={page} className="flex items-center gap-1">
-                    {showDots && <span className="px-1 sm:px-2 text-white/30 text-sm">...</span>}
+                    {showDots && <span className="px-1 sm:px-2 text-foreground-muted text-sm">...</span>}
                     <button
                       type="button"
                       onClick={() => handlePageChange(page)}
                       className={cn(
                         "w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-medium transition-colors text-sm",
-                        page === currentPage ? "text-white" : "text-white/60 hover:bg-white/5"
+                        page === currentPage ? "text-foreground" : "text-foreground-secondary hover:bg-foreground/5"
                       )}
                       style={page === currentPage ? { backgroundColor: themeColor } : {}}
                     >
@@ -963,7 +964,7 @@ export default function CategoryPage() {
             disabled={!pagination.hasNextPage}
             className={cn(
               "flex items-center gap-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border transition-colors text-sm",
-              pagination.hasNextPage ? "border-white/10 text-white hover:bg-white/5" : "border-white/5 text-white/30 cursor-not-allowed"
+              pagination.hasNextPage ? "border-border text-foreground hover:bg-foreground/5" : "border-border text-foreground-disabled cursor-not-allowed"
             )}
           >
             <span className="hidden sm:inline">Sonraki</span>
@@ -978,7 +979,7 @@ export default function CategoryPage() {
       <div className="relative z-10 flex justify-center pb-12 sm:pb-16 px-4">
         <Link
           href="/magaza"
-          className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border border-white/10 text-white/80 hover:bg-white/5 transition-colors text-sm sm:text-base"
+          className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border border-border text-foreground-secondary hover:bg-foreground/5 transition-colors text-sm sm:text-base"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           Mağazaya Dön

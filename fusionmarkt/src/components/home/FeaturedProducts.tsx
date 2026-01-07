@@ -82,10 +82,10 @@ export default function FeaturedProducts() {
         {/* Header */}
         <div className="flex items-end justify-between gap-3 mb-3 lg:mb-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-3">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-foreground/30 mb-3">
               Seçili Koleksiyon
             </p>
-            <h2 className="text-3xl lg:text-4xl font-semibold text-white tracking-tight">
+            <h2 className="text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
               Öne Çıkan Ürünler
             </h2>
           </div>
@@ -93,14 +93,14 @@ export default function FeaturedProducts() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => scroll("left")}
-              className="w-10 h-10 rounded-full bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-white/40 transition-all duration-200 [&:hover]:text-white [&:hover]:bg-white/10 [&:hover]:border-white/20"
+              className="w-10 h-10 rounded-full bg-foreground/[0.03] border border-border flex items-center justify-center text-foreground/40 transition-all duration-200 [&:hover]:text-foreground [&:hover]:bg-foreground/10 [&:hover]:border-foreground/20"
               aria-label="Önceki"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="w-10 h-10 rounded-full bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-white/40 transition-all duration-200 [&:hover]:text-white [&:hover]:bg-white/10 [&:hover]:border-white/20"
+              className="w-10 h-10 rounded-full bg-foreground/[0.03] border border-border flex items-center justify-center text-foreground/40 transition-all duration-200 [&:hover]:text-foreground [&:hover]:bg-foreground/10 [&:hover]:border-foreground/20"
               aria-label="Sonraki"
             >
               <ChevronRight className="w-5 h-5" />

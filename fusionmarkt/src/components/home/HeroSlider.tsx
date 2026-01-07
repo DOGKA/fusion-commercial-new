@@ -170,8 +170,8 @@ export default function HeroSlider() {
   // Loading state
   if (loading) {
     return (
-      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground"></div>
       </section>
     );
   }
@@ -179,9 +179,9 @@ export default function HeroSlider() {
   // Slider yoksa
   if (slides.length === 0) {
     return (
-      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-black flex items-center justify-center">
+      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background flex items-center justify-center">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
-        <div className="text-center text-white/50">
+        <div className="text-center text-foreground-muted">
           <p>Slider bulunamadi</p>
         </div>
       </section>
@@ -199,15 +199,15 @@ export default function HeroSlider() {
       case "PRIMARY":
         return cn(base, "bg-white text-black hover:bg-gray-100 shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20 hover:scale-105");
       case "SECONDARY":
-        return cn(base, "bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 border border-white/10");
+        return cn(base, "bg-glass-bg text-foreground dark:text-white backdrop-blur-sm hover:bg-glass-bg-hover border border-glass-border");
       case "OUTLINE":
-        return cn(base, "bg-transparent text-white border border-white/30 hover:bg-white/10");
+        return cn(base, "bg-transparent text-foreground dark:text-white border border-border hover:bg-foreground/[0.05] dark:hover:bg-white/10");
       case "GHOST":
-        return cn(base, "bg-transparent text-white/80 hover:text-white");
+        return cn(base, "bg-transparent text-foreground-secondary dark:text-white/80 hover:text-foreground dark:hover:text-white");
       default:
         return isPrimary 
           ? cn(base, "bg-white text-black hover:bg-gray-100 shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20 hover:scale-105")
-          : cn(base, "bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 border border-white/10");
+          : cn(base, "bg-glass-bg text-foreground dark:text-white backdrop-blur-sm hover:bg-glass-bg-hover border border-glass-border");
     }
   };
 
@@ -226,7 +226,7 @@ export default function HeroSlider() {
   return (
     <section
       ref={sliderRef}
-      className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-black touch-pan-y"
+      className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background dark:bg-black touch-pan-y"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
       onTouchStart={handleTouchStart}
@@ -264,7 +264,7 @@ export default function HeroSlider() {
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
       
       {/* Radial Gradient Overlay */}
-      <div className="absolute inset-0 bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+      <div className="absolute inset-0 bg-foreground [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] opacity-[0.12] dark:opacity-100" />
       
       {/* Animated Gradient Orbs */}
       <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
@@ -280,11 +280,11 @@ export default function HeroSlider() {
           {/* ROW 1: Eyebrow Badge */}
           <div className="h-[36px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
             {slide.badge && (
-              <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+              <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-glass-bg backdrop-blur-sm border border-glass-border">
                 <span style={{ width: '16px', height: '16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <BadgeIcon name={slide.badgeIcon} className="text-white" />
+                  <BadgeIcon name={slide.badgeIcon} className="text-foreground dark:text-white" />
                 </span>
-                <span className="text-xs md:text-sm font-medium text-white whitespace-nowrap" style={{ lineHeight: '16px' }}>{slide.badge}</span>
+                <span className="text-xs md:text-sm font-medium text-foreground dark:text-white whitespace-nowrap" style={{ lineHeight: '16px' }}>{slide.badge}</span>
               </div>
             )}
           </div>
@@ -370,9 +370,9 @@ export default function HeroSlider() {
             onClick={prevSlide}
             disabled={isTransitioning}
             className={cn(
-              "pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/5 backdrop-blur-md border border-white/10",
-              "flex items-center justify-center text-white/70 hover:text-white",
-              "hover:bg-white/10 transition-all duration-300",
+              "pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-glass-bg backdrop-blur-md border border-glass-border",
+              "flex items-center justify-center text-foreground-secondary dark:text-white/70 hover:text-foreground dark:hover:text-white",
+              "hover:bg-glass-bg-hover transition-all duration-300",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             aria-label="Onceki"
@@ -383,9 +383,9 @@ export default function HeroSlider() {
             onClick={nextSlide}
             disabled={isTransitioning}
             className={cn(
-              "pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/5 backdrop-blur-md border border-white/10",
-              "flex items-center justify-center text-white/70 hover:text-white",
-              "hover:bg-white/10 transition-all duration-300",
+              "pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-glass-bg backdrop-blur-md border border-glass-border",
+              "flex items-center justify-center text-foreground-secondary dark:text-white/70 hover:text-foreground dark:hover:text-white",
+              "hover:bg-glass-bg-hover transition-all duration-300",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             aria-label="Sonraki"

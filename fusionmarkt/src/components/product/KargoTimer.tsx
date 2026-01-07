@@ -142,13 +142,13 @@ export function KargoTimer(props: KargoTimerProps) {
           alignItems: 'center',
           gap: '8px',
           padding: '8px 14px',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          backgroundColor: 'var(--glass-bg)',
+          border: '1px solid var(--border)',
           borderRadius: SQUIRCLE.md,
         }}
       >
-        <Truck size={14} style={{ color: 'rgba(255,255,255,0.4)' }} />
-        <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.4)' }}>
+        <Truck size={14} style={{ color: 'var(--foreground-muted)' }} />
+        <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--foreground-muted)' }}>
           Yakında stoklarda
         </span>
       </div>
@@ -161,7 +161,7 @@ export function KargoTimer(props: KargoTimerProps) {
   if (isCheckout) {
     return (
       <div className={className} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: 'white' }}>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
           <span style={{ fontVariantNumeric: 'tabular-nums' }}>
             {timer.hours}s {timer.minutes}d {timer.seconds}sn
           </span>
@@ -183,8 +183,8 @@ export function KargoTimer(props: KargoTimerProps) {
       className={className}
       style={{
         padding: '10px 14px',
-        backgroundColor: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        backgroundColor: 'var(--glass-bg)',
+        border: '1px solid var(--border)',
         borderRadius: SQUIRCLE.md,
       }}
     >
@@ -201,7 +201,7 @@ export function KargoTimer(props: KargoTimerProps) {
           <span style={{ 
             fontSize: '11px', 
             fontWeight: 700, 
-            color: 'white',
+            color: 'var(--foreground)',
             letterSpacing: '0.02em',
           }}>
             HIZLI TESLİMAT
@@ -211,12 +211,12 @@ export function KargoTimer(props: KargoTimerProps) {
           <span style={{ 
             fontSize: '11px', 
             fontWeight: 600, 
-            color: 'white',
+            color: 'var(--foreground)',
             fontVariantNumeric: 'tabular-nums',
           }}>
             {String(timer.hours).padStart(2, '0')}:{String(timer.minutes).padStart(2, '0')}:{String(timer.seconds).padStart(2, '0')}
           </span>
-          <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+          <span style={{ color: 'var(--foreground-muted)' }}>•</span>
           <span style={{ 
             fontSize: '11px', 
             fontWeight: 600, 

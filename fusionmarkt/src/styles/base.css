@@ -23,6 +23,8 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-size: 16px;
+  /* Smooth theme transition */
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 body {
@@ -34,6 +36,13 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   min-height: 100dvh;
+  /* Smooth theme transition */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Theme transition for all major elements */
+*, *::before, *::after {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -50,7 +59,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   SCROLLBAR - Minimal Apple Style
+   SCROLLBAR - Minimal Apple Style (Theme-aware)
 ───────────────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 10px;
@@ -62,14 +71,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--foreground-disabled);
   border-radius: var(--radius-full);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--foreground-muted);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
@@ -81,7 +90,7 @@ body {
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: var(--foreground-disabled) transparent;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

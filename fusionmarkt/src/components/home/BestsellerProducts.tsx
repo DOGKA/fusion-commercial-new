@@ -92,7 +92,7 @@ export default function BestsellerProducts() {
                 Trend Ürünler
               </p>
             </div>
-            <h2 className="text-3xl lg:text-4xl font-semibold text-white tracking-tight">
+            <h2 className="text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
               Çok Satanlar
             </h2>
           </div>

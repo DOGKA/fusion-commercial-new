@@ -117,7 +117,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
       <Link href={`/urun/${slug}`} className="block" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* IMAGE AREA */}
         <div 
-          className="relative w-full bg-[#0a0a0a] overflow-hidden"
+          className="relative w-full bg-background overflow-hidden border border-border border-b-0"
           style={{ 
             paddingBottom: '100%',
             borderTopLeftRadius: SQUIRCLE.xl, 
@@ -299,7 +299,11 @@ export default function BundleProductCard({ bundle, className, priority = false 
 
         {/* CONTENT AREA */}
         <div 
-          className="flex-1 flex flex-col p-3 pt-3 bg-[#131313]/90 backdrop-blur-sm border border-white/[0.06] border-t-0 hover:border-white/10 transition-all duration-300"
+          className={cn(
+            "flex-1 flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
+            "bg-surface/90 dark:bg-[rgba(19,19,19,0.90)]",
+            "hover:border-border-hover"
+          )}
           style={{ 
             borderBottomLeftRadius: SQUIRCLE.xl, 
             borderBottomRightRadius: SQUIRCLE.xl 
@@ -315,7 +319,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
               style={{ 
                 fontSize: '20px', 
                 fontWeight: 500, 
-                color: 'white', 
+                color: 'var(--foreground)', 
                 lineHeight: 1.4, 
                 minHeight: '36px',
                 overflow: 'hidden',
@@ -340,7 +344,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                       style={{
                         padding: '4px 6px',
                         borderRadius: SQUIRCLE.sm,
-                        backgroundColor: 'rgba(255,255,255,0.02)',
+                        backgroundColor: 'var(--glass-bg)',
                         border: '1px solid rgba(16, 185, 129, 0.35)',
                         display: 'grid',
                         gridTemplateColumns: '1fr auto',
@@ -351,7 +355,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                     >
                       <span style={{ 
                         fontSize: '10px', 
-                        color: 'rgba(255,255,255,0.65)',
+                        color: 'var(--foreground-secondary)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -362,7 +366,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                       </span>
                       <span style={{ 
                         fontSize: '10px', 
-                        color: 'rgba(255,255,255,0.4)', 
+                        color: 'var(--foreground-muted)', 
                         fontWeight: 500,
                         textAlign: 'right',
                         lineHeight: '16px',
@@ -420,7 +424,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                       size={11} 
                       className={star <= Math.round(ratingAverage || 0) 
                         ? "fill-amber-400 text-amber-400" 
-                        : "fill-transparent text-white/20"
+                        : "fill-transparent text-foreground-disabled"
                       }
                     />
                   ))}
@@ -461,12 +465,12 @@ export default function BundleProductCard({ bundle, className, priority = false 
           </div>
 
           {/* PRICE SECTION - ProductCard ile aynı düzen */}
-          <div className="pt-2 mt-1 border-t border-white/[0.08]">
+            <div className="pt-2 mt-1 border-t border-border/60">
             {/* Eski fiyat & Kazanç */}
             <div className="h-[20px]">
               {totalValue && totalValue > price ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] text-white/40 line-through font-medium">
+                  <span className="text-[13px] text-foreground-muted line-through font-medium">
                     {formatPrice(totalValue)}
                   </span>
                   <span className="text-[11px] text-emerald-400 font-semibold">
@@ -478,7 +482,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
 
             {/* Güncel fiyat & Sepete Ekle - ProductCard ile AYNI konumda */}
             <div className="h-[48px] flex items-center justify-between gap-3">
-              <span className="text-xl font-bold text-white">
+              <span className="text-xl font-bold text-foreground">
                 {formatPrice(price)}
               </span>
 

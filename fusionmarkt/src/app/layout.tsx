@@ -14,6 +14,7 @@ import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { JsonLd } from "@/components/seo";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { 
   siteConfig, 
   generateOrganizationSchema, 
@@ -116,35 +117,55 @@ export default function RootLayout({
   const webSiteSchema = generateWebSiteSchema();
 
   return (
-    <html lang="tr" className="dark" data-scroll-behavior="smooth">
+    <html lang="tr" suppressHydrationWarning data-scroll-behavior="smooth" className="dark">
       <head>
+        {/* Blocking script to prevent flash of wrong theme (FOWT) */}
+        {/* Sets theme BEFORE React hydrates - runs synchronously */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('fusionmarkt-theme') || 'dark';
+                  document.documentElement.classList.remove('light', 'dark');
+                  document.documentElement.classList.add(theme);
+                  document.documentElement.style.colorScheme = theme;
+                } catch (e) {
+                  document.documentElement.classList.add('dark');
+                }
+              })();
+            `,
+          }}
+        />
         {/* External help/manual resource */}
         <link rel="help" href={siteConfig.resources.appManual.url} title={siteConfig.resources.appManual.name} />
         {/* Global JSON-LD Structured Data */}
         <JsonLd data={[organizationSchema, webSiteSchema]} />
       </head>
-      <body className={`${inter.variable} antialiased`}>
-        <CookieConsentProvider>
-          {/* Google Analytics, GTM, FB Pixel - API'den dinamik + Consent Mode v2 */}
-          <GoogleAnalytics />
-          
-          <AuthProvider>
-            <FavoritesProvider>
-              <CartProvider>
-                <MysteryBoxProvider>
-                  <Header />
-                  <main className="min-h-screen">
-                    {children}
-                  </main>
-                  <Footer />
-                  <MiniCart />
-                  <MysteryBoxModal />
-                  <CookieConsent />
-                </MysteryBoxProvider>
-              </CartProvider>
-            </FavoritesProvider>
-          </AuthProvider>
-        </CookieConsentProvider>
+      <body className={`${inter.variable} antialiased bg-background text-foreground`}>
+        <ThemeProvider>
+          <CookieConsentProvider>
+            {/* Google Analytics, GTM, FB Pixel - API'den dinamik + Consent Mode v2 */}
+            <GoogleAnalytics />
+            
+            <AuthProvider>
+              <FavoritesProvider>
+                <CartProvider>
+                  <MysteryBoxProvider>
+                    <Header />
+                    <main className="min-h-screen">
+                      {children}
+                    </main>
+                    <Footer />
+                    <MiniCart />
+                    <MysteryBoxModal />
+                    <CookieConsent />
+                  </MysteryBoxProvider>
+                </CartProvider>
+              </FavoritesProvider>
+            </AuthProvider>
+          </CookieConsentProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

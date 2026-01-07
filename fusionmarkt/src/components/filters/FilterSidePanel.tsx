@@ -157,8 +157,8 @@ export default function FilterSidePanel({
         ref={panelRef}
         className={cn(
           "absolute right-0 top-0 bottom-0 w-full max-w-[420px]",
-          "bg-gradient-to-b from-[#0d0d0d] to-[#080808]",
-          "border-l border-white/[0.06]",
+          "bg-white dark:bg-gradient-to-b dark:from-[#0d0d0d] dark:to-[#080808]",
+          "border-l border-gray-200 dark:border-white/[0.06]",
           "flex flex-col shadow-2xl shadow-black/60",
           "animate-in slide-in-from-right duration-300"
         )}
@@ -209,7 +209,7 @@ export default function FilterSidePanel({
               {/* Badge */}
               {totalSelectedCount > 0 && (
                 <span
-                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg ring-2 ring-[#0d0d0d]"
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg ring-2 ring-background"
                   style={{
                     background: `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}cc 100%)`,
                     boxShadow: `0 4px 12px ${themeColor}40`,
@@ -222,16 +222,16 @@ export default function FilterSidePanel({
 
             {/* Title Block */}
             <div className="min-w-0">
-              <h2 className="text-[20px] font-semibold text-white tracking-tight">
+              <h2 className="text-[20px] font-semibold text-foreground tracking-tight">
                 Filtreler
               </h2>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[13px] text-white/35 font-medium">
+                <span className="text-[13px] text-foreground-muted font-medium">
                   {categoryName}
                 </span>
                 {totalSelectedCount > 0 && (
                   <>
-                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                    <span className="w-1 h-1 rounded-full bg-foreground-muted" />
                     <span
                       className="text-[14px] font-semibold tracking-tight"
                       style={{ color: themeColor }}
@@ -246,7 +246,7 @@ export default function FilterSidePanel({
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.05] rounded-lg transition-all duration-200"
+              className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover rounded-lg transition-all duration-200"
               aria-label="Kapat"
             >
               <X className="w-[18px] h-[18px]" strokeWidth={1.5} />
@@ -261,7 +261,7 @@ export default function FilterSidePanel({
             <div className="px-4 pt-3 pb-3">
               <button
                 onClick={onClearAll}
-                className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-white/50 hover:text-white hover:bg-white/[0.04] rounded-lg transition-all"
+                className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-foreground-tertiary hover:text-foreground hover:bg-glass-bg-hover rounded-lg transition-all"
               >
                 <RotateCcw size={14} />
                 Tümünü Temizle
@@ -279,13 +279,13 @@ export default function FilterSidePanel({
               <div
                 className="w-20 h-20 border flex items-center justify-center mb-5"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
-                  borderColor: "rgba(255,255,255,0.06)",
+                  background: "var(--glass-bg)",
+                  borderColor: "var(--border)",
                   borderRadius: "24px",
                 }}
               >
                 <svg
-                  className="w-10 h-10 text-white/15"
+                  className="w-10 h-10 text-foreground-disabled"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -298,7 +298,7 @@ export default function FilterSidePanel({
                   />
                 </svg>
               </div>
-              <p className="text-white/60 text-base font-medium">
+              <p className="text-foreground-secondary text-base font-medium">
                 Bu kategori için filtre tanımlanmamış
               </p>
             </div>
@@ -310,18 +310,18 @@ export default function FilterSidePanel({
               return (
                 <div
                   key={group.id}
-                  className="bg-white/[0.02] border border-white/[0.05] rounded-xl overflow-hidden"
+                  className="bg-glass-bg border border-border rounded-xl overflow-hidden"
                 >
                   {/* Group Header */}
                   <button
                     onClick={() => group.isCollapsible !== false && toggleGroup(group.id)}
                     className={cn(
                       "w-full flex items-center justify-between p-4 text-left transition-colors",
-                      group.isCollapsible !== false && "hover:bg-white/[0.02] cursor-pointer"
+                      group.isCollapsible !== false && "hover:bg-glass-bg-hover cursor-pointer"
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[15px] font-medium text-white">
+                      <span className="text-[15px] font-medium text-foreground">
                         {group.name}
                       </span>
                       {selectedInGroup.length > 0 && (
@@ -338,9 +338,9 @@ export default function FilterSidePanel({
                     </div>
                     {group.isCollapsible !== false && (
                       isCollapsed ? (
-                        <ChevronDown className="w-4 h-4 text-white/40" />
+                        <ChevronDown className="w-4 h-4 text-foreground-muted" />
                       ) : (
-                        <ChevronUp className="w-4 h-4 text-white/40" />
+                        <ChevronUp className="w-4 h-4 text-foreground-muted" />
                       )
                     )}
                   </button>
@@ -362,8 +362,8 @@ export default function FilterSidePanel({
                                 className={cn(
                                   "relative w-9 h-9 rounded-full border-2 transition-all hover:scale-110",
                                   isSelected
-                                    ? "ring-2 ring-offset-2 ring-offset-[#0d0d0d]"
-                                    : "border-white/20"
+                                    ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-[#0d0d0d]"
+                                    : "border-border"
                                 )}
                                 style={{
                                   backgroundColor: opt.color || "#ccc",
@@ -403,9 +403,9 @@ export default function FilterSidePanel({
                                   rangeValues[group.id]?.max || 0
                                 )
                               }
-                              className="w-full min-w-0 flex-1 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-xs placeholder:text-white/30 focus:outline-none focus:border-white/20"
+                              className="w-full min-w-0 flex-1 px-2 py-1.5 bg-glass-bg border border-border rounded-lg text-foreground text-xs placeholder:text-foreground-muted focus:outline-none focus:border-border-hover"
                             />
-                            <span className="text-white/30 text-xs flex-shrink-0">-</span>
+                            <span className="text-foreground-muted text-xs flex-shrink-0">-</span>
                             <input
                               type="number"
                               placeholder="Max"
@@ -417,7 +417,7 @@ export default function FilterSidePanel({
                                   Number(e.target.value)
                                 )
                               }
-                              className="w-full min-w-0 flex-1 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-xs placeholder:text-white/30 focus:outline-none focus:border-white/20"
+                              className="w-full min-w-0 flex-1 px-2 py-1.5 bg-glass-bg border border-border rounded-lg text-foreground text-xs placeholder:text-foreground-muted focus:outline-none focus:border-border-hover"
                             />
                           </div>
                         </div>
@@ -435,8 +435,8 @@ export default function FilterSidePanel({
                                 className={cn(
                                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left",
                                   isSelected
-                                    ? "bg-white/[0.06]"
-                                    : "hover:bg-white/[0.03]"
+                                    ? "bg-glass-bg-hover"
+                                    : "hover:bg-glass-bg"
                                 )}
                               >
                                 {/* Checkbox/Radio indicator */}
@@ -446,7 +446,7 @@ export default function FilterSidePanel({
                                     group.type === "RADIO" ? "rounded-full" : "rounded-md",
                                     isSelected
                                       ? "border-transparent"
-                                      : "border-white/20"
+                                      : "border-border"
                                   )}
                                   style={
                                     isSelected
@@ -455,7 +455,7 @@ export default function FilterSidePanel({
                                   }
                                 >
                                   {isSelected && (
-                                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                    <Check className="w-3 h-3 text-white dark:text-white" strokeWidth={3} />
                                   )}
                                 </div>
 
@@ -463,7 +463,7 @@ export default function FilterSidePanel({
                                 <span
                                   className={cn(
                                     "flex-1 text-[14px] transition-colors",
-                                    isSelected ? "text-white font-medium" : "text-white/70"
+                                    isSelected ? "text-foreground font-medium" : "text-foreground-secondary"
                                   )}
                                 >
                                   {opt.name}
@@ -471,7 +471,7 @@ export default function FilterSidePanel({
 
                                 {/* Count */}
                                 {opt.count !== undefined && (
-                                  <span className="text-[12px] text-white/30">
+                                  <span className="text-[12px] text-foreground-muted">
                                     ({opt.count})
                                   </span>
                                 )}
@@ -491,7 +491,7 @@ export default function FilterSidePanel({
         {/* ═══════════════════════════════════════════════════════════════════
             FOOTER - Apply Button
         ═══════════════════════════════════════════════════════════════════ */}
-        <div className="border-t border-white/[0.06] bg-gradient-to-t from-black/40 to-transparent">
+        <div className="border-t border-border bg-background-secondary dark:bg-gradient-to-t dark:from-black/40 dark:to-transparent">
           <div className="p-5 space-y-3">
             {/* Apply Button */}
             <button
@@ -508,7 +508,7 @@ export default function FilterSidePanel({
             >
               Filtreleri Uygula
               {totalSelectedCount > 0 && (
-                <span className="px-2 py-0.5 bg-white/20 rounded-full text-[12px]">
+                <span className="px-2 py-0.5 bg-white/30 rounded-full text-[12px]">
                   {totalSelectedCount}
                 </span>
               )}
@@ -517,7 +517,7 @@ export default function FilterSidePanel({
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] text-white/70 hover:text-white font-medium text-base transition-all duration-300"
+              className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-glass-bg border border-border hover:bg-glass-bg-hover hover:border-border-hover text-foreground-secondary hover:text-foreground font-medium text-base transition-all duration-300"
               style={{ borderRadius: "14px" }}
             >
               Kapat

@@ -130,7 +130,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
       <Link href={`/urun/${slug}`} className="block">
         {/* IMAGE AREA - Tam genişlik, card'ın üstünde */}
         <div 
-          className="relative w-full bg-[#0a0a0a] overflow-hidden"
+          className="relative w-full bg-background overflow-hidden border border-border border-b-0"
           style={{ 
             paddingBottom: '100%',
             borderTopLeftRadius: SQUIRCLE.xl, 
@@ -213,7 +213,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Legacy badge support (fallback for old data without badges array) */}
               {(!badges || badges.length === 0) && badge && typeof badge === 'string' && badge.trim() !== '' && (
                 <span 
-                  className="inline-flex items-center justify-center text-[11px] font-semibold bg-white/10 backdrop-blur-md border border-white/10 text-white text-center"
+                  className="inline-flex items-center justify-center text-[11px] font-semibold bg-glass-bg backdrop-blur-md border border-glass-border text-foreground text-center"
                   style={{ minWidth: 85, height: 28, padding: '0 14px', borderRadius: SQUIRCLE.sm }}
                 >
                   {badge}
@@ -338,7 +338,11 @@ export default function ProductCard({ product, className, priority = false }: Pr
 
           {/* CONTENT AREA - Ayrı container, image'ın altında */}
           <div 
-            className="flex-1 flex flex-col p-3 pt-3 bg-[#131313]/90 backdrop-blur-sm border border-white/[0.06] border-t-0 hover:border-white/10 transition-all duration-300"
+            className={cn(
+              "flex-1 flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
+              "bg-surface/90 dark:bg-[rgba(19,19,19,0.90)]",
+              "hover:border-border-hover"
+            )}
             style={{ 
               borderBottomLeftRadius: SQUIRCLE.xl, 
               borderBottomRightRadius: SQUIRCLE.xl 
@@ -346,14 +350,14 @@ export default function ProductCard({ product, className, priority = false }: Pr
           >
             {/* ÜST KISIM - Brand, Title, Subtitle */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-white/40 uppercase tracking-widest">
+              <p className="text-[10px] text-foreground-muted uppercase tracking-widest">
                 {brand}
               </p>
               <h3 
                 style={{ 
                   fontSize: '20px', 
                   fontWeight: 500, 
-                  color: 'white', 
+                  color: 'var(--foreground)', 
                   lineHeight: 1.4, 
                   minHeight: '36px',
                   overflow: 'hidden',
@@ -410,17 +414,17 @@ export default function ProductCard({ product, className, priority = false }: Pr
                             boxSizing: 'border-box',
                             borderRadius: SQUIRCLE.sm,
                             border: isOutOfStock 
-                              ? '2px solid rgba(255,255,255,0.08)' 
+                              ? '2px solid var(--border)' 
                               : isSelected 
                                 ? '2px solid #10B981' 
                                 : variantError 
                                   ? '2px solid #EF4444' 
-                                  : '2px solid rgba(255,255,255,0.2)',
-                            backgroundColor: swatchColor || 'rgba(255,255,255,0.05)',
+                                  : '2px solid var(--border-secondary)',
+                            backgroundColor: swatchColor || 'var(--glass-bg)',
                             backgroundImage,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
-                            color: 'rgba(255,255,255,0.85)',
+                            color: 'var(--foreground)',
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -447,7 +451,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                               position: 'absolute',
                               width: '120%',
                               height: '2px',
-                              backgroundColor: 'rgba(255,255,255,0.5)',
+                              backgroundColor: 'var(--foreground-tertiary)',
                               transform: 'rotate(-45deg)',
                               top: '50%',
                               left: '-10%',
@@ -482,22 +486,22 @@ export default function ProductCard({ product, className, priority = false }: Pr
                           fontWeight: '500',
                           borderRadius: SQUIRCLE.sm,
                           border: isOutOfStock 
-                            ? '2px solid rgba(255,255,255,0.08)' 
+                            ? '2px solid var(--border)' 
                             : isSelected 
                               ? '2px solid #10B981' 
                               : variantError 
                                 ? '2px solid #EF4444' 
-                                : '2px solid rgba(255,255,255,0.2)',
+                                : '2px solid var(--border-secondary)',
                           color: isOutOfStock 
-                            ? 'rgba(255,255,255,0.25)' 
+                            ? 'var(--foreground-disabled)' 
                             : isSelected 
                               ? '#10B981' 
-                              : 'rgba(255,255,255,0.7)',
+                              : 'var(--foreground-secondary)',
                           backgroundColor: isOutOfStock 
                             ? 'transparent' 
                             : isSelected 
                               ? 'rgba(16, 185, 129, 0.1)' 
-                              : 'rgba(255,255,255,0.05)',
+                              : 'var(--glass-bg)',
                           cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                           transition: 'all 0.2s ease',
                           boxShadow: isSelected 
@@ -516,7 +520,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                             position: 'absolute',
                             width: '120%',
                             height: '2px',
-                            backgroundColor: 'rgba(255,255,255,0.4)',
+                            backgroundColor: 'var(--foreground-muted)',
                             transform: 'rotate(-45deg)',
                             top: '50%',
                             left: '-10%',
@@ -579,15 +583,15 @@ export default function ProductCard({ product, className, priority = false }: Pr
                         size={11} 
                         className={star <= Math.round(ratingAverage || 0) 
                           ? "fill-amber-400 text-amber-400" 
-                          : "fill-transparent text-white/20"
+                          : "fill-transparent text-foreground-disabled"
                         }
                       />
                     ))}
                   </div>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
                     {ratingAverage?.toFixed(1) || "-"}
                   </span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>
+                  <span style={{ fontSize: 9, color: 'var(--foreground-muted)' }}>
                     ({ratingCount || 0})
                   </span>
                 </span>
@@ -619,12 +623,12 @@ export default function ProductCard({ product, className, priority = false }: Pr
             </div>
 
             {/* PRICE SECTION */}
-            <div className="pt-2 mt-1 border-t border-white/[0.08]">
+            <div className="pt-2 mt-1 border-t border-border/60">
               {/* ROW 9: Eski fiyat & Kazanç - 20px */}
               <div className="h-[20px]">
                 {originalPrice && originalPrice > price ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] text-white/40 line-through font-medium">
+                    <span className="text-[13px] text-foreground-muted line-through font-medium">
                       {formatPrice(originalPrice)} ₺
                     </span>
                     <span className="text-[11px] text-emerald-400 font-semibold">
@@ -636,9 +640,9 @@ export default function ProductCard({ product, className, priority = false }: Pr
 
               {/* ROW 10: Güncel fiyat & Sepete Ekle - 48px */}
               <div className="h-[48px] flex items-center justify-between gap-3">
-                <span className="text-xl font-bold text-white">
+                <span className="text-xl font-bold text-foreground">
                   {formatPrice(price)}
-                  <span className="text-sm font-normal text-white/50 ml-1">₺</span>
+                  <span className="text-sm font-normal text-foreground-tertiary ml-1">₺</span>
                 </span>
 
                 {/* SEPETE EKLE - AddToCartButton with loading/success states */}

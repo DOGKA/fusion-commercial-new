@@ -59,10 +59,10 @@ interface OrderData {
 // Loading fallback component
 function OrderConfirmationLoading() {
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", margin: "0 auto 16px" }} className="animate-pulse" />
-        <div style={{ height: "24px", width: "192px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "8px", margin: "0 auto" }} className="animate-pulse" />
+        <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "var(--glass-bg)", margin: "0 auto 16px" }} className="animate-pulse" />
+        <div style={{ height: "24px", width: "192px", backgroundColor: "var(--glass-bg)", borderRadius: "8px", margin: "0 auto" }} className="animate-pulse" />
       </div>
     </div>
   );
@@ -182,10 +182,10 @@ function OrderConfirmationContent() {
   // Loading state
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", margin: "0 auto 16px" }} className="animate-pulse" />
-          <div style={{ height: "24px", width: "192px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "8px", margin: "0 auto" }} className="animate-pulse" />
+          <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "var(--glass-bg)", margin: "0 auto 16px" }} className="animate-pulse" />
+          <div style={{ height: "24px", width: "192px", backgroundColor: "var(--glass-bg)", borderRadius: "8px", margin: "0 auto" }} className="animate-pulse" />
         </div>
       </div>
     );
@@ -194,12 +194,12 @@ function OrderConfirmationContent() {
   // Use fetched order or show error
   if (!order) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
         <div style={{ textAlign: "center" }}>
           <XCircle size={48} color="rgba(239,68,68,0.6)" style={{ margin: "0 auto 16px" }} />
-          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#fff", marginBottom: "16px" }}>Sipariş Bulunamadı</h1>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>Sipariş bilgilerine ulaşılamadı.</p>
-          <Link href="/magaza" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 24px", backgroundColor: "#fff", color: "#000", borderRadius: "12px", fontWeight: "500", textDecoration: "none" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "var(--foreground)", marginBottom: "16px" }}>Sipariş Bulunamadı</h1>
+          <p style={{ color: "var(--foreground-tertiary)", marginBottom: "24px" }}>Sipariş bilgilerine ulaşılamadı.</p>
+          <Link href="/magaza" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 24px", backgroundColor: "#10b981", color: "#fff", borderRadius: "12px", fontWeight: "500", textDecoration: "none" }}>
             Alışverişe Başla <ChevronRight size={18} />
           </Link>
         </div>
@@ -213,15 +213,15 @@ function OrderConfirmationContent() {
   const isBankTransfer = order.paymentMethod === "bank_transfer";
 
   const containerStyle: React.CSSProperties = {
-    backgroundColor: "#0a0a0a",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "var(--background-secondary)",
+    border: "1px solid var(--glass-border)",
     borderRadius: "16px",
     padding: "40px",
     minHeight: CONTAINER_MIN_HEIGHT
   };
 
   return (
-    <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "#050505", paddingTop: "120px", paddingBottom: "80px" }}>
+    <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "var(--background)", paddingTop: "120px", paddingBottom: "80px" }}>
       <div className="checkout-container" style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 16px" }}>
         {/* Steps - All Completed */}
         <div className="checkout-steps" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "32px" }}>
@@ -229,21 +229,21 @@ function OrderConfirmationContent() {
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(16,185,129,0.2)", border: "2px solid #10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Check size={16} color="#10b981" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "#fff" }}>Adres & Teslimat</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres & Teslimat</span>
           </div>
-          <ChevronRight size={16} color="rgba(255,255,255,0.3)" className="checkout-step-arrow" />
+          <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step checkout-step-completed" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.6 }}>
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(16,185,129,0.2)", border: "2px solid #10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Check size={16} color="#10b981" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "#fff" }}>Ödeme</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Ödeme</span>
           </div>
-          <ChevronRight size={16} color="rgba(255,255,255,0.3)" className="checkout-step-arrow" />
+          <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step checkout-step-active" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Check size={16} color="#fff" strokeWidth={3} />
+              <Check size={16} className="text-white" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "#fff" }}>Sipariş Tamamlama</span>
+            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Sipariş Tamamlama</span>
           </div>
         </div>
 
@@ -268,12 +268,12 @@ function OrderConfirmationContent() {
                 {(isPending || isBankTransfer) && <Clock size={40} color="#fbbf24" />}
                 {isFailed && <XCircle size={40} color="#ef4444" />}
               </div>
-              <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#fff", marginBottom: "8px" }}>
+              <h1 style={{ fontSize: "24px", fontWeight: "700", color: "var(--foreground)", marginBottom: "8px" }}>
                 {isSuccess && "Siparişiniz Alındı!"}
                 {(isPending || isBankTransfer) && "Ödeme Bekleniyor"}
                 {isFailed && "Ödeme Başarısız"}
               </h1>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+              <p style={{ color: "var(--foreground-tertiary)", fontSize: "14px" }}>
                 {isSuccess && "Siparişiniz başarıyla oluşturuldu."}
                 {(isPending || isBankTransfer) && "Havale/EFT ödemeniz bekleniyor."}
                 {isFailed && "Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin."}
@@ -283,17 +283,17 @@ function OrderConfirmationContent() {
             {/* Order Number */}
             <div style={{
               padding: "24px",
-              backgroundColor: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              backgroundColor: "var(--glass-bg)",
+              border: "1px solid var(--border)",
               borderRadius: "12px",
               textAlign: "center",
               marginBottom: "24px"
             }}>
-              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>Sipariş Numarası</p>
-              <p style={{ fontSize: "24px", fontWeight: "700", color: "#fff", fontFamily: "monospace" }}>
+              <p style={{ fontSize: "13px", color: "var(--foreground-tertiary)", marginBottom: "4px" }}>Sipariş Numarası</p>
+              <p style={{ fontSize: "24px", fontWeight: "700", color: "var(--foreground)", fontFamily: "monospace" }}>
                 {order.orderNumber}
               </p>
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginTop: "8px" }}>
+              <p style={{ fontSize: "12px", color: "var(--foreground-muted)", marginTop: "8px" }}>
                 {new Date(order.orderDate).toLocaleString("tr-TR", {
                   dateStyle: "long",
                   timeStyle: "short",
@@ -315,16 +315,16 @@ function OrderConfirmationContent() {
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                    <span style={{ color: "rgba(255,255,255,0.5)" }}>Banka:</span>
-                    <span style={{ color: "#fff" }}>Ziraat Bankası</span>
+                    <span style={{ color: "var(--foreground-tertiary)" }}>Banka:</span>
+                    <span style={{ color: "var(--foreground)" }}>Ziraat Bankası</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                    <span style={{ color: "rgba(255,255,255,0.5)" }}>Hesap Sahibi:</span>
-                    <span style={{ color: "#fff" }}>FusionMarkt A.Ş.</span>
+                    <span style={{ color: "var(--foreground-tertiary)" }}>Hesap Sahibi:</span>
+                    <span style={{ color: "var(--foreground)" }}>FusionMarkt A.Ş.</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                    <span style={{ color: "rgba(255,255,255,0.5)" }}>IBAN:</span>
-                    <span style={{ color: "#fff", fontFamily: "monospace" }}>TR00 0000 0000 0000 0000 0000 00</span>
+                    <span style={{ color: "var(--foreground-tertiary)" }}>IBAN:</span>
+                    <span style={{ color: "var(--foreground)", fontFamily: "monospace" }}>TR00 0000 0000 0000 0000 0000 00</span>
                   </div>
                 </div>
                 <button
@@ -348,7 +348,7 @@ function OrderConfirmationContent() {
                   {copiedIban ? <CheckCircle size={16} /> : <Copy size={16} />}
                   {copiedIban ? "Kopyalandı!" : "IBAN'ı Kopyala"}
                 </button>
-                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", marginTop: "12px", textAlign: "center" }}>
+                <p style={{ fontSize: "11px", color: "var(--foreground-tertiary)", marginTop: "12px", textAlign: "center" }}>
                   Açıklama kısmına sipariş numaranızı yazınız: {order.orderNumber}
                 </p>
               </div>
@@ -357,20 +357,20 @@ function OrderConfirmationContent() {
             {/* Delivery Info */}
             {order.billingAddress && (
               <div>
-                <h3 style={{ fontSize: "15px", fontWeight: "600", color: "#fff", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <h3 style={{ fontSize: "15px", fontWeight: "600", color: "var(--foreground)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
                   <Truck size={18} /> Teslimat Bilgileri
                 </h3>
-                <div style={{ padding: "16px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px" }}>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "4px" }}>
+                <div style={{ padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
                     {order.billingAddress.firstName} {order.billingAddress.lastName}
                   </p>
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>
+                  <p style={{ fontSize: "13px", color: "var(--foreground-tertiary)", marginBottom: "4px" }}>
                     {order.billingAddress.addressLine1}
                   </p>
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "8px" }}>
+                  <p style={{ fontSize: "13px", color: "var(--foreground-tertiary)", marginBottom: "8px" }}>
                     {order.billingAddress.district && `${order.billingAddress.district}, `}{order.billingAddress.city} {order.billingAddress.postalCode}
                   </p>
-                  <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
+                  <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "var(--foreground-muted)" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <Phone size={12} /> {order.billingAddress.phone}
                     </span>
@@ -389,53 +389,53 @@ function OrderConfirmationContent() {
           <div className="checkout-right-column" style={containerStyle}>
             {/* Order Items Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Package size={20} color="rgba(255,255,255,0.6)" />
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Package size={20} className="text-foreground-secondary" />
               </div>
               <div>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff" }}>Sipariş Özeti</h2>
-                <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>{order.items.length} ürün</span>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Sipariş Özeti</h2>
+                <span style={{ fontSize: "13px", color: "var(--foreground-muted)" }}>{order.items.length} ürün</span>
               </div>
             </div>
 
             {/* Products */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
               {order.items.map((item) => (
-                <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px" }}>
-                  <div style={{ position: "relative", width: "64px", height: "64px", backgroundColor: "#111", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+                <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <div style={{ position: "relative", width: "64px", height: "64px", backgroundColor: "var(--background-secondary)", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
                     {item.image ? (
                       <Image src={item.image} alt={item.title} fill sizes="64px" style={{ objectFit: "contain" }} />
                     ) : (
                       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Package size={20} color="rgba(255,255,255,0.2)" />
+                        <Package size={20} className="text-foreground-muted" />
                       </div>
                     )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h4 style={{ fontSize: "14px", fontWeight: "500", color: "rgba(255,255,255,0.9)", marginBottom: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <h4 style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.title}
                     </h4>
                     {item.variant && (
-                      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>{item.variant.value}</p>
+                      <p style={{ fontSize: "12px", color: "var(--foreground-muted)", marginBottom: "4px" }}>{item.variant.value}</p>
                     )}
-                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Adet: {item.quantity}</p>
+                    <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)" }}>Adet: {item.quantity}</p>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>{formatPrice(item.price * item.quantity)}</span>
+                    <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--foreground)" }}>{formatPrice(item.price * item.quantity)}</span>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Totals */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "24px" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(order.totals.subtotal)}</span>
+                <span style={{ color: "var(--foreground-tertiary)" }}>Ara Toplam</span>
+                <span style={{ color: "var(--foreground)" }}>{formatPrice(order.totals.subtotal)}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Kargo</span>
-                <span style={{ color: order.totals.shipping === 0 ? "#10b981" : "rgba(255,255,255,0.8)" }}>
+                <span style={{ color: "var(--foreground-tertiary)" }}>Kargo</span>
+                <span style={{ color: order.totals.shipping === 0 ? "#10b981" : "var(--foreground)" }}>
                   {order.totals.shipping === 0 ? "Ücretsiz" : formatPrice(order.totals.shipping)}
                 </span>
               </div>
@@ -448,9 +448,9 @@ function OrderConfirmationContent() {
                   <span style={{ color: "#10b981", fontWeight: "500" }}>-{formatPrice(order.totals.discount)}</span>
                 </div>
               )}
-              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>Toplam</span>
-                <span style={{ fontSize: "20px", fontWeight: "700", color: "#fff" }}>{formatPrice(order.totals.grandTotal)}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
+                <span style={{ fontSize: "16px", fontWeight: "600", color: "var(--foreground)" }}>Toplam</span>
+                <span style={{ fontSize: "20px", fontWeight: "700", color: "var(--foreground)" }}>{formatPrice(order.totals.grandTotal)}</span>
               </div>
             </div>
 
@@ -476,10 +476,10 @@ function OrderConfirmationContent() {
                     <Lock size={20} color="#10b981" />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: "15px", fontWeight: "600", color: "#fff", marginBottom: "2px" }}>
+                    <h3 style={{ fontSize: "15px", fontWeight: "600", color: "var(--foreground)", marginBottom: "2px" }}>
                       Şifre Oluşturarak Üyeliğinizi Tamamlayın
                     </h3>
-                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                    <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)" }}>
                       Siparişlerinizi takip etmek için şifre oluşturun
                     </p>
                   </div>
@@ -487,7 +487,7 @@ function OrderConfirmationContent() {
                 
                 {/* Password 1 */}
                 <div style={{ marginBottom: "12px" }}>
-                  <label style={{ display: "block", fontSize: "13px", color: "rgba(255,255,255,0.6)", marginBottom: "6px" }}>
+                  <label style={{ display: "block", fontSize: "13px", color: "var(--foreground-secondary)", marginBottom: "6px" }}>
                     Şifre
                   </label>
                   <div style={{ position: "relative" }}>
@@ -500,11 +500,11 @@ function OrderConfirmationContent() {
                         width: "100%",
                         height: "48px",
                         padding: "0 48px 0 16px",
-                        backgroundColor: "#0f0f0f",
-                        border: password1Valid ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(255,255,255,0.15)",
+                        backgroundColor: "var(--input-bg)",
+                        border: password1Valid ? "1px solid rgba(16,185,129,0.4)" : "1px solid var(--input-border)",
                         borderRadius: "12px",
                         fontSize: "15px",
-                        color: "#fff",
+                        color: "var(--foreground)",
                         outline: "none"
                       }}
                     />
@@ -519,7 +519,7 @@ function OrderConfirmationContent() {
                         background: "none",
                         border: "none",
                         cursor: "pointer",
-                        color: "rgba(255,255,255,0.4)"
+                        color: "var(--foreground-muted)"
                       }}
                     >
                       {showPassword1 ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -530,7 +530,7 @@ function OrderConfirmationContent() {
                 {/* Password 2 - Only show when password1 is valid */}
                 {password1Valid && (
                   <div style={{ marginBottom: "16px" }}>
-                    <label style={{ display: "block", fontSize: "13px", color: "rgba(255,255,255,0.6)", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", color: "var(--foreground-secondary)", marginBottom: "6px" }}>
                       Şifre Tekrar
                     </label>
                     <div style={{ position: "relative" }}>
@@ -543,11 +543,11 @@ function OrderConfirmationContent() {
                           width: "100%",
                           height: "48px",
                           padding: "0 48px 0 16px",
-                          backgroundColor: "#0f0f0f",
-                          border: password2Valid ? "1px solid rgba(16,185,129,0.4)" : password2.length > 0 && password1 !== password2 ? "1px solid rgba(239,68,68,0.4)" : "1px solid rgba(255,255,255,0.15)",
+                          backgroundColor: "var(--input-bg)",
+                          border: password2Valid ? "1px solid rgba(16,185,129,0.4)" : password2.length > 0 && password1 !== password2 ? "1px solid rgba(239,68,68,0.4)" : "1px solid var(--input-border)",
                           borderRadius: "12px",
                           fontSize: "15px",
-                          color: "#fff",
+                          color: "var(--foreground)",
                           outline: "none"
                         }}
                       />
@@ -562,7 +562,7 @@ function OrderConfirmationContent() {
                           background: "none",
                           border: "none",
                           cursor: "pointer",
-                          color: "rgba(255,255,255,0.4)"
+                          color: "var(--foreground-muted)"
                         }}
                       >
                         {showPassword2 ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -598,12 +598,12 @@ function OrderConfirmationContent() {
                   style={{
                     width: "100%",
                     height: "48px",
-                    backgroundColor: canSavePassword ? "#10b981" : "rgba(255,255,255,0.1)",
+                    backgroundColor: canSavePassword ? "#10b981" : "var(--glass-bg)",
                     border: "none",
                     borderRadius: "12px",
                     fontSize: "15px",
                     fontWeight: "600",
-                    color: canSavePassword ? "#fff" : "rgba(255,255,255,0.3)",
+                    color: canSavePassword ? "#fff" : "var(--foreground-muted)",
                     cursor: canSavePassword ? "pointer" : "not-allowed",
                     display: "flex",
                     alignItems: "center",
@@ -641,9 +641,9 @@ function OrderConfirmationContent() {
                     height: "48px",
                     fontWeight: "500",
                     borderRadius: "12px",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    border: "1px solid var(--border)",
                     backgroundColor: "transparent",
-                    color: "#fff",
+                    color: "var(--foreground)",
                     textDecoration: "none"
                   }}
                 >
@@ -661,8 +661,8 @@ function OrderConfirmationContent() {
                     height: "48px",
                     fontWeight: "600",
                     borderRadius: "12px",
-                    backgroundColor: "#fff",
-                    color: "#000",
+                    backgroundColor: "#10b981",
+                    color: "#fff",
                     textDecoration: "none"
                   }}
                 >
@@ -673,15 +673,15 @@ function OrderConfirmationContent() {
             )}
 
             {/* Support Info */}
-            <div style={{ textAlign: "center", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "8px" }}>
+            <div style={{ textAlign: "center", paddingTop: "24px", borderTop: "1px solid var(--border)" }}>
+              <p style={{ fontSize: "12px", color: "var(--foreground-muted)", marginBottom: "8px" }}>
                 Sorularınız için bize ulaşın
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: "24px", fontSize: "13px" }}>
-                <a href="mailto:info@fusionmarkt.com" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
+                <a href="mailto:info@fusionmarkt.com" style={{ color: "var(--foreground-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
                   <Mail size={14} /> info@fusionmarkt.com
                 </a>
-                <a href="tel:+908508406160" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
+                <a href="tel:+908508406160" style={{ color: "var(--foreground-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
                   <Phone size={14} /> +90 850 840 6160
                 </a>
               </div>

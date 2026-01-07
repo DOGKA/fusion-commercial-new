@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import {
   ChevronDown,
   ChevronRight,
@@ -24,6 +25,15 @@ import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getAllFilters } from "@/lib/filters/category-filters";
 import { isOnSale, isNewProduct } from "@/lib/badge-config";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+
+// Hydration-safe mounted check (same approach as `ThemeToggle`)
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
 
 interface Banner {
   id: string;
@@ -211,6 +221,13 @@ interface RangeValues {
 }
 
 export default function StorePage() {
+  // IMPORTANT: We do NOT rely on Tailwind `dark:` variants here because the app
+  // theme is driven by `next-themes` + CSS variables, and `dark:` variants are
+  // inconsistent in some environments (e.g. incognito).
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = mounted && resolvedTheme === "dark";
+
   const [banner, setBanner] = useState<Banner | null>(null);
   const [categoryBanners, setCategoryBanners] = useState<Record<string, Banner>>({});
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
@@ -602,7 +619,7 @@ export default function StorePage() {
   const { canOpen, hasClaim, coupon, openModal, isLoading: mysteryBoxLoading } = useMysteryBox();
 
   return (
-    <div className="min-h-screen bg-[#060606] relative">
+    <div className="min-h-screen bg-background dark:bg-[#060606] relative">
       {/* Filter Side Panel */}
       <FilterSidePanel
         isOpen={filtersOpen}
@@ -620,20 +637,20 @@ export default function StorePage() {
 
       {/* Full Page Particle Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <ParticleField className="opacity-15" particleCount={40} color="#ffffff" />
+        <ParticleField className="opacity-5 dark:opacity-15" particleCount={40} color="currentColor" />
       </div>
 
       {/* Content */}
       <div className="relative z-10">
       {/* BANNER */}
       <section style={{ paddingTop: "120px" }} className="container">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10">
+        <div className="relative overflow-hidden rounded-2xl border border-border">
           {banner?.buttonLink ? (
             <Link href={banner.buttonLink} className="block group">
-              <BannerImage banner={banner} />
+              <BannerImage banner={banner} isDark={isDark} />
             </Link>
           ) : (
-            <BannerImage banner={banner} />
+            <BannerImage banner={banner} isDark={isDark} />
           )}
         </div>
       </section>
@@ -644,17 +661,14 @@ export default function StorePage() {
       <section className="container" style={{ marginTop: "48px", marginBottom: "48px" }}>
         <div className="relative">
           {/* Main Toolbar Container - Glassmorphism with Wave Mesh */}
-          <div className="relative rounded-[20px] border border-white/[0.08] bg-[#0a0a0a]/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <div className="relative rounded-[20px] border border-border dark:border-white/[0.08] bg-background/95 dark:bg-background/80 backdrop-blur-xl shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             {/* Wave Mesh Background Animation - Prominent like reference design */}
             <div className="absolute inset-0 overflow-hidden rounded-[20px]">
-              <WaveMesh 
-                color="rgba(255,255,255,0.10)" 
-                opacity={1}
-              />
+              <WaveMesh color={isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"} opacity={1} />
             </div>
             
             {/* Very subtle vignette for depth */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.2)_100%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.05)_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.2)_100%)] pointer-events-none" />
 
             {/* Content */}
             <div className="relative z-10 px-4 py-4 lg:px-6 lg:py-5">
@@ -664,7 +678,7 @@ export default function StorePage() {
                 {/* Filter Button */}
                 <button
                   onClick={() => setFiltersOpen(true)}
-                  className="store-filter-button flex items-center gap-2.5 px-4 lg:px-5 h-[42px] rounded-xl bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] hover:border-white/[0.16] text-white/80 hover:text-white transition-all duration-200 whitespace-nowrap"
+                  className="store-filter-button flex items-center gap-2.5 px-4 lg:px-5 h-[42px] rounded-xl bg-glass-bg hover:bg-glass-bg-hover border border-glass-border hover:border-glass-border-hover text-foreground-secondary hover:text-foreground transition-all duration-200 whitespace-nowrap"
                 >
                   <SlidersHorizontal className="w-4 h-4" />
                   <span className="text-sm font-medium">Filtre</span>
@@ -672,19 +686,19 @@ export default function StorePage() {
 
                 {/* Search */}
                 <div className="store-search-container flex-1 min-w-[200px] lg:min-w-[280px] relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
                   <input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Ürün ara..."
-                    className="w-full h-[42px] pl-11 pr-12 rounded-xl bg-white/[0.06] hover:bg-white/[0.08] focus:bg-white/[0.10] border border-white/[0.10] focus:border-white/[0.20] text-sm text-white placeholder:text-white/40 outline-none transition-all duration-200"
+                    className="w-full h-[42px] pl-11 pr-12 rounded-xl bg-glass-bg hover:bg-glass-bg-hover focus:bg-glass-bg-active border border-glass-border focus:border-glass-border-active text-sm text-foreground placeholder:text-foreground-muted outline-none transition-all duration-200"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-glass-bg-hover rounded-lg transition-colors"
                     >
-                      <X className="w-4 h-4 text-white/50" />
+                      <X className="w-4 h-4 text-foreground-tertiary" />
                     </button>
                   )}
                 </div>
@@ -694,7 +708,7 @@ export default function StorePage() {
                   <button
                     ref={sortButtonRef}
                     onClick={() => setSortOpen(!sortOpen)}
-                    className="store-sort-button flex items-center gap-2 px-4 h-[42px] rounded-xl bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] hover:border-white/[0.16] text-white/80 hover:text-white transition-all duration-200 whitespace-nowrap"
+                    className="store-sort-button flex items-center gap-2 px-4 h-[42px] rounded-xl bg-glass-bg hover:bg-glass-bg-hover border border-glass-border hover:border-glass-border-hover text-foreground-secondary hover:text-foreground transition-all duration-200 whitespace-nowrap"
                   >
                     <span className="text-sm font-medium">
                       {SORT_OPTIONS.find((o) => o.value === sortBy)?.label}
@@ -712,13 +726,14 @@ export default function StorePage() {
                       />
                       {/* Dropdown Menu */}
                       <div 
-                        className="fixed z-[9999] w-56 rounded-2xl border border-white/[0.12] shadow-2xl overflow-hidden"
+                        className="fixed z-[9999] w-56 rounded-2xl border shadow-2xl overflow-hidden"
                         style={{ 
                           top: dropdownPos.top,
                           right: dropdownPos.right,
-                          background: 'rgba(18, 18, 18, 0.85)',
+                          background: isDark ? 'rgba(18, 18, 18, 0.85)' : 'rgba(255, 255, 255, 0.95)',
                           backdropFilter: 'blur(20px)',
                           WebkitBackdropFilter: 'blur(20px)',
+                          borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.15)',
                         }}
                       >
                         {SORT_OPTIONS.map((option) => (
@@ -731,8 +746,12 @@ export default function StorePage() {
                             className={cn(
                               "w-full px-4 py-3 text-left text-sm transition-all duration-150",
                               sortBy === option.value
-                                ? "bg-white/[0.12] text-white font-medium"
-                                : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                                ? isDark 
+                                  ? "bg-white/[0.08] text-white font-medium"
+                                  : "bg-black/[0.05] text-black font-medium"
+                                : isDark
+                                  ? "text-white/70 hover:bg-white/[0.04] hover:text-white"
+                                  : "text-black/70 hover:bg-black/[0.03] hover:text-black"
                             )}
                           >
                             {option.label}
@@ -750,31 +769,43 @@ export default function StorePage() {
                     /* Kupon açılmış - Kupon kodunu göster */
                     <button
                       onClick={openModal}
-                      className="store-coupon-button flex items-center gap-2 px-4 h-[42px] text-emerald-50 transition-all duration-200 whitespace-nowrap group"
+                      className={cn(
+                        "store-coupon-button flex items-center gap-2 px-4 h-[42px] transition-all duration-200 whitespace-nowrap group",
+                        // Light: text black, Dark: keep emerald-white styling
+                        isDark ? "text-emerald-50" : "text-foreground"
+                      )}
                     >
-                      <span className="coupon-code font-semibold text-sm tracking-wide">{coupon.code}</span>
-                      <span className="coupon-dot text-emerald-400 font-medium text-sm">•</span>
-                      <span className="coupon-amount text-sm font-medium text-emerald-300">
+                      <span className={cn("coupon-code font-semibold text-sm tracking-wide", isDark ? "text-emerald-50" : "text-foreground")}>
+                        {coupon.code}
+                      </span>
+                      <span className={cn("coupon-dot font-medium text-sm", isDark ? "text-emerald-400" : "text-foreground")}>•</span>
+                      <span className={cn("coupon-amount text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>
                         {coupon.discountType === "percentage" 
                           ? `${coupon.discountValue}%` 
                           : `₺${coupon.discountValue}`
                         }
                       </span>
-                      <span className="coupon-label text-sm font-medium text-emerald-300">İndirim</span>
-                      <div className="coupon-divider w-px h-4 bg-emerald-400/30 mx-1" />
-                      <Info className="coupon-info w-4 h-4 text-emerald-400/70 group-hover:text-emerald-400 transition-colors" />
+                      <span className={cn("coupon-label text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>İndirim</span>
+                      <div className={cn("coupon-divider w-px h-4 mx-1", isDark ? "bg-emerald-400/30" : "bg-border")} />
+                      <Info className={cn("coupon-info w-4 h-4 transition-colors", isDark ? "text-emerald-400/70 group-hover:text-emerald-400" : "text-foreground-muted group-hover:text-foreground")} />
                     </button>
                   ) : canOpen ? (
                     /* Kutu açılabilir - Süpriz Kutu butonu */
                     <button
                       onClick={openModal}
-                      className="store-coupon-button flex items-center gap-2 px-4 h-[42px] text-emerald-50 transition-all duration-200 whitespace-nowrap group"
+                      className={cn(
+                        "store-coupon-button flex items-center gap-2 px-4 h-[42px] transition-all duration-200 whitespace-nowrap group",
+                        // Light theme: make label black as requested
+                        isDark ? "text-emerald-50" : "text-foreground"
+                      )}
                     >
-                      <span className="font-semibold text-sm tracking-wide">Süpriz Kutu</span>
-                      <span className="text-emerald-400 font-medium text-sm">•</span>
-                      <span className="text-sm font-medium text-emerald-300">Aç</span>
-                      <div className="w-px h-4 bg-emerald-400/30 mx-1" />
-                      <Info className="w-4 h-4 text-emerald-400/70 group-hover:text-emerald-400 transition-colors" />
+                      <span className={cn("font-semibold text-sm tracking-wide", isDark ? "text-emerald-50" : "text-foreground")}>
+                        Süpriz Kutu
+                      </span>
+                      <span className={cn("font-medium text-sm", isDark ? "text-emerald-400" : "text-foreground")}>•</span>
+                      <span className={cn("text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>Aç</span>
+                      <div className={cn("w-px h-4 mx-1", isDark ? "bg-emerald-400/30" : "bg-border")} />
+                      <Info className={cn("w-4 h-4 transition-colors", isDark ? "text-emerald-400/70 group-hover:text-emerald-400" : "text-foreground-muted group-hover:text-foreground")} />
                     </button>
                   ) : null
                 )}
@@ -788,11 +819,11 @@ export default function StorePage() {
       <section style={{ marginTop: "48px", paddingBottom: "80px" }}>
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-white/40 animate-spin" />
+            <Loader2 className="w-8 h-8 text-foreground-muted animate-spin" />
           </div>
         ) : filteredCategories.length === 0 ? (
           <div className="container text-center py-20">
-            <p className="text-white/50">Ürün bulunamadı.</p>
+            <p className="text-foreground-muted">Ürün bulunamadı.</p>
           </div>
         ) : (
           <div>
@@ -801,6 +832,7 @@ export default function StorePage() {
                 <CategoryCarousel 
                   category={category} 
                   bannerData={categoryBanners[category.slug]}
+                  isDark={isDark}
                 />
               </div>
             ))}
@@ -815,24 +847,24 @@ export default function StorePage() {
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setFiltersOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-[#0a0a0a] border-l border-white/10 overflow-y-auto">
-            <div className="sticky top-0 flex items-center justify-between p-5 bg-[#0a0a0a] border-b border-white/10">
-              <h2 className="text-base font-semibold text-white">Filtreler</h2>
+          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-background border-l border-border overflow-y-auto">
+            <div className="sticky top-0 flex items-center justify-between p-5 bg-background border-b border-border">
+              <h2 className="text-base font-semibold text-foreground">Filtreler</h2>
               <button
                 onClick={() => setFiltersOpen(false)}
-                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl hover:bg-glass-bg-hover transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-foreground-tertiary" />
               </button>
             </div>
 
             <div className="p-5">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-                <p className="text-sm text-white/60">Filtreler yakında eklenecek.</p>
+              <div className="rounded-2xl border border-border bg-glass-bg p-5">
+                <p className="text-sm text-foreground-tertiary">Filtreler yakında eklenecek.</p>
               </div>
             </div>
 
-            <div className="sticky bottom-0 p-5 bg-[#0a0a0a] border-t border-white/10">
+            <div className="sticky bottom-0 p-5 bg-background border-t border-border">
               <button
                 onClick={() => setFiltersOpen(false)}
                 className="w-full py-3 rounded-xl bg-white text-black font-medium"
@@ -851,20 +883,19 @@ export default function StorePage() {
 /* ─────────────────────────────────────────────────────────────────────────────
    BANNER IMAGE COMPONENT
 ───────────────────────────────────────────────────────────────────────────── */
-function BannerImage({ banner }: { banner: Banner | null }) {
+function BannerImage({ banner, isDark }: { banner: Banner | null; isDark: boolean }) {
   const hasImage = !!(banner?.desktopImage || banner?.mobileImage);
   const hasContent = !!(banner?.title || banner?.subtitle || banner?.buttonText);
 
+  // Requirement: Light = white/teal/white, Dark = black/teal/black
+  // Do NOT rely on Tailwind `dark:` variants; use `isDark`.
+  const lightGradient =
+    "linear-gradient(90deg, rgb(248, 250, 252) 0%, rgb(20, 184, 166) 50%, rgb(248, 250, 252) 100%)";
+  const darkGradient = "linear-gradient(90deg, rgb(0, 0, 0) 0%, rgb(20, 184, 166) 50%, rgb(0, 0, 0) 100%)";
+  const bg = isDark ? darkGradient : lightGradient;
+
   return (
-    <div
-      className="relative h-[100px] sm:h-[140px] lg:h-[180px] rounded-2xl overflow-hidden border border-white/10"
-      style={{
-        background:
-          banner?.gradientFrom && banner?.gradientTo
-            ? `linear-gradient(90deg, ${banner.gradientTo} 0%, ${banner.gradientFrom} 50%, ${banner.gradientTo} 100%)`
-            : "linear-gradient(90deg, rgba(6,182,212,0.10) 0%, rgba(16,185,129,0.15) 50%, rgba(6,182,212,0.10) 100%)",
-      }}
-    >
+    <div className="relative h-[100px] sm:h-[140px] lg:h-[180px] rounded-2xl overflow-hidden border border-border" style={{ background: bg }}>
       {/* Background Image */}
       {hasImage && (
         <>
@@ -873,7 +904,7 @@ function BannerImage({ banner }: { banner: Banner | null }) {
               src={banner.mobileImage}
               alt={banner?.name || "Banner"}
               fill
-              className="sm:hidden object-cover"
+              className={cn("sm:hidden object-cover", !isDark && "opacity-90")}
               sizes="100vw"
             />
           )}
@@ -882,31 +913,39 @@ function BannerImage({ banner }: { banner: Banner | null }) {
               src={banner.desktopImage}
               alt={banner?.name || "Banner"}
               fill
-              className={cn("hidden sm:block object-cover", !banner?.mobileImage && "block")}
+              className={cn("hidden sm:block object-cover", !banner?.mobileImage && "block", !isDark && "opacity-90")}
               sizes="100vw"
             />
           )}
         </>
       )}
 
-      {/* Content Overlay */}
+      {/* Readability veil in dark */}
+      {isDark && <div className="absolute inset-0 bg-black/25 pointer-events-none" />}
+
+      {/* Content */}
       {hasContent && (
         <div className="absolute inset-0 flex items-end p-4 sm:p-5 lg:p-6">
           <div className="flex-1">
             {banner?.title && (
-              <h3 className="text-white text-sm sm:text-base lg:text-lg font-semibold mb-1">
+              <h3 className={cn("text-sm sm:text-base lg:text-lg font-semibold mb-1 relative", isDark ? "text-white" : "text-gray-900 drop-shadow-sm")}>
                 {banner.title}
               </h3>
             )}
             {banner?.subtitle && (
-              <p className="text-white/80 text-xs sm:text-sm mb-2 line-clamp-1">
+              <p className={cn("text-xs sm:text-sm mb-2 line-clamp-1 relative", isDark ? "text-white/80" : "text-gray-700")}>
                 {banner.subtitle}
               </p>
             )}
           </div>
           {banner?.buttonText && (
             <span
-              className="inline-flex items-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl group-hover:bg-white/20 transition-colors"
+              className={cn(
+                "inline-flex items-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium backdrop-blur-sm rounded-xl transition-colors relative",
+                isDark
+                  ? "bg-white/10 text-white border border-white/20 hover:bg-white/20"
+                  : "bg-white/80 text-gray-900 border border-gray-200 hover:bg-white shadow-sm"
+              )}
             >
               {banner.buttonText}
               <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -920,7 +959,7 @@ function BannerImage({ banner }: { banner: Banner | null }) {
       {/* Placeholder if no content */}
       {!hasImage && !hasContent && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm text-white/30">SHOP_HEADER banner ekleyin</span>
+          <span className={cn("text-sm", isDark ? "text-white/50" : "text-gray-500")}>SHOP_HEADER banner ekleyin</span>
         </div>
       )}
     </div>
@@ -946,10 +985,12 @@ const darkenColor = (hex: string, percent: number = 20): string => {
 
 function CategoryCarousel({ 
   category, 
-  bannerData
+  bannerData,
+  isDark,
 }: { 
   category: CategoryWithProducts; 
   bannerData?: Banner;
+  isDark: boolean;
 }) {
   const [isMobile, setIsMobile] = useState(false);
   
@@ -1000,7 +1041,7 @@ function CategoryCarousel({
               className="w-1 h-8 rounded-full"
               style={{ backgroundColor: themeColor }}
             />
-            <h3 className="text-lg font-bold text-white">{bannerTitle}</h3>
+            <h3 className="text-lg font-bold text-foreground">{bannerTitle}</h3>
           </div>
           <Link 
             href={`/kategori/${category.slug}`}
@@ -1015,37 +1056,62 @@ function CategoryCarousel({
       
       {/* Carousel with LEFT Banner - Başlık yok, banner'da var */}
       <div className="relative flex gap-0">
-        {/* LEFT Banner - Kompakt Glassmorphism - ProductCard ile aynı boyut */}
+        {/* LEFT Banner - Tek Link, içinde Light ve Dark theme versiyonları */}
         <Link 
           href={`/kategori/${category.slug}`}
           className="hidden lg:flex flex-shrink-0 w-[280px] group relative z-20"
         >
-          <div 
+          <div
             className="relative w-full h-[640px] rounded-2xl overflow-hidden"
             style={{
-              background: `linear-gradient(145deg, ${bannerColors.from}18 0%, ${bannerColors.to}08 100%)`,
-              border: `1px solid ${bannerColors.from}`,
+              border: `1px solid var(--border)`,
+              backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
             }}
           >
-            {/* Opak arka plan katmanı - ürünler altına girerken şeffaflık olmasın */}
-            <div 
-              className="absolute inset-0 -z-10"
-              style={{ background: '#060606' }}
+            {/* Color gradient overlay (metalik) */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: isDark
+                  ? `linear-gradient(145deg, ${bannerColors.from}40 0%, ${bannerColors.from}25 30%, ${bannerColors.from}10 50%, transparent 70%)`
+                  : `linear-gradient(145deg, ${bannerColors.from}50 0%, ${bannerColors.from}35 30%, ${bannerColors.from}18 50%, transparent 70%)`,
+              }}
             />
-            
+
+            {/* Right-side fade: Light=white, Dark=black */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: isDark
+                  ? "linear-gradient(to left, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.7) 30%, rgba(10,10,10,0.3) 60%, transparent 100%)"
+                  : "linear-gradient(to left, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.3) 60%, transparent 100%)",
+              }}
+            />
+
+            {/* Metallic shine */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: isDark
+                  ? "linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 25%, transparent 50%, rgba(255,255,255,0.08) 75%, transparent 100%)"
+                  : "linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.5) 25%, transparent 50%, rgba(255,255,255,0.3) 75%, transparent 100%)",
+                opacity: isDark ? 0.3 : 0.4,
+              }}
+            />
+
             {/* Gradient orb */}
-            <div 
-              className="absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl opacity-40"
-              style={{ background: `radial-gradient(circle, ${bannerColors.from} 100%, transparent 0%)` }}
+            <div
+              className="absolute -top-20 -right-20 w-48 h-48 rounded-full blur-3xl"
+              style={{ background: bannerColors.from, opacity: isDark ? 0.45 : 0.45 }}
             />
-            
+
             {/* Content */}
             <div className="relative h-full flex flex-col p-6">
               {/* Badge */}
-              <div 
+              <div
                 className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full text-[11px] font-semibold w-fit"
-                style={{ 
-                  background: `${bannerColors.from}30`,
+                style={{
+                  background: `${bannerColors.from}${isDark ? "25" : "20"}`,
                   color: bannerColors.from,
                 }}
               >
@@ -1055,23 +1121,21 @@ function CategoryCarousel({
 
               {/* Title */}
               <div className="flex-1 flex flex-col justify-center py-4">
-                <h4 className="text-xl font-bold text-white leading-snug mb-2">
+                <h4 className={cn("text-xl font-bold leading-snug mb-2", isDark ? "text-white" : "text-gray-900")}>
                   {bannerTitle}
                 </h4>
-                <p className="text-xs text-white/50">
-                  {bannerSubtitle}
-                </p>
+                <p className={cn("text-xs", isDark ? "text-white/60" : "text-gray-600")}>{bannerSubtitle}</p>
               </div>
 
-              {/* CTA Button - Glassmorphism */}
-              <div 
-                className="flex items-center justify-between px-4 py-3 rounded-xl border border-white/20 backdrop-blur-sm transition-all duration-200 group-hover:scale-[1.02] group-hover:border-white/30"
-                style={{ 
-                  background: `${bannerColors.from}20`,
-                }}
+              {/* CTA Button */}
+              <div
+                className={cn(
+                  "flex items-center justify-between px-4 py-3 rounded-xl backdrop-blur-sm transition-all duration-200 group-hover:scale-[1.02]",
+                  isDark ? "border border-white/20 bg-white/10 hover:bg-white/20" : "border border-gray-200 bg-white/70 hover:bg-white/90"
+                )}
               >
-                <span className="text-xs font-semibold text-white">{bannerButtonText}</span>
-                <ChevronRight className="w-4 h-4 text-white" />
+                <span className={cn("text-xs font-semibold", isDark ? "text-white" : "text-gray-900")}>{bannerButtonText}</span>
+                <ChevronRight className={cn("w-4 h-4", isDark ? "text-white" : "text-gray-900")} />
               </div>
             </div>
           </div>

@@ -79,7 +79,7 @@ export default function ContractViewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mx-auto mb-4" />
           <p className="text-white/60">Sözleşmeler yükleniyor...</p>
@@ -90,7 +90,7 @@ export default function ContractViewPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-[#111] rounded-2xl border border-white/10 p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h1 className="text-xl font-semibold text-white mb-2">Sözleşme Bulunamadı</h1>
@@ -107,7 +107,7 @@ export default function ContractViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-[#0f0f0f] rounded-t-2xl border border-white/10 border-b-0">

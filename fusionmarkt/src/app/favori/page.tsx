@@ -86,7 +86,7 @@ export default function FavoritesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060606] relative">
+    <div className="min-h-screen bg-background relative">
       {/* Particle Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <ParticleField className="opacity-10" particleCount={30} color="#ec4899" />
@@ -109,10 +109,10 @@ export default function FavoritesPage() {
                 <Heart className="w-8 h-8 text-pink-400" fill="currentColor" />
               </div>
               
-              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground dark:text-white tracking-tight mb-3">
                 Favorilerim
               </h1>
-              <p className="text-white/40 text-sm">
+              <p className="text-foreground-muted dark:text-white/40 text-sm">
                 {itemCount > 0 
                   ? `${itemCount} ürün favorilerinizde`
                   : "Favorileriniz boş"
@@ -126,14 +126,14 @@ export default function FavoritesPage() {
           ═══════════════════════════════════════════════════════════════════ */}
           {items.length > 0 && (
             <div className="mb-8">
-              <div className="flex items-center justify-between gap-4 p-3 bg-white/[0.02] border border-white/[0.05] rounded-2xl">
+              <div className="flex items-center justify-between gap-4 p-3 bg-glass-bg border border-glass-border rounded-2xl">
                 {!isSelectionMode ? (
                   <>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setIsSelectionMode(true)}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl transition-all"
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-foreground-secondary dark:text-white/50 hover:text-foreground dark:hover:text-white bg-glass-bg hover:bg-glass-bg-hover border border-glass-border rounded-xl transition-all"
                       >
                         <Check size={14} />
                         Seç
@@ -147,7 +147,7 @@ export default function FavoritesPage() {
                         Tümünü Temizle
                       </button>
                     </div>
-                    <span className="text-xs text-white/30">{itemCount} ürün</span>
+                    <span className="text-xs text-foreground-muted dark:text-white/30">{itemCount} ürün</span>
                   </>
                 ) : (
                   <>
@@ -159,7 +159,7 @@ export default function FavoritesPage() {
                           "flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-xl transition-all",
                           selectedItems.size === items.length 
                             ? "text-pink-400 bg-pink-500/10 border border-pink-500/20" 
-                            : "text-white/50 hover:text-white bg-white/[0.03] border border-white/[0.06]"
+                            : "text-foreground-secondary dark:text-white/50 hover:text-foreground dark:hover:text-white bg-glass-bg border border-glass-border"
                         )}
                       >
                         <Check size={14} />
@@ -173,7 +173,7 @@ export default function FavoritesPage() {
                           "flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-xl transition-all",
                           selectedItems.size > 0 
                             ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15" 
-                            : "text-white/25 bg-white/[0.02] border border-white/[0.04] cursor-not-allowed"
+                            : "text-foreground-disabled bg-glass-bg border border-glass-border cursor-not-allowed"
                         )}
                       >
                         <ShoppingBag size={14} />
@@ -187,7 +187,7 @@ export default function FavoritesPage() {
                           "flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-xl transition-all",
                           selectedItems.size > 0 
                             ? "text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/15" 
-                            : "text-white/25 bg-white/[0.02] border border-white/[0.04] cursor-not-allowed"
+                            : "text-foreground-disabled bg-glass-bg border border-glass-border cursor-not-allowed"
                         )}
                       >
                         <Trash2 size={14} />
@@ -200,7 +200,7 @@ export default function FavoritesPage() {
                         setIsSelectionMode(false);
                         setSelectedItems(new Set());
                       }}
-                      className="p-2 text-white/40 hover:text-white transition-all"
+                      className="p-2 text-foreground-muted dark:text-white/40 hover:text-foreground dark:hover:text-white transition-all"
                     >
                       <X size={18} />
                     </button>
@@ -218,8 +218,9 @@ export default function FavoritesPage() {
               <Link
                 href="/magaza"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white font-medium text-base rounded-xl transition-all shadow-lg shadow-pink-500/25"
+                style={{ color: '#ffffff' }}
               >
-                <Sparkles size={16} />
+                <Sparkles size={16} style={{ color: '#ffffff' }} />
                 Ürünleri Keşfet
               </Link>
             </div>
@@ -266,7 +267,7 @@ export default function FavoritesPage() {
                           "w-6 h-6 border-2 rounded-lg flex items-center justify-center transition-all",
                           selectedItems.has(item.id)
                             ? "bg-pink-500 border-pink-500 text-white"
-                            : "bg-transparent border-white/30 text-transparent hover:border-pink-400"
+                            : "bg-transparent border-border text-transparent hover:border-pink-400"
                         )}
                       >
                         <Check size={12} strokeWidth={3} />
@@ -280,7 +281,7 @@ export default function FavoritesPage() {
                         style={{ 
                           width: '88px', 
                           height: '88px',
-                          backgroundColor: '#0a0a0a',
+                          backgroundColor: 'var(--background-secondary)',
                           borderRadius: '14px',
                         }}
                       >
@@ -300,16 +301,16 @@ export default function FavoritesPage() {
 
                     {/* Content */}
                     <div className="min-w-0 flex flex-col justify-center">
-                      <p className="text-[10px] text-white/40 uppercase tracking-wider font-medium mb-1">
+                      <p className="text-[10px] text-foreground-muted dark:text-white/40 uppercase tracking-wider font-medium mb-1">
                         {item.brand}
                       </p>
                       <Link href={`/urun/${item.slug}`}>
-                        <h3 className="text-[14px] font-semibold text-white leading-snug line-clamp-2 hover:text-white/80 transition-colors">
+                        <h3 className="text-[14px] font-semibold text-foreground dark:text-white leading-snug line-clamp-2 hover:text-foreground-secondary dark:hover:text-white/80 transition-colors">
                           {item.title}
                         </h3>
                       </Link>
                       {item.variant && (
-                        <p className="text-[11px] text-white/35 mt-1">
+                        <p className="text-[11px] text-foreground-tertiary dark:text-white/35 mt-1">
                           {item.variant.name}: {item.variant.value}
                         </p>
                       )}
@@ -321,7 +322,7 @@ export default function FavoritesPage() {
                       <div className="text-right min-w-[100px]">
                         {savings > 0 && (
                           <div className="flex items-center justify-end gap-2 mb-0.5">
-                            <span className="text-[11px] text-white/35 line-through">
+                            <span className="text-[11px] text-foreground-muted dark:text-white/35 line-through">
                               {formatPrice(item.originalPrice!)} ₺
                             </span>
                             <span className="text-[10px] text-emerald-400 font-medium">
@@ -329,7 +330,7 @@ export default function FavoritesPage() {
                             </span>
                           </div>
                         )}
-                        <span className="text-lg font-bold text-white">
+                        <span className="text-lg font-bold text-foreground dark:text-white">
                           {formatPrice(item.price)} ₺
                         </span>
                       </div>

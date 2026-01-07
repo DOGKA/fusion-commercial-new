@@ -80,12 +80,12 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
       href={`/urun/${product.slug}`}
       className="related-product-card"
       style={{
-        display: 'grid',
-        gridTemplateColumns: '120px 1fr auto',
-        gap: '20px',
-        alignItems: 'center',
-        backgroundColor: 'rgba(19, 19, 19, 0.9)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        alignItems: 'stretch',
+        backgroundColor: 'var(--surface-overlay)',
+        border: '1px solid var(--border)',
         borderRadius: '20px',
         padding: '16px',
         textDecoration: 'none',
@@ -93,163 +93,169 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
         ...cardStyle,
       }}
     >
-      <div style={{
-        position: 'relative',
-        width: '120px',
-        height: '120px',
-        backgroundColor: '#0a0a0a',
-        borderRadius: '14px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        {productImage ? (
-          <Image 
-            src={productImage} 
-            alt={product.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 767px) calc(100vw - 40px), 120px"
-            quality={85}
-          />
-        ) : (
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>GÖRSEL</span>
-        )}
-      </div>
+      {/* Top Row: Image + Info - Desktop: horizontal, Mobile: vertical */}
+      <div className="related-product-top" style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+        <div className="related-product-image" style={{
+          position: 'relative',
+          width: '100px',
+          minWidth: '100px',
+          height: '100px',
+          backgroundColor: 'var(--background-secondary)',
+          borderRadius: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}>
+          {productImage ? (
+            <Image 
+              src={productImage} 
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="100px"
+              quality={85}
+            />
+          ) : (
+            <span style={{ fontSize: '10px', color: 'var(--foreground-muted)' }}>GÖRSEL</span>
+          )}
+        </div>
 
-      <div style={{ flex: 1 }}>
-        <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-          {product.brand || 'FUSIONMARKT'}
-        </p>
-        <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '6px' }}>
-          {product.name}
-        </h3>
-        {product.shortDescription && (
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>
-            {product.shortDescription.substring(0, 50)}...
+        <div className="related-product-info" style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: '10px', color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+            {product.brand || 'FUSIONMARKT'}
           </p>
-        )}
-        
-        {/* Variant Selection for Related Products */}
-        {hasVariants && (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '6px', 
-            marginBottom: '8px',
-            flexWrap: 'wrap',
-          }}>
-            {product.variants!.slice(0, 5).map((v) => {
-              const swatchColor = isValidColorValue(v.colorCode) ? v.colorCode! : isValidColorValue(v.value) ? v.value : undefined;
-              const isSelected = selectedVariant?.id === v.id;
-              const isOutOfStock = v.stock <= 0;
-              
-              return (
-                <span
-                  key={v.id}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (!isOutOfStock) {
-                      setSelectedVariant(v);
-                      setVariantError(false);
-                    }
-                  }}
-                  style={{
-                    position: 'relative',
-                    width: '26px',
-                    height: '26px',
-                    boxSizing: 'border-box',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '10px',
-                    fontWeight: '500',
-                    borderRadius: SQUIRCLE.sm,
-                    border: isOutOfStock 
-                      ? '2px solid rgba(255,255,255,0.08)' 
-                      : isSelected 
-                        ? '2px solid #10B981' 
-                        : variantError 
-                          ? '2px solid #EF4444' 
-                          : '2px solid rgba(255,255,255,0.2)',
-                    color: isOutOfStock 
-                      ? 'rgba(255,255,255,0.25)' 
-                      : isSelected 
-                        ? '#10B981' 
-                        : 'rgba(255,255,255,0.7)',
-                    backgroundColor: swatchColor 
-                      ? swatchColor 
-                      : isOutOfStock 
-                        ? 'transparent' 
+          <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '6px', lineHeight: '1.3' }}>
+            {product.name}
+          </h3>
+          {product.shortDescription && (
+            <p className="hidden sm:block" style={{ fontSize: '12px', color: 'var(--foreground-tertiary)', marginBottom: '8px' }}>
+              {product.shortDescription.substring(0, 50)}...
+            </p>
+          )}
+          
+          {/* Variant Selection for Related Products */}
+          {hasVariants && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              marginBottom: '8px',
+              flexWrap: 'wrap',
+            }}>
+              {product.variants!.slice(0, 5).map((v) => {
+                const swatchColor = isValidColorValue(v.colorCode) ? v.colorCode! : isValidColorValue(v.value) ? v.value : undefined;
+                const isSelected = selectedVariant?.id === v.id;
+                const isOutOfStock = v.stock <= 0;
+                
+                return (
+                  <span
+                    key={v.id}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!isOutOfStock) {
+                        setSelectedVariant(v);
+                        setVariantError(false);
+                      }
+                    }}
+                    style={{
+                      position: 'relative',
+                      width: '26px',
+                      height: '26px',
+                      boxSizing: 'border-box',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: '500',
+                      borderRadius: SQUIRCLE.sm,
+                      border: isOutOfStock 
+                        ? '2px solid var(--border)' 
                         : isSelected 
-                          ? 'rgba(16, 185, 129, 0.1)' 
-                          : 'rgba(255,255,255,0.05)',
-                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: isSelected 
-                      ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
-                      : variantError 
-                        ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
-                        : undefined,
-                    transform: isSelected ? 'scale(1.08)' : undefined,
-                    opacity: isOutOfStock ? 0.4 : 1,
-                  }}
-                  title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
-                >
-                  {!swatchColor && (v.value || v.name)}
-                  {isOutOfStock && (
-                    <span style={{
-                      position: 'absolute',
-                      width: '120%',
-                      height: '2px',
-                      backgroundColor: 'rgba(255,255,255,0.4)',
-                      transform: 'rotate(-45deg)',
-                      top: '50%',
-                      left: '-10%',
-                    }} />
-                  )}
-                </span>
-              );
-            })}
-          </div>
-        )}
-        
-        {product.freeShipping && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Truck size={10} />
-              Ücretsiz Kargo
-            </span>
-          </div>
-        )}
+                          ? '2px solid #10B981' 
+                          : variantError 
+                            ? '2px solid #EF4444' 
+                            : '2px solid var(--border-secondary)',
+                      color: isOutOfStock 
+                        ? 'var(--foreground-muted)' 
+                        : isSelected 
+                          ? '#10B981' 
+                          : 'var(--foreground-secondary)',
+                      backgroundColor: swatchColor 
+                        ? swatchColor 
+                        : isOutOfStock 
+                          ? 'transparent' 
+                          : isSelected 
+                            ? 'rgba(16, 185, 129, 0.1)' 
+                            : 'var(--glass-bg)',
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: isSelected 
+                        ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
+                        : variantError 
+                          ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
+                          : undefined,
+                      transform: isSelected ? 'scale(1.08)' : undefined,
+                      opacity: isOutOfStock ? 0.4 : 1,
+                    }}
+                    title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
+                  >
+                    {!swatchColor && (v.value || v.name)}
+                    {isOutOfStock && (
+                      <span style={{
+                        position: 'absolute',
+                        width: '120%',
+                        height: '2px',
+                        backgroundColor: 'var(--foreground-muted)',
+                        transform: 'rotate(-45deg)',
+                        top: '50%',
+                        left: '-10%',
+                      }} />
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+          
+          {product.freeShipping && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Truck size={10} />
+                Ücretsiz Kargo
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="related-product-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px', minWidth: '180px' }}>
-        <div className="related-product-price-section" style={{ textAlign: 'right' }}>
+      {/* Bottom Row: Price + Actions */}
+      <div className="related-product-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="related-product-price-section" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {savings > 0 && (
-            <div className="related-product-discount" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>
+            <>
+              <span style={{ fontSize: '11px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
                 {formatPrice(product.comparePrice ?? 0)} TL
               </span>
               <span className="related-savings-badge" style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>
                 {formatPrice(savings)} TL kazanç
               </span>
-            </div>
+            </>
           )}
           <div className="related-product-current-price" style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
             <span 
               className="related-main-price" 
               style={{ 
-                fontSize: 'var(--related-price-size, 20px)', 
+                fontSize: '18px', 
                 fontWeight: 'bold', 
-                color: 'white' 
+                color: 'var(--foreground)' 
               }}
             >
               {formatPrice(product.price)}
             </span>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>TL</span>
+            <span style={{ fontSize: '12px', color: 'var(--foreground-tertiary)' }}>TL</span>
           </div>
         </div>
         <div className="related-product-buttons" style={{ display: 'flex', gap: '8px' }}>
@@ -258,7 +264,6 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
               productId: product.id,
               slug: product.slug,
               title: product.name,
-              // Brand boşsa "FusionMarkt" gibi mock fallback basma
               brand: product.brand || '',
               price: product.price,
               originalPrice: product.comparePrice,
@@ -283,7 +288,6 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                 productId: String(product.id),
                 slug: product.slug,
                 title: product.name,
-                // Brand boşsa "FusionMarkt" gibi mock fallback basma
                 brand: product.brand || '',
                 price: product.price,
                 originalPrice: product.comparePrice,
@@ -296,10 +300,10 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
               justifyContent: 'center',
               width: '40px',
               height: '40px',
-              backgroundColor: isRelatedFavorite ? 'rgba(236, 72, 153, 0.15)' : 'rgba(255,255,255,0.05)',
-              border: isRelatedFavorite ? '1px solid rgba(236, 72, 153, 0.4)' : '1px solid rgba(255,255,255,0.08)',
+              backgroundColor: isRelatedFavorite ? 'rgba(236, 72, 153, 0.15)' : 'var(--glass-bg)',
+              border: isRelatedFavorite ? '1px solid rgba(236, 72, 153, 0.4)' : '1px solid var(--border)',
               borderRadius: '14px',
-              color: isRelatedFavorite ? '#ec4899' : 'rgba(255,255,255,0.5)',
+              color: isRelatedFavorite ? '#ec4899' : 'var(--foreground-tertiary)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}

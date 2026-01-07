@@ -4,12 +4,19 @@ import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useSyncExternalStore } from "react";
 
 interface Partner {
   id: string;
   name: string;
   slug: string;
   logo: string;
+  // Some logos are stored as white assets, some as black assets.
+  // We need consistent rendering:
+  // - Light theme: black logos
+  // - Dark theme: white logos
+  logoIsWhite: boolean;
   tagline: string;
 }
 
@@ -19,6 +26,7 @@ const partners: Partner[] = [
     name: "IEETek",
     slug: "ieetek",
     logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765898303842-jrbbwi-ieetek-logo-white.png",
+    logoIsWhite: true,
     tagline: "Enerji Depolama Lideri",
   },
   {
@@ -26,6 +34,7 @@ const partners: Partner[] = [
     name: "RGP Balls",
     slug: "rgp-balls",
     logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765898303622-oblcj-rgp-logo-white.svg",
+    logoIsWhite: true,
     tagline: "Hassas Bilya Üreticisi",
   },
   {
@@ -33,6 +42,7 @@ const partners: Partner[] = [
     name: "Telesteps",
     slug: "telesteps",
     logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765898302743-wbcw3c-telescopics-white.png",
+    logoIsWhite: true,
     tagline: "Teleskopik Merdiven",
   },
   {
@@ -40,9 +50,18 @@ const partners: Partner[] = [
     name: "Traffi Gloves",
     slug: "traffi",
     logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765962257332-0dpfvn-traffi-black-logo.svg",
+    logoIsWhite: false,
     tagline: "El Koruma Uzmanı",
   },
 ];
+
+// Hydration-safe mounted check (same approach as `ThemeToggle`)
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -71,6 +90,17 @@ const itemVariants: Variants = {
 // 3D Flip Card Component
 function PartnerCard({ partner }: { partner: Partner }) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = mounted && resolvedTheme === "dark";
+
+  // Force all logos to be:
+  // - Light theme: BLACK (grayscale + brightness 0)
+  // - Dark theme: WHITE (grayscale + brightness 0 + invert)
+  // This handles both white assets, black assets, and colorful assets uniformly
+  const logoFilter = isDark
+    ? "grayscale(1) brightness(0) invert(1)" // Makes everything white
+    : "grayscale(1) brightness(0)"; // Makes everything black
 
   return (
     <motion.div 
@@ -92,8 +122,8 @@ function PartnerCard({ partner }: { partner: Partner }) {
             style={{ backfaceVisibility: "hidden" }}
           >
             {/* Glassmorphism Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl" />
-            <div className="absolute inset-0 border border-white/[0.1] rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.04] to-foreground/[0.02] dark:from-white/[0.08] dark:to-white/[0.02] backdrop-blur-xl" />
+            <div className="absolute inset-0 border border-border dark:border-white/[0.1] rounded-2xl" />
             
             {/* Animated Gradient Border */}
             <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -119,11 +149,11 @@ function PartnerCard({ partner }: { partner: Partner }) {
                   alt={partner.name}
                   fill
                   sizes="160px"
-                  className="object-contain brightness-0 invert opacity-70 transition-all duration-300"
-                  style={{ 
-                    filter: isFlipped 
-                      ? "brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.5))" 
-                      : "brightness(0) invert(1)"
+                  className="object-contain opacity-90 transition-all duration-300"
+                  style={{
+                    filter: isFlipped
+                      ? `drop-shadow(0 0 10px var(--foreground-muted)) ${logoFilter}`.trim()
+                      : logoFilter,
                   }}
                 />
               </div>
@@ -168,8 +198,8 @@ function PartnerCard({ partner }: { partner: Partner }) {
             
             {/* Content */}
             <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center">
-              <h3 className="text-lg font-bold text-white mb-1">{partner.name}</h3>
-              <p className="text-xs text-white/70 mb-3">{partner.tagline}</p>
+              <h3 className="text-lg font-bold text-foreground dark:text-white mb-1">{partner.name}</h3>
+              <p className="text-xs text-foreground-secondary dark:text-white/70 mb-3">{partner.tagline}</p>
               <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 group">
                 Keşfet
                 <motion.span
@@ -191,7 +221,7 @@ export default function PartnerLogos() {
   return (
     <section className="py-20 lg:py-24 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-emerald-950/5 to-black pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-500/[0.03] to-background dark:from-black dark:via-emerald-950/5 dark:to-black pointer-events-none" />
       
       {/* Animated Background Orbs */}
       <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
@@ -214,10 +244,10 @@ export default function PartnerLogos() {
           >
             Güvenilir Markalar
           </motion.span>
-          <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground dark:text-white tracking-tight">
             Çözüm Ortaklarımız
           </h2>
-          <p className="mt-4 text-white/50 max-w-md mx-auto">
+          <p className="mt-4 text-foreground-muted dark:text-white/50 max-w-md mx-auto">
             Dünya lideri markalarla iş birliği yapıyoruz
           </p>
         </motion.div>

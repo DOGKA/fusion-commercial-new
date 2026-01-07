@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
+import { useTheme } from "next-themes";
+
+// Hydration-safe mounted check
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -250,6 +259,11 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   
   // Favorites
   const { isFavorite, toggleItem } = useFavorites();
+
+  // Theme detection for dark/light mode
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = mounted && resolvedTheme === "dark";
 
   // Açıklama yüksekliğini kontrol et - kısa içeriklerde buton gösterme
   useEffect(() => {
@@ -631,8 +645,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   // Loading state
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#050505', paddingTop: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Yükleniyor...</div>
+      <div style={{ minHeight: '100vh', paddingTop: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="bg-background">
+        <div style={{ fontSize: '14px' }} className="text-foreground-muted">Yükleniyor...</div>
       </div>
     );
   }
@@ -640,8 +654,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   // Ürün bulunamadı
   if (!productData && slug) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#050505', paddingTop: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Ürün bulunamadı</div>
+      <div style={{ minHeight: '100vh', paddingTop: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="bg-background">
+        <div style={{ fontSize: '14px' }} className="text-foreground-muted">Ürün bulunamadı</div>
       </div>
     );
   }
@@ -650,7 +664,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   if (!productData) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-white/50">Ürün bulunamadı</p>
+        <p className="text-foreground-muted">Ürün bulunamadı</p>
       </div>
     );
   }
@@ -661,7 +675,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   const galleryImages = product.images || [];
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#050505', paddingTop: '120px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', paddingTop: '120px' }}>
       <div className="product-page-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
         
         {/* HERO - 3 Kolon */}
@@ -701,8 +715,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                       style={{
                         width: '100%',
                         aspectRatio: '1',
-                        backgroundColor: '#0a0a0a',
-                        border: selectedImage === idx && !variantImage ? '2px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                        backgroundColor: 'var(--surface)',
+                        border: selectedImage === idx && !variantImage ? '2px solid var(--border-hover)' : '1px solid var(--border)',
                         borderRadius: '12px',
                         display: 'flex',
                         alignItems: 'center',
@@ -731,8 +745,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                       style={{
                         width: '100%',
                         aspectRatio: '1',
-                        backgroundColor: '#0a0a0a',
-                        border: selectedImage >= hiddenStartIndex ? '2px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                        backgroundColor: 'var(--surface)',
+                        border: selectedImage >= hiddenStartIndex ? '2px solid var(--border-hover)' : '1px solid var(--border)',
                         borderRadius: '12px',
                         display: 'flex',
                         alignItems: 'center',
@@ -762,10 +776,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           justifyContent: 'center',
                           gap: '2px',
                         }}>
-                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'white' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--foreground)' }}>
                             +{remainingCount}
                           </span>
-                          <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                          <span style={{ fontSize: '8px', color: 'var(--foreground-secondary)' }}>
                             {selectedImage >= hiddenStartIndex ? `${selectedImage - hiddenStartIndex + 1}/${remainingCount}` : 'tıkla'}
                           </span>
                         </div>
@@ -783,7 +797,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                       style={{
                         width: '100%',
                         aspectRatio: '1',
-                        backgroundColor: '#0a0a0a',
+                        backgroundColor: 'var(--surface)',
                         border: selectedImage === -1 ? '2px solid rgba(6, 182, 212, 0.8)' : '1px solid rgba(6, 182, 212, 0.3)',
                         borderRadius: '12px',
                         display: 'flex',
@@ -822,10 +836,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
               height: '100%',
               maxWidth: '600px',
               maxHeight: '600px',
-              backgroundColor: '#0a0a0a',
+              backgroundColor: 'var(--surface)',
               borderRadius: '24px',
               overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.06)',
+              border: '1px solid var(--border)',
             }}>
               {/* Video mode */}
               {selectedImage === -1 && product.videoUrl ? (
@@ -895,8 +909,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
           {/* SAG - Info Panel - Kompakt 600px */}
           <div className="product-info-column" style={{
-            backgroundColor: 'rgba(19, 19, 19, 0.9)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundColor: 'var(--surface-overlay)',
+            border: '1px solid var(--border)',
             borderRadius: '20px',
             padding: '16px',
             width: '600px',
@@ -941,19 +955,19 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
             {/* Brand */}
             {product.brand && (
-              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
+              <p style={{ fontSize: '10px', color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
                 {product.brand}
               </p>
             )}
 
             {/* Title */}
-            <h1 style={{ fontSize: '20px', fontWeight: '600', color: 'white', lineHeight: '1.25', marginBottom: '6px' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: '600', color: 'var(--foreground)', lineHeight: '1.25', marginBottom: '6px' }}>
               {product.name}
             </h1>
 
             {/* Subtitle */}
             {product.shortDescription && (
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', marginBottom: '8px', lineHeight: '1.4' }}>
+              <p style={{ fontSize: '12px', color: 'var(--foreground-muted)', marginBottom: '8px', lineHeight: '1.4' }}>
                 {product.shortDescription}
               </p>
             )}
@@ -969,10 +983,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
             {/* PAKET İÇERİĞİ - Grouped by product with variant selection */}
             <div className="bundle-items-section" style={{ marginBottom: '6px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                <span style={{ fontSize: '10px', color: 'var(--foreground-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                   Paket İçeriği
                 </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
+                <span style={{ fontSize: '9px', color: 'var(--foreground-muted)', fontWeight: 500 }}>
                   {groupedBundleItems.length} ürün
                 </span>
               </div>
@@ -1000,8 +1014,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                       className="bundle-item-row"
                       style={{
                         borderRadius: '8px',
-                        border: '1px solid rgba(255,255,255,0.06)',
-                        backgroundColor: 'rgba(255,255,255,0.02)',
+                        border: '1px solid var(--border)',
+                        backgroundColor: 'var(--glass-bg)',
                         display: 'grid',
                         gridTemplateColumns: '44px 1fr auto',
                         gap: '10px',
@@ -1015,7 +1029,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         style={{
                           width: 44,
                           height: 44,
-                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          backgroundColor: 'var(--glass-bg)',
                           flexShrink: 0,
                           display: 'flex',
                           alignItems: 'center',
@@ -1034,7 +1048,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                           />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.05)' }} />
+                          <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--glass-bg)' }} />
                         )}
                       </Link>
 
@@ -1057,7 +1071,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           className="bundle-item-name"
                           style={{
                             fontSize: '10px',
-                            color: 'white',
+                            color: 'var(--foreground)',
                             fontWeight: 500,
                             lineHeight: 1.2,
                             overflow: 'hidden',
@@ -1074,11 +1088,11 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           {/* Sol: Fiyatlar */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', minWidth: 0, flex: 1 }}>
                             {hasCompare && (
-                              <span className="bundle-item-compare-price" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through', whiteSpace: 'nowrap' }}>
+                              <span className="bundle-item-compare-price" style={{ fontSize: '9px', color: 'var(--foreground-muted)', textDecoration: 'line-through', whiteSpace: 'nowrap' }}>
                                 {formatPrice(p?.comparePrice || 0)}
                               </span>
                             )}
-                            <span className="bundle-item-current-price" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            <span className="bundle-item-current-price" style={{ fontSize: '11px', color: 'var(--foreground)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                               {formatPrice(p?.price || 0)}
                             </span>
                             {hasCompare && (
@@ -1114,9 +1128,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                       fontSize: '8px',
                                       fontWeight: 600,
                                       borderRadius: '5px',
-                                      backgroundColor: v.variant?.colorCode || 'rgba(255,255,255,0.06)',
-                                      color: v.variant?.colorCode ? '#fff' : 'rgba(255,255,255,0.7)',
-                                      border: isSelected ? '2px solid #10B981' : '1px solid rgba(255,255,255,0.12)',
+                                      backgroundColor: v.variant?.colorCode || 'var(--border)',
+                                      color: v.variant?.colorCode ? '#fff' : 'var(--foreground-secondary)',
+                                      border: isSelected ? '2px solid #10B981' : '1px solid var(--border)',
                                       cursor: 'pointer',
                                       transition: 'all 0.15s ease',
                                       textTransform: 'uppercase',
@@ -1143,9 +1157,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                     fontSize: '8px',
                                     fontWeight: 600,
                                     borderRadius: '5px',
-                                    backgroundColor: selectedVar.variant.colorCode || 'rgba(255,255,255,0.06)',
-                                    color: selectedVar.variant.colorCode ? '#fff' : 'rgba(255,255,255,0.6)',
-                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    backgroundColor: selectedVar.variant.colorCode || 'var(--border)',
+                                    color: selectedVar.variant.colorCode ? '#fff' : 'var(--foreground-secondary)',
+                                    border: '1px solid var(--border)',
                                     textTransform: 'uppercase',
                                     flexShrink: 0,
                                   }}
@@ -1171,7 +1185,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         {/* Adet - her zaman x1 */}
                         <span style={{ 
                           fontSize: '9px', 
-                          color: 'rgba(255,255,255,0.5)', 
+                          color: 'var(--foreground-tertiary)', 
                           fontWeight: 600, 
                           whiteSpace: 'nowrap',
                         }}>
@@ -1204,7 +1218,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                   12 Taksit İmkanı
                 </span>
               </div>
-              <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>
+              <span style={{ color: 'var(--foreground-muted)', fontSize: '9px' }}>
                 SKU: {selectedVariant 
                   ? (selectedVariant.sku || `${product.sku || ''}-${selectedVariant.value}`)
                   : (product.sku || '-')
@@ -1215,7 +1229,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
             {/* Varyasyonlar - Squircle seçim */}
             {product.variants && product.variants.length > 0 && (
               <div style={{ marginBottom: '0px' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px', display: 'block' }}>
+                <span style={{ fontSize: '10px', color: 'var(--foreground-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px', display: 'block' }}>
                   Seçenekler
                 </span>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1259,15 +1273,15 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             width: '38px',
                             height: '38px',
                             borderRadius: SQUIRCLE.md,
-                            backgroundColor: isColor ? (variant.colorCode || 'rgba(255,255,255,0.1)') : 'rgba(255,255,255,0.06)',
+                            backgroundColor: isColor ? (variant.colorCode || 'var(--border)') : 'var(--border)',
                             backgroundImage: !isColor && variant.image ? `url(${variant.image})` : undefined,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             border: isSelected 
                               ? '2px solid rgba(16, 185, 129, 0.8)' 
                               : isInStock 
-                                ? '2px solid rgba(255,255,255,0.15)'
-                                : '2px solid rgba(255,255,255,0.08)',
+                                ? '2px solid var(--border-secondary)'
+                                : '2px solid var(--border)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1281,7 +1295,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             <span style={{ 
                               fontSize: '13px', 
                               fontWeight: '600', 
-                              color: isInStock ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.35)',
+                              color: isInStock ? 'var(--foreground)' : 'var(--foreground-muted)',
                               textAlign: 'center',
                               lineHeight: 1.1,
                             }}>
@@ -1294,7 +1308,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               position: 'absolute',
                               width: '140%',
                               height: '2px',
-                              backgroundColor: 'rgba(255,255,255,0.5)',
+                              backgroundColor: 'var(--foreground-tertiary)',
                               transform: 'rotate(-45deg)',
                               top: '50%',
                               left: '-20%',
@@ -1305,7 +1319,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         {/* Varyant adı */}
                         <span style={{ 
                           fontSize: '10px', 
-                          color: isSelected ? '#10B981' : isInStock ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
+                          color: isSelected ? '#10B981' : isInStock ? 'var(--foreground-secondary)' : 'var(--foreground-muted)',
                           fontWeight: isSelected ? '600' : '400',
                           textAlign: 'center',
                           maxWidth: '60px',
@@ -1327,7 +1341,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
             {/* Üst Kısım Sonu */}
 
             {/* Price Section - Alt Kısım */}
-            <div className="product-price-section" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', marginTop: 'auto' }}>
+            <div className="product-price-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: 'auto' }}>
               {(() => {
                 // Fiyat mantığı:
                 // Product modeli: price = güncel fiyat, comparePrice = eski fiyat (indirim varsa)
@@ -1357,7 +1371,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                     {/* Mobil: Discount row ayrı kalacak */}
                     {hasDiscount && displayComparePrice != null && (
                       <div className="product-discount-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                        <span className="product-original-price" style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>
+                        <span className="product-original-price" style={{ fontSize: '14px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
                           {formatPrice(displayComparePrice)} TL
                         </span>
                         <span className="product-savings" style={{ fontSize: '12px', color: '#10B981', fontWeight: '600' }}>
@@ -1369,9 +1383,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                     {/* Mobilde: Price + CTA aynı satırda olacak */}
                     <div className="product-price-cta-wrapper">
                       <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                        <span className="product-main-price" style={{ fontSize: '30px', fontWeight: 'bold', color: 'white' }}>{formatPrice(displayPrice)}</span>
-                        <span className="product-price-currency" style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)' }}>TL</span>
-                        <span className="product-kdv-text" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>KDV Dahil</span>
+                        <span className="product-main-price" style={{ fontSize: '30px', fontWeight: 'bold', color: 'var(--foreground)' }}>{formatPrice(displayPrice)}</span>
+                        <span className="product-price-currency" style={{ fontSize: '16px', color: 'var(--foreground-tertiary)' }}>TL</span>
+                        <span className="product-kdv-text" style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>KDV Dahil</span>
                         <span
                           style={{
                             fontSize: '10px',
@@ -1396,8 +1410,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0',
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        backgroundColor: 'var(--glass-bg)',
+                        border: '1px solid var(--border)',
                         borderRadius: '16px',
                         padding: '4px',
                         height: '48px',
@@ -1409,9 +1423,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             width: '40px',
                             height: '40px',
                             borderRadius: '12px',
-                            backgroundColor: quantity > 1 ? 'rgba(255,255,255,0.08)' : 'transparent',
+                            backgroundColor: quantity > 1 ? 'var(--border)' : 'transparent',
                             border: 'none',
-                            color: quantity > 1 ? 'white' : 'rgba(255,255,255,0.3)',
+                            color: quantity > 1 ? 'white' : 'var(--foreground-muted)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1426,7 +1440,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           textAlign: 'center',
                           fontSize: '16px',
                           fontWeight: '600',
-                          color: 'white',
+                          color: 'var(--foreground)',
                         }}>
                           {quantity}
                         </span>
@@ -1436,9 +1450,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             width: '40px',
                             height: '40px',
                             borderRadius: '12px',
-                            backgroundColor: 'rgba(255,255,255,0.08)',
+                            backgroundColor: 'var(--border)',
                             border: 'none',
-                            color: 'white',
+                            color: 'var(--foreground)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1516,17 +1530,13 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               borderRadius: '16px',
                               backgroundColor: isProductFavorite 
                                 ? 'rgba(236, 72, 153, 0.15)' 
-                                : favoriteHover 
-                                  ? 'rgba(255,255,255,0.15)' 
-                                  : 'rgba(255,255,255,0.08)',
+                                : (isDark ? '#000000' : '#ffffff'),
                               border: isProductFavorite 
                                 ? '1px solid rgba(236, 72, 153, 0.5)' 
-                                : '1px solid rgba(255,255,255,0.1)',
+                                : (isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--border)'),
                               color: isProductFavorite 
                                 ? '#ec4899' 
-                                : favoriteHover 
-                                  ? 'white' 
-                                  : 'rgba(255,255,255,0.6)',
+                                : (isDark ? '#ffffff' : '#3a3a3a'),
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -1553,7 +1563,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
         {/* TABS */}
         <div style={{ marginTop: '48px' }}>
-          <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
             {['Açıklama', 'Yorumlar'].map((tab, idx) => (
               <button
                 key={idx}
@@ -1562,7 +1572,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                   paddingBottom: '12px',
                   fontSize: '13px',
                   fontWeight: '600',
-                  color: activeTab === tab ? 'white' : 'rgba(255,255,255,0.45)',
+                  color: activeTab === tab ? 'var(--foreground)' : 'var(--foreground-tertiary)',
                   background: 'none',
                   border: 'none',
                   borderBottom: activeTab === tab ? '2px solid white' : '2px solid transparent',
@@ -1576,8 +1586,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
           </div>
 
           <div style={{
-            backgroundColor: 'rgba(19, 19, 19, 0.9)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundColor: 'var(--surface-overlay)',
+            border: '1px solid var(--border)',
             borderRadius: '24px',
             padding: '24px',
             minHeight: '200px',
@@ -1585,15 +1595,15 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
             {activeTab === 'Yorumlar' ? (
               <div>
                 {/* Yorum Özeti */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid var(--border)' }}>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '48px', fontWeight: 'bold', color: 'white' }}>{averageRating}</div>
+                    <div style={{ fontSize: '48px', fontWeight: 'bold', color: 'var(--foreground)' }}>{averageRating}</div>
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginTop: '8px' }}>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star key={star} size={18} fill={star <= Math.round(Number(averageRating)) ? '#FBBF24' : 'none'} stroke="#FBBF24" />
                       ))}
                     </div>
-                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '8px' }}>{reviews.length} değerlendirme</p>
+                    <p style={{ fontSize: '12px', color: 'var(--foreground-tertiary)', marginTop: '8px' }}>{reviews.length} değerlendirme</p>
                   </div>
                   <div style={{ flex: 1 }}>
                     {[5, 4, 3, 2, 1].map((rating) => {
@@ -1601,12 +1611,12 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                       const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
                       return (
                         <div key={rating} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', width: '20px' }}>{rating}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--foreground-secondary)', width: '20px' }}>{rating}</span>
                           <Star size={12} fill="#FBBF24" stroke="#FBBF24" />
-                          <div style={{ flex: 1, height: '8px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ flex: 1, height: '8px', backgroundColor: 'var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${percentage}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: '4px' }} />
                           </div>
-                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', width: '30px' }}>{count}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--foreground-tertiary)', width: '30px' }}>{count}</span>
                         </div>
                       );
                     })}
@@ -1616,10 +1626,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                 {/* Mevcut Yorumlar - Üstte */}
                 {reviews.length > 0 && (
                   <div style={{ marginBottom: '32px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', marginBottom: '16px' }}>Müşteri Yorumları ({reviews.length})</h3>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '16px' }}>Müşteri Yorumları ({reviews.length})</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       {reviews.map((review) => (
-                        <div key={review.id} style={{ padding: '20px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div key={review.id} style={{ padding: '20px', backgroundColor: 'var(--glass-bg)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                             {/* Avatar */}
                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1631,7 +1641,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                                 <div>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'white' }}>{review.userName}</span>
+                                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--foreground)' }}>{review.userName}</span>
                                     {review.isVerifiedPurchase && (
                                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '2px 6px', backgroundColor: 'rgba(16, 185, 129, 0.15)', borderRadius: '4px' }}>
                                         <CheckCircle size={9} style={{ color: '#10B981' }} />
@@ -1645,16 +1655,16 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                         <Star key={star} size={12} fill={star <= review.rating ? '#FBBF24' : 'none'} stroke="#FBBF24" />
                                       ))}
                                     </div>
-                                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>{review.createdAt}</span>
+                                    <span style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>{review.createdAt}</span>
                                   </div>
                                 </div>
                               </div>
                               
                               {/* Content */}
                               {review.title && (
-                                <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'white', marginBottom: '8px' }}>{review.title}</h4>
+                                <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '8px' }}>{review.title}</h4>
                               )}
-                              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' }}>{review.comment}</p>
+                              <p style={{ fontSize: '13px', color: 'var(--foreground-secondary)', lineHeight: '1.6' }}>{review.comment}</p>
                               
                               {/* Yorum Görselleri */}
                               {review.images && review.images.length > 0 && (
@@ -1668,7 +1678,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                         height: '80px',
                                         borderRadius: '8px',
                                         overflow: 'hidden',
-                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        border: '1px solid var(--border)',
                                         cursor: 'pointer',
                                         padding: 0,
                                         background: 'none',
@@ -1706,7 +1716,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                       </span>
                                     )}
                                   </div>
-                                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.5' }}>
+                                  <p style={{ fontSize: '13px', color: 'var(--foreground)', lineHeight: '1.5' }}>
                                     {review.adminReply}
                                   </p>
                                 </div>
@@ -1722,9 +1732,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                 {/* Yorum Yazma Alanı - Altta */}
                 <div style={{ 
                   padding: reviewFormOpen ? '24px' : '16px', 
-                  backgroundColor: 'rgba(255,255,255,0.03)', 
+                  backgroundColor: 'var(--glass-bg)', 
                   borderRadius: '16px', 
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid var(--border)',
                   transition: 'all 0.3s ease',
                 }}>
                   {!reviewFormOpen ? (
@@ -1756,7 +1766,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           backgroundColor: '#10B981',
                           border: 'none',
                           borderRadius: '12px',
-                          color: 'white',
+                          color: '#ffffff',
                           fontSize: '14px',
                           fontWeight: '600',
                           cursor: 'pointer',
@@ -1775,7 +1785,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                     // Açık durum - form
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                        <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <MessageCircle size={18} />
                     Yorum Yaz
                   </h3>
@@ -1784,7 +1794,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: 'rgba(255,255,255,0.5)',
+                            color: 'var(--foreground-tertiary)',
                             cursor: 'pointer',
                             padding: '4px',
                             fontSize: '12px',
@@ -1797,7 +1807,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                     <div>
                       {/* Puan */}
                       <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>Puanınız *</label>
+                        <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>Puanınız *</label>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {[1, 2, 3, 4, 5].map((star) => {
                           const isActive = (reviewHoverRating || reviewRating) >= star;
@@ -1847,8 +1857,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               alignItems: 'center', 
                               gap: '10px', 
                               padding: '10px 14px', 
-                              backgroundColor: nameDisplayPreference === 'masked' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)', 
-                              border: nameDisplayPreference === 'masked' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255,255,255,0.1)', 
+                              backgroundColor: nameDisplayPreference === 'masked' ? 'rgba(16, 185, 129, 0.1)' : 'var(--glass-bg)', 
+                              border: nameDisplayPreference === 'masked' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border)', 
                               borderRadius: '10px',
                               cursor: 'pointer',
                               transition: 'all 0.2s ease',
@@ -1861,7 +1871,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               onChange={() => setNameDisplayPreference('masked')}
                               style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
                             />
-                            <span style={{ fontSize: '13px', color: 'white' }}>
+                            <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
                               Yorumum <strong style={{ color: '#10B981' }}>{maskName(userName)}</strong> olarak gözüksün
                             </span>
                           </label>
@@ -1873,8 +1883,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               alignItems: 'center', 
                               gap: '10px', 
                               padding: '10px 14px', 
-                              backgroundColor: nameDisplayPreference === 'full' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.03)', 
-                              border: nameDisplayPreference === 'full' ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(255,255,255,0.1)', 
+                              backgroundColor: nameDisplayPreference === 'full' ? 'rgba(59, 130, 246, 0.1)' : 'var(--glass-bg)', 
+                              border: nameDisplayPreference === 'full' ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid var(--border)', 
                               borderRadius: '10px',
                               cursor: 'pointer',
                               transition: 'all 0.2s ease',
@@ -1887,7 +1897,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               onChange={() => setNameDisplayPreference('full')}
                               style={{ accentColor: '#3B82F6', width: '16px', height: '16px' }}
                             />
-                            <span style={{ fontSize: '13px', color: 'white' }}>
+                            <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
                               Yorumum <strong style={{ color: '#3B82F6' }}>{userName}</strong> olarak gözüksün
                             </span>
                           </label>
@@ -1898,7 +1908,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                     {/* Ad Soyad - Sadece guest kullanıcılar için */}
                     {!isLoggedIn && (
                       <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>
+                        <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>
                           Adınız Soyadınız *
                         </label>
                         <input
@@ -1906,7 +1916,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           value={guestName}
                           onChange={(e) => setGuestName(e.target.value)}
                           placeholder="Örn: John Doe"
-                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '14px', outline: 'none' }}
+                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'var(--glass-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', fontSize: '14px', outline: 'none' }}
                         />
                         {/* Maskelenmiş isim önizlemesi */}
                         {guestName.trim() && (
@@ -1921,7 +1931,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             gap: '8px',
                           }}>
                             <User size={14} style={{ color: '#10B981' }} />
-                            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--foreground-secondary)' }}>
                               Yorumunuz <strong style={{ color: '#10B981' }}>{maskName(guestName)}</strong> olarak görüntülenecek
                             </span>
                           </div>
@@ -1931,32 +1941,32 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                       
                       {/* Başlık */}
                       <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>Başlık (Opsiyonel)</label>
+                        <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>Başlık (Opsiyonel)</label>
                         <input
                           type="text"
                           value={reviewTitle}
                           onChange={(e) => setReviewTitle(e.target.value)}
                           placeholder="Yorumunuz için kısa bir başlık..."
-                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '14px', outline: 'none' }}
+                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'var(--glass-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', fontSize: '14px', outline: 'none' }}
                         />
                       </div>
                       
                       {/* Yorum */}
                       <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>Yorumunuz *</label>
+                        <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>Yorumunuz *</label>
                         <textarea
                           value={reviewComment}
                           onChange={(e) => setReviewComment(e.target.value)}
                           placeholder="Bu ürün hakkındaki düşüncelerinizi paylaşın..."
                           rows={4}
-                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '14px', outline: 'none', resize: 'vertical' }}
+                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'var(--glass-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', fontSize: '14px', outline: 'none', resize: 'vertical' }}
                         />
                       </div>
                       
                       {/* Görsel Yükleme - Sadece Üyeler */}
                       {isLoggedIn ? (
                         <div style={{ marginBottom: '16px' }}>
-                          <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block' }}>
+                          <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>
                             Görsel Ekle (Opsiyonel - Max 3 adet)
                           </label>
                           
@@ -1984,7 +1994,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                       borderRadius: '50%',
                                       backgroundColor: '#EF4444',
                                       border: 'none',
-                                      color: 'white',
+                                      color: 'var(--foreground)',
                                       fontSize: '12px',
                                       cursor: 'pointer',
                                       display: 'flex',
@@ -2019,10 +2029,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                   alignItems: 'center',
                                   gap: '8px',
                                   padding: '10px 16px',
-                                  backgroundColor: 'rgba(255,255,255,0.05)',
-                                  border: '1px dashed rgba(255,255,255,0.2)',
+                                  backgroundColor: 'var(--glass-bg)',
+                                  border: '1px dashed var(--border-secondary)',
                                   borderRadius: '10px',
-                                  color: 'rgba(255,255,255,0.6)',
+                                  color: 'var(--foreground-secondary)',
                                   fontSize: '13px',
                                   cursor: 'pointer',
                                   transition: 'all 0.2s ease',
@@ -2035,15 +2045,15 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                 </svg>
                                 {reviewImageUploading ? 'Yükleniyor...' : 'Görsel Ekle'}
                               </button>
-                              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                              <p style={{ fontSize: '11px', color: 'var(--foreground-muted)', marginTop: '6px' }}>
                                 JPG, PNG veya WebP • Max 5MB • {3 - reviewImages.length} görsel daha ekleyebilirsiniz
                               </p>
                             </>
                           )}
                         </div>
                       ) : (
-                        <div style={{ marginBottom: '16px', padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '10px' }}>
-                          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                        <div style={{ marginBottom: '16px', padding: '12px 16px', backgroundColor: 'var(--glass-bg)', border: '1px dashed var(--border)', borderRadius: '10px' }}>
+                          <p style={{ fontSize: '12px', color: 'var(--foreground-muted)', margin: 0 }}>
                             Görsel eklemek için <a href="/hesabim" style={{ color: '#10B981', textDecoration: 'underline' }}>giriş yapın</a>
                           </p>
                         </div>
@@ -2065,7 +2075,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                               ? '#10B981' 
                               : isActive 
                                 ? '#10B981'
-                                : 'rgba(255,255,255,0.1)', 
+                                : 'var(--border)', 
                             color: 'white', 
                             borderRadius: '12px', 
                             border: 'none', 
@@ -2104,10 +2114,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
               </div>
             ) : activeTab === 'Açıklama' ? (
               <>
-                <h2 style={{ fontSize: '18px', fontWeight: '600', color: 'white', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '16px' }}>
                   Açıklama
                 </h2>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6' }}>
+                <div style={{ fontSize: '13px', color: 'var(--foreground-secondary)', lineHeight: '1.6' }}>
                   {product.description ? (
                     <div style={{ position: 'relative' }}>
                       <div 
@@ -2131,7 +2141,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           left: 0,
                           right: 0,
                           height: '120px',
-                          background: 'linear-gradient(to bottom, transparent, rgba(19, 19, 19, 1))',
+                          background: 'linear-gradient(to bottom, transparent, var(--surface))',
                           pointerEvents: 'none',
                         }} />
                       )}
@@ -2147,10 +2157,10 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                             onClick={() => setDescriptionExpanded(!descriptionExpanded)}
                             style={{
                               padding: '12px 32px',
-                              backgroundColor: 'rgba(255,255,255,0.08)',
-                              border: '1px solid rgba(255,255,255,0.15)',
+                              backgroundColor: isDark ? 'var(--border)' : '#1a1a1a',
+                              border: isDark ? '1px solid var(--border-secondary)' : '1px solid #2a2a2a',
                               borderRadius: '12px',
-                              color: 'white',
+                              color: '#ffffff',
                               fontSize: '13px',
                               fontWeight: '600',
                               cursor: 'pointer',
@@ -2162,14 +2172,14 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                           >
                             {descriptionExpanded ? (
                               <>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
                                   <path d="m18 15-6-6-6 6"/>
                                 </svg>
                                 Daralt
                               </>
                             ) : (
                               <>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
                                   <path d="m6 9 6 6 6-6"/>
                                 </svg>
                                 Devamını Oku
@@ -2196,7 +2206,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: '600', 
-              color: 'white', 
+              color: 'var(--foreground)', 
               marginBottom: '24px',
               display: 'flex',
               alignItems: 'center',
@@ -2205,7 +2215,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
               <span>Benzer Paketler</span>
               <span style={{ 
                 fontSize: '11px', 
-                color: 'rgba(255,255,255,0.4)', 
+                color: 'var(--foreground-muted)', 
                 fontWeight: '400',
                 marginLeft: '8px',
               }}>
@@ -2239,7 +2249,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
           <div style={{ 
             padding: '24px', 
             textAlign: 'center', 
-            color: 'rgba(255,255,255,0.3)',
+            color: 'var(--foreground-muted)',
             fontSize: '13px',
           }}>
             {/* Boş alan */}

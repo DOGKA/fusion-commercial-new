@@ -49,7 +49,7 @@ export default function OrderSummary({ isMobile = false }: OrderSummaryProps) {
   // Mobile Accordion Header
   if (isMobile) {
     return (
-      <div className="bg-[#0a0a0a]/95 border border-white/[0.06] rounded-2xl overflow-hidden">
+      <div className="bg-background/95 border border-white/[0.06] rounded-2xl overflow-hidden">
         {/* Accordion Header */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
@@ -104,7 +104,7 @@ export default function OrderSummary({ isMobile = false }: OrderSummaryProps) {
   // Desktop Sticky Panel
   return (
     <div className="sticky top-[120px]">
-      <div className="bg-[#0a0a0a]/95 border border-white/[0.06] rounded-2xl overflow-hidden">
+      <div className="bg-background/95 border border-white/[0.06] rounded-2xl overflow-hidden">
         {/* Header */}
         <div className="p-5 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
@@ -195,7 +195,7 @@ function OrderSummaryContent(props: OrderSummaryContentProps) {
             className="flex gap-3 p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl group"
           >
             {/* Image */}
-            <div className="relative w-14 h-14 bg-[#0d0d0d] rounded-lg overflow-hidden flex-shrink-0">
+            <div className="relative w-14 h-14 bg-gray-100 dark:bg-[#0d0d0d] rounded-lg overflow-hidden flex-shrink-0">
               {item.image ? (
                 <Image
                   src={item.image}

@@ -1,97 +1,38 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    FUSIONMARKT - CSS Variables / Design Tokens
    Logo Uyumlu Renk Paleti: Kırmızı, Siyah, Altın
+   Light/Dark Theme Support
 ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ─────────────────────────────────────────────────────────────────────────
+   BASE TOKENS (Theme Agnostic)
+───────────────────────────────────────────────────────────────────────── */
 :root {
-  /* ─────────────────────────────────────────────────────────────────────────
-     PRIMARY - Kırmızı (Logo üst halka)
-  ───────────────────────────────────────────────────────────────────────── */
+  /* PRIMARY - Kırmızı (Logo üst halka) */
   --fusion-primary: #E31E24;
   --fusion-primary-light: #FF4449;
   --fusion-primary-dark: #B8181D;
   --fusion-primary-rgb: 227, 30, 36;
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     SECONDARY - Altın/Sarı (Logo alt halka)
-  ───────────────────────────────────────────────────────────────────────── */
+  /* SECONDARY - Altın/Sarı (Logo alt halka) */
   --fusion-secondary: #FFB800;
   --fusion-secondary-light: #FFC933;
   --fusion-secondary-dark: #CC9300;
   --fusion-secondary-rgb: 255, 184, 0;
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     ACCENT - Koyu Gri / Antrasit (alternatif vurgu)
-  ───────────────────────────────────────────────────────────────────────── */
+  /* ACCENT - Koyu Gri / Antrasit (alternatif vurgu) */
   --fusion-accent: #2D2D2D;
   --fusion-accent-light: #404040;
   --fusion-accent-dark: #1A1A1A;
   --fusion-accent-rgb: 45, 45, 45;
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     SEMANTIC COLORS
-  ───────────────────────────────────────────────────────────────────────── */
+  /* SEMANTIC COLORS (Same in both themes) */
   --fusion-success: #22C55E;
   --fusion-warning: #F59E0B;
   --fusion-error: #EF4444;
   --fusion-info: #3B82F6;
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     BACKGROUND SYSTEM - Dark Theme
-  ───────────────────────────────────────────────────────────────────────── */
-  --background: #0A0A0A;
-  --background-secondary: #111111;
-  --background-tertiary: #171717;
-  --background-elevated: #1F1F1F;
-  --background-hover: #262626;
-  
-  /* Light sections için */
-  --background-light: #FAFAFA;
-  --background-light-secondary: #FFFFFF;
-  
-  /* ─────────────────────────────────────────────────────────────────────────
-     FOREGROUND SYSTEM
-  ───────────────────────────────────────────────────────────────────────── */
-  --foreground: #FAFAFA;
-  --foreground-secondary: rgba(250, 250, 250, 0.75);
-  --foreground-tertiary: rgba(250, 250, 250, 0.5);
-  --foreground-muted: rgba(250, 250, 250, 0.3);
-  --foreground-disabled: rgba(250, 250, 250, 0.15);
-  
-  /* Light background için */
-  --foreground-dark: #0A0A0A;
-  --foreground-dark-secondary: rgba(10, 10, 10, 0.7);
-  
-  /* ─────────────────────────────────────────────────────────────────────────
-     GLASS EFFECTS
-  ───────────────────────────────────────────────────────────────────────── */
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-bg-hover: rgba(255, 255, 255, 0.06);
-  --glass-bg-active: rgba(255, 255, 255, 0.1);
-  --glass-bg-solid: rgba(31, 31, 31, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-border-hover: rgba(255, 255, 255, 0.12);
-  --glass-border-active: rgba(255, 255, 255, 0.2);
-  --glass-blur: 20px;
-  --glass-blur-heavy: 40px;
-  
-  /* ─────────────────────────────────────────────────────────────────────────
-     SHADOWS
-  ───────────────────────────────────────────────────────────────────────── */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.6);
-  --shadow-2xl: 0 24px 80px rgba(0, 0, 0, 0.7);
-  
-  /* Glow Shadows */
-  --shadow-glow-primary: 0 0 40px rgba(var(--fusion-primary-rgb), 0.25);
-  --shadow-glow-secondary: 0 0 40px rgba(var(--fusion-secondary-rgb), 0.25);
-  
-  /* ─────────────────────────────────────────────────────────────────────────
-     SPACING SYSTEM
-  ───────────────────────────────────────────────────────────────────────── */
+  /* SPACING SYSTEM */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -110,9 +51,7 @@
   --section-padding-sm: clamp(2rem, 4vw, 4rem);
   --container-padding: clamp(1rem, 4vw, 2rem);
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     TRANSITIONS
-  ───────────────────────────────────────────────────────────────────────── */
+  /* TRANSITIONS */
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -131,9 +70,7 @@
   --transition-slow: var(--duration-slow) var(--ease-default);
   --transition-smooth: var(--duration-slower) var(--ease-smooth);
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     BORDER RADIUS
-  ───────────────────────────────────────────────────────────────────────── */
+  /* BORDER RADIUS */
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -143,9 +80,7 @@
   --radius-3xl: 32px;
   --radius-full: 9999px;
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     Z-INDEX SCALE
-  ───────────────────────────────────────────────────────────────────────── */
+  /* Z-INDEX SCALE */
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-fixed: 300;
@@ -156,9 +91,7 @@
   --z-toast: 800;
   --z-max: 999;
   
-  /* ─────────────────────────────────────────────────────────────────────────
-     CONTAINER WIDTHS
-  ───────────────────────────────────────────────────────────────────────── */
+  /* CONTAINER WIDTHS */
   --container-sm: 640px;
   --container-md: 768px;
   --container-lg: 1024px;
@@ -166,4 +99,172 @@
   --container-2xl: 1440px;
   --container-3xl: 1600px;
   --container-full: 100%;
+  
+  /* GLASS BLUR */
+  --glass-blur: 20px;
+  --glass-blur-heavy: 40px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LIGHT THEME (Default)
+───────────────────────────────────────────────────────────────────────── */
+:root {
+  /* BACKGROUND SYSTEM - Light Theme */
+  --background: #f5f5f7;
+  --background-secondary: #F8F9FA;
+  --background-tertiary: #F1F3F5;
+  --background-elevated: #FFFFFF;
+  --background-hover: #E9ECEF;
+  --background-muted: #F5F5F5;
+  
+  /* FOREGROUND SYSTEM - Light Theme */
+  --foreground: #0A0A0A;
+  --foreground-secondary: rgba(10, 10, 10, 0.75);
+  --foreground-tertiary: rgba(10, 10, 10, 0.55);
+  --foreground-muted: rgba(10, 10, 10, 0.4);
+  --foreground-disabled: rgba(10, 10, 10, 0.25);
+  
+  /* SURFACE (Cards, Panels) - Light Theme */
+  --surface: #FFFFFF;
+  --surface-secondary: #F8F9FA;
+  --surface-elevated: #FFFFFF;
+  --surface-overlay: rgba(255, 255, 255, 0.95);
+  
+  /* BORDER - Light Theme */
+  --border: #E5E7EB;
+  --border-secondary: #D1D5DB;
+  --border-hover: #9CA3AF;
+  --border-focus: var(--fusion-primary);
+  
+  /* GLASS EFFECTS - Light Theme */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --glass-bg-active: rgba(255, 255, 255, 0.95);
+  --glass-bg-solid: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-border-hover: rgba(0, 0, 0, 0.12);
+  --glass-border-active: rgba(0, 0, 0, 0.2);
+  
+  /* SHADOWS - Light Theme */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.15);
+  --shadow-2xl: 0 24px 64px rgba(0, 0, 0, 0.18);
+  
+  /* Glow Shadows */
+  --shadow-glow-primary: 0 0 40px rgba(var(--fusion-primary-rgb), 0.2);
+  --shadow-glow-secondary: 0 0 40px rgba(var(--fusion-secondary-rgb), 0.2);
+  
+  /* INPUT - Light Theme */
+  --input-bg: #FFFFFF;
+  --input-border: #D1D5DB;
+  --input-placeholder: rgba(10, 10, 10, 0.4);
+  --input-focus-ring: rgba(var(--fusion-primary-rgb), 0.3);
+  
+  /* BUTTON - Light Theme */
+  --btn-primary-bg: var(--fusion-primary);
+  --btn-primary-text: #FFFFFF;
+  --btn-secondary-bg: #F3F4F6;
+  --btn-secondary-text: #374151;
+  --btn-ghost-hover: rgba(0, 0, 0, 0.05);
+  
+  /* BADGE/TAG - Light Theme */
+  --badge-bg: #F3F4F6;
+  --badge-text: #374151;
+  --badge-success-bg: #D1FAE5;
+  --badge-success-text: #065F46;
+  --badge-warning-bg: #FEF3C7;
+  --badge-warning-text: #92400E;
+  --badge-error-bg: #FEE2E2;
+  --badge-error-text: #991B1B;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DARK THEME
+───────────────────────────────────────────────────────────────────────── */
+.dark {
+  /* BACKGROUND SYSTEM - Dark Theme */
+  --background: #0A0A0A;
+  --background-secondary: #111111;
+  --background-tertiary: #171717;
+  --background-elevated: #1F1F1F;
+  --background-hover: #262626;
+  --background-muted: #1A1A1A;
+  
+  /* FOREGROUND SYSTEM - Dark Theme */
+  --foreground: #FAFAFA;
+  --foreground-secondary: rgba(250, 250, 250, 0.75);
+  --foreground-tertiary: rgba(250, 250, 250, 0.5);
+  --foreground-muted: rgba(250, 250, 250, 0.3);
+  --foreground-disabled: rgba(250, 250, 250, 0.15);
+  
+  /* SURFACE (Cards, Panels) - Dark Theme */
+  --surface: #141414;
+  --surface-secondary: #1A1A1A;
+  --surface-elevated: #1F1F1F;
+  --surface-overlay: rgba(20, 20, 20, 0.95);
+  
+  /* BORDER - Dark Theme */
+  --border: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.15);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --border-focus: var(--fusion-primary);
+  
+  /* GLASS EFFECTS - Dark Theme */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  --glass-bg-active: rgba(255, 255, 255, 0.1);
+  --glass-bg-solid: rgba(31, 31, 31, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-border-active: rgba(255, 255, 255, 0.2);
+  
+  /* SHADOWS - Dark Theme */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.75);
+  --shadow-2xl: 0 24px 80px rgba(0, 0, 0, 0.8);
+  
+  /* Glow Shadows - Dark Theme */
+  --shadow-glow-primary: 0 0 40px rgba(var(--fusion-primary-rgb), 0.25);
+  --shadow-glow-secondary: 0 0 40px rgba(var(--fusion-secondary-rgb), 0.25);
+  
+  /* INPUT - Dark Theme */
+  --input-bg: #1A1A1A;
+  --input-border: rgba(255, 255, 255, 0.15);
+  --input-placeholder: rgba(250, 250, 250, 0.35);
+  --input-focus-ring: rgba(var(--fusion-primary-rgb), 0.4);
+  
+  /* BUTTON - Dark Theme */
+  --btn-primary-bg: var(--fusion-primary);
+  --btn-primary-text: #FFFFFF;
+  --btn-secondary-bg: rgba(255, 255, 255, 0.08);
+  --btn-secondary-text: #FAFAFA;
+  --btn-ghost-hover: rgba(255, 255, 255, 0.06);
+  
+  /* BADGE/TAG - Dark Theme */
+  --badge-bg: rgba(255, 255, 255, 0.1);
+  --badge-text: rgba(250, 250, 250, 0.9);
+  --badge-success-bg: rgba(34, 197, 94, 0.2);
+  --badge-success-text: #4ADE80;
+  --badge-warning-bg: rgba(245, 158, 11, 0.2);
+  --badge-warning-text: #FBBF24;
+  --badge-error-bg: rgba(239, 68, 68, 0.2);
+  --badge-error-text: #F87171;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   COMPATIBILITY ALIASES (for existing code)
+───────────────────────────────────────────────────────────────────────── */
+:root,
+.dark {
+  /* Legacy aliases - to be gradually removed */
+  --background-light: var(--background);
+  --background-light-secondary: var(--background-secondary);
+  --foreground-dark: var(--foreground);
+  --foreground-dark-secondary: var(--foreground-secondary);
 }

@@ -90,7 +90,7 @@ export default function CampaignWidget() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{
-                background: "linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)",
+                background: "linear-gradient(135deg, var(--background-tertiary) 0%, var(--background) 100%)",
                 border: "2px solid rgba(255,255,255,0.15)",
                 boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(227,30,36,0.3)",
               }}

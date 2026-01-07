@@ -463,12 +463,15 @@ export default function CheckoutPage() {
   // Empty cart check
   if (items.length === 0) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
         <div style={{ textAlign: "center" }}>
-          <Package size={48} color="rgba(255,255,255,0.2)" style={{ margin: "0 auto 16px" }} />
-          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#fff", marginBottom: "16px" }}>Sepetiniz Boş</h1>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>Ödeme yapmak için sepetinize ürün ekleyin.</p>
-          <Link href="/magaza" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 24px", backgroundColor: "#fff", color: "#000", borderRadius: "12px", fontWeight: "500", textDecoration: "none" }}>
+          <Package size={48} className="text-foreground-muted" style={{ margin: "0 auto 16px" }} />
+          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "var(--foreground)", marginBottom: "16px" }}>Sepetiniz Boş</h1>
+          <p style={{ color: "var(--foreground-tertiary)", marginBottom: "24px" }}>Ödeme yapmak için sepetinize ürün ekleyin.</p>
+          <Link 
+            href="/magaza" 
+            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium no-underline hover:bg-emerald-600 transition-colors"
+          >
             Alışverişe Başla <ChevronRight size={18} />
           </Link>
         </div>
@@ -530,11 +533,11 @@ export default function CheckoutPage() {
     width: "100%",
     height: "48px",
     padding: "0 16px",
-    backgroundColor: "#0f0f0f",
-    border: "1px solid rgba(255,255,255,0.2)",
+    backgroundColor: "var(--input-bg)",
+    border: "1px solid var(--border)",
     borderRadius: "12px",
     fontSize: "14px",
-    color: "#fff",
+    color: "var(--foreground)",
     outline: "none"
   };
 
@@ -550,13 +553,13 @@ export default function CheckoutPage() {
     gap: "6px",
     fontSize: "13px",
     fontWeight: "500",
-    color: "rgba(255,255,255,0.6)",
+    color: "var(--foreground-secondary)",
     marginBottom: "8px"
   };
 
   const containerStyle: React.CSSProperties = {
-    backgroundColor: "#0a0a0a",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "var(--background-secondary)",
+    border: "1px solid var(--glass-border)",
     borderRadius: "16px",
     padding: "28px",
     minHeight: CONTAINER_MIN_HEIGHT
@@ -568,23 +571,23 @@ export default function CheckoutPage() {
   const isPersonalInfoComplete = firstName && lastName && phone && email && isValidEmail(email);
 
   return (
-    <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "#050505", paddingTop: "120px", paddingBottom: "80px" }}>
+    <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "var(--background)", paddingTop: "120px", paddingBottom: "80px" }}>
       <div className="checkout-container" style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 16px" }}>
         {/* Steps */}
         <div className="checkout-steps" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "32px" }}>
           <div className="checkout-step checkout-step-active" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#fff", color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>1</div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "#fff" }}>Adres & Teslimat</span>
+            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10b981", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>1</div>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres & Teslimat</span>
           </div>
-          <ChevronRight size={16} color="rgba(255,255,255,0.3)" className="checkout-step-arrow" />
+          <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.4 }}>
-            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>2</div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.5)" }}>Ödeme</span>
+            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--border)", color: "var(--foreground-tertiary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>2</div>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Ödeme</span>
           </div>
-          <ChevronRight size={16} color="rgba(255,255,255,0.3)" className="checkout-step-arrow" />
+          <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.4 }}>
-            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>3</div>
-            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.5)" }}>Sipariş Tamamlama</span>
+            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--border)", color: "var(--foreground-tertiary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>3</div>
+            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Sipariş Tamamlama</span>
           </div>
         </div>
 
@@ -595,14 +598,14 @@ export default function CheckoutPage() {
             {/* User Info - Kayıtlı bilgiler veya form */}
             <div style={{ marginBottom: "24px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff" }}>Kişisel Bilgiler</h2>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Kişisel Bilgiler</h2>
                 {isPersonalInfoComplete && !editingPersonalInfo && (
                   <button 
                     type="button"
                     onClick={() => setEditingPersonalInfo(true)}
                     style={{ 
                       fontSize: "13px", 
-                      color: "rgba(255,255,255,0.6)", 
+                      color: "var(--foreground-secondary)", 
                       background: "none",
                       border: "none",
                       cursor: "pointer",
@@ -623,13 +626,13 @@ export default function CheckoutPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Kayıtlı Bilgiler</span>
                   </div>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "4px" }}>
+                  <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
                     {firstName.toUpperCase()} {lastName.toUpperCase()}
                   </p>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginBottom: "4px" }}>
+                  <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", marginBottom: "4px" }}>
                     {email}
                   </p>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{phone}</p>
+                  <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{phone}</p>
                 </div>
               ) : (
                 /* Kişisel bilgiler eksikse veya düzenleme modundaysa form göster */
@@ -642,7 +645,7 @@ export default function CheckoutPage() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="Adınız"
-                        style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                        style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                       />
                     </div>
                     <div>
@@ -652,7 +655,7 @@ export default function CheckoutPage() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         placeholder="Soyadınız"
-                        style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                        style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                       />
                     </div>
                   </div>
@@ -664,7 +667,7 @@ export default function CheckoutPage() {
                         value={phone}
                         onChange={(e) => setPhone(formatPhone(e.target.value))}
                         placeholder="0532 123 45 67"
-                        style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                        style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                       />
                     </div>
                     <div>
@@ -697,14 +700,14 @@ export default function CheckoutPage() {
                           placeholder="ornek@email.com"
                           style={{ 
                             ...inputStyle, 
-                            borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)",
+                            borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "var(--input-border)",
                             paddingRight: checkingEmail ? "40px" : "12px"
                           }}
                           disabled={isAuthenticated}
                         />
                         {checkingEmail && (
                           <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}>
-                            <Loader2 size={16} className="animate-spin" style={{ color: "rgba(255,255,255,0.5)" }} />
+                            <Loader2 size={16} className="animate-spin" style={{ color: "var(--foreground-tertiary)" }} />
                           </div>
                         )}
                       </div>
@@ -730,7 +733,7 @@ export default function CheckoutPage() {
                               <p style={{ fontSize: "13px", fontWeight: "600", color: "#fbbf24", margin: "0 0 4px 0" }}>
                                 Bu e-posta kayıtlı!
                               </p>
-                              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", margin: 0 }}>
+                              <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", margin: 0 }}>
                                 {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}
                                 Devam etmek için şifrenizi girin.
                               </p>
@@ -748,8 +751,9 @@ export default function CheckoutPage() {
                                 ...inputStyle, 
                                 flex: 1,
                                 height: "40px",
-                                backgroundColor: "rgba(0,0,0,0.3)",
-                                borderColor: loginError ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)"
+                                backgroundColor: "var(--input-bg)",
+                                color: "var(--foreground)",
+                                borderColor: loginError ? "rgba(239,68,68,0.5)" : "var(--input-border)"
                               }}
                             />
                             <button
@@ -760,7 +764,7 @@ export default function CheckoutPage() {
                                 height: "40px",
                                 padding: "0 16px",
                                 backgroundColor: "#10b981",
-                                color: "#fff",
+                                color: "var(--foreground)",
                                 border: "none",
                                 borderRadius: "8px",
                                 fontSize: "13px",
@@ -781,10 +785,10 @@ export default function CheckoutPage() {
                             <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{loginError}</p>
                           )}
                           
-                          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
                             <Link 
                               href="/sifremi-unuttum" 
-                              style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}
+                              style={{ fontSize: "12px", color: "var(--foreground-tertiary)", textDecoration: "none" }}
                             >
                               Şifremi unuttum
                             </Link>
@@ -807,8 +811,8 @@ export default function CheckoutPage() {
                       style={{
                         marginTop: "12px",
                         padding: "10px 20px",
-                        backgroundColor: isPersonalInfoComplete ? "#10b981" : "rgba(255,255,255,0.1)",
-                        color: isPersonalInfoComplete ? "#fff" : "rgba(255,255,255,0.4)",
+                        backgroundColor: isPersonalInfoComplete ? "#10b981" : "var(--border)",
+                        color: isPersonalInfoComplete ? "var(--foreground)" : "var(--foreground-muted)",
                         border: "none",
                         borderRadius: "8px",
                         fontSize: "13px",
@@ -837,9 +841,9 @@ export default function CheckoutPage() {
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                     height: "48px", borderRadius: "12px",
-                    border: invoiceType === "person" ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.2)",
-                    backgroundColor: invoiceType === "person" ? "rgba(255,255,255,0.05)" : "#0f0f0f",
-                    color: invoiceType === "person" ? "#fff" : "rgba(255,255,255,0.6)",
+                    border: invoiceType === "person" ? "1px solid var(--foreground-muted)" : "1px solid var(--border)",
+                    backgroundColor: invoiceType === "person" ? "var(--glass-bg-hover)" : "var(--input-bg)",
+                    color: invoiceType === "person" ? "var(--foreground)" : "var(--foreground-secondary)",
                     fontSize: "13px", fontWeight: "500", cursor: "pointer"
                   }}
                 >
@@ -851,9 +855,9 @@ export default function CheckoutPage() {
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                     height: "48px", borderRadius: "12px",
-                    border: invoiceType === "company" ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.2)",
-                    backgroundColor: invoiceType === "company" ? "rgba(255,255,255,0.05)" : "#0f0f0f",
-                    color: invoiceType === "company" ? "#fff" : "rgba(255,255,255,0.6)",
+                    border: invoiceType === "company" ? "1px solid var(--foreground-muted)" : "1px solid var(--border)",
+                    backgroundColor: invoiceType === "company" ? "var(--glass-bg-hover)" : "var(--input-bg)",
+                    color: invoiceType === "company" ? "var(--foreground)" : "var(--foreground-secondary)",
                     fontSize: "13px", fontWeight: "500", cursor: "pointer"
                   }}
                 >
@@ -864,7 +868,7 @@ export default function CheckoutPage() {
 
             {/* Company Fields - Sadece kurumsal seçildiğinde */}
             {invoiceType === "company" && (
-              <div style={{ padding: "20px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", marginBottom: "24px" }}>
+              <div style={{ padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px", marginBottom: "24px" }}>
                 <div style={{ marginBottom: "12px" }}>
                   <label style={labelStyle}><Building2 size={13} /> Şirket Adı *</label>
                   <input
@@ -872,7 +876,7 @@ export default function CheckoutPage() {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="Şirket ünvanı"
-                    style={{ ...inputStyle, borderColor: errors.companyName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                    style={{ ...inputStyle, borderColor: errors.companyName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                   />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -883,7 +887,7 @@ export default function CheckoutPage() {
                       value={taxNumber}
                       onChange={(e) => setTaxNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="1234567890"
-                      style={{ ...inputStyle, borderColor: errors.taxNumber ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      style={{ ...inputStyle, borderColor: errors.taxNumber ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     />
                   </div>
                   <div>
@@ -893,7 +897,7 @@ export default function CheckoutPage() {
                       value={taxOffice}
                       onChange={(e) => setTaxOffice(e.target.value)}
                       placeholder="Vergi dairesi adı"
-                      style={{ ...inputStyle, borderColor: errors.taxOffice ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      style={{ ...inputStyle, borderColor: errors.taxOffice ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     />
                   </div>
                 </div>
@@ -917,10 +921,10 @@ export default function CheckoutPage() {
             {/* Saved Addresses */}
             {isAuthenticated && hasSavedAddresses && (
               <div style={{ marginBottom: "24px" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff", marginBottom: "16px" }}>Teslimat Adresi</h2>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)", marginBottom: "16px" }}>Teslimat Adresi</h2>
                 {loadingAddresses ? (
                   <div style={{ textAlign: "center", padding: "32px" }}>
-                    <Loader2 size={24} className="animate-spin" style={{ color: "rgba(255,255,255,0.3)" }} />
+                    <Loader2 size={24} className="animate-spin" style={{ color: "var(--foreground-muted)" }} />
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -931,15 +935,15 @@ export default function CheckoutPage() {
                         style={{
                           padding: "16px",
                           borderRadius: "12px",
-                          border: selectedAddressId === addr.id ? "1px solid #10b981" : "1px solid rgba(255,255,255,0.1)",
-                          backgroundColor: selectedAddressId === addr.id ? "rgba(16,185,129,0.05)" : "rgba(255,255,255,0.02)",
+                          border: selectedAddressId === addr.id ? "1px solid #10b981" : "1px solid var(--border)",
+                          backgroundColor: selectedAddressId === addr.id ? "rgba(16,185,129,0.05)" : "var(--glass-bg)",
                           cursor: "pointer"
                         }}
                       >
                         <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                           <div style={{
                             width: "20px", height: "20px", borderRadius: "50%",
-                            border: selectedAddressId === addr.id ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.3)",
+                            border: selectedAddressId === addr.id ? "2px solid #10b981" : "2px solid var(--border)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             flexShrink: 0, marginTop: "2px"
                           }}>
@@ -947,13 +951,13 @@ export default function CheckoutPage() {
                           </div>
                           <div style={{ flex: 1 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                              <span style={{ fontSize: "14px", fontWeight: "500", color: "#fff" }}>{addr.title}</span>
+                              <span style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)" }}>{addr.title}</span>
                               {addr.isDefault && <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Varsayılan</span>}
                             </div>
-                            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>
+                            <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)", marginBottom: "4px" }}>
                               {addr.addressLine1}, {addr.district}, {addr.city}
                             </p>
-                            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{addr.phone}</p>
+                            <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{addr.phone}</p>
                           </div>
                         </div>
                       </div>
@@ -985,9 +989,9 @@ export default function CheckoutPage() {
                       style={{
                         display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                         padding: "16px", borderRadius: "12px",
-                        border: showNewAddressForm && !selectedAddressId ? "1px solid #10b981" : "1px dashed rgba(255,255,255,0.2)",
+                        border: showNewAddressForm && !selectedAddressId ? "1px solid #10b981" : "1px dashed var(--border)",
                         backgroundColor: "transparent",
-                        color: showNewAddressForm && !selectedAddressId ? "#10b981" : "rgba(255,255,255,0.6)",
+                        color: showNewAddressForm && !selectedAddressId ? "#10b981" : "var(--foreground-secondary)",
                         fontSize: "13px", fontWeight: "500", cursor: "pointer"
                       }}
                     >
@@ -1001,8 +1005,8 @@ export default function CheckoutPage() {
             {/* New Address Form - sadece butona basılınca veya kayıtlı adres yoksa göster */}
             {!loadingAddresses && (showNewAddressForm || (!isAuthenticated) || (!hasSavedAddresses && isAuthenticated)) && (
               <div style={{ marginBottom: "24px" }}>
-                {hasSavedAddresses && showNewAddressForm && <h3 style={{ fontSize: "16px", fontWeight: "500", color: "#fff", marginBottom: "16px" }}>Yeni Adres</h3>}
-                {!hasSavedAddresses && <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff", marginBottom: "16px" }}>Teslimat Adresi</h2>}
+                {hasSavedAddresses && showNewAddressForm && <h3 style={{ fontSize: "16px", fontWeight: "500", color: "var(--foreground)", marginBottom: "16px" }}>Yeni Adres</h3>}
+                {!hasSavedAddresses && <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)", marginBottom: "16px" }}>Teslimat Adresi</h2>}
                 
                 <div className="checkout-address-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
                   <div>
@@ -1014,12 +1018,12 @@ export default function CheckoutPage() {
                     <select
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      style={{ ...selectStyle, borderColor: errors.city ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      style={{ ...selectStyle, borderColor: errors.city ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     >
                       <option value="">İl Seçin</option>
                       {CITIES.map((c) => (<option key={c} value={c}>{c}</option>))}
                     </select>
-                    <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+                    <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                   </div>
                   <div style={{ position: "relative" }}>
                     <label style={labelStyle}>İlçe *</label>
@@ -1027,12 +1031,12 @@ export default function CheckoutPage() {
                       value={district}
                       onChange={(e) => setDistrict(e.target.value)}
                       disabled={!city}
-                      style={{ ...selectStyle, borderColor: errors.district ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)", opacity: !city ? 0.5 : 1 }}
+                      style={{ ...selectStyle, borderColor: errors.district ? "rgba(239,68,68,0.5)" : "var(--input-border)", opacity: !city ? 0.5 : 1 }}
                     >
                       <option value="">İlçe Seçin</option>
                       {districts.map((d) => (<option key={d} value={d}>{d}</option>))}
                     </select>
-                    <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+                    <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                   </div>
                 </div>
 
@@ -1043,7 +1047,7 @@ export default function CheckoutPage() {
                     value={addressLine1}
                     onChange={(e) => setAddressLine1(e.target.value)}
                     placeholder="Mahalle, Sokak, Bina No"
-                    style={{ ...inputStyle, borderColor: errors.addressLine1 ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                    style={{ ...inputStyle, borderColor: errors.addressLine1 ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                   />
                 </div>
 
@@ -1060,14 +1064,14 @@ export default function CheckoutPage() {
 
                 {/* Kayıtlı adreslerime ekle - sadece giriş yapmış kullanıcılar için */}
                 {isAuthenticated && (
-                  <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", padding: "12px 16px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", padding: "12px 16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
                     <div
                       onClick={() => setSaveToAddresses(!saveToAddresses)}
                       style={{
                         width: "20px",
                         height: "20px",
                         borderRadius: "6px",
-                        border: saveToAddresses ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.3)",
+                        border: saveToAddresses ? "2px solid #10b981" : "2px solid var(--border)",
                         backgroundColor: saveToAddresses ? "#10b981" : "transparent",
                         display: "flex",
                         alignItems: "center",
@@ -1075,9 +1079,9 @@ export default function CheckoutPage() {
                         flexShrink: 0
                       }}
                     >
-                      {saveToAddresses && <Check size={12} color="#fff" strokeWidth={3} />}
+                      {saveToAddresses && <Check size={12} className="text-white" strokeWidth={3} />}
                     </div>
-                    <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)" }}>
+                    <span style={{ fontSize: "13px", color: "var(--foreground-secondary)" }}>
                       Bu adresi kayıtlı adreslerime ekle
                     </span>
                   </label>
@@ -1096,11 +1100,11 @@ export default function CheckoutPage() {
                 style={{
                   width: "100%",
                   padding: "12px 16px",
-                  backgroundColor: "#0f0f0f",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  backgroundColor: "var(--input-bg)",
+                  border: "1px solid var(--border)",
                   borderRadius: "12px",
                   fontSize: "14px",
-                  color: "#fff",
+                  color: "var(--foreground)",
                   outline: "none",
                   resize: "none"
                 }}
@@ -1112,37 +1116,37 @@ export default function CheckoutPage() {
           <div className="checkout-right-column" style={containerStyle}>
             {/* Order Summary Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Package size={20} color="rgba(255,255,255,0.6)" />
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Package size={20} color="var(--foreground-secondary)" />
               </div>
               <div>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff" }}>Siparişiniz</h2>
-                <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>{items.length} ürün</span>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Siparişiniz</h2>
+                <span style={{ fontSize: "13px", color: "var(--foreground-muted)" }}>{items.length} ürün</span>
               </div>
             </div>
 
             {/* Products */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
               {items.map((item) => (
-                <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px" }}>
-                  <div style={{ position: "relative", width: "64px", height: "64px", backgroundColor: "#111", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+                <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <div style={{ position: "relative", width: "64px", height: "64px", backgroundColor: "var(--background-secondary)", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
                     {item.image ? (
                       <Image src={item.image} alt={item.title} fill sizes="64px" style={{ objectFit: "contain" }} />
                     ) : (
                       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Package size={20} color="rgba(255,255,255,0.2)" />
+                        <Package size={20} className="text-foreground-muted" />
                       </div>
                     )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h4 style={{ fontSize: "14px", fontWeight: "500", color: "rgba(255,255,255,0.9)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
-                    {item.variant && <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{item.variant.value}</p>}
+                    <h4 style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
+                    {item.variant && <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{item.variant.value}</p>}
                     
                     {/* Price, Discount, Quantity - Stacked layout */}
                     <div className="flex flex-col gap-1.5 mt-2">
                       {/* Row 1: Original price */}
                       <div className="flex items-baseline gap-1">
-                        <span className="text-[15px] font-semibold text-white">
+                        <span className="text-[15px] font-semibold text-foreground">
                           {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
                         </span>
                         <span className="text-[11px] text-white/40">₺</span>
@@ -1152,27 +1156,27 @@ export default function CheckoutPage() {
                       {item.originalPrice && item.originalPrice > item.price && (
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                           <span className="text-[10px] text-white/50">İndirimli Fiyat:</span>
-                          <span className="text-[11px] text-white font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
+                          <span className="text-[11px] text-foreground font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
                           <span className="text-[10px] text-white/30">•</span>
                           <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
                         </div>
                       )}
                       
                       {/* Row 3: Quantity Controls - smaller on mobile */}
-                      <div className="checkout-quantity-controls flex items-center self-start bg-white/[0.04] border border-white/[0.06] rounded p-px md:rounded-md md:p-0.5">
+                      <div className="checkout-quantity-controls flex items-center self-start bg-glass-bg border border-border rounded p-px md:rounded-md md:p-0.5">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all rounded-sm md:rounded"
                           type="button"
                         >
                           <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
-                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-medium text-white/80">
+                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-medium text-foreground">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all rounded-sm md:rounded"
                           type="button"
                         >
                           <Plus className="w-2.5 h-2.5 md:w-3 md:h-3" />
@@ -1181,10 +1185,10 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "rgba(255,255,255,0.3)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
+                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
                       <Heart size={14} />
                     </button>
-                    <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "rgba(255,255,255,0.3)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">
+                    <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -1193,7 +1197,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Coupon */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
               {appliedCoupon ? (
                 // Kupon uygulandı
                 <div style={{ 
@@ -1211,7 +1215,7 @@ export default function CheckoutPage() {
                       <span style={{ fontSize: "14px", fontWeight: "600", color: "#10b981" }}>
                         {appliedCoupon.code}
                       </span>
-                      <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginLeft: "8px" }}>
+                      <span style={{ fontSize: "13px", color: "var(--foreground-tertiary)", marginLeft: "8px" }}>
                         -{formatPrice(appliedCoupon.discount)}
                       </span>
                     </div>
@@ -1221,10 +1225,10 @@ export default function CheckoutPage() {
                     style={{ 
                       padding: "6px 12px", 
                       backgroundColor: "transparent", 
-                      border: "1px solid rgba(255,255,255,0.2)", 
+                      border: "1px solid var(--border)", 
                       borderRadius: "8px", 
                       fontSize: "12px", 
-                      color: "rgba(255,255,255,0.5)", 
+                      color: "var(--foreground-tertiary)", 
                       cursor: "pointer" 
                     }}
                   >
@@ -1232,7 +1236,7 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               ) : !showCoupon ? (
-                <button onClick={() => setShowCoupon(true)} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "rgba(255,255,255,0.5)", backgroundColor: "transparent", border: "none", cursor: "pointer" }}>
+                <button onClick={() => setShowCoupon(true)} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--foreground-tertiary)", backgroundColor: "transparent", border: "none", cursor: "pointer" }}>
                   <Tag size={16} /> Kuponunuz var mı?
                 </button>
               ) : (
@@ -1252,11 +1256,11 @@ export default function CheckoutPage() {
                         flex: 1, 
                         height: "44px", 
                         padding: "0 16px", 
-                        backgroundColor: "#0f0f0f", 
-                        border: couponError ? "1px solid #ef4444" : "1px solid rgba(255,255,255,0.2)", 
+                        backgroundColor: "var(--input-bg)", 
+                        border: couponError ? "1px solid #ef4444" : "1px solid var(--border)", 
                         borderRadius: "12px", 
                         fontSize: "14px", 
-                        color: "#fff", 
+                        color: "var(--foreground)", 
                         outline: "none" 
                       }}
                     />
@@ -1266,12 +1270,12 @@ export default function CheckoutPage() {
                       style={{ 
                         padding: "0 20px", 
                         height: "44px", 
-                        backgroundColor: couponLoading ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)", 
-                        border: "1px solid rgba(255,255,255,0.2)", 
+                        backgroundColor: couponLoading ? "var(--glass-bg)" : "var(--border)", 
+                        border: "1px solid var(--border)", 
                         borderRadius: "12px", 
                         fontSize: "14px", 
                         fontWeight: "500", 
-                        color: "#fff", 
+                        color: "var(--foreground)", 
                         cursor: couponLoading ? "wait" : "pointer",
                         display: "flex",
                         alignItems: "center",
@@ -1305,7 +1309,7 @@ export default function CheckoutPage() {
                 </p>
                 <div style={{ 
                   height: "6px", 
-                  backgroundColor: "rgba(255,255,255,0.1)", 
+                  backgroundColor: "var(--border)", 
                   borderRadius: "4px",
                   overflow: "hidden"
                 }}>
@@ -1318,21 +1322,21 @@ export default function CheckoutPage() {
                   }} />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
-                  <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>{formatPrice(subtotal)}</span>
+                  <span style={{ fontSize: "10px", color: "var(--foreground-muted)" }}>{formatPrice(subtotal)}</span>
                   <span style={{ fontSize: "10px", color: "rgba(52,211,153,0.6)" }}>{formatPrice(freeShippingThreshold)} Ücretsiz Kargo</span>
                 </div>
               </div>
             )}
 
             {/* Shipping Options */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
-              <h3 style={{ fontSize: "15px", fontWeight: "500", color: "#fff", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
+              <h3 style={{ fontSize: "15px", fontWeight: "500", color: "var(--foreground)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <Truck size={18} /> Kargo Seçenekleri
               </h3>
               
               {loadingShipping ? (
                 <div style={{ textAlign: "center", padding: "20px" }}>
-                  <Loader2 size={24} className="animate-spin" style={{ color: "rgba(255,255,255,0.3)" }} />
+                  <Loader2 size={24} className="animate-spin" style={{ color: "var(--foreground-muted)" }} />
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -1344,21 +1348,21 @@ export default function CheckoutPage() {
                         padding: "16px", borderRadius: "12px",
                         border: selectedShippingId === option.id 
                           ? option.isFree ? "1px solid #10b981" : "1px solid #f59e0b"
-                          : "1px solid rgba(255,255,255,0.1)",
+                          : "1px solid var(--border)",
                         backgroundColor: selectedShippingId === option.id 
                           ? option.isFree ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.05)"
-                          : "rgba(255,255,255,0.02)",
+                          : "var(--glass-bg)",
                         cursor: "pointer"
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1 }}>
-                        <div style={{ width: "20px", height: "20px", borderRadius: "50%", border: selectedShippingId === option.id ? (option.isFree ? "2px solid #10b981" : "2px solid #f59e0b") : "2px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px" }}>
+                        <div style={{ width: "20px", height: "20px", borderRadius: "50%", border: selectedShippingId === option.id ? (option.isFree ? "2px solid #10b981" : "2px solid #f59e0b") : "2px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px" }}>
                           {selectedShippingId === option.id && <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: option.isFree ? "#10b981" : "#f59e0b" }} />}
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                            <span style={{ fontSize: "14px", fontWeight: "500", color: "#fff" }}>{option.name}</span>
-                            <span style={{ fontSize: "14px", fontWeight: "600", color: option.isFree ? "#10b981" : "#fff" }}>
+                            <span style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)" }}>{option.name}</span>
+                            <span style={{ fontSize: "14px", fontWeight: "600", color: option.isFree ? "#10b981" : "var(--foreground)" }}>
                               {option.isFree ? "Ücretsiz" : formatPrice(option.cost)}
                             </span>
                           </div>
@@ -1380,12 +1384,12 @@ export default function CheckoutPage() {
             </div>
 
             {/* Totals */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
               {/* Original Subtotal - only show if there's product discount */}
               {totalSavings > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                  <span style={{ color: "rgba(255,255,255,0.5)", textDecoration: "line-through" }}>{formatPrice(originalSubtotal)}</span>
+                  <span style={{ color: "var(--foreground-tertiary)" }}>Ara Toplam</span>
+                  <span style={{ color: "var(--foreground-tertiary)", textDecoration: "line-through" }}>{formatPrice(originalSubtotal)}</span>
                 </div>
               )}
               
@@ -1400,15 +1404,15 @@ export default function CheckoutPage() {
               {/* Subtotal after product discount - only if no product discount */}
               {totalSavings === 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                  <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(subtotal)}</span>
+                  <span style={{ color: "var(--foreground-tertiary)" }}>Ara Toplam</span>
+                  <span style={{ color: "var(--foreground)" }}>{formatPrice(subtotal)}</span>
                 </div>
               )}
               
               {/* Shipping */}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Kargo</span>
-                <span style={{ color: shippingCost === 0 ? "#10b981" : "rgba(255,255,255,0.8)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
+                <span style={{ color: "var(--foreground-tertiary)" }}>Kargo</span>
+                <span style={{ color: shippingCost === 0 ? "#10b981" : "var(--foreground)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
                   {shippingCost === 0 ? "Ücretsiz" : formatPrice(shippingCost)}
                 </span>
               </div>
@@ -1427,11 +1431,11 @@ export default function CheckoutPage() {
               )}
               
               {/* Grand Total */}
-              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>Toplam</span>
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
+                <span style={{ fontSize: "16px", fontWeight: "600", color: "var(--foreground)" }}>Toplam</span>
                 <div style={{ textAlign: "right" }}>
-                  <span style={{ fontSize: "20px", fontWeight: "700", color: "#fff" }}>{formatPrice(total)}</span>
-                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>(KDV Dahil)</p>
+                  <span style={{ fontSize: "20px", fontWeight: "700", color: "var(--foreground)" }}>{formatPrice(total)}</span>
+                  <p style={{ fontSize: "11px", color: "var(--foreground-muted)" }}>(KDV Dahil)</p>
                 </div>
               </div>
             </div>
@@ -1473,8 +1477,8 @@ export default function CheckoutPage() {
                 width: "100%",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                 height: "56px", fontWeight: "600", borderRadius: "12px",
-                backgroundColor: hoverProceed ? "#10b981" : "#fff",
-                color: hoverProceed ? "#fff" : "#000",
+                backgroundColor: hoverProceed ? "#059669" : "#10b981",
+                color: "#fff",
                 border: "none",
                 cursor: isSubmitting ? "not-allowed" : "pointer",
                 opacity: isSubmitting ? 0.5 : 1,
@@ -1493,7 +1497,7 @@ export default function CheckoutPage() {
             </button>
 
             {/* Trust */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", color: "rgba(255,255,255,0.3)", marginTop: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", color: "var(--foreground-muted)", marginTop: "20px" }}>
               <ShieldCheck size={16} />
               <span style={{ fontSize: "12px" }}>256-bit SSL ile güvenli ödeme</span>
             </div>

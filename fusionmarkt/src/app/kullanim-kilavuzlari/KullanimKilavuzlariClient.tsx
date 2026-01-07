@@ -73,18 +73,18 @@ export default function KullanimKilavuzlariClient() {
   }, {} as Record<string, Product[]>);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header Altı - Siyahtan Beyaza Smooth Geçiş */}
-      <div className="pt-[120px]" style={{ background: 'linear-gradient(to bottom, #000000 0%, #0f172a 10%, #1e293b 25%, #334155 45%, #64748b 60%, #94a3b8 72%, #cbd5e1 82%, #e2e8f0 90%, #f1f5f9 95%, #ffffff 100%)' }}>
+    <div className="min-h-screen bg-white dark:bg-[#060606]">
+      {/* Header Altı - Theme-aware Smooth Geçiş */}
+      <div className="pt-[120px] bg-gradient-to-b from-slate-100 via-slate-200 to-white dark:from-black dark:via-slate-900 dark:to-[#060606]">
         {/* Kataloglar */}
         <section className="py-10">
           <div className="container mx-auto px-4">
             <h1 className="text-center text-2xl md:text-4xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-white via-slate-300 to-slate-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 dark:from-white dark:via-slate-300 dark:to-slate-400 bg-clip-text text-transparent">
                 IEETek Kullanım Kılavuzları PDF İndir
               </span>
             </h1>
-            <p className="text-center text-slate-400 text-sm md:text-base mb-4 max-w-2xl mx-auto">
+            <p className="text-center text-slate-600 dark:text-slate-400 text-sm md:text-base mb-4 max-w-2xl mx-auto">
               IEETek taşınabilir güç istasyonları ve güneş panelleri için Türkçe kullanım kılavuzları, teknik veri sayfaları ve kurulum rehberleri
             </p>
             <div className="flex flex-wrap justify-center gap-2">
@@ -94,10 +94,10 @@ export default function KullanimKilavuzlariClient() {
                   href={catalogue.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm rounded-lg px-4 py-2.5 text-sm border border-slate-700/50 hover:border-slate-500 hover:bg-slate-700 transition-all duration-300"
+                  className="flex items-center gap-2 bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg px-4 py-2.5 text-sm border border-slate-300/50 dark:border-slate-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700 transition-all duration-300"
                 >
                   <span>{languageFlags[catalogue.name]}</span>
-                  <span className="text-white">{catalogue.name}</span>
+                  <span className="text-slate-900 dark:text-white">{catalogue.name}</span>
                 </a>
               ))}
             </div>
@@ -112,8 +112,8 @@ export default function KullanimKilavuzlariClient() {
                 onClick={() => setSelectedCategory("all")}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   selectedCategory === "all"
-                    ? "bg-white text-slate-900 shadow-md"
-                    : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/50"
+                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md"
+                    : "bg-slate-300/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-400/50 dark:hover:bg-slate-600/50"
                 }`}
               >
                 Tümü ({products.length})
@@ -125,7 +125,7 @@ export default function KullanimKilavuzlariClient() {
                   className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     selectedCategory === category
                       ? `bg-gradient-to-r ${categoryColors[category]} text-white shadow-md`
-                      : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/50"
+                      : "bg-slate-300/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-400/50 dark:hover:bg-slate-600/50"
                   }`}
                 >
                   {categoryIcons[category]}
@@ -230,14 +230,14 @@ export default function KullanimKilavuzlariClient() {
         </div>
       </section>
 
-      {/* Alt Bölüm - Beyazdan Siyaha Smooth Geçiş */}
-      <div style={{ background: 'linear-gradient(to bottom, #ffffff 0%, #f1f5f9 10%, #cbd5e1 25%, #64748b 50%, #334155 70%, #1e293b 85%, #0f172a 95%, #000000 100%)' }}>
+      {/* Alt Bölüm - Theme-aware Smooth Geçiş */}
+      <div className="bg-gradient-to-b from-white via-slate-200 to-slate-100 dark:from-[#060606] dark:via-slate-900 dark:to-black">
         {/* İletişim CTA */}
         <section className="py-6">
           <div className="container mx-auto px-4 text-center">
             <Link
               href="/iletisim"
-              className="text-slate-600 text-sm font-medium hover:text-slate-900 transition-colors"
+              className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               Döküman bulamadınız mı? İletişime geçin →
             </Link>
@@ -247,7 +247,7 @@ export default function KullanimKilavuzlariClient() {
         {/* App Banner */}
         <section className="py-8">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-lg font-bold text-white mb-3">IEETek Mobil Uygulaması</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">IEETek Mobil Uygulaması</h2>
             <Link
               href="https://ieetek.vercel.app/"
               target="_blank"

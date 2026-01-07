@@ -15,7 +15,7 @@ const duplicatedAnnouncements = [...announcements, ...announcements, ...announce
 
 export default function AnnouncementBar() {
   return (
-    <div className="relative bg-white/[0.02] border-b border-white/[0.06] overflow-hidden">
+    <div className="relative bg-foreground/[0.02] border-b border-border overflow-hidden">
       <div className="py-2.5">
         <motion.div
           animate={{ x: [0, -100 * announcements.length] }}
@@ -33,9 +33,9 @@ export default function AnnouncementBar() {
             const Icon = item.icon;
             return (
               <div key={index} className="flex items-center gap-2 text-sm">
-                <Icon className="w-4 h-4 text-white/50" />
-                <span className="text-white/60">{item.text}</span>
-                <span className="text-white/20 mx-4">•</span>
+                <Icon className="w-4 h-4 text-foreground/50" />
+                <span className="text-foreground/60">{item.text}</span>
+                <span className="text-foreground/20 mx-4">•</span>
               </div>
             );
           })}

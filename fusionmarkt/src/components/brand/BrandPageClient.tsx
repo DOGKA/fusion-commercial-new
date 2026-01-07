@@ -25,7 +25,7 @@ interface BrandPageClientProps {
 
 export default function BrandPageClient({ partner }: BrandPageClientProps) {
   return (
-    <main className="min-h-screen bg-[#0a0a0a] relative">
+    <main className="min-h-screen bg-background relative">
       {/* Full Page Particle Background - Neutral White */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <ParticleField className="opacity-20" particleCount={50} color="#ffffff" />

@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import {
   ChevronRight, ChevronLeft, Check, Loader2, ShieldCheck,
   Building2, FileText, Package, Trash2, Heart,
@@ -16,6 +17,15 @@ import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { formatPrice } from "@/lib/utils";
 import ContractModal from "@/components/checkout/ContractModal";
+
+// Hydration-safe mounted check (same approach as `ThemeToggle`)
+import { useSyncExternalStore } from "react";
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PAYMENT PAGE - STEP 2
@@ -50,6 +60,9 @@ export default function PaymentPage() {
   const { state, setContractAccepted } = useCheckout();
   const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, clearCart, isHydrated } = useCart();
   const { addItem: addFavorite } = useFavorites();
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = mounted && resolvedTheme === "dark";
 
   // Address state (used for future address selection feature)
   const [_savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -270,10 +283,10 @@ export default function PaymentPage() {
   // Early return - after all hooks
   if (items.length === 0 || !state.billingAddress?.firstName || !state.billingAddress?.email) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", margin: "0 auto 16px" }} />
-          <p style={{ color: "rgba(255,255,255,0.5)" }}>Yönlendiriliyor...</p>
+          <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "var(--border)", margin: "0 auto 16px" }} />
+          <p style={{ color: "var(--foreground-tertiary)" }}>Yönlendiriliyor...</p>
         </div>
       </div>
     );
@@ -539,11 +552,11 @@ export default function PaymentPage() {
     width: "100%",
     height: "48px",
     padding: "0 16px",
-    backgroundColor: "#0f0f0f",
-    border: "1px solid rgba(255,255,255,0.2)",
+    backgroundColor: "var(--input-bg)",
+    border: "1px solid var(--input-border)",
     borderRadius: "12px",
     fontSize: "14px",
-    color: "#fff",
+    color: "var(--foreground)",
     outline: "none"
   };
 
@@ -559,38 +572,38 @@ export default function PaymentPage() {
     gap: "6px",
     fontSize: "13px",
     fontWeight: "500",
-    color: "rgba(255,255,255,0.6)",
+    color: "var(--foreground-secondary)",
     marginBottom: "8px"
   };
 
   const containerStyle: React.CSSProperties = {
-    backgroundColor: "#0a0a0a",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "var(--background-secondary)",
+    border: "1px solid var(--glass-border)",
     borderRadius: "16px",
     padding: "28px",
     minHeight: CONTAINER_MIN_HEIGHT
   };
 
   return (
-    <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "#050505", paddingTop: "120px", paddingBottom: "80px" }}>
+    <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "var(--background)", paddingTop: "120px", paddingBottom: "80px" }}>
       <div className="checkout-container" style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 16px" }}>
         {/* Steps */}
         <div className="checkout-steps" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "32px" }}>
           <Link href="/checkout" className="checkout-step checkout-step-completed" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.2)", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Check size={16} color="#fff" strokeWidth={3} />
+            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--glass-bg)", border: "2px solid var(--foreground)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Check size={16} className="text-foreground" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "#fff" }}>Adres & Teslimat</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres & Teslimat</span>
           </Link>
-          <ChevronRight size={16} color="rgba(255,255,255,0.3)" className="checkout-step-arrow" />
+          <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step checkout-step-active" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#fff", color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>2</div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "#fff" }}>Ödeme</span>
+            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10b981", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>2</div>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Ödeme</span>
           </div>
-          <ChevronRight size={16} color="rgba(255,255,255,0.3)" className="checkout-step-arrow" />
+          <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.4 }}>
-            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>3</div>
-            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.5)" }}>Sipariş Tamamlama</span>
+            <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--border)", color: "var(--foreground-tertiary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>3</div>
+            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Sipariş Tamamlama</span>
           </div>
         </div>
 
@@ -601,8 +614,8 @@ export default function PaymentPage() {
             {/* Address Summary - Checkout'tan gelen adres bilgilerini göster */}
             <div style={{ marginBottom: "24px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff" }}>Teslimat Adresi</h2>
-                <Link href="/checkout" style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Teslimat Adresi</h2>
+                <Link href="/checkout" style={{ fontSize: "13px", color: "var(--foreground-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}>
                   <Edit2 size={12} /> Düzenle
                 </Link>
               </div>
@@ -615,50 +628,60 @@ export default function PaymentPage() {
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(59,130,246,0.2)", color: "#3b82f6", borderRadius: "999px" }}>Yeni Adres</span>
                   )}
                   {state.billingAddress?.saveToAddresses && (
-                    <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", borderRadius: "999px" }}>Kaydedilecek</span>
+                    <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "var(--border)", color: "var(--foreground-secondary)", borderRadius: "999px" }}>Kaydedilecek</span>
                   )}
                 </div>
-                <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "4px" }}>
+                <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
                   {state.billingAddress?.firstName} {state.billingAddress?.lastName}
                 </p>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginBottom: "4px" }}>
+                <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", marginBottom: "4px" }}>
                   {state.billingAddress?.addressLine1}
                   {state.billingAddress?.addressLine2 && `, ${state.billingAddress.addressLine2}`}
                 </p>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>
+                <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)", marginBottom: "4px" }}>
                   {state.billingAddress?.district}, {state.billingAddress?.city} {state.billingAddress?.postalCode}
                 </p>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{state.billingAddress?.phone}</p>
+                <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{state.billingAddress?.phone}</p>
               </div>
             </div>
 
             {/* Payment Methods */}
             <div style={{ marginBottom: "24px" }}>
-              <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff", marginBottom: "16px" }}>Ödeme Yöntemi</h2>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)", marginBottom: "16px" }}>Ödeme Yöntemi</h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
+                  className="iyzico-payment-btn"
                   style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     height: "48px",
                     borderRadius: "12px",
-                    border: paymentMethod === "card" ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.2)",
-                    backgroundColor: paymentMethod === "card" ? "rgba(255,255,255,0.05)" : "#0f0f0f",
+                    border: paymentMethod === "card" ? "1px solid var(--foreground-muted)" : "1px solid var(--border)",
+                    backgroundColor: paymentMethod === "card" ? "var(--glass-bg-hover)" : "var(--input-bg)",
                     cursor: "pointer",
-                    padding: "0 16px",
+                    overflow: "hidden",
                   }}
                 >
-                  <Image 
-                    src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg" 
-                    alt="iyzico ile öde" 
-                    width={100}
-                    height={20}
+                  <Image
+                    src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg"
+                    alt="iyzico ile öde"
+                    width={120}
+                    height={28}
                     unoptimized
-                    className="h-5 w-auto object-contain"
-                    style={{ opacity: paymentMethod === "card" ? 1 : 0.6 }}
+                    style={{
+                      height: "28px",
+                      width: "auto",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                      display: "block",
+                      margin: "0 auto",
+                      // Light theme: make it black; Dark theme: keep it white
+                      filter: isDark ? "none" : "invert(1)",
+                      opacity: paymentMethod === "card" ? 1 : 0.6,
+                    }}
                   />
                 </button>
                 <button
@@ -671,9 +694,9 @@ export default function PaymentPage() {
                     gap: "8px",
                     height: "48px",
                     borderRadius: "12px",
-                    border: paymentMethod === "bank" ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.2)",
-                    backgroundColor: paymentMethod === "bank" ? "rgba(255,255,255,0.05)" : "#0f0f0f",
-                    color: paymentMethod === "bank" ? "#fff" : "rgba(255,255,255,0.6)",
+                    border: paymentMethod === "bank" ? "1px solid var(--foreground-muted)" : "1px solid var(--border)",
+                    backgroundColor: paymentMethod === "bank" ? "var(--glass-bg-hover)" : "var(--input-bg)",
+                    color: paymentMethod === "bank" ? "var(--foreground)" : "var(--foreground-secondary)",
                     fontSize: "13px",
                     fontWeight: "500",
                     cursor: "pointer"
@@ -685,7 +708,7 @@ export default function PaymentPage() {
 
               {/* Card Form */}
               {paymentMethod === "card" && (
-                <div style={{ padding: "20px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}>
+                <div style={{ padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
                   <div style={{ marginBottom: "16px" }}>
                     <label style={labelStyle}>Kart Üzerindeki İsim *</label>
                     <input
@@ -693,7 +716,7 @@ export default function PaymentPage() {
                       value={cardHolderName}
                       onChange={(e) => setCardHolderName(e.target.value.toUpperCase())}
                       placeholder="AD SOYAD"
-                      style={{ ...inputStyle, borderColor: errors.cardHolderName ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      style={{ ...inputStyle, borderColor: errors.cardHolderName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     />
                   </div>
                   <div style={{ marginBottom: "16px" }}>
@@ -704,7 +727,7 @@ export default function PaymentPage() {
                       onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                       placeholder="0000 0000 0000 0000"
                       maxLength={19}
-                      style={{ ...inputStyle, borderColor: errors.cardNumber ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.2)" }}
+                      style={{ ...inputStyle, borderColor: errors.cardNumber ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     />
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
@@ -716,7 +739,7 @@ export default function PaymentPage() {
                           <option key={m} value={String(m).padStart(2, "0")}>{String(m).padStart(2, "0")}</option>
                         ))}
                       </select>
-                      <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+                      <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                     </div>
                     <div style={{ position: "relative" }}>
                       <label style={labelStyle}>Yıl *</label>
@@ -726,7 +749,7 @@ export default function PaymentPage() {
                           <option key={y} value={String(y).slice(-2)}>{y}</option>
                         ))}
                       </select>
-                      <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+                      <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                     </div>
                     <div>
                       <label style={labelStyle}>CVV *</label>
@@ -743,20 +766,20 @@ export default function PaymentPage() {
 
                   {/* Installment Options (Taksit) */}
                   {cardNumber.replace(/\s/g, "").length >= 6 && (
-                    <div style={{ marginTop: "20px", padding: "16px", backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px" }}>
+                    <div style={{ marginTop: "20px", padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "10px" }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.9)" }}>
+                        <label style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>
                           Taksit Seçenekleri
                         </label>
                         {cardInfo?.bankName && (
-                          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", backgroundColor: "rgba(255,255,255,0.05)", padding: "4px 8px", borderRadius: "4px" }}>
+                          <span style={{ fontSize: "11px", color: "var(--foreground-tertiary)", backgroundColor: "var(--glass-bg)", padding: "4px 8px", borderRadius: "4px" }}>
                             {cardInfo.bankName}
                           </span>
                         )}
                       </div>
                       
                       {loadingInstallments ? (
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", color: "rgba(255,255,255,0.5)" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", color: "var(--foreground-tertiary)" }}>
                           <Loader2 size={16} style={{ marginRight: "8px", animation: "spin 1s linear infinite" }} />
                           <span style={{ fontSize: "12px" }}>Taksit seçenekleri yükleniyor...</span>
                         </div>
@@ -770,8 +793,8 @@ export default function PaymentPage() {
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 padding: "12px 14px",
-                                backgroundColor: selectedInstallment === opt.count ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.02)",
-                                border: selectedInstallment === opt.count ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                                backgroundColor: selectedInstallment === opt.count ? "rgba(16,185,129,0.1)" : "var(--glass-bg)",
+                                border: selectedInstallment === opt.count ? "1px solid rgba(16,185,129,0.4)" : "1px solid var(--border)",
                                 borderRadius: "8px",
                                 cursor: "pointer",
                                 transition: "all 0.2s ease",
@@ -785,17 +808,17 @@ export default function PaymentPage() {
                                   onChange={() => setSelectedInstallment(opt.count)}
                                   style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
                                 />
-                                <span style={{ fontSize: "13px", color: selectedInstallment === opt.count ? "#10b981" : "rgba(255,255,255,0.8)" }}>
+                                <span style={{ fontSize: "13px", color: selectedInstallment === opt.count ? "#10b981" : "var(--foreground)" }}>
                                   {opt.count === 1 ? "Tek Çekim" : `${opt.count} Taksit`}
                                 </span>
                               </div>
                               <div style={{ textAlign: "right" }}>
                                 {opt.count > 1 && (
-                                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                                  <div style={{ fontSize: "11px", color: "var(--foreground-tertiary)" }}>
                                     {formatPrice(parseFloat(opt.installmentPrice))} × {opt.count}
                                   </div>
                                 )}
-                                <div style={{ fontSize: "13px", fontWeight: "600", color: selectedInstallment === opt.count ? "#10b981" : "#fff" }}>
+                                <div style={{ fontSize: "13px", fontWeight: "600", color: selectedInstallment === opt.count ? "#10b981" : "var(--foreground)" }}>
                                   {formatPrice(parseFloat(opt.totalPrice))}
                                 </div>
                               </div>
@@ -803,14 +826,14 @@ export default function PaymentPage() {
                           ))}
                         </div>
                       ) : (
-                        <div style={{ padding: "12px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
+                        <div style={{ padding: "12px", textAlign: "center", color: "var(--foreground-muted)", fontSize: "12px" }}>
                           Tek çekim
                         </div>
                       )}
                     </div>
                   )}
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "var(--foreground-muted)", marginTop: "16px" }}>
                     <ShieldCheck size={14} /> Ödeme bilgileriniz SSL ile şifrelenir
                   </div>
                 </div>
@@ -818,32 +841,32 @@ export default function PaymentPage() {
 
               {/* Bank Transfer Info */}
               {paymentMethod === "bank" && (
-                <div style={{ padding: "20px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginBottom: "12px" }}>Havale/EFT yapacağınız banka bilgileri:</p>
+                <div style={{ padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", marginBottom: "12px" }}>Havale/EFT yapacağınız banka bilgileri:</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)" }}>Banka:</span>
-                      <span style={{ color: "#fff" }}>T. Garanti BBVA Bankası A.Ş.</span>
+                      <span style={{ color: "var(--foreground-tertiary)" }}>Banka:</span>
+                      <span style={{ color: "var(--foreground)" }}>T. Garanti BBVA Bankası A.Ş.</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)" }}>Hesap Sahibi:</span>
-                      <span style={{ color: "#fff" }}>ASDTC Mühendislik Ticaret Ltd Şti.</span>
+                      <span style={{ color: "var(--foreground-tertiary)" }}>Hesap Sahibi:</span>
+                      <span style={{ color: "var(--foreground)" }}>ASDTC Mühendislik Ticaret Ltd Şti.</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)" }}>Şube:</span>
-                      <span style={{ color: "#fff" }}>Yıldız (408)</span>
+                      <span style={{ color: "var(--foreground-tertiary)" }}>Şube:</span>
+                      <span style={{ color: "var(--foreground)" }}>Yıldız (408)</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)" }}>Hesap No:</span>
-                      <span style={{ color: "#fff" }}>6290716</span>
+                      <span style={{ color: "var(--foreground-tertiary)" }}>Hesap No:</span>
+                      <span style={{ color: "var(--foreground)" }}>6290716</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)" }}>IBAN:</span>
-                      <span style={{ color: "#fff", fontFamily: "monospace" }}>TR79 0006 2000 4080 0006 2907 16</span>
+                      <span style={{ color: "var(--foreground-tertiary)" }}>IBAN:</span>
+                      <span style={{ color: "var(--foreground)", fontFamily: "monospace" }}>TR79 0006 2000 4080 0006 2907 16</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)" }}>SWIFT:</span>
-                      <span style={{ color: "#fff" }}>TGBATRISXXX</span>
+                      <span style={{ color: "var(--foreground-tertiary)" }}>SWIFT:</span>
+                      <span style={{ color: "var(--foreground)" }}>TGBATRISXXX</span>
                     </div>
                   </div>
                   <button 
@@ -851,11 +874,11 @@ export default function PaymentPage() {
                       navigator.clipboard.writeText("TR79 0006 2000 4080 0006 2907 16");
                       alert("IBAN kopyalandı!");
                     }}
-                    style={{ width: "100%", height: "40px", backgroundColor: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "8px", fontSize: "13px", fontWeight: "500", color: "#fff", cursor: "pointer" }}
+                    style={{ width: "100%", height: "40px", backgroundColor: "var(--border)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px", fontWeight: "500", color: "var(--foreground)", cursor: "pointer" }}
                   >
                     IBAN&apos;ı Kopyala
                   </button>
-                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "12px" }}>
+                  <p style={{ fontSize: "11px", color: "var(--foreground-muted)", marginTop: "12px" }}>
                     Açıklama kısmına sipariş numaranızı yazınız.
                   </p>
                 </div>
@@ -867,52 +890,52 @@ export default function PaymentPage() {
           <div className="checkout-right-column" style={containerStyle}>
             {/* Order Summary Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Package size={20} color="rgba(255,255,255,0.6)" />
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Package size={20} color="var(--foreground-secondary)" />
               </div>
               <div>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#fff" }}>Siparişiniz</h2>
-                <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>{items.length} ürün</span>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Siparişiniz</h2>
+                <span style={{ fontSize: "13px", color: "var(--foreground-muted)" }}>{items.length} ürün</span>
               </div>
             </div>
 
             {/* Products */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
               {items.map((item) => (
-                <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px" }}>
-                  <div style={{ position: "relative", width: "64px", height: "64px", backgroundColor: "#111", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+                <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <div style={{ position: "relative", width: "64px", height: "64px", backgroundColor: "var(--background-secondary)", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
                     {item.image ? (
                       <Image src={item.image} alt={item.title} fill sizes="64px" style={{ objectFit: "contain" }} />
                     ) : (
                       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Package size={20} color="rgba(255,255,255,0.2)" />
+                        <Package size={20} className="text-foreground-muted" />
                       </div>
                     )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h4 style={{ fontSize: "14px", fontWeight: "500", color: "rgba(255,255,255,0.9)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
-                    {item.variant && <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{item.variant.value}</p>}
+                    <h4 style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
+                    {item.variant && <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{item.variant.value}</p>}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px", backgroundColor: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "2px" }}>
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.4)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px", backgroundColor: "var(--glass-bg)", borderRadius: "8px", padding: "2px" }}>
+                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
                           <Minus size={12} />
                         </button>
-                        <span style={{ width: "24px", textAlign: "center", fontSize: "13px", fontWeight: "500", color: "rgba(255,255,255,0.8)" }}>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.4)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
+                        <span style={{ width: "24px", textAlign: "center", fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
                           <Plus size={12} />
                         </button>
                       </div>
                       {/* Always show original price in white - discount shown in totals */}
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--foreground)" }}>
                         {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
                       </span>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "rgba(255,255,255,0.3)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
+                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
                       <Heart size={14} />
                     </button>
-                    <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "rgba(255,255,255,0.3)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">
+                    <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -921,12 +944,12 @@ export default function PaymentPage() {
             </div>
 
             {/* Totals */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "20px" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
               {/* Original Subtotal - only show if there's product discount */}
               {totalSavings > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                  <span style={{ color: "rgba(255,255,255,0.5)", textDecoration: "line-through" }}>{formatPrice(originalSubtotal)}</span>
+                  <span style={{ color: "var(--foreground-tertiary)" }}>Ara Toplam</span>
+                  <span style={{ color: "var(--foreground-tertiary)", textDecoration: "line-through" }}>{formatPrice(originalSubtotal)}</span>
                 </div>
               )}
               
@@ -941,15 +964,15 @@ export default function PaymentPage() {
               {/* Subtotal after product discount - only if no product discount */}
               {totalSavings === 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "rgba(255,255,255,0.5)" }}>Ara Toplam</span>
-                  <span style={{ color: "rgba(255,255,255,0.8)" }}>{formatPrice(subtotal)}</span>
+                  <span style={{ color: "var(--foreground-tertiary)" }}>Ara Toplam</span>
+                  <span style={{ color: "var(--foreground)" }}>{formatPrice(subtotal)}</span>
                 </div>
               )}
               
               {/* Shipping */}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Kargo</span>
-                <span style={{ color: shippingCost === 0 ? "#10b981" : "rgba(255,255,255,0.8)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
+                <span style={{ color: "var(--foreground-tertiary)" }}>Kargo</span>
+                <span style={{ color: shippingCost === 0 ? "#10b981" : "var(--foreground)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
                   {shippingCost === 0 ? "Ücretsiz" : formatPrice(shippingCost)}
                 </span>
               </div>
@@ -968,18 +991,18 @@ export default function PaymentPage() {
               )}
               
               {/* Grand Total */}
-              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>Toplam</span>
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
+                <span style={{ fontSize: "16px", fontWeight: "600", color: "var(--foreground)" }}>Toplam</span>
                 <div style={{ textAlign: "right" }}>
-                  <span style={{ fontSize: "20px", fontWeight: "700", color: "#fff" }}>{formatPrice(total)}</span>
-                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>(KDV Dahil)</p>
+                  <span style={{ fontSize: "20px", fontWeight: "700", color: "var(--foreground)" }}>{formatPrice(total)}</span>
+                  <p style={{ fontSize: "11px", color: "var(--foreground-muted)" }}>(KDV Dahil)</p>
                 </div>
               </div>
             </div>
 
             {/* Contracts */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "16px", marginBottom: "16px" }}>
-              <h3 style={{ fontSize: "13px", fontWeight: "500", color: "#fff", marginBottom: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "16px", marginBottom: "16px" }}>
+              <h3 style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", marginBottom: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
                 <FileText size={13} /> Sözleşmeler
               </h3>
               
@@ -1004,7 +1027,7 @@ export default function PaymentPage() {
                     minHeight: "16px",
                     maxHeight: "16px",
                     borderRadius: "3px",
-                    border: state.contractsAccepted.termsAndConditions ? "none" : "2px solid rgba(255,255,255,0.4)",
+                    border: state.contractsAccepted.termsAndConditions ? "none" : "2px solid var(--foreground-muted)",
                     backgroundColor: state.contractsAccepted.termsAndConditions ? "#10b981" : "transparent",
                     display: "flex",
                     alignItems: "center",
@@ -1014,9 +1037,9 @@ export default function PaymentPage() {
                     boxSizing: "border-box",
                   }}
                 >
-                  {state.contractsAccepted.termsAndConditions && <Check size={10} color="#fff" strokeWidth={3} />}
+                  {state.contractsAccepted.termsAndConditions && <Check size={10} className="text-white" strokeWidth={3} />}
                 </div>
-                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", lineHeight: "1.3" }}>
+                <span style={{ fontSize: "11px", color: "var(--foreground-secondary)", lineHeight: "1.3" }}>
                   <span
                     onClick={() => { setActiveContractType("termsAndConditions"); setContractModalOpen(true); }}
                     style={{ color: "#10b981", cursor: "pointer", textDecoration: "underline" }}
@@ -1045,7 +1068,7 @@ export default function PaymentPage() {
                     minHeight: "16px",
                     maxHeight: "16px",
                     borderRadius: "3px",
-                    border: state.contractsAccepted.distanceSalesContract ? "none" : "2px solid rgba(255,255,255,0.4)",
+                    border: state.contractsAccepted.distanceSalesContract ? "none" : "2px solid var(--foreground-muted)",
                     backgroundColor: state.contractsAccepted.distanceSalesContract ? "#10b981" : "transparent",
                     display: "flex",
                     alignItems: "center",
@@ -1055,9 +1078,9 @@ export default function PaymentPage() {
                     boxSizing: "border-box",
                   }}
                 >
-                  {state.contractsAccepted.distanceSalesContract && <Check size={10} color="#fff" strokeWidth={3} />}
+                  {state.contractsAccepted.distanceSalesContract && <Check size={10} className="text-white" strokeWidth={3} />}
                 </div>
-                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", lineHeight: "1.3" }}>
+                <span style={{ fontSize: "11px", color: "var(--foreground-secondary)", lineHeight: "1.3" }}>
                   <span
                     onClick={() => { setActiveContractType("distanceSalesContract"); setContractModalOpen(true); }}
                     style={{ color: "#10b981", cursor: "pointer", textDecoration: "underline" }}
@@ -1086,7 +1109,7 @@ export default function PaymentPage() {
                     minHeight: "16px",
                     maxHeight: "16px",
                     borderRadius: "3px",
-                    border: state.contractsAccepted.newsletter ? "none" : "2px solid rgba(255,255,255,0.4)",
+                    border: state.contractsAccepted.newsletter ? "none" : "2px solid var(--foreground-muted)",
                     backgroundColor: state.contractsAccepted.newsletter ? "#10b981" : "transparent",
                     display: "flex",
                     alignItems: "center",
@@ -1096,9 +1119,9 @@ export default function PaymentPage() {
                     boxSizing: "border-box",
                   }}
                 >
-                  {state.contractsAccepted.newsletter && <Check size={10} color="#fff" strokeWidth={3} />}
+                  {state.contractsAccepted.newsletter && <Check size={10} className="text-white" strokeWidth={3} />}
                 </div>
-                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", lineHeight: "1.3" }}>
+                <span style={{ fontSize: "11px", color: "var(--foreground-tertiary)", lineHeight: "1.3" }}>
                   Kampanya ve fırsatlardan haberdar olmak istiyorum. (İsteğe bağlı)
                 </span>
               </div>
@@ -1130,8 +1153,8 @@ export default function PaymentPage() {
                   height: "56px",
                   fontWeight: "600",
                   borderRadius: "12px",
-                  backgroundColor: hoverConfirm ? "#10b981" : "#fff",
-                  color: hoverConfirm ? "#fff" : "#000",
+                  backgroundColor: hoverConfirm ? "#059669" : "#10b981",
+                  color: "#fff",
                   border: "none",
                   cursor: isSubmitting ? "not-allowed" : "pointer",
                   opacity: isSubmitting ? 0.5 : 1,
@@ -1161,9 +1184,9 @@ export default function PaymentPage() {
                   height: "48px",
                   fontWeight: "500",
                   borderRadius: "12px",
-                  border: hoverBack ? "1px solid #10b981" : "1px solid rgba(255,255,255,0.2)",
+                  border: hoverBack ? "1px solid #10b981" : "1px solid var(--border)",
                   backgroundColor: "transparent",
-                  color: hoverBack ? "#10b981" : "rgba(255,255,255,0.6)",
+                  color: hoverBack ? "#10b981" : "var(--foreground-secondary)",
                   textDecoration: "none",
                   transition: "all 0.2s ease"
                 }}
@@ -1174,7 +1197,7 @@ export default function PaymentPage() {
             </div>
 
             {/* Trust */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", color: "rgba(255,255,255,0.3)", marginTop: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", color: "var(--foreground-muted)", marginTop: "20px" }}>
               <ShieldCheck size={16} />
               <span style={{ fontSize: "12px" }}>256-bit SSL ile güvenli ödeme</span>
             </div>

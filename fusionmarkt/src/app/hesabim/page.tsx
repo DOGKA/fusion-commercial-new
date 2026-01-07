@@ -283,7 +283,7 @@ export default function HesabimPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-emerald-500" />
       </div>
     );
@@ -297,7 +297,7 @@ export default function HesabimPage() {
   
   if (isAuthenticated && user) {
     return (
-      <div className="min-h-screen bg-[#030303]" style={{ paddingTop: "120px", paddingBottom: "80px" }}>
+      <div className="min-h-screen bg-background" style={{ paddingTop: "120px", paddingBottom: "80px" }}>
         {/* Subtle Background */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-emerald-500/[0.03] rounded-full blur-[120px]" />
@@ -333,11 +333,11 @@ export default function HesabimPage() {
             {/* ═══════════════════ LEFT SIDEBAR - Desktop'ta görünür ═══════════════════ */}
             <aside className="account-sidebar-desktop w-[300px] flex-shrink-0">
               <div 
-                className="bg-[#0a0a0a] border border-white/[0.06] rounded-2xl overflow-hidden flex flex-col"
+                className="bg-background border border-border rounded-2xl overflow-hidden flex flex-col"
                 style={{ height: `${CONTAINER_HEIGHT}px` }}
               >
                 {/* User Info */}
-                <div className="p-6 border-b border-white/[0.05]">
+                <div className="p-6 border-b border-border">
                   <div className="flex flex-col items-center text-center">
                     <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 flex items-center justify-center overflow-hidden mb-4 border-2 border-emerald-500/20">
                       {avatarUrl && (avatarUrl.startsWith("/") || avatarUrl.startsWith("http") || avatarUrl.startsWith("data:")) ? (
@@ -346,8 +346,8 @@ export default function HesabimPage() {
                         <User size={32} className="text-emerald-400" />
                       )}
                     </div>
-                    <span className="text-[19px] font-semibold text-white truncate w-full block">{user.name || "Kullanıcı"}</span>
-                    <p className="text-[15px] text-white/40 truncate w-full mt-0.5">{user.email}</p>
+                    <span className="text-[19px] font-semibold text-foreground truncate w-full block">{user.name || "Kullanıcı"}</span>
+                    <p className="text-[15px] text-foreground-muted truncate w-full mt-0.5">{user.email}</p>
                   </div>
                 </div>
 
@@ -361,17 +361,17 @@ export default function HesabimPage() {
                         "w-full flex items-center gap-4 px-6 py-3.5 text-left transition-all",
                         activeTab === item.id
                           ? "bg-emerald-500/[0.08] text-emerald-400 border-r-2 border-emerald-400"
-                          : "text-white/50 hover:text-white/80 hover:bg-white/[0.02]"
+                          : "text-foreground-muted hover:text-foreground hover:bg-foreground/[0.02]"
                       )}
                     >
-                      <item.icon size={20} className={activeTab === item.id ? "text-emerald-400" : "text-white/30"} />
+                      <item.icon size={20} className={activeTab === item.id ? "text-emerald-400" : "text-foreground-muted"} />
                       <span className="text-[17px]">{item.label}</span>
                     </button>
                   ))}
                 </nav>
 
                 {/* Logout & Security */}
-                <div className="mt-auto border-t border-white/[0.05]">
+                <div className="mt-auto border-t border-border">
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-4 px-6 py-3.5 text-left text-red-400/60 hover:text-red-400 hover:bg-red-500/[0.03] transition-all"
@@ -379,7 +379,7 @@ export default function HesabimPage() {
                     <LogOut size={20} />
                     <span className="text-[17px]">Çıkış Yap</span>
                   </button>
-                  <div className="flex items-center justify-center gap-2 py-3 text-white/20 border-t border-white/[0.04]">
+                  <div className="flex items-center justify-center gap-2 py-3 text-foreground-muted border-t border-border">
                     <Shield size={14} />
                     <span className="text-[13px]">256-bit SSL güvenli bağlantı</span>
                   </div>
@@ -390,7 +390,7 @@ export default function HesabimPage() {
             {/* ═══════════════════ RIGHT CONTENT ═══════════════════ */}
             <main className="account-content-area flex-1 min-w-0">
               <div 
-                className="account-content-card bg-[#0a0a0a] border border-white/[0.06] rounded-2xl p-6"
+                className="account-content-card bg-background border border-border rounded-2xl p-6"
                 style={{ height: `${CONTAINER_HEIGHT}px` }}
               >
                 {activeTab === "pano" && <DashboardPane user={user} setActiveTab={setActiveTab} setExpandedOrderId={setExpandedOrderId} avatarUrl={avatarUrl} />}
@@ -424,7 +424,7 @@ export default function HesabimPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#050505',
+      backgroundColor: 'var(--background)',
       paddingTop: '120px',
       paddingBottom: '80px',
     }}>
@@ -449,7 +449,7 @@ export default function HesabimPage() {
         <h1 style={{
           fontSize: '28px',
           fontWeight: '700',
-          color: 'white',
+          color: 'var(--foreground)',
           textAlign: 'center',
           marginBottom: '48px',
         }}>
@@ -470,8 +470,10 @@ export default function HesabimPage() {
           <div 
             onClick={activateLogin}
             style={{
-              backgroundColor: 'rgba(19, 19, 19, 0.9)',
-              border: activePanel === 'login' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255,255,255,0.08)',
+              backgroundColor: 'var(--surface-overlay)',
+              border: activePanel === 'login'
+                ? '1px solid rgba(16, 185, 129, 0.3)'
+                : '1px solid var(--glass-border)',
               borderRadius: '24px',
               padding: '40px',
               opacity: activePanel === 'register' ? 0.4 : 1,
@@ -484,7 +486,7 @@ export default function HesabimPage() {
             <h2 style={{
               fontSize: '20px',
               fontWeight: '600',
-              color: 'white',
+              color: 'var(--foreground)',
               marginBottom: '32px',
               display: 'flex',
               alignItems: 'center',
@@ -523,7 +525,7 @@ export default function HesabimPage() {
                   display: 'block',
                   fontSize: '13px',
                   fontWeight: '500',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--foreground-secondary)',
                   marginBottom: '8px',
                 }}>
                   E-posta adresi <span style={{ color: '#EF4444' }}>*</span>
@@ -540,11 +542,13 @@ export default function HesabimPage() {
                     width: '100%',
                     height: '48px',
                     padding: '0 16px',
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: focusedField === 'loginEmail' ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                    backgroundColor: 'var(--input-bg)',
+                    border: focusedField === 'loginEmail'
+                      ? '1px solid rgba(16, 185, 129, 0.5)'
+                      : '1px solid var(--input-border)',
                     borderRadius: '12px',
                     fontSize: '14px',
-                    color: 'white',
+                    color: 'var(--foreground)',
                     outline: 'none',
                     transition: 'all 0.2s ease',
                     cursor: activePanel === 'register' ? 'not-allowed' : 'text',
@@ -558,7 +562,7 @@ export default function HesabimPage() {
                   display: 'block',
                   fontSize: '13px',
                   fontWeight: '500',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--foreground-secondary)',
                   marginBottom: '8px',
                 }}>
                   Parola <span style={{ color: '#EF4444' }}>*</span>
@@ -576,11 +580,13 @@ export default function HesabimPage() {
                       width: '100%',
                       height: '48px',
                       padding: '0 48px 0 16px',
-                      backgroundColor: 'rgba(255,255,255,0.03)',
-                      border: focusedField === 'loginPassword' ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                      backgroundColor: 'var(--input-bg)',
+                      border: focusedField === 'loginPassword'
+                        ? '1px solid rgba(16, 185, 129, 0.5)'
+                        : '1px solid var(--input-border)',
                       borderRadius: '12px',
                       fontSize: '14px',
-                      color: 'white',
+                      color: 'var(--foreground)',
                       outline: 'none',
                       transition: 'all 0.2s ease',
                       cursor: activePanel === 'register' ? 'not-allowed' : 'text',
@@ -597,7 +603,7 @@ export default function HesabimPage() {
                       transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
-                      color: 'rgba(255,255,255,0.4)',
+                      color: 'var(--foreground-muted)',
                       cursor: activePanel === 'register' ? 'not-allowed' : 'pointer',
                       padding: '4px',
                       display: 'flex',
@@ -630,7 +636,7 @@ export default function HesabimPage() {
                       width: '20px',
                       height: '20px',
                       borderRadius: '6px',
-                      border: rememberMe ? '2px solid #10B981' : '2px solid rgba(255,255,255,0.25)',
+                      border: rememberMe ? '2px solid #10B981' : '2px solid var(--border-secondary)',
                       backgroundColor: rememberMe ? '#10B981' : 'transparent',
                       display: 'flex',
                       alignItems: 'center',
@@ -641,7 +647,7 @@ export default function HesabimPage() {
                   >
                     {rememberMe && <Check size={12} color="white" strokeWidth={3} />}
                   </div>
-                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--foreground-secondary)' }}>
                     Beni hatırla
                   </span>
                 </label>
@@ -660,12 +666,12 @@ export default function HesabimPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  backgroundColor: activePanel === 'register' ? 'rgba(255,255,255,0.1)' : (loginHover ? '#0ea371' : '#10B981'),
+                  backgroundColor: activePanel === 'register' ? 'var(--btn-secondary-bg)' : (loginHover ? '#0ea371' : '#10B981'),
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: activePanel === 'register' ? 'rgba(255,255,255,0.3)' : 'white',
+                  color: activePanel === 'register' ? 'var(--foreground-disabled)' : 'white',
                   cursor: activePanel === 'register' || loginLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s ease',
                   marginBottom: '16px',
@@ -698,9 +704,9 @@ export default function HesabimPage() {
                 gap: '16px',
                 margin: '24px 0',
               }}>
-                <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>veya</span>
-                <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+                <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }} />
+                <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>veya</span>
+                <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }} />
               </div>
 
               {/* Google Login */}
@@ -717,12 +723,12 @@ export default function HesabimPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '12px',
-                  backgroundColor: googleHover && activePanel !== 'register' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  backgroundColor: googleHover && activePanel !== 'register' ? 'var(--glass-bg-hover)' : 'var(--glass-bg)',
+                  border: '1px solid var(--glass-border)',
                   borderRadius: '12px',
                   fontSize: '14px',
                   fontWeight: '500',
-                  color: activePanel === 'register' ? 'rgba(255,255,255,0.3)' : 'white',
+                  color: activePanel === 'register' ? 'var(--foreground-disabled)' : 'var(--foreground)',
                   cursor: activePanel === 'register' ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s ease',
                 }}
@@ -742,8 +748,10 @@ export default function HesabimPage() {
           <div 
             onClick={activateRegister}
             style={{
-              backgroundColor: 'rgba(19, 19, 19, 0.9)',
-              border: activePanel === 'register' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255,255,255,0.08)',
+              backgroundColor: 'var(--surface-overlay)',
+              border: activePanel === 'register'
+                ? '1px solid rgba(16, 185, 129, 0.3)'
+                : '1px solid var(--glass-border)',
               borderRadius: '24px',
               padding: '40px',
               opacity: activePanel === 'login' ? 0.4 : 1,
@@ -796,14 +804,14 @@ export default function HesabimPage() {
                     <h3 style={{ color: 'white', fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
                       Email Doğrulandı!
                     </h3>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
+                    <p style={{ color: 'var(--foreground-muted)', fontSize: '14px' }}>
                       Hesabınıza yönlendiriliyorsunuz...
                     </p>
                   </div>
                 ) : (
                   <form onSubmit={handleActivationSubmit}>
                     <p style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--foreground-secondary)',
                       fontSize: '14px',
                       marginBottom: '20px',
                       lineHeight: '1.6',
@@ -863,7 +871,7 @@ export default function HesabimPage() {
                         display: 'block',
                         fontSize: '13px',
                         fontWeight: '500',
-                        color: 'rgba(255,255,255,0.7)',
+                        color: 'var(--foreground-secondary)',
                         marginBottom: '8px',
                       }}>
                         Aktivasyon Kodu <span style={{ color: '#EF4444' }}>*</span>
@@ -879,8 +887,8 @@ export default function HesabimPage() {
                           width: '100%',
                           height: '52px',
                           padding: '0 16px',
-                          backgroundColor: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          backgroundColor: 'var(--input-bg)',
+                          border: '1px solid var(--input-border)',
                           borderRadius: '12px',
                           fontSize: '18px',
                           fontWeight: '600',
@@ -904,12 +912,12 @@ export default function HesabimPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        backgroundColor: countdown <= 0 ? 'rgba(255,255,255,0.1)' : '#10B981',
+                        backgroundColor: countdown <= 0 ? 'var(--foreground-muted)' : '#10B981',
                         border: 'none',
                         borderRadius: '12px',
                         fontSize: '14px',
                         fontWeight: '600',
-                        color: countdown <= 0 ? 'rgba(255,255,255,0.3)' : 'white',
+                        color: countdown <= 0 ? 'var(--foreground-muted)' : 'white',
                         cursor: activationLoading || countdown <= 0 ? 'not-allowed' : 'pointer',
                         transition: 'all 0.2s ease',
                         marginBottom: '16px',
@@ -932,10 +940,10 @@ export default function HesabimPage() {
                         justifyContent: 'center',
                         gap: '8px',
                         backgroundColor: 'transparent',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        border: '1px solid var(--border)',
                         borderRadius: '12px',
                         fontSize: '13px',
-                        color: countdown > 0 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)',
+                        color: countdown > 0 ? 'var(--foreground-muted)' : 'var(--foreground-secondary)',
                         cursor: resendLoading || countdown > 0 ? 'not-allowed' : 'pointer',
                         opacity: countdown > 0 ? 0.5 : 1,
                         transition: 'all 0.2s ease',
@@ -970,7 +978,7 @@ export default function HesabimPage() {
                   display: 'block',
                   fontSize: '13px',
                   fontWeight: '500',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--foreground-secondary)',
                   marginBottom: '8px',
                 }}>
                   Ad Soyad
@@ -987,11 +995,13 @@ export default function HesabimPage() {
                     width: '100%',
                     height: '48px',
                     padding: '0 16px',
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: focusedField === 'registerName' ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                    backgroundColor: 'var(--input-bg)',
+                    border: focusedField === 'registerName'
+                      ? '1px solid rgba(16, 185, 129, 0.5)'
+                      : '1px solid var(--input-border)',
                     borderRadius: '12px',
                     fontSize: '14px',
-                    color: 'white',
+                    color: 'var(--foreground)',
                     outline: 'none',
                     transition: 'all 0.2s ease',
                     cursor: activePanel === 'login' ? 'not-allowed' : 'text',
@@ -1005,7 +1015,7 @@ export default function HesabimPage() {
                   display: 'block',
                   fontSize: '13px',
                   fontWeight: '500',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--foreground-secondary)',
                   marginBottom: '8px',
                 }}>
                   E-posta adresi <span style={{ color: '#EF4444' }}>*</span>
@@ -1022,11 +1032,13 @@ export default function HesabimPage() {
                     width: '100%',
                     height: '48px',
                     padding: '0 16px',
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: focusedField === 'registerEmail' ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                    backgroundColor: 'var(--input-bg)',
+                    border: focusedField === 'registerEmail'
+                      ? '1px solid rgba(16, 185, 129, 0.5)'
+                      : '1px solid var(--input-border)',
                     borderRadius: '12px',
                     fontSize: '14px',
-                    color: 'white',
+                    color: 'var(--foreground)',
                     outline: 'none',
                     transition: 'all 0.2s ease',
                     cursor: activePanel === 'login' ? 'not-allowed' : 'text',
@@ -1040,7 +1052,7 @@ export default function HesabimPage() {
                   display: 'block',
                   fontSize: '13px',
                   fontWeight: '500',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'var(--foreground-secondary)',
                   marginBottom: '8px',
                 }}>
                   Parola <span style={{ color: '#EF4444' }}>*</span>
@@ -1059,11 +1071,13 @@ export default function HesabimPage() {
                       width: '100%',
                       height: '48px',
                       padding: '0 48px 0 16px',
-                      backgroundColor: 'rgba(255,255,255,0.03)',
-                      border: focusedField === 'registerPassword' ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                      backgroundColor: 'var(--input-bg)',
+                      border: focusedField === 'registerPassword'
+                        ? '1px solid rgba(16, 185, 129, 0.5)'
+                        : '1px solid var(--input-border)',
                       borderRadius: '12px',
                       fontSize: '14px',
-                      color: 'white',
+                      color: 'var(--foreground)',
                       outline: 'none',
                       transition: 'all 0.2s ease',
                       cursor: activePanel === 'login' ? 'not-allowed' : 'text',
@@ -1080,7 +1094,7 @@ export default function HesabimPage() {
                       transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
-                      color: 'rgba(255,255,255,0.4)',
+                      color: 'var(--foreground-muted)',
                       cursor: activePanel === 'login' ? 'not-allowed' : 'pointer',
                       padding: '4px',
                       display: 'flex',
@@ -1108,7 +1122,7 @@ export default function HesabimPage() {
                     width: '20px',
                     height: '20px',
                     borderRadius: '6px',
-                    border: newsletter ? '2px solid #10B981' : '2px solid rgba(255,255,255,0.25)',
+                    border: newsletter ? '2px solid #10B981' : '2px solid var(--border)',
                     backgroundColor: newsletter ? '#10B981' : 'transparent',
                     display: 'flex',
                     alignItems: 'center',
@@ -1121,7 +1135,7 @@ export default function HesabimPage() {
                 >
                   {newsletter && <Check size={12} color="white" strokeWidth={3} />}
                 </div>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.5' }}>
+                <span style={{ fontSize: '13px', color: 'var(--foreground-secondary)', lineHeight: '1.5' }}>
                   Haber bültenimize abone olun (isteğe bağlı)
                 </span>
               </label>
@@ -1133,9 +1147,9 @@ export default function HesabimPage() {
                 lineHeight: '1.7',
                 marginBottom: '28px',
                 padding: '16px',
-                backgroundColor: 'rgba(255,255,255,0.02)',
+                backgroundColor: 'var(--glass-bg)',
                 borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.05)',
+                border: '1px solid var(--glass-border)',
               }}>
                 Kişisel verileriniz, bu web sitesi boyunca deneyiminizi desteklemek, hesabınıza erişimi yönetmek ve diğer amaçlar için kullanılacaktır. Daha fazla bilgi için{' '}
                 <Link href="/gizlilik-politikasi" style={{ color: '#10B981', textDecoration: 'none' }}>
@@ -1157,12 +1171,12 @@ export default function HesabimPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  backgroundColor: activePanel === 'login' ? 'rgba(255,255,255,0.1)' : (registerHover ? '#0ea371' : '#10B981'),
+                  backgroundColor: activePanel === 'login' ? 'var(--btn-ghost-hover)' : (registerHover ? '#0ea371' : '#10B981'),
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: activePanel === 'login' ? 'rgba(255,255,255,0.3)' : 'white',
+                  color: activePanel === 'login' ? 'var(--foreground-muted)' : 'white',
                   cursor: activePanel === 'login' || registerLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s ease',
                   marginBottom: '20px',
@@ -1185,8 +1199,8 @@ export default function HesabimPage() {
           gap: '8px',
           marginTop: '40px',
         }}>
-          <Shield size={14} style={{ color: 'rgba(255,255,255,0.3)' }} />
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
+          <Shield size={14} style={{ color: 'var(--foreground-muted)' }} />
+          <span style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>
             256-bit SSL ile güvenli bağlantı
           </span>
         </div>
@@ -1259,7 +1273,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
   return (
     <div className="h-full flex flex-col">
       {/* Welcome - with profile picture on mobile */}
-      <div className="pb-5 border-b border-white/[0.04]">
+      <div className="pb-5 border-b border-border">
         <div className="flex items-center gap-4">
           {/* Profile Picture - Only visible on mobile (lg:hidden) */}
           <div className="lg:hidden relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 flex items-center justify-center overflow-hidden border-2 border-emerald-500/20 flex-shrink-0">
@@ -1270,10 +1284,10 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
             )}
           </div>
           <div>
-            <span className="text-[18px] font-medium text-white block mb-1">
+            <span className="text-[18px] font-medium text-foreground block mb-1">
               Merhaba, {user.name || "Kullanıcı"} 👋
             </span>
-            <p className="text-[15px] text-white/40">
+            <p className="text-[15px] text-foreground-muted">
               Hesap panonuzdan siparişlerinizi, adreslerinizi ve hesap ayarlarınızı yönetebilirsiniz.
             </p>
           </div>
@@ -1292,14 +1306,14 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
             key={stat.label}
             onClick={() => stat.tab && setActiveTab(stat.tab)}
             className={cn(
-              "bg-white/[0.02] border border-white/[0.04] rounded-xl p-5 text-center transition-all",
-              stat.tab && "hover:bg-white/[0.04] hover:border-white/[0.08] cursor-pointer"
+              "bg-foreground/[0.02] border border-border rounded-xl p-5 text-center transition-all",
+              stat.tab && "hover:bg-foreground/[0.04] hover:border-border-hover cursor-pointer"
             )}
           >
-            <div className="text-[24px] font-semibold text-white mb-1">
-              {loadingStats ? <span className="inline-block w-6 h-6 bg-white/10 rounded animate-pulse" /> : stat.value}
+            <div className="text-[24px] font-semibold text-foreground mb-1">
+              {loadingStats ? <span className="inline-block w-6 h-6 bg-foreground/10 rounded animate-pulse" /> : stat.value}
             </div>
-            <div className="text-[13px] text-white/40 uppercase tracking-wide">{stat.label}</div>
+            <div className="text-[13px] text-foreground-muted uppercase tracking-wide">{stat.label}</div>
           </button>
         ))}
       </div>
@@ -1307,7 +1321,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
       {/* Recent Orders */}
       <div className="flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[15px] font-medium text-white/50">Son Siparişler</span>
+          <span className="text-[15px] font-medium text-foreground-tertiary">Son Siparişler</span>
           {recentOrders.length > 0 && (
             <button
               onClick={() => setActiveTab("siparisler")}
@@ -1320,7 +1334,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
         
         {loadingStats ? (
           <div className="flex-1 flex items-center justify-center">
-            <Loader2 size={24} className="animate-spin text-white/20" />
+            <Loader2 size={24} className="animate-spin text-foreground-muted" />
           </div>
         ) : recentOrders.length > 0 ? (
           <div className="space-y-2 overflow-y-auto">
@@ -1333,24 +1347,24 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
                     setExpandedOrderId(order.id);
                     setActiveTab("siparisler");
                   }}
-                  className="w-full flex items-center gap-4 p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl hover:bg-white/[0.04] hover:border-white/[0.08] transition-all text-left"
+                  className="w-full flex items-center gap-4 p-3 bg-foreground/[0.02] border border-border rounded-xl hover:bg-foreground/[0.04] hover:border-border-hover transition-all text-left"
                 >
                   <div className={`w-10 h-10 rounded-lg ${config.bgColor} flex items-center justify-center flex-shrink-0`}>
                     <Package size={18} className={config.color} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="order-number-text text-[13px] font-mono text-white">#{order.orderNumber}</span>
+                      <span className="order-number-text text-[13px] font-mono text-foreground">#{order.orderNumber}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded ${config.bgColor} ${config.color}`}>
                         {config.label}
                       </span>
                     </div>
-                    <p className="text-[11px] text-white/40">
+                    <p className="text-[11px] text-foreground-muted">
                       {new Date(order.createdAt).toLocaleDateString("tr-TR")} • {order.items?.length || 0} ürün
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[14px] font-medium text-white">
+                    <span className="text-[14px] font-medium text-foreground">
                       {new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(order.grandTotal ?? order.total ?? 0)}
                     </span>
                   </div>
@@ -1359,11 +1373,11 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
             })}
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-center border border-dashed border-white/[0.06] rounded-xl bg-white/[0.01]">
+          <div className="flex-1 flex items-center justify-center text-center border border-dashed border-border rounded-xl bg-foreground/[0.01]">
             <div>
-              <Package size={36} className="mx-auto mb-4 text-white/15" />
-              <p className="text-[15px] text-white/40 mb-5">Henüz siparişiniz yok</p>
-              <Link href="/magaza" className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all">
+              <Package size={36} className="mx-auto mb-4 text-foreground-disabled" />
+              <p className="text-[15px] text-foreground-muted mb-5">Henüz siparişiniz yok</p>
+              <Link href="/magaza" className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all">
                 Alışverişe Başla
                 <ChevronRight size={14} />
               </Link>
@@ -1645,13 +1659,13 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   if (loading) {
     return (
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between pb-4 border-b border-white/[0.05]">
-          <span className="text-[17px] font-medium text-white">Siparişlerim</span>
+        <div className="flex items-center justify-between pb-4 border-b border-border">
+          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Loader2 size={32} className="animate-spin text-emerald-500 mx-auto mb-3" />
-            <p className="text-[14px] text-white/40">Siparişler yükleniyor...</p>
+            <p className="text-[14px] text-foreground-muted">Siparişler yükleniyor...</p>
           </div>
         </div>
       </div>
@@ -1662,17 +1676,17 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   if (error) {
     return (
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between pb-4 border-b border-white/[0.05]">
-          <span className="text-[17px] font-medium text-white">Siparişlerim</span>
+        <div className="flex items-center justify-between pb-4 border-b border-border">
+          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <div className="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
             <AlertCircle size={24} className="text-red-400" />
           </div>
-          <p className="text-[16px] text-white/50 mb-1">{error}</p>
+          <p className="text-[16px] text-foreground-tertiary mb-1">{error}</p>
           <button
             onClick={fetchOrders}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all mt-4"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all mt-4"
           >
             <RefreshCw size={14} />
             Tekrar Dene
@@ -1686,18 +1700,18 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   if (orders.length === 0) {
     return (
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between pb-4 border-b border-white/[0.05]">
-          <span className="text-[17px] font-medium text-white">Siparişlerim</span>
+        <div className="flex items-center justify-between pb-4 border-b border-border">
+          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 rounded-xl bg-white/[0.03] flex items-center justify-center mb-4">
-            <Package size={24} className="text-white/20" />
+          <div className="w-14 h-14 rounded-xl bg-glass-bg flex items-center justify-center mb-4">
+            <Package size={24} className="text-foreground-disabled" />
           </div>
-          <p className="text-[16px] text-white/50 mb-1">Henüz siparişiniz yok</p>
-          <p className="text-[15px] text-white/30 mb-5">İlk siparişinizi vermek için mağazayı ziyaret edin</p>
+          <p className="text-[16px] text-foreground-tertiary mb-1">Henüz siparişiniz yok</p>
+          <p className="text-[15px] text-foreground-muted mb-5">İlk siparişinizi vermek için mağazayı ziyaret edin</p>
           <Link 
             href="/magaza"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
           >
             Mağazaya Git
             <ChevronRight size={14} />
@@ -1711,24 +1725,24 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/[0.05]">
+      <div className="flex items-center justify-between pb-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <span className="text-[17px] font-medium text-white">Siparişlerim</span>
-          <span className="text-[12px] px-2 py-0.5 rounded-full bg-white/[0.05] text-white/50">
+          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
+          <span className="text-[12px] px-2 py-0.5 rounded-full bg-glass-bg-hover text-foreground-tertiary">
             {filteredOrders.length}/{orders.length} sipariş
           </span>
         </div>
         <button
           onClick={fetchOrders}
-          className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors"
+          className="p-2 rounded-lg hover:bg-glass-bg-hover transition-colors"
           title="Yenile"
         >
-          <RefreshCw size={16} className="text-white/40" />
+          <RefreshCw size={16} className="text-foreground-muted" />
         </button>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex items-center gap-3 py-3 border-b border-white/[0.03]">
+      <div className="flex items-center gap-3 py-3 border-b border-border">
         {/* Search Input */}
         <div className="flex-1 relative">
           <input
@@ -1736,15 +1750,15 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Sipariş no veya ürün ara..."
-            className="w-full h-9 pl-9 pr-3 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[13px] text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500/30 focus:bg-white/[0.05] transition-all"
+            className="w-full h-9 pl-9 pr-3 rounded-lg bg-glass-bg border border-border text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-emerald-500/30 focus:bg-glass-bg-hover transition-all"
           />
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted" />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-white/[0.1] transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-glass-bg-hover transition-colors"
             >
-              <XCircle size={14} className="text-white/40" />
+              <XCircle size={14} className="text-foreground-muted" />
             </button>
           )}
         </div>
@@ -1753,7 +1767,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-9 px-3 pr-8 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[13px] text-white appearance-none cursor-pointer focus:outline-none focus:border-emerald-500/30 transition-all"
+          className="h-9 px-3 pr-8 rounded-lg bg-glass-bg border border-border text-[13px] text-foreground appearance-none cursor-pointer focus:outline-none focus:border-emerald-500/30 transition-all"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
         >
           <option value="all">Tüm Durumlar</option>
@@ -1769,9 +1783,9 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       {/* No Results */}
       {filteredOrders.length === 0 && orders.length > 0 && (
         <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
-          <Search size={32} className="text-white/15 mb-3" />
-          <p className="text-[14px] text-white/50 mb-1">Sonuç bulunamadı</p>
-          <p className="text-[13px] text-white/30 mb-4">Arama kriterlerinizi değiştirin</p>
+          <Search size={32} className="text-foreground/15 mb-3" />
+          <p className="text-[14px] text-foreground-tertiary mb-1">Sonuç bulunamadı</p>
+          <p className="text-[13px] text-foreground-muted mb-4">Arama kriterlerinizi değiştirin</p>
           <button
             onClick={() => { setSearchTerm(""); setStatusFilter("all"); }}
             className="text-[13px] text-emerald-400 hover:text-emerald-300 transition-colors"
@@ -1792,7 +1806,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
           return (
             <div
               key={order.id}
-              className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:border-white/[0.1] transition-all"
+              className="bg-glass-bg border border-border rounded-xl overflow-hidden hover:border-border-hover transition-all"
             >
               {/* Order Header - Always Visible */}
               <button
@@ -1800,26 +1814,26 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                 className="order-card-header w-full p-4 flex items-center gap-4 text-left relative"
               >
                 {/* Status Icon */}
-                <div className={`order-status-icon w-10 h-10 rounded-lg ${statusConfig?.bgColor || 'bg-white/[0.05]'} border flex items-center justify-center flex-shrink-0`}>
-                  <StatusIcon size={18} className={statusConfig?.color || 'text-white/40'} />
+                <div className={`order-status-icon w-10 h-10 rounded-lg ${statusConfig?.bgColor || 'bg-glass-bg-hover'} border flex items-center justify-center flex-shrink-0`}>
+                  <StatusIcon size={18} className={statusConfig?.color || 'text-foreground-muted'} />
                 </div>
 
                 {/* Order Info */}
                 <div className="order-info flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="order-number-text text-[14px] font-mono font-medium text-white">
+                    <span className="order-number-text text-[14px] font-mono font-medium text-foreground">
                       #{order.orderNumber}
                     </span>
-                    <span className={`text-[11px] px-2 py-0.5 rounded-full ${statusConfig?.bgColor || 'bg-white/[0.05]'} border ${statusConfig?.color || 'text-white/50'}`}>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full ${statusConfig?.bgColor || 'bg-glass-bg-hover'} border ${statusConfig?.color || 'text-foreground-tertiary'}`}>
                       {statusConfig?.label || order.status}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-[12px] text-white/40">
+                  <div className="flex items-center gap-3 text-[12px] text-foreground-muted">
                     <span>{formatDate(order.createdAt)}</span>
                     <span>•</span>
                     <span>{order.items.length} ürün</span>
                     <span>•</span>
-                    <span className={paymentConfig?.color || 'text-white/40'}>
+                    <span className={paymentConfig?.color || 'text-foreground-muted'}>
                       {paymentConfig?.label || order.paymentStatus}
                     </span>
                   </div>
@@ -1827,55 +1841,63 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
 
                 {/* Total & Expand */}
                 <div className="order-total text-right flex-shrink-0">
-                  <p className="text-[16px] font-semibold text-white mb-1">
+                  <p className="text-[16px] font-semibold text-foreground mb-1">
                     {formatPrice(order.total)}
                   </p>
                   {isExpanded ? (
-                    <ChevronUp size={16} className="text-white/40 ml-auto" />
+                    <ChevronUp size={16} className="text-foreground-muted ml-auto" />
                   ) : (
-                    <ChevronDown size={16} className="text-white/40 ml-auto" />
+                    <ChevronDown size={16} className="text-foreground-muted ml-auto" />
                   )}
                 </div>
               </button>
 
               {/* Expanded Content */}
               {isExpanded && (
-                <div className="order-expanded-content border-t border-white/[0.06] p-4 space-y-4">
+                <div className="order-expanded-content border-t border-border p-4 space-y-4">
                   {/* Progress Timeline */}
                   <div className="order-timeline-container">
                   <div className="order-timeline flex items-center justify-between px-2">
-                    {[
-                      { key: "created", label: "Sipariş", date: order.createdAt, done: true },
-                      { key: "paid", label: "Ödeme", date: order.paidAt, done: !!order.paidAt },
-                      { key: "preparing", label: "Hazırlanıyor", date: order.preparingAt, done: !!order.preparingAt },
-                      { key: "shipped", label: "Kargoda", date: order.shippedAt, done: !!order.shippedAt },
-                      { key: "delivered", label: "Teslim", date: order.deliveredAt, done: !!order.deliveredAt },
-                    ].map((step, index, arr) => (
+                    {(() => {
+                      // Eğer sipariş teslim edildiyse, tüm önceki adımlar da tamamlanmış demektir
+                      const isDelivered = !!order.deliveredAt || order.status === "DELIVERED";
+                      const isShipped = isDelivered || !!order.shippedAt || order.status === "SHIPPED";
+                      const isPreparing = isShipped || !!order.preparingAt || order.status === "PROCESSING";
+                      const isPaid = isPreparing || !!order.paidAt;
+                      
+                      return [
+                        { key: "created", label: "Sipariş", date: order.createdAt, done: true },
+                        { key: "paid", label: "Ödeme", date: order.paidAt, done: isPaid },
+                        { key: "preparing", label: "Hazırlanıyor", date: order.preparingAt, done: isPreparing },
+                        { key: "shipped", label: "Kargoda", date: order.shippedAt, done: isShipped },
+                        { key: "delivered", label: "Teslim", date: order.deliveredAt, done: isDelivered },
+                      ];
+                    })().map((step, index, arr) => (
                       <div key={step.key} className={`order-timeline-step flex items-center ${step.done ? 'step-done' : ''}`}>
                         <div className="order-step-content flex flex-col items-center min-w-[60px]">
                           <div className={`order-step-icon w-7 h-7 rounded-full flex items-center justify-center transition-all ${
                             step.done
                               ? 'bg-emerald-500/20 border-2 border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
-                              : 'bg-white/[0.03] border border-white/[0.1]'
+                              : 'bg-glass-bg border border-border'
                           }`}>
                             {step.done ? (
                               <Check size={14} className="text-emerald-400" />
                             ) : (
-                              <div className="w-2 h-2 rounded-full bg-white/20" />
+                              <div className="w-2 h-2 rounded-full bg-foreground-muted" />
                             )}
                           </div>
-                          <span className={`order-step-label text-[11px] mt-1.5 font-medium ${step.done ? 'text-white/70' : 'text-white/30'}`}>
+                          <span className={`order-step-label text-[11px] mt-1.5 font-medium ${step.done ? 'text-foreground/70' : 'text-foreground-muted'}`}>
                             {step.label}
                           </span>
                           {step.done && step.date && (
-                            <span className="order-step-date text-[9px] text-white/40 mt-0.5">
+                            <span className="order-step-date text-[9px] text-foreground-muted mt-0.5">
                               {new Date(step.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
                             </span>
                           )}
                         </div>
                         {index < arr.length - 1 && (
                           <div className={`order-step-connector flex-1 h-0.5 mx-1 min-w-[20px] transition-all ${
-                            arr[index + 1].done ? 'bg-gradient-to-r from-emerald-500/50 to-emerald-500/30' : 'bg-white/[0.08]'
+                            arr[index + 1].done ? 'bg-gradient-to-r from-emerald-500/50 to-emerald-500/30' : 'bg-glass-bg'
                           }`} />
                         )}
                       </div>
@@ -1897,13 +1919,13 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
 
                   {/* Order Items */}
                   <div className="space-y-2">
-                    <p className="text-[12px] text-white/40 uppercase tracking-wide">Ürünler</p>
+                    <p className="text-[12px] text-foreground-muted uppercase tracking-wide">Ürünler</p>
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-start gap-2 sm:gap-3 p-2 bg-white/[0.02] rounded-lg"
+                        className="flex items-start gap-2 sm:gap-3 p-2 bg-glass-bg rounded-lg"
                       >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/[0.03] rounded-lg overflow-hidden relative flex-shrink-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-glass-bg rounded-lg overflow-hidden relative flex-shrink-0">
                           {item.product.thumbnail || item.product.images[0] ? (
                             <Image
                               src={item.product.thumbnail || item.product.images[0]}
@@ -1914,27 +1936,27 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package size={16} className="text-white/20" />
+                              <Package size={16} className="text-foreground-disabled" />
                             </div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/urun/${item.product.slug}`}
-                            className="text-[13px] text-white hover:text-emerald-400 transition-colors line-clamp-1"
+                            className="text-[13px] text-foreground hover:text-emerald-400 transition-colors line-clamp-1"
                           >
                             {item.product.name}
                           </Link>
                           {item.variantInfo && (
-                            <p className="text-[11px] text-white/40">
+                            <p className="text-[11px] text-foreground-muted">
                               {item.variantInfo.name}: {item.variantInfo.value}
                             </p>
                           )}
-                          <p className="text-[11px] text-white/40">
+                          <p className="text-[11px] text-foreground-muted">
                             {formatPrice(item.price)} × {item.quantity}
                           </p>
                         </div>
-                        <span className="text-[13px] font-medium text-white">
+                        <span className="text-[13px] font-medium text-foreground">
                           {formatPrice(item.subtotal)}
                         </span>
                       </div>
@@ -1942,29 +1964,29 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                   </div>
 
                   {/* Order Summary */}
-                  <div className="bg-white/[0.02] rounded-lg p-3 space-y-2">
+                  <div className="bg-glass-bg rounded-lg p-3 space-y-2">
                     <div className="flex justify-between text-[12px]">
-                      <span className="text-white/40">Ara Toplam</span>
-                      <span className="text-white/60">{formatPrice(order.subtotal)}</span>
+                      <span className="text-foreground-muted">Ara Toplam</span>
+                      <span className="text-foreground-secondary">{formatPrice(order.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-[12px]">
-                      <span className="text-white/40">Kargo</span>
-                      <span className={order.shippingCost === 0 ? 'text-emerald-400' : 'text-white/60'}>
+                      <span className="text-foreground-muted">Kargo</span>
+                      <span className={order.shippingCost === 0 ? 'text-emerald-400' : 'text-foreground-secondary'}>
                         {order.shippingCost === 0 ? 'Ücretsiz' : formatPrice(order.shippingCost)}
                       </span>
                     </div>
                     {order.discount > 0 && (
                       <div className="flex justify-between text-[12px]">
-                        <span className="text-white/40">İndirim</span>
+                        <span className="text-foreground-muted">İndirim</span>
                         <span className="text-emerald-400">-{formatPrice(order.discount)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-[14px] pt-2 border-t border-white/[0.06]">
+                    <div className="flex justify-between text-[14px] pt-2 border-t border-border">
                       <div>
-                        <span className="font-medium text-white">Toplam</span>
-                        <span className="text-[10px] text-white/40 ml-1">(KDV dahil)</span>
+                        <span className="font-medium text-foreground">Toplam</span>
+                        <span className="text-[10px] text-foreground-muted ml-1">(KDV dahil)</span>
                       </div>
-                      <span className="font-semibold text-white">{formatPrice(order.total)}</span>
+                      <span className="font-semibold text-foreground">{formatPrice(order.total)}</span>
                     </div>
                   </div>
 
@@ -1978,19 +2000,19 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           {order.carrierName && (
-                            <p className="text-[12px] text-white/50 mb-1">{order.carrierName}</p>
+                            <p className="text-[12px] text-foreground-tertiary mb-1">{order.carrierName}</p>
                           )}
-                          <p className="text-[14px] font-mono text-white">{order.trackingNumber}</p>
+                          <p className="text-[14px] font-mono text-foreground">{order.trackingNumber}</p>
                         </div>
                         <button
                           onClick={() => copyTrackingNumber(order.trackingNumber!)}
-                          className="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+                          className="p-2 rounded-lg bg-glass-bg-hover hover:bg-glass-bg-hover transition-colors"
                           title="Takip numarasını kopyala"
                         >
                           {copiedTracking === order.trackingNumber ? (
                             <Check size={14} className="text-emerald-400" />
                           ) : (
-                            <Copy size={14} className="text-white/40" />
+                            <Copy size={14} className="text-foreground-muted" />
                           )}
                         </button>
                       </div>
@@ -2006,7 +2028,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                           Kargoyu Takip Et
                         </a>
                       ) : (
-                        <p className="text-[11px] text-white/40 text-center">
+                        <p className="text-[11px] text-foreground-muted text-center">
                           Kargo firması sitesinden takip edebilirsiniz
                         </p>
                       )}
@@ -2014,10 +2036,10 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                   )}
 
                   {/* Invoice Section */}
-                  <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-glass-bg rounded-lg">
                     <div className="flex items-center gap-2">
-                      <FileText size={16} className="text-white/40" />
-                      <span className="text-[13px] text-white/60">Fatura</span>
+                      <FileText size={16} className="text-foreground-muted flex-shrink-0" />
+                      <span className="text-[13px] text-foreground-secondary">Fatura</span>
                     </div>
                     {order.invoiceUrl ? (
                       <a
@@ -2031,43 +2053,43 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                         <ExternalLink size={10} />
                       </a>
                     ) : order.status === "DELIVERED" ? (
-                      <span className="inline-flex items-center gap-2 text-[12px] text-amber-400">
-                        <Clock size={12} />
-                        Teslimden en geç 2 gün içinde kesilecektir
+                      <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-[12px] text-amber-400">
+                        <Clock size={12} className="flex-shrink-0" />
+                        <span>Hazır Olduğunda İndirebilirsiniz</span>
                       </span>
                     ) : (
-                      <span className="text-[12px] text-white/30">-</span>
+                      <span className="text-[12px] text-foreground-muted">-</span>
                     )}
                   </div>
 
 
                   {/* Shipping Address */}
                   {order.shippingAddress && (
-                    <div className="p-3 bg-white/[0.02] rounded-lg">
-                      <p className="text-[12px] text-white/40 mb-2 flex items-center gap-2">
+                    <div className="p-3 bg-glass-bg rounded-lg">
+                      <p className="text-[12px] text-foreground-muted mb-2 flex items-center gap-2">
                         <MapPin size={12} />
                         Teslimat Adresi
                       </p>
-                      <p className="text-[13px] text-white/70">
+                      <p className="text-[13px] text-foreground/70">
                         {order.shippingAddress.fullName || `${order.shippingAddress.firstName || ''} ${order.shippingAddress.lastName || ''}`.trim()}
                       </p>
-                      <p className="text-[12px] text-white/50">
+                      <p className="text-[12px] text-foreground-tertiary">
                         {order.shippingAddress.address || order.shippingAddress.addressLine1}
                       </p>
-                      <p className="text-[12px] text-white/50">
+                      <p className="text-[12px] text-foreground-tertiary">
                         {order.shippingAddress.district && `${order.shippingAddress.district}, `}
                         {order.shippingAddress.city}
                         {order.shippingAddress.postalCode && ` ${order.shippingAddress.postalCode}`}
                       </p>
-                      <p className="text-[12px] text-white/40 mt-1">{order.shippingAddress.phone}</p>
+                      <p className="text-[12px] text-foreground-muted mt-1">{order.shippingAddress.phone}</p>
                     </div>
                   )}
 
                   {/* Customer Note */}
                   {order.customerNote && (
-                    <div className="p-3 bg-white/[0.02] rounded-lg">
-                      <p className="text-[12px] text-white/40 mb-1">Sipariş Notu</p>
-                      <p className="text-[13px] text-white/60 italic">&quot;{order.customerNote}&quot;</p>
+                    <div className="p-3 bg-glass-bg rounded-lg">
+                      <p className="text-[12px] text-foreground-muted mb-1">Sipariş Notu</p>
+                      <p className="text-[13px] text-foreground-secondary italic">&quot;{order.customerNote}&quot;</p>
                     </div>
                   )}
                 </div>
@@ -2221,12 +2243,12 @@ function AddressesPane({ userName }: { userName?: string }) {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
-        <span className="text-[17px] font-medium text-white">Adreslerim</span>
+      <div className="flex items-center justify-between pb-3 border-b border-border">
+        <span className="text-[17px] font-medium text-foreground">Adreslerim</span>
         {showForm && (
           <button 
             onClick={handleCancelEdit}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] text-white rounded-lg text-[15px] font-medium hover:bg-white/[0.06] transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[15px] font-medium hover:bg-glass-bg-hover transition-all"
           >
             <X size={14} />
             İptal
@@ -2236,39 +2258,39 @@ function AddressesPane({ userName }: { userName?: string }) {
 
       {/* Address Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white/[0.02] rounded-lg p-4 space-y-3 border border-white/[0.04]">
+        <form onSubmit={handleSubmit} className="bg-glass-bg rounded-lg p-4 space-y-3 border border-border">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] text-white/40 uppercase tracking-wide">Adres Başlığı</label>
+              <label className="text-[10px] text-foreground-muted uppercase tracking-wide">Adres Başlığı</label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Ev, İş vb."
                 required
-                className="w-full mt-1 h-9 px-3 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40"
+                className="w-full mt-1 h-9 px-3 bg-glass-bg border border-border rounded-lg text-[12px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40"
               />
             </div>
             <div>
-              <label className="text-[10px] text-white/40 uppercase tracking-wide">Telefon</label>
+              <label className="text-[10px] text-foreground-muted uppercase tracking-wide">Telefon</label>
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="05XX XXX XX XX"
                 required
-                className="w-full mt-1 h-9 px-3 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40"
+                className="w-full mt-1 h-9 px-3 bg-glass-bg border border-border rounded-lg text-[12px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40"
               />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] text-white/40 uppercase tracking-wide">İl</label>
+              <label className="text-[10px] text-foreground-muted uppercase tracking-wide">İl</label>
               <select
                 value={formData.city}
                 onChange={(e) => handleCityChange(e.target.value)}
                 required
-                className="w-full mt-1 h-9 px-3 bg-[#0a0a0a] border border-white/[0.06] rounded-lg text-[12px] text-white outline-none focus:border-emerald-500/40 appearance-none cursor-pointer"
+                className="w-full mt-1 h-9 px-3 bg-background border border-border rounded-lg text-[12px] text-foreground outline-none focus:border-emerald-500/40 appearance-none cursor-pointer"
               >
                 <option value="">İl Seçin</option>
                 {CITIES.map(city => (
@@ -2277,13 +2299,13 @@ function AddressesPane({ userName }: { userName?: string }) {
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-white/40 uppercase tracking-wide">İlçe</label>
+              <label className="text-[10px] text-foreground-muted uppercase tracking-wide">İlçe</label>
               <select
                 value={formData.district}
                 onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                 required
                 disabled={!formData.city}
-                className="w-full mt-1 h-9 px-3 bg-[#0a0a0a] border border-white/[0.06] rounded-lg text-[12px] text-white outline-none focus:border-emerald-500/40 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-1 h-9 px-3 bg-background border border-border rounded-lg text-[12px] text-foreground outline-none focus:border-emerald-500/40 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">{formData.city ? "İlçe Seçin" : "Önce il seçin"}</option>
                 {districts.map(district => (
@@ -2293,14 +2315,14 @@ function AddressesPane({ userName }: { userName?: string }) {
             </div>
           </div>
           <div>
-            <label className="text-[10px] text-white/40 uppercase tracking-wide">Açık Adres</label>
+            <label className="text-[10px] text-foreground-muted uppercase tracking-wide">Açık Adres</label>
             <textarea
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               rows={2}
               required
               placeholder="Mahalle, sokak, bina no, daire no..."
-              className="w-full mt-1 px-3 py-2 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 resize-none"
+              className="w-full mt-1 px-3 py-2 bg-glass-bg border border-border rounded-lg text-[12px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40 resize-none"
             />
           </div>
           <div className="flex items-center justify-between pt-2">
@@ -2309,14 +2331,14 @@ function AddressesPane({ userName }: { userName?: string }) {
                 type="checkbox"
                 checked={formData.isDefault}
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-                className="w-4 h-4 rounded border-white/20 bg-white/[0.03] text-emerald-500 focus:ring-emerald-500/20"
+                className="w-4 h-4 rounded border-border bg-glass-bg text-emerald-500 focus:ring-emerald-500/20"
               />
-              <span className="text-[11px] text-white/50">Varsayılan adres</span>
+              <span className="text-[11px] text-foreground-tertiary">Varsayılan adres</span>
             </label>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50"
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               {loading ? "Kaydediliyor..." : editingId ? "Güncelle" : "Kaydet"}
@@ -2330,9 +2352,9 @@ function AddressesPane({ userName }: { userName?: string }) {
         {addresses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {addresses.map((addr) => (
-              <div key={addr.id} className="bg-white/[0.02] border border-white/[0.05] rounded-lg p-4 flex flex-col">
+              <div key={addr.id} className="bg-glass-bg border border-border rounded-lg p-4 flex flex-col">
                 <div className="flex items-start justify-between mb-3">
-                  <span className="text-[14px] font-medium text-white">{addr.title}</span>
+                  <span className="text-[14px] font-medium text-foreground">{addr.title}</span>
                   {addr.isDefault && (
                     <span className="text-[10px] px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">
                       Varsayılan
@@ -2340,12 +2362,12 @@ function AddressesPane({ userName }: { userName?: string }) {
                   )}
                 </div>
                 <div className="space-y-1 mb-4 flex-1">
-                  <p className="text-[13px] text-white/70">{userName}</p>
-                  <p className="text-[12px] text-white/50 leading-relaxed">{addr.address}</p>
-                  <p className="text-[12px] text-white/50">{addr.district}, {addr.city}</p>
-                  <p className="text-[12px] text-white/50">{addr.phone}</p>
+                  <p className="text-[13px] text-foreground/70">{userName}</p>
+                  <p className="text-[12px] text-foreground-tertiary leading-relaxed">{addr.address}</p>
+                  <p className="text-[12px] text-foreground-tertiary">{addr.district}, {addr.city}</p>
+                  <p className="text-[12px] text-foreground-tertiary">{addr.phone}</p>
                 </div>
-                <div className="flex flex-col gap-2 pt-3 border-t border-white/[0.05]">
+                <div className="flex flex-col gap-2 pt-3 border-t border-border">
                   {!addr.isDefault && (
                     <button
                       onClick={() => handleSetDefault(addr.id)}
@@ -2358,14 +2380,14 @@ function AddressesPane({ userName }: { userName?: string }) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEdit(addr)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[13px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[13px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
                     >
                       <Edit2 size={14} />
                       Düzenle
                     </button>
                     <button
                       onClick={() => handleDelete(addr.id)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] text-white rounded-lg text-[13px] font-medium hover:bg-white/[0.06] transition-all"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[13px] font-medium hover:bg-glass-bg-hover transition-all"
                     >
                       <Trash2 size={14} />
                       Sil
@@ -2377,14 +2399,14 @@ function AddressesPane({ userName }: { userName?: string }) {
           </div>
         ) : !showForm ? (
           <div className="h-full flex flex-col items-center justify-center text-center">
-            <div className="w-12 h-12 rounded-lg bg-white/[0.03] flex items-center justify-center mb-3">
-              <MapPin size={20} className="text-white/20" />
+            <div className="w-12 h-12 rounded-lg bg-glass-bg flex items-center justify-center mb-3">
+              <MapPin size={20} className="text-foreground-disabled" />
             </div>
-            <p className="text-[16px] text-white/50 mb-1">Kayıtlı adresiniz yok</p>
-            <p className="text-[15px] text-white/30 mb-5">Hızlı ödeme için adres ekleyin</p>
+            <p className="text-[16px] text-foreground-tertiary mb-1">Kayıtlı adresiniz yok</p>
+            <p className="text-[15px] text-foreground-muted mb-5">Hızlı ödeme için adres ekleyin</p>
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
             >
               Adres Ekle
               <ChevronRight size={14} />
@@ -2579,7 +2601,7 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
   return (
     <div className="account-details-form space-y-5">
       {/* Profile Photo Section */}
-      <div className="flex items-center gap-4 pb-4 border-b border-white/[0.05]">
+      <div className="flex items-center gap-4 pb-4 border-b border-border">
         <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 border-2 border-emerald-500/20 flex items-center justify-center overflow-hidden">
           {avatarLoading ? (
             <Loader2 size={24} className="animate-spin text-emerald-400/50" />
@@ -2600,7 +2622,7 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
           <div className="flex items-center gap-3">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[17px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[17px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
             >
               <Camera size={16} />
               Yükle
@@ -2608,68 +2630,68 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
             {isValidImageUrl && (
               <button
                 onClick={handleAvatarDelete}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] text-white rounded-lg text-[17px] font-medium hover:bg-white/[0.06] transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[17px] font-medium hover:bg-glass-bg-hover transition-all"
               >
                 <Trash2 size={16} />
                 Kaldır
               </button>
             )}
           </div>
-          <p className="text-[12px] text-white/30">JPEG, PNG, WebP • Max 5MB</p>
+          <p className="text-[12px] text-foreground-muted">JPEG, PNG, WebP • Max 5MB</p>
         </div>
       </div>
 
       {/* Profile Info */}
       <div className="space-y-3">
-        <span className="text-[14px] font-medium text-white/50 block">Kişisel Bilgiler</span>
+        <span className="text-[14px] font-medium text-foreground-tertiary block">Kişisel Bilgiler</span>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[13px] text-white/40">Ad</label>
+            <label className="text-[13px] text-foreground-muted">Ad</label>
             <input
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="Adınız"
-              className="w-full h-11 px-4 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[15px] text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 transition-all"
+              className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40 transition-all"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[13px] text-white/40">Soyad</label>
+            <label className="text-[13px] text-foreground-muted">Soyad</label>
             <input
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Soyadınız"
-              className="w-full h-11 px-4 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[15px] text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 transition-all"
+              className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40 transition-all"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[13px] text-white/40">Telefon</label>
+            <label className="text-[13px] text-foreground-muted">Telefon</label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="05XX XXX XX XX"
-              className="w-full h-11 px-4 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[15px] text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 transition-all"
+              className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40 transition-all"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[13px] text-white/40">E-posta</label>
+            <label className="text-[13px] text-foreground-muted">E-posta</label>
             <input
               type="email"
               value={user.email || ""}
               disabled
-              className="w-full h-11 px-4 bg-white/[0.02] border border-white/[0.04] rounded-lg text-[15px] text-white/40 cursor-not-allowed"
+              className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground-muted cursor-not-allowed"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[13px] text-white/40">Doğum Tarihi</label>
+            <label className="text-[13px] text-foreground-muted">Doğum Tarihi</label>
             <input
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
-              className="w-full h-11 px-4 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[15px] text-white outline-none focus:border-emerald-500/40 transition-all [color-scheme:dark]"
+              className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground outline-none focus:border-emerald-500/40 transition-all [color-scheme:dark]"
             />
           </div>
         </div>
@@ -2683,7 +2705,7 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
           className={`account-save-btn inline-flex items-center gap-2 px-5 py-3 rounded-lg text-[16px] font-medium transition-all disabled:opacity-50 ${
             saved 
               ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-400" 
-              : "bg-emerald-500/10 border border-emerald-500/20 text-white hover:bg-emerald-500/25 hover:border-emerald-500/30"
+              : "bg-emerald-500/10 border border-emerald-500/20 text-foreground hover:bg-emerald-500/25 hover:border-emerald-500/30"
           }`}
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} className="text-emerald-400" /> : <Save size={16} />}
@@ -2692,16 +2714,16 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-white/[0.06]" />
+      <div className="h-px bg-glass-bg-hover" />
 
       {/* Password Section */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <span className="text-[14px] font-medium text-white/50 block">Şifre</span>
+          <span className="text-[14px] font-medium text-foreground-tertiary block">Şifre</span>
           <button
             onClick={handleSendPasswordResetLink}
             disabled={passwordLoading}
-            className="account-password-btn inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/20 text-white rounded-lg text-[14px] sm:text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50 w-full sm:w-auto"
+            className="account-password-btn inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[14px] sm:text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50 w-full sm:w-auto"
           >
             {passwordLoading ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
             {passwordLoading ? "Gönderiliyor..." : "Şifre Sıfırlama Linki Gönder"}
@@ -2714,14 +2736,14 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
           </div>
         )}
         {passwordSuccess && (
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[15px] text-white-400">
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[15px] text-foreground-400">
             Şifre sıfırlama linki email adresinize gönderildi. Lütfen email kutunuzu kontrol edin.
           </div>
         )}
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-white/[0.06]" />
+      <div className="h-px bg-glass-bg-hover" />
 
       {/* Çıkış Yap - Mobilde görünür */}
       <div className="account-logout-section pt-4">
@@ -2752,18 +2774,19 @@ function FavoritesPane() {
     return (
       <div className="h-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
-          <span className="text-[20px] font-medium text-white">Favorilerim</span>
+        <div className="flex items-center justify-between pb-3 border-b border-border">
+          <span className="text-[20px] font-medium text-foreground">Favorilerim</span>
         </div>
         
         {/* Empty State - Only CTA */}
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <Link 
             href="/magaza"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 text-white rounded-xl text-[17px] font-medium transition-all shadow-lg shadow-pink-500/25"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 rounded-xl text-[17px] font-medium transition-all shadow-lg shadow-pink-500/25"
+            style={{ color: '#ffffff' }}
           >
             Ürünleri Keşfet
-            <ChevronRight size={18} />
+            <ChevronRight size={18} style={{ color: '#ffffff' }} />
           </Link>
         </div>
       </div>
@@ -2773,13 +2796,13 @@ function FavoritesPane() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
-        <span className="text-[20px] font-medium text-white">Favorilerim</span>
+      <div className="flex items-center justify-between pb-3 border-b border-border">
+        <span className="text-[20px] font-medium text-foreground">Favorilerim</span>
         <div className="flex items-center gap-3">
-          <span className="text-[15px] text-white/40">{items.length} ürün</span>
+          <span className="text-[15px] text-foreground-muted">{items.length} ürün</span>
           <button
             onClick={clearFavorites}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] text-white rounded-lg text-[17px] font-medium hover:bg-white/[0.06] transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[17px] font-medium hover:bg-glass-bg-hover transition-all"
           >
             <Trash2 size={14} />
             Temizle
@@ -2792,11 +2815,11 @@ function FavoritesPane() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="group relative flex gap-4 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:border-white/[0.12] transition-all"
+            className="group relative flex gap-4 p-3 bg-glass-bg border border-border rounded-xl hover:border-border-hover transition-all"
           >
             {/* Image */}
             <Link href={`/urun/${item.slug}`} className="flex-shrink-0">
-              <div className="w-20 h-20 bg-white/[0.02] rounded-lg relative overflow-hidden">
+              <div className="w-20 h-20 bg-glass-bg rounded-lg relative overflow-hidden">
                 {item.image ? (
                   <Image
                     src={item.image}
@@ -2807,7 +2830,7 @@ function FavoritesPane() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package size={24} className="text-white/10" />
+                    <Package size={24} className="text-foreground/10" />
                   </div>
                 )}
               </div>
@@ -2817,19 +2840,19 @@ function FavoritesPane() {
             <div className="flex-1 min-w-0 flex flex-col justify-center">
               <p className="text-[11px] text-emerald-400/70 uppercase tracking-wider mb-0.5">{item.brand}</p>
               <Link href={`/urun/${item.slug}`}>
-                <span className="text-[13px] font-medium text-white hover:text-emerald-400 transition-colors line-clamp-1">
+                <span className="text-[13px] font-medium text-foreground hover:text-emerald-400 transition-colors line-clamp-1">
                   {item.title}
                 </span>
               </Link>
               {item.variant && (
-                <p className="text-[11px] text-white/40 mt-0.5">
+                <p className="text-[11px] text-foreground-muted mt-0.5">
                   {item.variant.type}: {item.variant.value}
                 </p>
               )}
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[14px] font-semibold text-white">{formatPrice(item.price)}</span>
+                <span className="text-[14px] font-semibold text-foreground">{formatPrice(item.price)}</span>
                 {item.originalPrice && item.originalPrice > item.price && (
-                  <span className="text-[11px] text-white/30 line-through">{formatPrice(item.originalPrice)}</span>
+                  <span className="text-[11px] text-foreground-muted line-through">{formatPrice(item.originalPrice)}</span>
                 )}
               </div>
             </div>
@@ -2837,7 +2860,7 @@ function FavoritesPane() {
             {/* Remove Button */}
             <button
               onClick={() => removeItem(item.productId, item.variant?.id)}
-              className="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 bg-white/[0.03] border border-white/[0.08] text-white rounded-lg hover:bg-white/[0.06] transition-all self-center"
+              className="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 bg-glass-bg border border-border-hover text-foreground rounded-lg hover:bg-glass-bg-hover transition-all self-center"
             >
               <X size={12} />
             </button>

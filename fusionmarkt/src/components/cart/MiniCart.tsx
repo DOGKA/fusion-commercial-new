@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { 
   X, 
   Minus, 
@@ -28,9 +29,20 @@ const FREE_SHIPPING_LIMIT = 2000;
 // MINI CART - Right Side Panel (Premium Design)
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Hydration-safe mounted check (same approach as `ThemeToggle`)
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+}
+
 export default function MiniCart() {
   const { items, isOpen, closeCart: closeCartOriginal, itemCount, subtotal, originalSubtotal, totalSavings, removeItem, updateQuantity, clearCart } = useCart();
   const { addItem: addToFavorites } = useFavorites();
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = mounted && resolvedTheme === "dark";
   const panelRef = useRef<HTMLDivElement>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -203,7 +215,7 @@ export default function MiniCart() {
       {/* Backdrop with blur */}
       <div 
         className={cn(
-          "absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300",
+          "absolute inset-0 bg-background/70 backdrop-blur-md transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0"
         )}
       />
@@ -213,8 +225,9 @@ export default function MiniCart() {
         ref={panelRef}
         className={cn(
           "absolute right-0 top-0 bottom-0 w-full max-w-[480px]",
-          "bg-gradient-to-b from-[#0d0d0d] to-[#080808]",
-          "border-l border-white/[0.06]",
+          // Dark theme must be the old dark panel (not light)
+          isDark ? "bg-gradient-to-b from-[#0d0d0d] to-[#080808]" : "bg-white",
+          "border-l border-border",
           "flex flex-col shadow-2xl shadow-black/60",
           "animate-in slide-in-from-right duration-300"
         )}
@@ -242,7 +255,7 @@ export default function MiniCart() {
               </div>
               {/* Badge */}
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 ring-2 ring-[#0d0d0d]">
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 ring-2 ring-background">
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
@@ -250,10 +263,10 @@ export default function MiniCart() {
             
             {/* Title Block */}
             <div className="min-w-0">
-              <h2 className="text-[20px] font-semibold text-white tracking-tight">Sepetiniz</h2>
+              <h2 className="text-[20px] font-semibold text-foreground tracking-tight">Sepetiniz</h2>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[13px] text-white/35 font-medium">{itemCount} ürün</span>
-                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="text-[13px] text-foreground-muted font-medium">{itemCount} ürün</span>
+                <span className="w-1 h-1 rounded-full bg-foreground/20" />
                 <span className="text-[14px] text-emerald-400 font-semibold tracking-tight">{formatPrice(subtotal)} ₺</span>
               </div>
             </div>
@@ -261,7 +274,7 @@ export default function MiniCart() {
             {/* Close Button - Minimal */}
             <button
               onClick={closeCart}
-              className="w-8 h-8 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.05] rounded-lg transition-all duration-200"
+              className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.05] rounded-lg transition-all duration-200"
               aria-label="Kapat"
             >
               <X className="w-[18px] h-[18px]" strokeWidth={1.5} />
@@ -269,28 +282,33 @@ export default function MiniCart() {
           </div>
           
           {/* Subtle divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent mx-4" />
+          <div
+            className={cn(
+              "h-px bg-gradient-to-r from-transparent to-transparent mx-4",
+              isDark ? "via-white/[0.06]" : "via-black/[0.08]"
+            )}
+          />
 
           {/* Action Bar - Compact */}
           {items.length > 0 && (
             <div className="px-4 pt-3 pb-3">
-              <div className="flex items-center gap-1.5 p-1 bg-white/[0.02] border border-white/[0.04]" style={{ borderRadius: '10px' }}>
+              <div className="flex items-center gap-1.5 p-1 bg-foreground/[0.02] border border-border" style={{ borderRadius: '10px' }}>
                 {!isSelectionMode ? (
                   <>
                     <button
                       type="button"
                       onClick={() => setIsSelectionMode(true)}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-white/50 hover:text-white hover:bg-white/[0.04] transition-all cursor-pointer"
+                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-all cursor-pointer"
                       style={{ borderRadius: '8px' }}
                     >
                       <Check size={16} />
                       Seç
                     </button>
-                    <div className="w-px h-4 bg-white/[0.06]" />
+                    <div className="w-px h-4 bg-border" />
                     <button
                       type="button"
                       onClick={clearCart}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-white/50 hover:text-red-400 hover:bg-red-500/[0.06] transition-all cursor-pointer"
+                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-red-400 hover:bg-red-500/[0.06] transition-all cursor-pointer"
                       style={{ borderRadius: '8px' }}
                     >
                       <Trash2 size={14} />
@@ -305,14 +323,14 @@ export default function MiniCart() {
                         "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-all",
                         selectedItems.size === items.length 
                           ? "text-emerald-400 bg-emerald-500/10" 
-                          : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                          : "text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04]"
                       )}
                       style={{ borderRadius: '8px' }}
                     >
                       <Check size={14} />
                       {selectedItems.size === items.length ? 'Kaldır' : 'Tümü'}
                     </button>
-                    <div className="w-px h-4 bg-white/[0.06]" />
+                    <div className="w-px h-4 bg-border" />
                     <button
                       onClick={moveSelectedToFavorites}
                       disabled={selectedItems.size === 0}
@@ -320,14 +338,14 @@ export default function MiniCart() {
                         "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-all",
                         selectedItems.size > 0 
                           ? "text-pink-400 hover:bg-pink-500/10" 
-                          : "text-white/25 cursor-not-allowed"
+                          : "text-foreground-disabled cursor-not-allowed"
                       )}
                       style={{ borderRadius: '8px' }}
                     >
                       <Heart size={14} />
                       Favori
                     </button>
-                    <div className="w-px h-4 bg-white/[0.06]" />
+                    <div className="w-px h-4 bg-border" />
                     <button
                       onClick={deleteSelectedItems}
                       disabled={selectedItems.size === 0}
@@ -335,20 +353,20 @@ export default function MiniCart() {
                         "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-all",
                         selectedItems.size > 0 
                           ? "text-red-400 hover:bg-red-500/10" 
-                          : "text-white/25 cursor-not-allowed"
+                          : "text-foreground-disabled cursor-not-allowed"
                       )}
                       style={{ borderRadius: '8px' }}
                     >
                       <Trash2 size={14} />
                       Sil
                     </button>
-                    <div className="w-px h-4 bg-white/[0.06]" />
+                    <div className="w-px h-4 bg-border" />
                     <button
                       onClick={() => {
                         setIsSelectionMode(false);
                         setSelectedItems(new Set());
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.04] transition-all"
+                      className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-all"
                       style={{ borderRadius: '8px' }}
                     >
                       <X size={14} />
@@ -367,12 +385,12 @@ export default function MiniCart() {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-16 text-center">
               <div 
-                className="w-24 h-24 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/[0.06] flex items-center justify-center mb-5"
+                className="w-24 h-24 bg-glass-bg border border-glass-border flex items-center justify-center mb-5"
                 style={{ borderRadius: '28px' }}
               >
-                <ShoppingBag className="w-12 h-12 text-white/15" />
+                <ShoppingBag className="w-12 h-12 text-foreground-disabled" />
               </div>
-              <p className="text-white/60 text-lg font-medium mb-6">Sepetiniz boş</p>
+              <p className="text-foreground-secondary text-lg font-medium mb-6">Sepetiniz boş</p>
               <button
                 onClick={closeCart}
                 className="flex items-center gap-2 px-5 py-2.5 text-base font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-all"
@@ -388,11 +406,11 @@ export default function MiniCart() {
                 key={item.id}
                 onClick={isSelectionMode ? () => toggleItemSelection(item.id) : undefined}
                 className={cn(
-                  "group relative bg-white/[0.02] border transition-all duration-200",
+                  "group relative bg-glass-bg border transition-all duration-200",
                   isSelectionMode && "cursor-pointer",
                   isSelectionMode && selectedItems.has(item.id) 
                     ? "border-emerald-500/30 bg-emerald-500/[0.06] ring-1 ring-emerald-500/20" 
-                    : "border-white/[0.05] hover:border-white/[0.08] hover:bg-white/[0.03]"
+                    : "border-border hover:border-border-hover hover:bg-glass-bg-hover"
                 )}
                 style={{ borderRadius: '14px', overflow: 'hidden' }}
               >
@@ -410,7 +428,7 @@ export default function MiniCart() {
                         "minicart-checkbox absolute top-3 left-3 sm:top-3 sm:left-3 z-20 w-5 h-5 sm:w-5 sm:h-5 border sm:border-2 flex items-center justify-center transition-all cursor-pointer shadow-lg rounded sm:rounded-md",
                         selectedItems.has(item.id) 
                           ? "bg-emerald-500 border-emerald-500 text-white" 
-                          : "bg-black/80 border-white/40 text-transparent hover:border-emerald-400"
+                          : "bg-glass-bg border-border text-transparent hover:border-emerald-400"
                       )}
                     >
                       <Check className="w-3 h-3 sm:w-3 sm:h-3" strokeWidth={3} />
@@ -427,7 +445,7 @@ export default function MiniCart() {
                       }
                       closeCart();
                     }}
-                    className="relative w-[72px] h-[72px] flex-shrink-0 bg-[#0a0a0a] m-2 hover:opacity-80 transition-opacity" 
+                    className="relative w-[72px] h-[72px] flex-shrink-0 bg-background m-2 hover:opacity-80 transition-opacity" 
                     style={{ borderRadius: '10px', overflow: 'hidden' }}
                   >
                     {item.image ? (
@@ -460,15 +478,15 @@ export default function MiniCart() {
                       className="pr-6 hover:opacity-80 transition-opacity"
                     >
                       {!!item.brand?.trim() && (
-                        <p className="text-[11px] text-white/40 uppercase tracking-wider font-medium">
+                        <p className="text-[11px] text-foreground-muted uppercase tracking-wider font-medium">
                           {item.brand}
                         </p>
                       )}
-                      <h4 className="text-[14px] font-medium text-white/90 leading-snug line-clamp-1 mt-0.5">
+                      <h4 className="text-[14px] font-medium text-foreground leading-snug line-clamp-1 mt-0.5">
                         {item.title}
                       </h4>
                       {item.variant && (
-                        <p className="text-[12px] text-white/35 mt-0.5">
+                        <p className="text-[12px] text-foreground-muted mt-0.5">
                           {item.variant.value}
                         </p>
                       )}
@@ -478,41 +496,41 @@ export default function MiniCart() {
                     <div className="flex flex-col gap-1.5 mt-2">
                       {/* Row 1: Original price */}
                       <div className="flex items-baseline gap-1">
-                        <span className="text-[15px] font-semibold text-white">
+                        <span className="text-[15px] font-semibold text-foreground">
                           {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
                         </span>
-                        <span className="text-[11px] text-white/40">₺</span>
+                        <span className="text-[11px] text-foreground-muted">₺</span>
                       </div>
                       
                       {/* Row 2: Discounted price + savings - only if there's a discount */}
                       {item.originalPrice && item.originalPrice > item.price && (
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                          <span className="text-[10px] text-white/50">İndirimli Fiyat:</span>
-                          <span className="text-[11px] text-white font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
-                          <span className="text-[10px] text-white/30">•</span>
+                          <span className="text-[10px] text-foreground-tertiary">İndirimli Fiyat:</span>
+                          <span className="text-[11px] text-foreground font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
+                          <span className="text-[10px] text-foreground-muted">•</span>
                           <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
                         </div>
                       )}
                       
                       {/* Row 3: Quantity Controls - smaller on mobile */}
                       <div
-                        className="flex items-center self-start bg-white/[0.04] border border-white/[0.06] rounded p-px md:rounded-md md:p-0.5"
+                        className="flex items-center self-start bg-glass-bg border border-border rounded p-px md:rounded-md md:p-0.5"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
-                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all rounded-sm md:rounded"
                         >
                           <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
-                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-semibold text-white/80">
+                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-semibold text-foreground-secondary">
                           {item.quantity}
                         </span>
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
-                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-all rounded-sm md:rounded"
+                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all rounded-sm md:rounded"
                         >
                           <Plus className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         </button>
@@ -525,7 +543,7 @@ export default function MiniCart() {
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                      className="absolute top-2 right-2 p-1 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute top-2 right-2 p-1 text-foreground-disabled hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
                       style={{ borderRadius: '6px' }}
                       aria-label="Ürünü Kaldır"
                     >
@@ -542,7 +560,12 @@ export default function MiniCart() {
             FOOTER - Summary & CTAs (Sticky at bottom)
         ═══════════════════════════════════════════════════════════════════ */}
         {items.length > 0 && (
-          <div className="flex-shrink-0 border-t border-white/[0.06] bg-gradient-to-t from-[#080808] via-[#0a0a0a] to-[#0d0d0d]">
+          <div
+            className={cn(
+              "flex-shrink-0 border-t",
+              isDark ? "border-white/[0.06] bg-gradient-to-t from-[#080808] via-[#0a0a0a] to-[#0d0d0d]" : "border-gray-200 bg-gray-50"
+            )}
+          >
             <div className="p-5 space-y-4">
               
               {/* Free Shipping Progress / Message */}
@@ -588,7 +611,7 @@ export default function MiniCart() {
                     </p>
                   </div>
                   {/* Progress Bar */}
-                  <div className="h-1.5 bg-white/10 overflow-hidden" style={{ borderRadius: '4px' }}>
+                  <div className="h-1.5 bg-glass-bg-hover overflow-hidden" style={{ borderRadius: '4px' }}>
                     <div 
                       className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all duration-500"
                       style={{ 
@@ -598,7 +621,7 @@ export default function MiniCart() {
                     />
                   </div>
                   <div className="flex justify-between mt-1.5">
-                    <span className="text-[10px] text-white/30">{formatPrice(subtotal)} ₺</span>
+                    <span className="text-[10px] text-foreground-muted">{formatPrice(subtotal)} ₺</span>
                     <span className="text-[10px] text-emerald-400/60">{formatPrice(shippingInfo.freeShippingThreshold)} ₺ Ücretsiz Kargo</span>
                   </div>
                 </div>
@@ -609,8 +632,8 @@ export default function MiniCart() {
                 {/* Original Subtotal - only show if there's a discount */}
                 {totalSavings > 0 && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white/50">Ara Toplam</span>
-                    <span className="text-sm text-white/50 line-through">
+                    <span className="text-sm text-foreground-tertiary">Ara Toplam</span>
+                    <span className="text-sm text-foreground-tertiary line-through">
                       {formatPrice(originalSubtotal)} ₺
                     </span>
                   </div>
@@ -629,13 +652,13 @@ export default function MiniCart() {
                 {/* Final Total */}
                 <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
                   <div>
-                    <span className="text-base text-white/70">Toplam</span>
-                    <p className="text-[12px] text-white/30 mt-0.5">{itemCount} ürün</p>
+                    <span className="text-base text-foreground-secondary">Toplam</span>
+                    <p className="text-[12px] text-foreground-muted mt-0.5">{itemCount} ürün</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-3xl font-bold text-white">
+                    <span className="text-3xl font-bold text-foreground">
                       {formatPrice(subtotal)}
-                      <span className="text-lg font-normal text-white/50 ml-1">₺</span>
+                      <span className="text-lg font-normal text-foreground-tertiary ml-1">₺</span>
                     </span>
                     <p className="text-[12px] text-emerald-400/60">KDV Dahil</p>
                   </div>
@@ -658,7 +681,7 @@ export default function MiniCart() {
                 {/* Alışverişe Devam Et - Secondary */}
                 <button
                   onClick={closeCart}
-                  className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] text-white/70 hover:text-white font-medium text-base transition-all duration-300"
+                  className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-glass-bg border border-glass-border hover:bg-glass-bg-hover hover:border-glass-border-hover text-foreground-secondary hover:text-foreground font-medium text-base transition-all duration-300"
                   style={{ borderRadius: '14px' }}
                 >
                   Alışverişe Devam Et

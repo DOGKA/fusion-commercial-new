@@ -221,8 +221,8 @@ export default function CategoryBento() {
 
   return (
     <section className="category-bento-section pt-16 lg:pt-12 pb-16 lg:pb-20 relative overflow-hidden">
-      {/* Background - Admin panel ile aynı: #0A0A0A */}
-      <div className="absolute inset-0" style={{ background: "#0A0A0A" }} />
+      {/* Background */}
+      <div className="absolute inset-0 bg-background dark:bg-[#0A0A0A]" />
       
       {/* Mesh gradient overlay - Admin panel ile birebir aynı */}
       <div 

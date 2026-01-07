@@ -18,10 +18,25 @@
 @import "../styles/mobile.css";
 @import "../styles/blog.css";
 
-/* Tailwind Theme Inline */
+/* Tailwind Theme Inline - Token Mapping */
 @theme inline {
+  /* Core Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  
+  /* Brand */
+  --color-primary: var(--fusion-primary);
+  --color-secondary: var(--fusion-secondary);
+  
+  /* Semantic */
+  --color-success: var(--fusion-success);
+  --color-warning: var(--fusion-warning);
+  --color-error: var(--fusion-error);
+  --color-info: var(--fusion-info);
+  
+  /* Fonts */
   --font-sans: var(--font-sf-pro);
   --font-mono: var(--font-geist-mono);
 }
@@ -43,10 +58,10 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Product Description Content - Dark Theme
+   Product Description Content - Theme Aware
 ═══════════════════════════════════════════════════════════════════════════ */
 .product-description-content {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--foreground-secondary);
   font-size: 14px;
   line-height: 1.7;
 }
@@ -59,9 +74,9 @@
   margin: 16px 0;
 }
 
-/* Başlıklar - hepsi beyaz, arka plan yok */
+/* Başlıklar */
 .product-description-content strong {
-  color: white;
+  color: var(--foreground);
   font-weight: 600;
 }
 
