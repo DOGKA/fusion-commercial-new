@@ -661,9 +661,15 @@ export default function StorePage() {
       <section className="container" style={{ marginTop: "48px", marginBottom: "48px" }}>
         <div className="relative">
           {/* Main Toolbar Container - Glassmorphism with Wave Mesh */}
-          <div className="relative rounded-[20px] border border-border dark:border-white/[0.08] bg-background/95 dark:bg-background/80 backdrop-blur-xl shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-            {/* Wave Mesh Background Animation - Prominent like reference design */}
-            <div className="absolute inset-0 overflow-hidden rounded-[20px]">
+          <div 
+            className="relative rounded-[20px] border border-border bg-background/95 dark:bg-background/80 backdrop-blur-xl shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden isolate"
+            style={{
+              // iOS-like Squircle smoothing fix
+              clipPath: "inset(0px round 20px)" 
+            }}
+          >
+            {/* Wave Mesh Background Animation */}
+            <div className="absolute inset-0 -z-10">
               <WaveMesh color={isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"} opacity={1} />
             </div>
             
