@@ -769,17 +769,17 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         <div style={{
                           position: 'absolute',
                           inset: 0,
-                          backgroundColor: 'rgba(0,0,0,0.5)',
+                          backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '2px',
                         }}>
-                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--foreground)' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: isDark ? '#ffffff' : '#000000' }}>
                             +{remainingCount}
                           </span>
-                          <span style={{ fontSize: '8px', color: 'var(--foreground-secondary)' }}>
+                          <span style={{ fontSize: '8px', color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }}>
                             {selectedImage >= hiddenStartIndex ? `${selectedImage - hiddenStartIndex + 1}/${remainingCount}` : 'tıkla'}
                           </span>
                         </div>
