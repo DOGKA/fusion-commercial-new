@@ -83,6 +83,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
                   src={partner.logo}
                   alt={partner.name}
                   fill
+                  sizes="(max-width: 1024px) 192px, 256px"
                   className={`object-contain object-left ${logoFilter}`}
                   priority
                 />
