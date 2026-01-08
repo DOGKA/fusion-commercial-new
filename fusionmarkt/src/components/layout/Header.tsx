@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
-import { ThemeToggle, ThemeToggleCompact } from "@/components/ThemeToggle";
+import { ThemeToggle, ThemeToggleCompact, MobileThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "next-themes";
 
 // Hydration-safe mounted check
@@ -309,6 +309,9 @@ export default function Header() {
                 )}
               </button>
 
+              {/* Mobile Theme Toggle - sadece mobilde görünür (640px altı) */}
+              <MobileThemeToggle className="hidden max-sm:flex" />
+
               {/* Mobile Menu Toggle - sadece mobilde görünür (640px altı) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -404,14 +407,14 @@ export default function Header() {
               
               <div className="my-3 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
               
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Link
                   href="/favori"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-all"
                 >
                   <Heart className="w-4 h-4" />
-                  <span className="hidden sm:inline">Favoriler</span>
+                  <span>Favorilerim</span>
                   {favoritesCount > 0 && (
                     <span className="w-5 h-5 bg-pink-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {favoritesCount}
@@ -424,9 +427,8 @@ export default function Header() {
                   className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-all"
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">Hesabım</span>
+                  <span>Hesabım</span>
                 </Link>
-                <ThemeToggleCompact />
               </div>
             </nav>
           </div>
