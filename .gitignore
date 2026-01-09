@@ -81,7 +81,7 @@ clean_product_images/
 # ─────────────────────────────────────────────────────────────────────────────
 # Development Scripts (One-time use, not for production)
 # ─────────────────────────────────────────────────────────────────────────────
-scripts/
+# scripts/ klasörü artık git'e dahil (seed script'leri için)
 check_*.js
 cleanup-*.js
 update_*.js
