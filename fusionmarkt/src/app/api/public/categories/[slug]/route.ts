@@ -82,7 +82,7 @@ export async function GET(
       });
 
       // Bundle'ları getir
-      const bundles = await prisma.bundle.findMany({
+      const bundles = await (prisma.bundle as any).findMany({
         where: {
           isActive: true,
           categories: {
@@ -111,6 +111,12 @@ export async function GET(
             },
             orderBy: { sortOrder: "asc" },
           },
+          bundleBadges: {
+            include: {
+              badge: true,
+            },
+            orderBy: { position: "asc" },
+          },
         },
         orderBy: bundleOrderBy,
         skip: (page - 1) * limit,
@@ -118,13 +124,13 @@ export async function GET(
       });
 
       // Bundle'ları ürün formatına dönüştür (ProductCard ile uyumlu)
-      const products = bundles.map((bundle) => {
+      const products = bundles.map((bundle: any) => {
         // Stok hesapla: bundle içindeki ürünlerin minimum stoku
         let minStock = Infinity;
         for (const item of bundle.items) {
           if (item.product) {
             const productStock = item.product.variants && item.product.variants.length > 0
-              ? item.product.variants.reduce((sum, v) => sum + v.stock, 0)
+              ? item.product.variants.reduce((sum: number, v: any) => sum + v.stock, 0)
               : item.product.stock;
             const effectiveStock = Math.floor(productStock / item.quantity);
             if (effectiveStock < minStock) {
@@ -134,7 +140,7 @@ export async function GET(
         }
         if (!isFinite(minStock)) minStock = 0;
 
-        const totalValue = bundle.items.reduce((sum, item) => {
+        const totalValue = bundle.items.reduce((sum: number, item: any) => {
           return sum + (Number(item.product?.price || 0) * item.quantity);
         }, 0);
         const bundlePrice = Number(bundle.price);
@@ -157,7 +163,7 @@ export async function GET(
           totalValue,
           savings,
           savingsPercent,
-          items: bundle.items.map((item) => ({
+          items: bundle.items.map((item: any) => ({
             id: item.id,
             quantity: item.quantity,
             product: item.product ? {
@@ -179,6 +185,14 @@ export async function GET(
           productBadges: [],
           technicalSpecs: [],
           productFeatureValues: [],
+          // Bundle badges
+          badges: (bundle as any).bundleBadges?.map((bb: any) => ({
+            id: bb.badge.id,
+            name: bb.badge.label,
+            color: bb.badge.bgColor || "#22C55E",
+            textColor: bb.badge.color || "#FFFFFF",
+            icon: bb.badge.icon || null,
+          })) || [],
         };
       });
 
