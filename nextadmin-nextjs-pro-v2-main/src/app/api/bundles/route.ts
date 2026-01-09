@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "100");
     const categoryId = searchParams.get("categoryId");
     const featured = searchParams.get("featured");
+    const includeBadges = searchParams.get("includeBadges") === "true";
 
     let whereClause: any = {};
 
@@ -54,6 +55,51 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
       take: limit,
     });
+
+    // Badge bilgilerini ayrı sorgula (Prisma client güncel değilse raw SQL kullan)
+    if (includeBadges) {
+      try {
+        const bundleIds = bundles.map((b: any) => b.id);
+        if (bundleIds.length > 0) {
+          const bundleBadges: any[] = await prisma.$queryRaw`
+            SELECT bb.id, bb."bundleId", bb."badgeId", bb.position,
+                   b.label, b.color, b."bgColor"
+            FROM bundle_badges bb
+            LEFT JOIN badges b ON bb."badgeId" = b.id
+            WHERE bb."bundleId" = ANY(${bundleIds}::text[])
+            ORDER BY bb.position ASC
+          `;
+          
+          // Badge'leri bundle'lara ekle
+          const badgeMap = new Map<string, any[]>();
+          for (const bb of bundleBadges) {
+            if (!badgeMap.has(bb.bundleId)) {
+              badgeMap.set(bb.bundleId, []);
+            }
+            badgeMap.get(bb.bundleId)!.push({
+              id: bb.id,
+              position: bb.position,
+              badge: {
+                id: bb.badgeId,
+                label: bb.label,
+                color: bb.color,
+                bgColor: bb.bgColor,
+              },
+            });
+          }
+          
+          bundles.forEach((bundle: any) => {
+            bundle.bundleBadges = badgeMap.get(bundle.id) || [];
+          });
+        }
+      } catch (e) {
+        // bundleBadges tablosu yoksa sessizce devam et
+        console.warn("bundleBadges fetch failed:", e);
+        bundles.forEach((bundle: any) => {
+          bundle.bundleBadges = [];
+        });
+      }
+    }
 
     // Bundle item'larında seçili varyant varsa, stock hesabında varyant stoğunu baz al
     const allVariantIds: string[] = bundles
@@ -109,6 +155,12 @@ export async function GET(request: NextRequest) {
           isPrimary: bc.isPrimary,
         })),
         createdAt: bundle.createdAt,
+        ...(bundle.bundleBadges && {
+          bundleBadges: bundle.bundleBadges.map((bb: any) => ({
+            position: bb.position,
+            badge: bb.badge,
+          })),
+        }),
       };
     });
 

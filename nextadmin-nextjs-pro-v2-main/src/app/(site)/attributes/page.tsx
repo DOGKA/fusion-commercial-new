@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 interface FeaturePresetValue {
   id: string;
@@ -14,11 +14,17 @@ interface Category {
   slug: string;
 }
 
-interface CategoryFeature {
-  category: Category;
-  sortOrder: number;
-  isRequired: boolean;
-  isDefault: boolean;
+interface ProductValue {
+  id: string;
+  valueText: string | null;
+  valueNumber: number | null;
+  unit: string | null;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    thumbnail?: string | null;
+  };
 }
 
 interface FeatureDefinition {
@@ -30,17 +36,26 @@ interface FeatureDefinition {
   description?: string | null;
   isActive: boolean;
   presetValues: FeaturePresetValue[];
-  categories?: CategoryFeature[];
+  productValues?: ProductValue[];
   _count: {
     categories: number;
     productValues: number;
   };
 }
 
+interface CategoryWithFeatures {
+  id: string;
+  name: string;
+  slug: string;
+  features: FeatureDefinition[];
+}
+
 export default function AttributesPage() {
   const [features, setFeatures] = useState<FeatureDefinition[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryFeatureMap, setCategoryFeatureMap] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingFeature, setEditingFeature] = useState<FeatureDefinition | null>(null);
@@ -65,7 +80,7 @@ export default function AttributesPage() {
   const fetchFeatures = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/feature-definitions?includePresets=true");
+      const res = await fetch("/api/admin/feature-definitions?includePresets=true&includeProductValues=true");
       if (res.ok) {
         const data = await res.json();
         setFeatures(data.features || []);
@@ -77,13 +92,23 @@ export default function AttributesPage() {
     }
   };
 
-  // Kategorileri çek
+  // Kategorileri ve özellik ilişkilerini çek
   const fetchCategories = async () => {
     try {
-      const res = await fetch("/api/categories?includeAll=true");
+      const res = await fetch("/api/categories?includeAll=true&includeFeatures=true");
       if (res.ok) {
         const data = await res.json();
-        setCategories(data.categories || data || []);
+        const cats = data.categories || data || [];
+        setCategories(cats);
+        
+        // Kategori-özellik mapping oluştur
+        const mapping: Record<string, string[]> = {};
+        for (const cat of cats) {
+          if (cat.categoryFeatures) {
+            mapping[cat.id] = cat.categoryFeatures.map((cf: any) => cf.featureId || cf.feature?.id);
+          }
+        }
+        setCategoryFeatureMap(mapping);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -94,6 +119,33 @@ export default function AttributesPage() {
     fetchFeatures();
     fetchCategories();
   }, []);
+
+  // Kategorilere göre özellik gruplandırma
+  const categorizedFeatures = useMemo(() => {
+    const result: CategoryWithFeatures[] = [];
+    
+    for (const cat of categories) {
+      const catFeatureIds = categoryFeatureMap[cat.id] || [];
+      const catFeatures = features.filter(f => catFeatureIds.includes(f.id));
+      if (catFeatures.length > 0) {
+        result.push({
+          ...cat,
+          features: catFeatures
+        });
+      }
+    }
+    
+    return result;
+  }, [categories, features, categoryFeatureMap]);
+
+  // Filtrelenmiş özellikler
+  const filteredFeatures = useMemo(() => {
+    if (selectedCategory === "all") {
+      return features;
+    }
+    const catFeatureIds = categoryFeatureMap[selectedCategory] || [];
+    return features.filter(f => catFeatureIds.includes(f.id));
+  }, [selectedCategory, features, categoryFeatureMap]);
 
   // Slug otomatik oluştur
   useEffect(() => {
@@ -209,8 +261,8 @@ export default function AttributesPage() {
       const res = await fetch(`/api/admin/feature-definitions/${feature.id}`);
       if (res.ok) {
         const data = await res.json();
-        const categoryIds = (data.feature.categories || []).map((c: any) => c.category.id);
-        setSelectedCategoryIds(categoryIds);
+        const categoryIds = (data.feature.categories || []).map((c: any) => c.category?.id || c.categoryId);
+        setSelectedCategoryIds(categoryIds.filter(Boolean));
       }
     } catch (error) {
       console.error("Error fetching feature categories:", error);
@@ -253,6 +305,7 @@ export default function AttributesPage() {
       setAssigningFeature(null);
       setSelectedCategoryIds([]);
       fetchFeatures();
+      fetchCategories();
     } catch (error) {
       console.error("Error saving category assignments:", error);
       alert("Bir hata oluştu!");
@@ -322,6 +375,16 @@ export default function AttributesPage() {
     }
   };
 
+  // Ürün değerini formatla
+  const formatProductValue = (pv: ProductValue, feature: FeatureDefinition) => {
+    if (pv.valueText) return pv.valueText;
+    if (pv.valueNumber !== null) {
+      const unit = pv.unit || feature.unit || '';
+      return `${pv.valueNumber}${unit ? ' ' + unit : ''}`;
+    }
+    return '-';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -353,7 +416,7 @@ export default function AttributesPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <p className="text-2xl font-bold text-dark dark:text-white">{totalFeatures}</p>
           <p className="text-sm text-gray-500">Toplam Özellik</p>
@@ -366,34 +429,54 @@ export default function AttributesPage() {
           <p className="text-2xl font-bold text-green-500">{totalUsage}</p>
           <p className="text-sm text-gray-500">Ürünlerde Kullanım</p>
         </div>
+        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+          <p className="text-2xl font-bold text-orange-500">{categorizedFeatures.length}</p>
+          <p className="text-sm text-gray-500">Aktif Kategori</p>
+        </div>
       </div>
 
-      {/* Features List */}
-      <div className="rounded-xl border border-stroke bg-white dark:border-dark-3 dark:bg-gray-dark">
-        <div className="border-b border-stroke px-6 py-4 dark:border-dark-3">
-          <h2 className="text-lg font-semibold text-dark dark:text-white">Özellik Listesi</h2>
+      {/* Category Tabs */}
+      <div className="rounded-xl border border-stroke bg-white dark:border-dark-3 dark:bg-gray-dark overflow-hidden">
+        <div className="border-b border-stroke dark:border-dark-3 px-4 py-3 overflow-x-auto">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === "all"
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 dark:bg-dark-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-3"
+              }`}
+            >
+              Tüm Özellikler ({features.length})
+            </button>
+            {categorizedFeatures.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === cat.id
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 dark:bg-dark-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-3"
+                }`}
+              >
+                {cat.name} ({cat.features.length})
+              </button>
+            ))}
+          </div>
         </div>
 
-        {features.length === 0 ? (
+        {/* Features List */}
+        {filteredFeatures.length === 0 ? (
           <div className="p-12 text-center">
             <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <h3 className="text-lg font-semibold text-dark dark:text-white mb-2">Henüz özellik tanımı yok</h3>
-            <p className="text-gray-500 mb-4">Ürünlerinize teknik özellik eklemek için önce özellik tanımları oluşturun.</p>
-            <button 
-              onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-white hover:bg-primary/90"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              İlk Özelliği Oluştur
-            </button>
+            <h3 className="text-lg font-semibold text-dark dark:text-white mb-2">Bu kategoride özellik yok</h3>
+            <p className="text-gray-500 mb-4">Yeni özellik oluşturup bu kategoriye atayabilirsiniz.</p>
           </div>
         ) : (
           <div className="divide-y divide-stroke dark:divide-dark-3">
-            {features.map((feature) => (
+            {filteredFeatures.map((feature) => (
               <div key={feature.id} className="px-6 py-4">
                 <div 
                   className="flex items-center justify-between cursor-pointer"
@@ -411,11 +494,11 @@ export default function AttributesPage() {
                         )}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {feature.presetValues.length > 0 
-                          ? `${feature.presetValues.length} değer` 
+                        {feature.inputType === 'SELECT' && feature.presetValues.length > 0 
+                          ? `${feature.presetValues.length} seçenek` 
                           : feature.inputType === 'SELECT' ? 'Değer yok' : 'Serbest giriş'}
                         {' • '}
-                        {feature._count?.productValues || 0} üründe
+                        <span className="text-green-500 font-medium">{feature._count?.productValues || 0} üründe</span>
                         {' • '}
                         {feature._count?.categories || 0} kategoride
                       </p>
@@ -474,24 +557,80 @@ export default function AttributesPage() {
                   </div>
                 </div>
 
+                {/* Expanded Details */}
                 {expandedId === feature.id && (
-                  <div className="mt-4 pl-14 space-y-3">
+                  <div className="mt-4 pl-14 space-y-4">
                     {feature.description && (
                       <p className="text-sm text-gray-500">{feature.description}</p>
                     )}
                     
+                    {/* Preset Değerler (SELECT için) */}
                     {feature.inputType === 'SELECT' && feature.presetValues.length > 0 && (
                       <div>
-                        <p className="text-sm text-gray-500 mb-2">Preset Değerler:</p>
+                        <p className="text-sm font-medium text-dark dark:text-white mb-2">Seçim Seçenekleri:</p>
                         <div className="flex flex-wrap gap-2">
                           {feature.presetValues.map((pv) => (
                             <span 
                               key={pv.id} 
-                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-dark-2 text-sm"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-sm font-medium"
                             >
                               {pv.label || pv.value}
                             </span>
                           ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Ürün Değerleri Tablosu */}
+                    {feature.productValues && feature.productValues.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-dark dark:text-white mb-2">
+                          Ürün Değerleri ({feature.productValues.length} ürün):
+                        </p>
+                        <div className="rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gray-50 dark:bg-dark-2">
+                              <tr>
+                                <th className="px-4 py-2 text-left font-medium text-gray-500">Ürün</th>
+                                <th className="px-4 py-2 text-left font-medium text-gray-500">Değer</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-stroke dark:divide-dark-3">
+                              {feature.productValues.map((pv) => (
+                                <tr key={pv.id} className="hover:bg-gray-50 dark:hover:bg-dark-2">
+                                  <td className="px-4 py-2">
+                                    <div className="flex items-center gap-2">
+                                      {pv.product.thumbnail && (
+                                        <img 
+                                          src={pv.product.thumbnail} 
+                                          alt={pv.product.name}
+                                          className="w-8 h-8 rounded object-cover"
+                                        />
+                                      )}
+                                      <span className="text-dark dark:text-white font-medium">
+                                        {pv.product.name.length > 40 
+                                          ? pv.product.name.substring(0, 40) + '...' 
+                                          : pv.product.name}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-2">
+                                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                                      feature.inputType === 'SELECT' 
+                                        ? pv.valueText === 'Evet' 
+                                          ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400'
+                                          : pv.valueText === 'Hayır'
+                                            ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400'
+                                            : 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400'
+                                        : 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
+                                    }`}>
+                                      {formatProductValue(pv, feature)}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                     )}
@@ -546,7 +685,7 @@ export default function AttributesPage() {
                 <label className="mb-2 block text-sm font-medium">Giriş Tipi</label>
                 <select
                   value={newInputType}
-                  onChange={(e) => setNewInputType(e.target.value as any)}
+                  onChange={(e) => setNewInputType(e.target.value as 'TEXT' | 'NUMBER' | 'SELECT')}
                   className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 dark:border-dark-3 focus:border-primary focus:outline-none"
                 >
                   <option value="TEXT">Metin (Serbest giriş)</option>

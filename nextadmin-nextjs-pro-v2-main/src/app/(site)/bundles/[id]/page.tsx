@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use, useMemo } from "react";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -188,13 +188,24 @@ export default function EditBundlePage({ params }: { params: Promise<{ id: strin
     fetchData();
   }, [id]);
 
-  // Mevcut markalar (ürünlerden türetilir)
-  const brandOptions = useMemo(() => {
-    const brands = allProducts
-      .map((p) => (p.brand || "").trim())
-      .filter(Boolean);
-    return Array.from(new Set(brands)).sort((a, b) => a.localeCompare(b, "tr"));
-  }, [allProducts]);
+  // Markalar state
+  const [brandOptions, setBrandOptions] = useState<Array<{ id: string; name: string }>>([]);
+
+  // Markaları yükle
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const res = await fetch("/api/brands");
+        if (res.ok) {
+          const data = await res.json();
+          setBrandOptions(data.brands || []);
+        }
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    };
+    fetchBrands();
+  }, []);
 
   // Hesaplanan fiyatlar
   const totalProductValue = bundleItems.reduce((sum, item) => {
@@ -547,47 +558,18 @@ export default function EditBundlePage({ params }: { params: Promise<{ id: strin
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="mb-2 block text-sm font-medium">Marka</label>
-                      {(() => {
-                        const normalizedBrand = (brand || "").trim();
-                        const selectValue = normalizedBrand
-                          ? (brandOptions.includes(normalizedBrand) ? normalizedBrand : "__custom__")
-                          : "";
-
-                        return (
-                          <div className="space-y-2">
-                            <select
-                              value={selectValue}
-                              onChange={(e) => {
-                                const v = e.target.value;
-                                if (v === "__custom__") {
-                                  if (brandOptions.includes(normalizedBrand)) setBrand("");
-                                  return;
-                                }
-                                setBrand(v);
-                              }}
-                              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
-                            >
-                              <option value="">Marka seçin...</option>
-                              {brandOptions.map((b) => (
-                                <option key={b} value={b}>
-                                  {b}
-                                </option>
-                              ))}
-                              <option value="__custom__">Diğer...</option>
-                            </select>
-
-                            {selectValue === "__custom__" && (
-                              <input
-                                type="text"
-                                value={brand}
-                                onChange={(e) => setBrand(e.target.value)}
-                                placeholder="Marka adı yazın"
-                                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
-                              />
-                            )}
-                          </div>
-                        );
-                      })()}
+                      <select
+                        value={brand}
+                        onChange={(e) => setBrand(e.target.value)}
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
+                      >
+                        <option value="">Marka seçin...</option>
+                        {brandOptions.map((b) => (
+                          <option key={b.id} value={b.name}>
+                            {b.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium">SKU</label>

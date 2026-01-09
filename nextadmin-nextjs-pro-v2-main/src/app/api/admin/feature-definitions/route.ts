@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const includePresets = searchParams.get("includePresets") === "true";
+    const includeProductValues = searchParams.get("includeProductValues") === "true";
     const activeOnly = searchParams.get("activeOnly") !== "false";
 
     const features = await prisma.featureDefinition.findMany({
@@ -16,6 +17,19 @@ export async function GET(request: NextRequest) {
       include: {
         presetValues: includePresets ? {
           orderBy: { order: "asc" },
+        } : false,
+        productValues: includeProductValues ? {
+          orderBy: { displayOrder: "asc" },
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                thumbnail: true,
+              },
+            },
+          },
         } : false,
         _count: {
           select: {

@@ -67,6 +67,27 @@ export async function POST(request: NextRequest) {
 
     const data = await request.json();
 
+    // Feature bilgisini al (varsa)
+    let featureInfo = null;
+    if (data.featureId) {
+      const feature = await prisma.featureDefinition.findUnique({
+        where: { id: data.featureId },
+        select: { id: true, name: true, slug: true, inputType: true, unit: true }
+      });
+      if (feature) {
+        featureInfo = feature;
+      }
+    }
+
+    // customOptions'a feature bilgisini ekle
+    const customOptions = {
+      options: data.customOptions || [],
+      featureId: data.featureId || null,
+      featureSlug: featureInfo?.slug || null,
+      featureInputType: featureInfo?.inputType || null,
+      featureUnit: featureInfo?.unit || null,
+    };
+
     // TypeScript tip hatası olduğu için any kullanıyoruz
     // categoryId schema'da var ama Prisma client type'ları güncellenmemiş
     const filter = await (prisma.filter as any).create({
@@ -88,7 +109,7 @@ export async function POST(request: NextRequest) {
         step: data.step,
         order: data.order || 0,
         isActive: data.isActive ?? true,
-        customOptions: data.customOptions || [],
+        customOptions: customOptions,
       },
     });
 

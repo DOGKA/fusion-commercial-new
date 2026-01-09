@@ -82,7 +82,8 @@ export async function GET(request: NextRequest) {
         image: v.image,
         price: v.price ? Number(v.price) : null,
       })) || [],
-      category: p.category ? { name: p.category.name } : null,
+      categoryId: p.categoryId || null,
+      category: p.category ? { id: p.category.id, name: p.category.name } : null,
       productBadges: p.productBadges,
     }));
 

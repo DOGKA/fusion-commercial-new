@@ -9,20 +9,30 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const includeAll = searchParams.get("includeAll") === "true";
+    const includeFeatures = searchParams.get("includeFeatures") === "true";
 
     const categories = await prisma.category.findMany({
       where: includeAll ? {} : { isActive: true },
       include: {
         _count: {
-      select: {
+          select: {
             products: true,
           },
         },
+        categoryFeatures: includeFeatures ? {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            featureId: true,
+            sortOrder: true,
+            isRequired: true,
+            isDefault: true,
+          },
+        } : false,
       },
       orderBy: { order: 'asc' },
     });
 
-    return NextResponse.json(categories);
+    return NextResponse.json({ categories });
   } catch (error: any) {
     console.error("❌ [CATEGORIES API] Error:", error);
     return NextResponse.json(

@@ -290,6 +290,7 @@ export default function CategoryPage() {
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
   const [allProducts, setAllProducts] = useState<any[]>([]); // Tüm ürünler (filtreleme için)
+  const debugLastSigRef = useRef<string>("");
 
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
@@ -375,6 +376,35 @@ export default function CategoryPage() {
   // CLIENT-SIDE FİLTRELEME MANTIĞI - TEKNİK ÖZELLİKLERDEN VERİ ÇEKİYOR
   // ═══════════════════════════════════════════════════════════════════════════
   const filteredProducts = useMemo(() => {
+    // #region agent log
+    try {
+      const sig = JSON.stringify({ slug, selectedFilters, rangeValues, allProductsCount: allProducts.length });
+      const hasTarget =
+        (selectedFilters?.wireless_charging?.length || 0) > 0 ||
+        (selectedFilters?.builtin_flashlight?.length || 0) > 0;
+      if (hasTarget && sig !== debugLastSigRef.current && allProducts.length > 0) {
+        debugLastSigRef.current = sig;
+        const pick = (wanted: string) =>
+          allProducts.find((p: any) => String(p?.slug || "").toLowerCase().includes(wanted)) || null;
+        const sample = (p: any) => {
+          if (!p) return null;
+          const fvs = p.productFeatureValues || [];
+          const get = (fs: string) => {
+            const fv = fvs.find((v: any) => v?.feature?.slug === fs);
+            const val = fv?.valueText ?? fv?.valueNumber ?? null;
+            return val === null || val === undefined ? null : String(val);
+          };
+          return {
+            slug: p.slug,
+            values: { "kablosuz-sarj": get("kablosuz-sarj"), "dahili-fener": get("dahili-fener") },
+            featureSlugsSample: fvs.slice(0, 12).map((v: any) => v?.feature?.slug).filter(Boolean),
+          };
+        };
+        fetch('http://127.0.0.1:7242/ingest/f558d7b2-c895-4f67-8759-9969d3f62ea1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'fusionmarkt/src/app/kategori/[slug]/page.tsx:filteredProducts(useMemo)',message:'Filter memo recompute (target boolean filters)',data:{slug,selectedFilters,rangeValues,allProductsCount:allProducts.length,samples:{singo1000:sample(pick('singo1000')),singo2000pro:sample(pick('singo2000pro')),p1800:sample(pick('p1800')),p800:sample(pick('p800')),p3200:sample(pick('p3200'))}},timestamp:Date.now()})}).catch(()=>{});
+      }
+    } catch {}
+    // #endregion agent log
+
     if (Object.keys(selectedFilters).length === 0) {
       return allProducts;
     }
@@ -411,10 +441,10 @@ export default function CategoryPage() {
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "touchscreen") {
           const featureValue = getProductFeatureValue(product, "dokunmatik-ekran-uyumlu");
-          if (values.includes("true")) {
-            matchFound = featureValue === "true";
-          } else if (values.includes("false")) {
-            matchFound = featureValue === "false" || featureValue === null;
+          if (values.includes("true") || values.includes("Evet")) {
+            matchFound = featureValue === "Evet" || featureValue === "true";
+          } else if (values.includes("false") || values.includes("Hayır")) {
+            matchFound = featureValue === "Hayır" || featureValue === "false" || featureValue === null;
           }
         }
         // ═══════════════════════════════════════════════════════════════════
@@ -457,13 +487,17 @@ export default function CategoryPage() {
         }
         // ═══════════════════════════════════════════════════════════════════
         // KABLOSUZ ŞARJ FİLTRESİ - Teknik özelliklerden çek
+        // Değerler: "Evet" / "Hayır" (DB'de bu şekilde saklanıyor)
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "wireless_charging") {
           const featureValue = getProductFeatureValue(product, "kablosuz-sarj");
-          if (values.includes("true")) {
-            matchFound = featureValue === "true";
-          } else if (values.includes("false")) {
-            matchFound = featureValue === "false" || featureValue === null;
+          // "true" veya "Evet" seçilmişse
+          if (values.includes("true") || values.includes("Evet")) {
+            matchFound = featureValue === "Evet" || featureValue === "true";
+          } 
+          // "false" veya "Hayır" seçilmişse
+          else if (values.includes("false") || values.includes("Hayır")) {
+            matchFound = featureValue === "Hayır" || featureValue === "false" || featureValue === null;
           }
         }
         // ═══════════════════════════════════════════════════════════════════
@@ -471,10 +505,10 @@ export default function CategoryPage() {
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "builtin_flashlight") {
           const featureValue = getProductFeatureValue(product, "dahili-fener");
-          if (values.includes("true")) {
-            matchFound = featureValue === "true";
-          } else if (values.includes("false")) {
-            matchFound = featureValue === "false" || featureValue === null;
+          if (values.includes("true") || values.includes("Evet")) {
+            matchFound = featureValue === "Evet" || featureValue === "true";
+          } else if (values.includes("false") || values.includes("Hayır")) {
+            matchFound = featureValue === "Hayır" || featureValue === "false" || featureValue === null;
           }
         }
         // ═══════════════════════════════════════════════════════════════════
@@ -482,10 +516,10 @@ export default function CategoryPage() {
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "builtin_powerbank") {
           const featureValue = getProductFeatureValue(product, "dahili-powerbank");
-          if (values.includes("true")) {
-            matchFound = featureValue === "true";
-          } else if (values.includes("false")) {
-            matchFound = featureValue === "false" || featureValue === null;
+          if (values.includes("true") || values.includes("Evet")) {
+            matchFound = featureValue === "Evet" || featureValue === "true";
+          } else if (values.includes("false") || values.includes("Hayır")) {
+            matchFound = featureValue === "Hayır" || featureValue === "false" || featureValue === null;
           }
         }
         // ═══════════════════════════════════════════════════════════════════
@@ -493,10 +527,10 @@ export default function CategoryPage() {
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "ac_output") {
           const featureValue = getProductFeatureValue(product, "ac-cikis");
-          if (values.includes("true")) {
-            matchFound = featureValue === "true";
-          } else if (values.includes("false")) {
-            matchFound = featureValue === "false" || featureValue === null;
+          if (values.includes("true") || values.includes("Evet")) {
+            matchFound = featureValue === "Evet" || featureValue === "true";
+          } else if (values.includes("false") || values.includes("Hayır")) {
+            matchFound = featureValue === "Hayır" || featureValue === "false" || featureValue === null;
           }
         }
         // ═══════════════════════════════════════════════════════════════════
@@ -534,17 +568,17 @@ export default function CategoryPage() {
         // ═══════════════════════════════════════════════════════════════════
         // MAX. SOLAR ŞARJ FİLTRESİ (W) - Teknik özelliklerden çek
         // Singo1000 (200W), P800 (300W) → 200-300W
-        // P1800 (500W), Singo2000Pro (500W), P3200 (500W) → 500-1000W
+        // P1800 (500W), Singo2000Pro (500W), P3200 (1000W) → 500-1000W
         // SH4000 (3000W) → 1000-4000W
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "max_solar_charging") {
-          const solarValue = getProductFeatureValue(product, "solar-giris");
+          const solarValue = getProductFeatureValue(product, "max-solar-sarj");
           const solarPower = typeof solarValue === 'number' ? solarValue : parseFloat(String(solarValue)) || 0;
           
           matchFound = values.some((range: string) => {
             if (range === "200-300") return solarPower >= 200 && solarPower <= 300;
             if (range === "500-1000") return solarPower >= 500 && solarPower <= 1000;
-            if (range === "1000-4000") return solarPower > 1000 && solarPower <= 4000;
+            if (range === "1000-4000") return solarPower >= 1000 && solarPower <= 4000;
             return false;
           });
         }
@@ -559,6 +593,33 @@ export default function CategoryPage() {
             const targetPower = parseInt(val);
             return power === targetPower;
           });
+        }
+        // ═══════════════════════════════════════════════════════════════════
+        // HÜCRE TİPİ FİLTRESİ (Güneş Panelleri) - Teknik özelliklerden çek
+        // ═══════════════════════════════════════════════════════════════════
+        else if (filterId === "cell_type") {
+          const cellType = getProductFeatureValue(product, "hucre-tipi");
+          matchFound = values.some((val: string) => 
+            String(cellType).toLowerCase().includes(val.toLowerCase())
+          );
+        }
+        // ═══════════════════════════════════════════════════════════════════
+        // KATLANMA TİPİ FİLTRESİ (Güneş Panelleri) - Teknik özelliklerden çek
+        // ═══════════════════════════════════════════════════════════════════
+        else if (filterId === "folding_type") {
+          const foldingType = getProductFeatureValue(product, "katlanma-tipi");
+          matchFound = values.some((val: string) => 
+            String(foldingType) === val
+          );
+        }
+        // ═══════════════════════════════════════════════════════════════════
+        // IP KORUMA FİLTRESİ (Güneş Panelleri) - Teknik özelliklerden çek
+        // ═══════════════════════════════════════════════════════════════════
+        else if (filterId === "ip_protection") {
+          const ipProtection = getProductFeatureValue(product, "ip-koruma");
+          matchFound = values.some((val: string) => 
+            String(ipProtection) === val
+          );
         }
         // ═══════════════════════════════════════════════════════════════════
         // BASAMAK SAYISI FİLTRESİ (Merdivenler) - Teknik özelliklerden çek
@@ -586,10 +647,10 @@ export default function CategoryPage() {
         // ═══════════════════════════════════════════════════════════════════
         else if (filterId === "insulated") {
           const featureValue = getProductFeatureValue(product, "yalitkan");
-          if (values.includes("true")) {
-            matchFound = featureValue === "true";
-          } else if (values.includes("false")) {
-            matchFound = featureValue === "false" || featureValue === null;
+          if (values.includes("true") || values.includes("Evet")) {
+            matchFound = featureValue === "Evet" || featureValue === "true";
+          } else if (values.includes("false") || values.includes("Hayır")) {
+            matchFound = featureValue === "Hayır" || featureValue === "false" || featureValue === null;
           }
         }
         // ═══════════════════════════════════════════════════════════════════

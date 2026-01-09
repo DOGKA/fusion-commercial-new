@@ -168,6 +168,32 @@ model Category {
 }
 
 // ============================================
+// E-COMMERCE - BRANDS
+// ============================================
+
+model Brand {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  logoUrl     String?
+  website     String?
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  // İlişkiler
+  products Product[]
+  bundles  Bundle[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([slug])
+  @@map("brands")
+}
+
+// ============================================
 // E-COMMERCE - PRODUCTS
 // ============================================
 
@@ -198,7 +224,9 @@ model Product {
   videoUrl  String? // Ürün videosu URL'si
 
   // Ürün Detayları
-  brand      String?
+  brand      String? // Legacy field (geriye dönük uyumluluk)
+  brandId    String?
+  brandRef   Brand?   @relation(fields: [brandId], references: [id], onDelete: SetNull)
   weight     Decimal? @db.Decimal(10, 2)
   dimensions String? // örn: "10x20x30 cm"
 
@@ -463,6 +491,7 @@ model Badge {
 
   // İlişkiler
   productBadges ProductBadge[]
+  bundleBadges  BundleBadge[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -485,6 +514,23 @@ model ProductBadge {
   @@index([productId])
   @@index([badgeId])
   @@map("product_badges")
+}
+
+model BundleBadge {
+  id       String @id @default(cuid())
+  bundleId String
+  badgeId  String
+  position Int    @default(0) // Rozet sırası (0 = en üstte)
+
+  bundle Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  badge  Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([bundleId, badgeId])
+  @@index([bundleId])
+  @@index([badgeId])
+  @@map("bundle_badges")
 }
 
 // ============================================
@@ -1881,7 +1927,9 @@ model Bundle {
   videoUrl         String?
 
   // Detaylar
-  brand            String?
+  brand            String? // Legacy field (geriye dönük uyumluluk)
+  brandId          String?
+  brandRef         Brand?            @relation(fields: [brandId], references: [id], onDelete: SetNull)
   sku              String?           @unique
 
   // SEO
@@ -1902,6 +1950,9 @@ model Bundle {
   // Sipariş & Sepet İlişkileri
   orderItems       OrderItem[]
   cartItems        CartItem[]
+
+  // Rozetler
+  bundleBadges     BundleBadge[]
 
   // Tarihler
   publishedAt      DateTime?

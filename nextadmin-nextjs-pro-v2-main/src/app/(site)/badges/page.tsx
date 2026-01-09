@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 
 // ============================================
@@ -617,6 +617,8 @@ interface ProductWithBadges {
   slug: string;
   thumbnail?: string | null;
   price: number;
+  categoryId?: string;
+  category?: { id: string; name: string };
   comparePrice?: number | null;  // Orijinal fiyat (karşılaştırma)
   saleEndDate?: string | null;   // İndirim bitiş tarihi
   stock: number;
@@ -647,15 +649,46 @@ interface BadgeFormData {
   autoApplyRule?: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  productCount?: number;
+}
+
+interface BundleWithBadges {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail?: string | null;
+  price: number;
+  comparePrice?: number | null;
+  isActive: boolean;
+  createdAt?: string;
+  items?: Array<{
+    id: string;
+    quantity: number;
+    product?: { name: string };
+  }>;
+  bundleBadges?: Array<{
+    position: number;
+    badge: Badge;
+  }>;
+}
+
 // ============================================
 // COMPONENT
 // ============================================
 
 export default function BadgesPage() {
-  const [activeTab, setActiveTab] = useState<"badges" | "assign" | "preview">("badges");
+  const [activeTab, setActiveTab] = useState<"badges" | "assign">("badges");
+  const [assignTab, setAssignTab] = useState<"all" | "bundles" | string>("all"); // "all", "bundles", or categoryId
   const [badges, setBadges] = useState<Badge[]>([]);
   const [products, setProducts] = useState<ProductWithBadges[]>([]);
+  const [bundles, setBundles] = useState<BundleWithBadges[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<ProductWithBadges | null>(null);
+  const [selectedBundle, setSelectedBundle] = useState<BundleWithBadges | null>(null);
   const [loading, setLoading] = useState(true);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const [editingBadge, setEditingBadge] = useState<Badge | null>(null);
@@ -687,21 +720,45 @@ export default function BadgesPage() {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await fetch("/api/products?limit=100");
+      const res = await fetch("/api/products?limit=500");
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || []);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  // Fetch bundles
+  const fetchBundles = async () => {
+    try {
+      const res = await fetch("/api/bundles?limit=100&includeBadges=true");
+      if (res.ok) {
+        const data = await res.json();
+        setBundles(data.bundles || data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching bundles:", error);
+    }
+  };
+
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/categories?includeProductCount=true");
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data.categories || data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
     }
   };
 
   useEffect(() => {
-    fetchBadges();
-    fetchProducts();
+    Promise.all([fetchBadges(), fetchProducts(), fetchBundles(), fetchCategories()])
+      .finally(() => setLoading(false));
   }, []);
 
   // Badge CRUD operations
@@ -822,6 +879,52 @@ export default function BadgesPage() {
     }
   };
 
+  // Bundle badge assignment
+  const handleAssignBundleBadge = async (bundleId: string, badgeId: string) => {
+    try {
+      const res = await fetch(`/api/bundles/${bundleId}/badges`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ badgeId }),
+      });
+
+      if (res.ok) {
+        await fetchBundles();
+        alert("Rozet başarıyla atandı!");
+      } else {
+        const error = await res.json();
+        alert(error.error || "Rozet atanamadı");
+      }
+    } catch (error) {
+      console.error("Error assigning badge to bundle:", error);
+      alert("Bir hata oluştu");
+    }
+  };
+
+  const handleRemoveBundleBadge = async (bundleId: string, badgeId: string) => {
+    try {
+      const res = await fetch(`/api/bundles/${bundleId}/badges/${badgeId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        await fetchBundles();
+        if (selectedBundle?.id === bundleId) {
+          const updatedBundle = bundles.find(b => b.id === bundleId);
+          if (updatedBundle) {
+            setSelectedBundle(updatedBundle);
+          }
+        }
+      } else {
+        const error = await res.json();
+        alert(error.error || "Rozet kaldırılamadı");
+      }
+    } catch (error) {
+      console.error("Error removing badge from bundle:", error);
+      alert("Bir hata oluştu");
+    }
+  };
+
   const openCreateModal = () => {
     resetForm();
     setEditingBadge(null);
@@ -886,6 +989,26 @@ export default function BadgesPage() {
     totalAssigned: badges.reduce((sum, b) => sum + (b._count?.productBadges || 0), 0) + totalSystemBadges,
     // Sistem rozetleri sayısı
     systemBadges: totalSystemBadges,
+  };
+
+  // Filter products by category
+  const filteredProducts = useMemo(() => {
+    if (assignTab === "all" || assignTab === "bundles") {
+      return products;
+    }
+    // Filter by category
+    return products.filter(p => p.categoryId === assignTab || p.category?.id === assignTab);
+  }, [products, assignTab]);
+
+  // Get badges for a bundle (only manual, no system badges for bundles)
+  const getAllBadgesForBundle = (bundle: BundleWithBadges): Array<{ label: string; color: string; bgColor: string; isSystem: boolean; badgeId?: string }> => {
+    return (bundle.bundleBadges || []).map(bb => ({
+      label: bb.badge.label,
+      color: bb.badge.color,
+      bgColor: bb.badge.bgColor,
+      isSystem: false,
+      badgeId: bb.badge.id,
+    }));
   };
 
   // Get all badges for a product (manual + system)
@@ -1031,16 +1154,6 @@ export default function BadgesPage() {
         >
           Ürünlere Ata
         </button>
-        <button
-          onClick={() => setActiveTab("preview")}
-          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "preview"
-              ? "border-primary text-primary"
-              : "border-transparent text-gray-500 hover:text-dark dark:hover:text-white"
-          }`}
-        >
-          Önizleme
-        </button>
       </div>
 
       {/* Badges Tab */}
@@ -1141,6 +1254,153 @@ export default function BadgesPage() {
 
       {/* Assign Tab */}
       {activeTab === "assign" && (
+        <div className="space-y-4">
+          {/* Sub-tabs for categories and bundles */}
+          <div className="flex gap-2 flex-wrap border-b border-stroke dark:border-dark-3 pb-2">
+            <button
+              onClick={() => setAssignTab("all")}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                assignTab === "all"
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-dark-2 dark:text-gray-400 dark:hover:bg-dark-3"
+              }`}
+            >
+              Tüm Ürünler ({products.length})
+            </button>
+            <button
+              onClick={() => setAssignTab("bundles")}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                assignTab === "bundles"
+                  ? "bg-purple-600 text-white"
+                  : "bg-purple-100 text-purple-600 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50"
+              }`}
+            >
+              Paketler ({bundles.length})
+            </button>
+            {categories.filter(c => (c as any)._count?.products > 0 || c.productCount).slice(0, 10).map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setAssignTab(cat.id)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  assignTab === cat.id
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-dark-2 dark:text-gray-400 dark:hover:bg-dark-3"
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Bundles Assignment View */}
+          {assignTab === "bundles" ? (
+            <div className="rounded-xl border border-stroke bg-white dark:border-dark-3 dark:bg-gray-dark">
+              <div className="border-b border-stroke px-6 py-4 dark:border-dark-3">
+                <h2 className="text-lg font-semibold text-dark dark:text-white">Paketlere Rozet Ata</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Paketlere manuel rozetler atayabilirsiniz. Paketlerde sistem rozetleri (indirim, düşük stok, yeni) otomatik oluşturulmaz.
+                </p>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-stroke dark:border-dark-3">
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Paket</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mevcut Rozetler</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Rozet Ekle</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bundles.map((bundle) => {
+                      const bundleBadgeIds = bundle.bundleBadges?.map(bb => bb.badge.id) || [];
+                      const availableBadges = badges.filter(b => b.isActive && !bundleBadgeIds.includes(b.id));
+                      const allBadges = getAllBadgesForBundle(bundle);
+
+                      return (
+                        <tr 
+                          key={bundle.id} 
+                          className={`border-b border-stroke last:border-0 dark:border-dark-3 hover:bg-gray-50 dark:hover:bg-dark-2 ${selectedBundle?.id === bundle.id ? 'bg-primary/5' : ''}`}
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              {bundle.thumbnail && (
+                                <Image src={bundle.thumbnail} alt={bundle.name} width={40} height={40} className="w-10 h-10 rounded object-cover" unoptimized />
+                              )}
+                              <div>
+                                <span className="font-medium text-dark dark:text-white block">{bundle.name}</span>
+                                <span className="text-xs text-gray-500">
+                                  {Number(bundle.price).toLocaleString('tr-TR')} ₺
+                                  {bundle.comparePrice && Number(bundle.comparePrice) > Number(bundle.price) && (
+                                    <span className="text-green-600 ml-2">
+                                      (Orijinal: {Number(bundle.comparePrice).toLocaleString('tr-TR')} ₺)
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-wrap gap-2">
+                              {allBadges.map((badge, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium"
+                                  style={{ backgroundColor: badge.bgColor, color: badge.color }}
+                                >
+                                  {badge.label}
+                                  {badge.badgeId && (
+                                    <button 
+                                      onClick={() => handleRemoveBundleBadge(bundle.id, badge.badgeId!)}
+                                      className="ml-1 hover:opacity-70"
+                                    >
+                                      ×
+                                    </button>
+                                  )}
+                                </span>
+                              ))}
+                              {allBadges.length === 0 && (
+                                <span className="text-sm text-gray-400">Rozet yok</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <select 
+                              className="rounded-lg border border-stroke bg-transparent px-3 py-2 text-sm dark:border-dark-3"
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleAssignBundleBadge(bundle.id, e.target.value);
+                                  e.target.value = "";
+                                }
+                              }}
+                            >
+                              <option value="">Rozet Seç...</option>
+                              {availableBadges.map(badge => (
+                                <option key={badge.id} value={badge.id}>{badge.label}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${bundle.isActive ? "bg-green-100 text-green-600 dark:bg-green-500/10" : "bg-gray-100 text-gray-600 dark:bg-gray-500/10"}`}>
+                              {bundle.isActive ? "Aktif" : "Pasif"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {bundles.length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  <p>Henüz paket bulunmuyor</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Products Assignment View */
         <div className="rounded-xl border border-stroke bg-white dark:border-dark-3 dark:bg-gray-dark">
           <div className="border-b border-stroke px-6 py-4 dark:border-dark-3">
             <h2 className="text-lg font-semibold text-dark dark:text-white">Ürünlere Rozet Ata</h2>
@@ -1161,7 +1421,7 @@ export default function BadgesPage() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => {
+                    {filteredProducts.map((product) => {
                   const productBadgeIds = product.productBadges?.map(pb => pb.badge.id) || [];
                   const availableBadges = badges.filter(b => b.isActive && !productBadgeIds.includes(b.id));
                   const allBadges = getAllBadgesForProduct(product);
@@ -1234,18 +1494,6 @@ export default function BadgesPage() {
                         ))}
                       </select>
                     </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedProduct(product);
-                            setActiveTab("preview");
-                          }}
-                          className="text-sm text-primary hover:underline"
-                        >
-                          Önizle
-                        </button>
-                    </td>
                   </tr>
                   );
                 })}
@@ -1253,135 +1501,14 @@ export default function BadgesPage() {
             </table>
           </div>
 
-          {products.length === 0 && (
+              {filteredProducts.length === 0 && (
             <div className="text-center py-12 text-gray-500">
               <p>Henüz ürün bulunmuyor</p>
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
-
-      {/* Preview Tab */}
-      {activeTab === "preview" && (
-        <div className="space-y-6">
-      <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <h2 className="text-lg font-semibold text-dark dark:text-white mb-4">ProductCard Önizleme</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {selectedProduct 
-                ? `"${selectedProduct.name}" ürününün mağazada nasıl görüneceğini aşağıda görebilirsiniz.`
-                : "Önizleme için 'Ürünlere Ata' sekmesinden bir ürün seçin."}
-            </p>
-
-            {selectedProduct ? (
-              <div className="max-w-sm mx-auto">
-                <ProductCardPreview 
-                  product={convertToProductCardFormat(selectedProduct)} 
-                />
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-400">
-                <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <p>Ürün seçilmedi</p>
-              </div>
-            )}
-          </div>
-
-          {selectedProduct && (
-            <>
-              <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-                <h3 className="text-md font-semibold text-dark dark:text-white mb-4">Ürün Bilgileri</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-500">Ürün Adı:</span>
-                    <p className="font-medium text-dark dark:text-white">{selectedProduct.name}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Satış Fiyatı:</span>
-                    <p className="font-medium text-dark dark:text-white">{selectedProduct.price.toLocaleString('tr-TR')} ₺</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Orijinal Fiyat:</span>
-                    <p className="font-medium text-dark dark:text-white">
-                      {selectedProduct.comparePrice && isOnSale(selectedProduct.price, selectedProduct.comparePrice, selectedProduct.saleEndDate)
-                        ? `${selectedProduct.comparePrice.toLocaleString('tr-TR')} ₺`
-                        : "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">İndirim Bitişi:</span>
-                    <p className="font-medium text-dark dark:text-white">
-                      {selectedProduct.saleEndDate
-                        ? new Date(selectedProduct.saleEndDate).toLocaleDateString('tr-TR')
-                        : "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Stok:</span>
-                    <p className="font-medium text-dark dark:text-white">{selectedProduct.stock} adet</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Oluşturulma:</span>
-                    <p className="font-medium text-dark dark:text-white">
-                      {selectedProduct.createdAt
-                        ? new Date(selectedProduct.createdAt).toLocaleDateString('tr-TR')
-                        : "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Toplam Rozet:</span>
-                    <p className="font-medium text-dark dark:text-white">{getAllBadgesForProduct(selectedProduct).length}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Sistem Rozeti:</span>
-                    <p className="font-medium text-dark dark:text-white">
-                      {generateSystemBadges(selectedProduct).length}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Badge Breakdown */}
-              <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-                <h3 className="text-md font-semibold text-dark dark:text-white mb-4">Rozet Detayları</h3>
-                <div className="space-y-3">
-                  {getAllBadgesForProduct(selectedProduct).map((badge, idx) => (
-                    <div 
-                      key={idx} 
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-2"
-                    >
-                      <div className="flex items-center gap-3">
-            <span
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium"
-              style={{ backgroundColor: badge.bgColor, color: badge.color }}
-            >
-                          {badge.isSystem && <LockIcon className="w-3 h-3" />}
-                          {badge.label}
-            </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {badge.isSystem ? (
-                          <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
-                            Otomatik
-                          </span>
-                        ) : (
-                          <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
-                            Manuel
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {getAllBadgesForProduct(selectedProduct).length === 0 && (
-                    <p className="text-center text-gray-500 py-4">Bu üründe rozet bulunmuyor</p>
-                  )}
-          </div>
-        </div>
-            </>
-          )}
-      </div>
       )}
 
       {/* Badge Create/Edit Modal */}

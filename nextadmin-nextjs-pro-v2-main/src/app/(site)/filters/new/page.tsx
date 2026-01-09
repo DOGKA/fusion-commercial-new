@@ -1,26 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-interface AttributeValue {
-  id: string;
-  name: string;
-  slug: string;
-  value?: string;
-  color?: string;
-  image?: string;
-  order: number;
-  isActive: boolean;
+interface PresetValue {
+  value: string;
+  label: string;
 }
 
-interface Attribute {
+interface FeatureDefinition {
   id: string;
   name: string;
   slug: string;
-  type: string;
-  values: AttributeValue[];
+  inputType: 'TEXT' | 'NUMBER' | 'SELECT';
+  unit: string | null;
+  presetValues: PresetValue[];
+  sortOrder: number;
 }
 
 interface Category {
@@ -30,20 +26,16 @@ interface Category {
 }
 
 const filterTypes = [
-  { value: "CHECKBOX", label: "Çoklu Seçim", desc: "Birden fazla seçenek seçilebilir" },
-  { value: "RADIO", label: "Tekli Seçim", desc: "Sadece bir seçenek seçilebilir" },
-  { value: "COLOR_SWATCH", label: "Renk Paleti", desc: "Renk kutuları ile görsel seçim" },
-  { value: "IMAGE_SWATCH", label: "Görsel Seçim", desc: "Görsellerle seçim" },
-  { value: "RANGE", label: "Aralık (Slider)", desc: "Min-Max değer aralığı" },
-  { value: "DROPDOWN", label: "Açılır Menü", desc: "Dropdown seçimi" },
+  { value: "CHECKBOX", label: "Çoklu Seçim", desc: "Birden fazla seçenek seçilebilir", forTypes: ['SELECT', 'TEXT'] },
+  { value: "RADIO", label: "Tekli Seçim", desc: "Sadece bir seçenek seçilebilir", forTypes: ['SELECT', 'TEXT'] },
+  { value: "RANGE", label: "Aralık (Slider)", desc: "Min-Max değer aralığı", forTypes: ['NUMBER'] },
+  { value: "DROPDOWN", label: "Açılır Menü", desc: "Dropdown seçimi", forTypes: ['SELECT', 'TEXT'] },
 ];
 
 const FilterTypeIcon = ({ type, className = "w-5 h-5" }: { type: string; className?: string }) => {
   const icons: Record<string, React.ReactNode> = {
     CHECKBOX: <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>,
     RADIO: <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /></svg>,
-    COLOR_SWATCH: <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="3.5" /><path d="M3 13.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0" /><path d="M14 17.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0" /></svg>,
-    IMAGE_SWATCH: <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>,
     RANGE: <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>,
     DROPDOWN: <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>,
   };
@@ -60,14 +52,15 @@ const displayStyles = [
 export default function NewFilterPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingAttributes, setLoadingAttributes] = useState(true);
+  const [categoryFeatures, setCategoryFeatures] = useState<FeatureDefinition[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingFeatures, setLoadingFeatures] = useState(false);
   
   // Form state
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
+  const [selectedFeatureId, setSelectedFeatureId] = useState<string>("");
   const [filterType, setFilterType] = useState("CHECKBOX");
   const [displayStyle, setDisplayStyle] = useState("LIST");
   const [showCount, setShowCount] = useState(true);
@@ -76,19 +69,97 @@ export default function NewFilterPage() {
   const [allowMultiple, setAllowMultiple] = useState(true);
   const [isActive, setIsActive] = useState(true);
   
-  // Attribute selection
-  const [selectedAttributeId, setSelectedAttributeId] = useState<string>("");
-  const [autoPopulate, setAutoPopulate] = useState(true);
-  
   // Range settings
   const [minValue, setMinValue] = useState("");
   const [maxValue, setMaxValue] = useState("");
   const [step, setStep] = useState("");
 
-  // Custom options (manuel seçenek ekleme)
+  // Custom options (SELECT olmayan özellikler için)
   const [customOptions, setCustomOptions] = useState<{ name: string; value: string }[]>([]);
   const [optionName, setOptionName] = useState("");
   const [optionValue, setOptionValue] = useState("");
+
+  // Get selected feature
+  const selectedFeature = useMemo(() => 
+    categoryFeatures.find(f => f.id === selectedFeatureId),
+    [categoryFeatures, selectedFeatureId]
+  );
+
+  // Filter types based on selected feature
+  const availableFilterTypes = useMemo(() => {
+    if (!selectedFeature) return filterTypes;
+    return filterTypes.filter(ft => ft.forTypes.includes(selectedFeature.inputType));
+  }, [selectedFeature]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories?includeAll=true");
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories || data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch category features when category changes
+  useEffect(() => {
+    if (!categoryId) {
+      setCategoryFeatures([]);
+      setSelectedFeatureId("");
+      return;
+    }
+
+    const fetchFeatures = async () => {
+      setLoadingFeatures(true);
+      try {
+        const res = await fetch(`/api/admin/categories/${categoryId}/features`);
+        if (res.ok) {
+          const data = await res.json();
+          setCategoryFeatures(data.features || []);
+        }
+      } catch (error) {
+        console.error("Error fetching features:", error);
+      } finally {
+        setLoadingFeatures(false);
+      }
+    };
+    fetchFeatures();
+  }, [categoryId]);
+
+  // Auto-populate options when SELECT feature is selected
+  useEffect(() => {
+    if (selectedFeature) {
+      // Auto-set filter name
+      if (!name) {
+        setName(selectedFeature.name);
+      }
+
+      // Auto-populate options for SELECT features
+      if (selectedFeature.inputType === 'SELECT' && selectedFeature.presetValues.length > 0) {
+        setCustomOptions(selectedFeature.presetValues.map(pv => ({
+          name: pv.label || pv.value,
+          value: pv.value
+        })));
+      } else {
+        setCustomOptions([]);
+      }
+
+      // Auto-select appropriate filter type
+      if (selectedFeature.inputType === 'NUMBER') {
+        setFilterType('RANGE');
+      } else {
+        setFilterType('CHECKBOX');
+      }
+    }
+  }, [selectedFeatureId, selectedFeature]);
 
   const addCustomOption = () => {
     if (!optionName.trim() || !optionValue.trim()) {
@@ -104,45 +175,6 @@ export default function NewFilterPage() {
     setCustomOptions(customOptions.filter((_, i) => i !== index));
   };
 
-  // Fetch categories on mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch("/api/categories");
-        if (res.ok) {
-          const data = await res.json();
-          setCategories(Array.isArray(data) ? data : []);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  // Fetch attributes on mount
-  useEffect(() => {
-    const fetchAttributes = async () => {
-      try {
-        const res = await fetch("/api/filters/attributes");
-        if (res.ok) {
-          const data = await res.json();
-          setAttributes(Array.isArray(data) ? data : []);
-        }
-      } catch (error) {
-        console.error("Error fetching attributes:", error);
-      } finally {
-        setLoadingAttributes(false);
-      }
-    };
-    fetchAttributes();
-  }, []);
-
-  // Get selected attribute
-  const selectedAttribute = attributes.find(a => a.id === selectedAttributeId);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -153,6 +185,11 @@ export default function NewFilterPage() {
 
     if (!categoryId) {
       alert("Lütfen bir kategori seçin!");
+      return;
+    }
+
+    if (!selectedFeatureId) {
+      alert("Lütfen bir özellik seçin!");
       return;
     }
 
@@ -170,7 +207,8 @@ export default function NewFilterPage() {
         body: JSON.stringify({
           name,
           categoryId,
-          sourceType: "ATTRIBUTE",
+          featureId: selectedFeatureId,
+          sourceType: "FEATURE",
           filterType,
           displayStyle,
           showCount,
@@ -181,7 +219,7 @@ export default function NewFilterPage() {
           minValue: filterType === "RANGE" && minValue ? parseFloat(minValue) : null,
           maxValue: filterType === "RANGE" && maxValue ? parseFloat(maxValue) : null,
           step: filterType === "RANGE" && step ? parseFloat(step) : null,
-          customOptions,
+          customOptions: filterType !== "RANGE" ? customOptions : [],
         }),
       });
 
@@ -214,7 +252,7 @@ export default function NewFilterPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-dark dark:text-white">Yeni Filtre Oluştur</h1>
-            <p className="text-gray-500">Ürün filtreleme için yeni bir filtre ekleyin</p>
+            <p className="text-gray-500">Teknik özelliklerden filtre oluşturun</p>
           </div>
         </div>
         <button
@@ -229,22 +267,9 @@ export default function NewFilterPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sol Panel - Ana Form */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Filtre Adı */}
-          <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <label className="mb-2 block text-sm font-medium">Filtre Adı *</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Örn: Renk, Beden, Kapasite..."
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-lg font-medium dark:border-dark-3 focus:border-primary focus:outline-none"
-              required
-            />
-          </div>
-
           {/* Kategori Seçimi */}
           <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <label className="mb-4 block text-sm font-medium">Kategori *</label>
+            <label className="mb-4 block text-sm font-medium">1. Kategori Seçin *</label>
             {loadingCategories ? (
               <div className="flex items-center gap-2 text-gray-500">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
@@ -259,7 +284,11 @@ export default function NewFilterPage() {
             ) : (
               <select
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+                onChange={(e) => {
+                  setCategoryId(e.target.value);
+                  setSelectedFeatureId("");
+                  setCustomOptions([]);
+                }}
                 className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                 required
               >
@@ -271,16 +300,101 @@ export default function NewFilterPage() {
                 ))}
               </select>
             )}
-            <p className="mt-2 text-xs text-gray-500">
-              Bu filtre seçilen kategorideki ürünler için kullanılacaktır
-            </p>
           </div>
 
-          {/* Filtre Seçenekleri */}
-          {filterType !== "RANGE" && (
+          {/* Özellik Seçimi */}
+          {categoryId && (
             <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-              <label className="mb-4 block text-sm font-medium">Filtre Seçenekleri *</label>
+              <label className="mb-4 block text-sm font-medium">2. Teknik Özellik Seçin *</label>
+              {loadingFeatures ? (
+                <div className="flex items-center gap-2 text-gray-500">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                  <span>Özellikler yükleniyor...</span>
+                </div>
+              ) : categoryFeatures.length === 0 ? (
+                <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                    Bu kategoride henüz özellik tanımlanmamış. Önce &quot;Özellikler&quot; sayfasından özellik ekleyin.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {categoryFeatures.map((feature) => (
+                    <button
+                      key={feature.id}
+                      type="button"
+                      onClick={() => setSelectedFeatureId(feature.id)}
+                      className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                        selectedFeatureId === feature.id
+                          ? "border-primary bg-primary/5"
+                          : "border-stroke dark:border-dark-3 hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-dark dark:text-white">
+                            {feature.name}
+                            {feature.unit && (
+                              <span className="text-gray-400 font-normal ml-1">({feature.unit})</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {feature.inputType === 'SELECT' && feature.presetValues.length > 0 
+                              ? `${feature.presetValues.length} seçenek: ${feature.presetValues.map(p => p.label).join(', ')}`
+                              : feature.inputType === 'NUMBER' 
+                                ? 'Sayısal değer - Aralık filtresi önerilir'
+                                : 'Serbest metin'}
+                          </p>
+                        </div>
+                        <span className={`text-xs font-medium px-2 py-1 rounded ${
+                          feature.inputType === 'SELECT' 
+                            ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400'
+                            : feature.inputType === 'NUMBER'
+                              ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400'
+                              : 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
+                        }`}>
+                          {feature.inputType === 'SELECT' ? 'Seçim' : feature.inputType === 'NUMBER' ? 'Sayı' : 'Metin'}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Filtre Adı */}
+          {selectedFeatureId && (
+            <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+              <label className="mb-2 block text-sm font-medium">3. Filtre Adı *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Örn: Kablosuz Şarj, Kapasite..."
+                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-lg font-medium dark:border-dark-3 focus:border-primary focus:outline-none"
+                required
+              />
+              <p className="mt-2 text-xs text-gray-500">
+                Frontend&apos;de görünecek filtre başlığı
+              </p>
+            </div>
+          )}
+
+          {/* Filtre Seçenekleri */}
+          {selectedFeatureId && filterType !== "RANGE" && (
+            <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+              <label className="mb-4 block text-sm font-medium">4. Filtre Seçenekleri *</label>
               
+              {/* Otomatik Yüklenen Seçenekler Bilgisi */}
+              {selectedFeature?.inputType === 'SELECT' && selectedFeature.presetValues.length > 0 && (
+                <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20">
+                  <p className="text-sm text-green-700 dark:text-green-400">
+                    ✓ Seçenekler özellik tanımından otomatik yüklendi
+                  </p>
+                </div>
+              )}
+
               {/* Mevcut Seçenekler */}
               {customOptions.length > 0 && (
                 <div className="mb-4 flex flex-wrap gap-2">
@@ -290,6 +404,7 @@ export default function NewFilterPage() {
                       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm"
                     >
                       <span>{opt.name}</span>
+                      <span className="text-xs opacity-60">({opt.value})</span>
                       <button
                         type="button"
                         onClick={() => removeCustomOption(index)}
@@ -304,21 +419,22 @@ export default function NewFilterPage() {
                 </div>
               )}
 
-              {/* Yeni Seçenek Ekle */}
+              {/* Manuel Seçenek Ekleme */}
               <div className="space-y-3">
+                <p className="text-xs text-gray-500">Manuel seçenek ekle:</p>
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="text"
                     value={optionName}
                     onChange={(e) => setOptionName(e.target.value)}
-                    placeholder="Seçenek Adı (örn: Evet)"
+                    placeholder="Görünen Ad (örn: Evet)"
                     className="px-4 py-2.5 rounded-lg border border-stroke bg-transparent dark:border-dark-3 focus:border-primary focus:outline-none text-sm"
                   />
                   <input
                     type="text"
                     value={optionValue}
                     onChange={(e) => setOptionValue(e.target.value)}
-                    placeholder="Değer (örn: true)"
+                    placeholder="Filtre Değeri (örn: Evet)"
                     className="px-4 py-2.5 rounded-lg border border-stroke bg-transparent dark:border-dark-3 focus:border-primary focus:outline-none text-sm"
                   />
                 </div>
@@ -329,38 +445,37 @@ export default function NewFilterPage() {
                 >
                   + Seçenek Ekle
                 </button>
-                <p className="text-xs text-gray-500">
-                  Örnek: &quot;Evet&quot; / &quot;true&quot;, &quot;100W&quot; / &quot;100&quot;, &quot;S / 08&quot; / &quot;S,08&quot;
-                </p>
               </div>
             </div>
           )}
 
           {/* Filtre Tipi */}
-          <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <label className="mb-4 block text-sm font-medium">Filtre Tipi</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filterTypes.map((ft) => (
-                <button
-                  key={ft.value}
-                  type="button"
-                  onClick={() => setFilterType(ft.value)}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    filterType === ft.value
-                      ? "border-primary bg-primary/5"
-                      : "border-stroke dark:border-dark-3 hover:border-primary/50"
-                  }`}
-                >
-                  <div className="mb-2 text-primary"><FilterTypeIcon type={ft.value} className="w-6 h-6" /></div>
-                  <p className="font-medium text-dark dark:text-white text-sm">{ft.label}</p>
-                  <p className="text-xs text-gray-500 mt-1">{ft.desc}</p>
-                </button>
-              ))}
+          {selectedFeatureId && (
+            <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+              <label className="mb-4 block text-sm font-medium">5. Filtre Tipi</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {availableFilterTypes.map((ft) => (
+                  <button
+                    key={ft.value}
+                    type="button"
+                    onClick={() => setFilterType(ft.value)}
+                    className={`p-4 rounded-lg border-2 text-left transition-all ${
+                      filterType === ft.value
+                        ? "border-primary bg-primary/5"
+                        : "border-stroke dark:border-dark-3 hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="mb-2 text-primary"><FilterTypeIcon type={ft.value} className="w-6 h-6" /></div>
+                    <p className="font-medium text-dark dark:text-white text-sm">{ft.label}</p>
+                    <p className="text-xs text-gray-500 mt-1">{ft.desc}</p>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Aralık Ayarları (sadece RANGE tipi için) */}
-          {filterType === "RANGE" && (
+          {selectedFeatureId && filterType === "RANGE" && (
             <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
               <label className="mb-4 block text-sm font-medium">Aralık Ayarları</label>
               <div className="grid grid-cols-3 gap-4">
@@ -395,6 +510,11 @@ export default function NewFilterPage() {
                   />
                 </div>
               </div>
+              {selectedFeature?.unit && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Birim: {selectedFeature.unit}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -493,41 +613,43 @@ export default function NewFilterPage() {
                   </svg>
                 )}
               </div>
-              {filterType === "COLOR_SWATCH" && selectedAttribute ? (
-                <div className="flex flex-wrap gap-2">
-                  {selectedAttribute.values.slice(0, 6).map((val) => (
-                    <div
-                      key={val.id}
-                      className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer hover:scale-110 transition-transform"
-                      style={{ backgroundColor: val.color || "#ccc" }}
-                      title={val.name}
-                    />
-                  ))}
-                </div>
-              ) : filterType === "RANGE" ? (
+              {filterType === "RANGE" ? (
                 <div className="space-y-2">
                   <div className="h-2 bg-gray-200 dark:bg-dark-3 rounded-full">
                     <div className="h-full w-1/2 bg-primary rounded-full"></div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>{minValue || "0"}</span>
-                    <span>{maxValue || "10000"}</span>
+                    <span>{minValue || "0"} {selectedFeature?.unit || ''}</span>
+                    <span>{maxValue || "10000"} {selectedFeature?.unit || ''}</span>
                   </div>
                 </div>
-              ) : selectedAttribute ? (
+              ) : customOptions.length > 0 ? (
                 <div className="space-y-2">
-                  {selectedAttribute.values.slice(0, 4).map((val) => (
-                    <label key={val.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                  {customOptions.slice(0, 4).map((opt, idx) => (
+                    <label key={idx} className="flex items-center gap-2 text-sm cursor-pointer">
                       <input type={filterType === "RADIO" ? "radio" : "checkbox"} name="preview" className="h-4 w-4 rounded" />
-                      <span>{val.name}</span>
+                      <span>{opt.name}</span>
                       {showCount && <span className="text-xs text-gray-400">(12)</span>}
                     </label>
                   ))}
+                  {customOptions.length > 4 && (
+                    <span className="text-xs text-gray-400">+{customOptions.length - 4} daha...</span>
+                  )}
                 </div>
               ) : (
-                <div className="text-xs text-gray-400">Özellik seçin...</div>
+                <div className="text-xs text-gray-400">Seçenek ekleyin...</div>
               )}
             </div>
+          </div>
+
+          {/* Bilgi */}
+          <div className="rounded-xl border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 p-5">
+            <h3 className="mb-2 font-semibold text-blue-700 dark:text-blue-400 text-sm">💡 Nasıl Çalışır?</h3>
+            <p className="text-xs text-blue-600 dark:text-blue-300">
+              Bu filtre, seçilen teknik özelliğe göre ürünleri filtreleyecektir. 
+              Örneğin &quot;Kablosuz Şarj = Evet&quot; seçildiğinde, ProductFeatureValue 
+              tablosunda bu değere sahip ürünler listelenecektir.
+            </p>
           </div>
         </div>
       </form>

@@ -285,6 +285,10 @@ export async function GET(
       take: limit,
     });
 
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f558d7b2-c895-4f67-8759-9969d3f62ea1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'fusionmarkt/src/app/api/public/categories/[slug]/route.ts:afterFindMany',message:'Category products fetched (with feature values)',data:{categorySlug:slug,categoryId:category.id,page,limit,sort,productCount:products.length,samples:(['singo1000','singo2000pro','p1800','p800','p3200'] as const).map((s)=>{const p=(products as any[]).find((x)=>String(x.slug).toLowerCase().includes(s));const fvs=(p as any)?.productFeatureValues||[];const get=(fs:string)=>{const fv=fvs.find((v:any)=>v?.feature?.slug===fs);const val=fv?.valueText??fv?.valueNumber??null;return val===null||val===undefined?null:String(val);};return {wanted:s,foundSlug:(p as any)?.slug||null,values:{'kablosuz-sarj':get('kablosuz-sarj'),'dahili-fener':get('dahili-fener')},featureSlugsSample:fvs.slice(0,12).map((v:any)=>v?.feature?.slug).filter(Boolean)};})},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion agent log
+
     const totalPages = Math.ceil(totalProducts / limit);
     
     return NextResponse.json({
