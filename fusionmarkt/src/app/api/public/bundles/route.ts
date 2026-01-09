@@ -44,11 +44,11 @@ const bundleListInclude = {
       badge: {
         select: {
           id: true,
-          name: true,
+          label: true,
           color: true,
-          textColor: true,
+          bgColor: true,
           icon: true,
-          isSystem: true,
+          isActive: true,
         },
       },
     },
@@ -156,8 +156,14 @@ export async function GET(request: NextRequest) {
         savingsPercent: totalValue > 0 
           ? Math.round(((totalValue - bundlePrice) / totalValue) * 100) 
           : 0,
-        // Rozetler
-        badges: (bundle as { bundleBadges?: { badge: { id: string; name: string; color: string; textColor: string | null; icon: string | null; isSystem: boolean } }[] }).bundleBadges?.map((bb) => bb.badge) || [],
+        // Rozetler - database alanlarını frontend formatına dönüştür
+        badges: (bundle as { bundleBadges?: { badge: { id: string; label: string; bgColor: string; color: string; icon: string | null; isActive: boolean } }[] }).bundleBadges?.map((bb) => ({
+          id: bb.badge.id,
+          name: bb.badge.label, // label -> name
+          color: bb.badge.bgColor, // bgColor -> color (background)
+          textColor: bb.badge.color, // color -> textColor (text)
+          icon: bb.badge.icon,
+        })).filter((b) => b.name) || [],
       };
     });
 
