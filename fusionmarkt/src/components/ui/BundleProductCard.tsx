@@ -174,23 +174,6 @@ export default function BundleProductCard({ bundle, className, priority = false 
               PAKET
             </span>
             
-            {/* Discount Badge */}
-            {savingsPercent > 0 && (
-              <span 
-                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
-                style={{ 
-                  minWidth: 85, 
-                  height: 28, 
-                  padding: '0 14px', 
-                  borderRadius: SQUIRCLE.sm,
-                  backgroundColor: '#EF4444',
-                  color: '#FFFFFF',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                %{savingsPercent} İndirim
-              </span>
-            )}
             {/* Stock Badge - Son 1 adet */}
             {stock === 1 && !isOutOfStock && (
               <span 
