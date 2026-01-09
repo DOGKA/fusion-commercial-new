@@ -131,7 +131,7 @@ export async function GET(
       });
 
       // Bundle'ları getir
-      const bundles: BundleWithRelations[] = await (prisma.bundle.findMany as Function)({
+      const bundlesRaw = await prisma.bundle.findMany({
         where: {
           isActive: true,
           categories: {
@@ -160,17 +160,43 @@ export async function GET(
             },
             orderBy: { sortOrder: "asc" },
           },
-          bundleBadges: {
-            include: {
-              badge: true,
-            },
-            orderBy: { position: "asc" },
-          },
         },
         orderBy: bundleOrderBy,
         skip: (page - 1) * limit,
         take: limit,
       });
+
+      // Bundle ID'leri için badge'leri Prisma ile al
+      const bundleIds = bundlesRaw.map(b => b.id);
+      const bundleBadgesRaw = bundleIds.length > 0 
+        ? await prisma.bundleBadge.findMany({
+            where: { bundleId: { in: bundleIds } },
+            include: { badge: true },
+            orderBy: { position: "asc" },
+          })
+        : [];
+
+      // Badge'leri bundle ID'ye göre grupla
+      const badgesByBundleId = new Map<string, BundleBadgeRelation[]>();
+      for (const bb of bundleBadgesRaw) {
+        const existing = badgesByBundleId.get(bb.bundleId) || [];
+        existing.push({
+          badge: {
+            id: bb.badge.id,
+            label: bb.badge.label,
+            bgColor: bb.badge.bgColor,
+            color: bb.badge.color,
+            icon: bb.badge.icon,
+          }
+        });
+        badgesByBundleId.set(bb.bundleId, existing);
+      }
+
+      // Bundle'ları badge'lerle birleştir
+      const bundles: BundleWithRelations[] = bundlesRaw.map(b => ({
+        ...b,
+        bundleBadges: badgesByBundleId.get(b.id) || [],
+      }));
 
       // Bundle'ları ürün formatına dönüştür (ProductCard ile uyumlu)
       const products = bundles.map((bundle: BundleWithRelations) => {
