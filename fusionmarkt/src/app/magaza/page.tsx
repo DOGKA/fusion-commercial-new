@@ -50,7 +50,7 @@ interface Banner {
   gradientTo: string | null;
 }
 
-interface ProductWithCategory extends Product {
+interface ProductWithCategory extends Omit<Product, 'badges'> {
   categoryId: string;
   categoryName: string;
   categorySlug: string;
@@ -78,6 +78,7 @@ interface ProductWithCategory extends Product {
   }[];
   itemCount?: number;
   freeShipping?: boolean;
+  badges?: { id: string; name: string; color: string; textColor?: string | null; icon?: string | null }[];
 }
 
 interface CategoryWithProducts {
@@ -143,6 +144,14 @@ interface ApiCategory {
   isActive?: boolean;
 }
 
+interface ApiBundleBadge {
+  id: string;
+  name: string;
+  color: string;
+  textColor?: string | null;
+  icon?: string | null;
+}
+
 interface ApiBundle {
   id: string;
   name: string;
@@ -176,6 +185,7 @@ interface ApiBundle {
   savingsPercent?: number;
   shortDescription?: string | null;
   createdAt?: string;
+  badges?: ApiBundleBadge[];
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "name_asc";
@@ -440,6 +450,7 @@ export default function StorePage() {
               items: bundle.items || [],
               itemCount: bundle.itemCount || (bundle.items?.length || 0),
               freeShipping: bundlePrice >= freeShippingThreshold,
+              badges: bundle.badges || [],
             };
 
             // Create category if not exists (fallback)
@@ -1189,6 +1200,7 @@ function CategoryCarousel({
                         ratingAverage: product.ratingAverage,
                         ratingCount: product.ratingCount,
                         freeShipping: product.freeShipping,
+                        badges: product.badges || [],
                       }}
                       priority={idx < 4}
                     />

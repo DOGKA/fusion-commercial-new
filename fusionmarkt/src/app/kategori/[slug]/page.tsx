@@ -920,6 +920,7 @@ export default function CategoryPage() {
                             itemCount: Number(product.itemCount || 0),
                             ratingAverage: product.ratingAverage,
                             ratingCount: product.ratingCount,
+                            badges: product.badges || [],
                           }}
                           priority={idx < 4}
                         />
@@ -952,6 +953,7 @@ export default function CategoryPage() {
                         itemCount: Number(product.itemCount || 0),
                         ratingAverage: product.ratingAverage,
                         ratingCount: product.ratingCount,
+                        badges: product.badges || [],
                       }}
                       priority={idx < 4}
                     />
