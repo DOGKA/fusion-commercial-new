@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const badge = await prisma.badge.findUnique({
+    const badge = await (prisma.badge as any).findUnique({
       where: { id },
       include: {
         productBadges: {
@@ -29,9 +29,26 @@ export async function GET(
             position: "asc",
           },
         },
+        bundleBadges: {
+          include: {
+            bundle: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                thumbnail: true,
+                price: true,
+              },
+            },
+          },
+          orderBy: {
+            position: "asc",
+          },
+        },
         _count: {
           select: {
             productBadges: true,
+            bundleBadges: true,
           },
         },
       },
@@ -44,7 +61,16 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(badge);
+    const transformedBadge = {
+      ...badge,
+      _count: {
+        productBadges: (badge._count?.productBadges || 0) + (badge._count?.bundleBadges || 0),
+        products: badge._count?.productBadges || 0,
+        bundles: badge._count?.bundleBadges || 0,
+      }
+    };
+
+    return NextResponse.json(transformedBadge);
   } catch (error: any) {
     console.error("Error fetching badge:", error);
     return NextResponse.json(

@@ -9,12 +9,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const includeInactive = searchParams.get("includeInactive") === "true";
     
-    const badges = await prisma.badge.findMany({
+    const badges = await (prisma.badge as any).findMany({
       where: includeInactive ? {} : { isActive: true },
       include: {
         _count: {
           select: {
             productBadges: true,
+            bundleBadges: true,
           },
         },
       },
@@ -24,7 +25,17 @@ export async function GET(request: NextRequest) {
       ],
     });
 
-    return NextResponse.json(badges);
+    // Toplam count'u hesapla
+    const transformedBadges = badges.map((badge: any) => ({
+      ...badge,
+      _count: {
+        productBadges: (badge._count?.productBadges || 0) + (badge._count?.bundleBadges || 0),
+        products: badge._count?.productBadges || 0,
+        bundles: badge._count?.bundleBadges || 0,
+      }
+    }));
+
+    return NextResponse.json(transformedBadges);
   } catch (error: any) {
     console.error("Error fetching badges:", error);
     return NextResponse.json(
