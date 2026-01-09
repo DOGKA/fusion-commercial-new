@@ -868,23 +868,6 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
               
               {/* Badges */}
               <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {product.comparePrice && product.comparePrice > product.price && (
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '85px',
-                    height: '28px',
-                    padding: '0 14px',
-                    backgroundColor: 'white',
-                    color: 'black',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    borderRadius: '10px',
-                  }}>
-                    %{Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)} İNDİRİM
-                  </span>
-                )}
                 {(product.stock ?? 0) <= 5 && (product.stock ?? 0) > 0 && (
                   <span style={{
                     display: 'inline-flex',
