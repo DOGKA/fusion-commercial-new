@@ -22,6 +22,15 @@ export interface BundleItem {
   } | null;
 }
 
+export interface BundleBadge {
+  id: string;
+  name: string;
+  color: string;
+  textColor?: string | null;
+  icon?: string | null;
+  isSystem?: boolean;
+}
+
 export interface BundleProduct {
   id: string;
   slug: string;
@@ -38,6 +47,7 @@ export interface BundleProduct {
   ratingCount?: number;
   freeShipping?: boolean;
   hasVariants?: boolean;
+  badges?: BundleBadge[];
 }
 
 interface BundleProductCardProps {
@@ -79,6 +89,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
     ratingCount,
     freeShipping,
     hasVariants,
+    badges,
   } = bundle;
 
   const isOutOfStock = stock <= 0;
@@ -214,6 +225,25 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 Stok Yok
               </span>
             )}
+            {/* Custom Badges */}
+            {badges && badges.length > 0 && badges.slice(0, 3).map((badge) => (
+              <span 
+                key={badge.id}
+                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                style={{ 
+                  minWidth: 75, 
+                  height: 28, 
+                  padding: '0 12px', 
+                  borderRadius: SQUIRCLE.sm,
+                  backgroundColor: badge.color || '#8B5CF6',
+                  color: badge.textColor || '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: `0 2px 10px ${badge.color || '#8B5CF6'}40`,
+                }}
+              >
+                {badge.name}
+              </span>
+            ))}
           </div>
 
           {/* Action Buttons */}

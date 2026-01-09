@@ -38,7 +38,24 @@ const bundleInclude = {
       sortOrder: "asc" as const,
     },
   },
-} satisfies Prisma.BundleInclude;
+  bundleBadges: {
+    include: {
+      badge: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          textColor: true,
+          icon: true,
+          isSystem: true,
+        },
+      },
+    },
+    orderBy: {
+      position: "asc" as const,
+    },
+  },
+};
 
 // GET - Tek bundle detayı (frontend için)
 export async function GET(
@@ -187,6 +204,9 @@ export async function GET(
       
       // Bundle olduğunu belirt
       isBundle: true,
+      
+      // Rozetler
+      badges: (bundle as { bundleBadges?: { badge: { id: string; name: string; color: string; textColor: string | null; icon: string | null; isSystem: boolean } }[] }).bundleBadges?.map((bb) => bb.badge) || [],
       
       createdAt: bundle.createdAt,
       updatedAt: bundle.updatedAt,

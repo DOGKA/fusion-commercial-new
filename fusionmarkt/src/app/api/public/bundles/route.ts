@@ -39,7 +39,24 @@ const bundleListInclude = {
       sortOrder: "asc" as const,
     },
   },
-} satisfies Prisma.BundleInclude;
+  bundleBadges: {
+    include: {
+      badge: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          textColor: true,
+          icon: true,
+          isSystem: true,
+        },
+      },
+    },
+    orderBy: {
+      position: "asc" as const,
+    },
+  },
+};
 
 // GET - Public bundle listesi (frontend için)
 export async function GET(request: NextRequest) {
@@ -139,6 +156,8 @@ export async function GET(request: NextRequest) {
         savingsPercent: totalValue > 0 
           ? Math.round(((totalValue - bundlePrice) / totalValue) * 100) 
           : 0,
+        // Rozetler
+        badges: (bundle as { bundleBadges?: { badge: { id: string; name: string; color: string; textColor: string | null; icon: string | null; isSystem: boolean } }[] }).bundleBadges?.map((bb) => bb.badge) || [],
       };
     });
 
