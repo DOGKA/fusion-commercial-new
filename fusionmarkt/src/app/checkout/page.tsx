@@ -382,8 +382,8 @@ export default function CheckoutPage() {
   const checkEmailRegistered = useCallback(async (emailToCheck: string) => {
     if (!emailToCheck || isAuthenticated) return;
     
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Basic email validation - require at least 2 char TLD (e.g. .co, .com, .net)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(emailToCheck)) return;
     
     setCheckingEmail(true);
@@ -674,7 +674,9 @@ export default function CheckoutPage() {
                       <label style={labelStyle}><Mail size={13} /> E-posta *</label>
                       <div style={{ position: "relative" }}>
                         <input
-                          type="email"
+                          type="text"
+                          inputMode="email"
+                          autoComplete="email"
                           value={email}
                           onChange={(e) => {
                             setEmail(e.target.value);
@@ -691,8 +693,8 @@ export default function CheckoutPage() {
                             }
                           }}
                           onBlur={() => {
-                            // Validate email on blur
-                            if (email && !isValidEmail(email)) {
+                            // Validate email on blur (only if user finished typing)
+                            if (email && email.includes("@") && !isValidEmail(email)) {
                               const error = getEmailError(email);
                               if (error) setErrors(prev => ({ ...prev, email: error }));
                             }
