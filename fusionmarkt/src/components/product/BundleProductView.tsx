@@ -1385,21 +1385,6 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                         <span className="product-main-price" style={{ fontSize: '30px', fontWeight: 'bold', color: 'var(--foreground)' }}>{formatPrice(displayPrice)}</span>
                         <span className="product-price-currency" style={{ fontSize: '16px', color: 'var(--foreground-tertiary)' }}>TL</span>
                         <span className="product-kdv-text" style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>KDV Dahil</span>
-                        <span
-                          style={{
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            color: '#10B981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                            border: '1px solid rgba(16, 185, 129, 0.25)',
-                            padding: '3px 8px',
-                            borderRadius: '999px',
-                            lineHeight: 1.1,
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          Pakete Özel İndirim
-                        </span>
                     </div>
 
                     {/* CTA Buttons */}
