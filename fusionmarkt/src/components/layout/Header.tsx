@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
-import { ThemeToggle, ThemeToggleCompact, MobileThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle, MobileThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "next-themes";
 
 // Hydration-safe mounted check
@@ -72,7 +72,6 @@ const navigation: NavItem[] = [
 ];
 
 export default function Header() {
-  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [badgeAnimating, setBadgeAnimating] = useState(false);

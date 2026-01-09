@@ -670,7 +670,7 @@ export default function CategoryPage() {
 
       return true;
     });
-  }, [allProducts, selectedFilters]);
+  }, [allProducts, selectedFilters, rangeValues, slug]);
 
   // Filtrelenmiş ürünleri sayfalama için ayarla
   useEffect(() => {

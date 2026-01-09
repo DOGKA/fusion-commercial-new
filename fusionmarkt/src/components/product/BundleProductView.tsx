@@ -240,7 +240,6 @@ const SQUIRCLE = {
 
 export default function BundleProductView({ slug }: BundleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
-  const [favoriteHover, setFavoriteHover] = useState(false);
   const [activeTab, setActiveTab] = useState("Açıklama");
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
@@ -1521,8 +1520,6 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                                 } : undefined,
                               });
                             }}
-                            onMouseEnter={() => setFavoriteHover(true)}
-                            onMouseLeave={() => setFavoriteHover(false)}
                             title={isProductFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
                             style={{
                               width: '48px',
