@@ -1,6 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, Prisma } from "@/lib/prisma";
 
+// ============================================
+// TYPE DEFINITIONS
+// ============================================
+interface BundleVariant {
+  id: string;
+  stock: number;
+}
+
+interface BundleProductItem {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail: string | null;
+  price: number | Prisma.Decimal;
+  stock: number;
+  variants?: BundleVariant[];
+}
+
+interface BundleItem {
+  id: string;
+  quantity: number;
+  product: BundleProductItem | null;
+}
+
+interface BundleBadgeRelation {
+  badge: {
+    id: string;
+    label: string;
+    bgColor: string | null;
+    color: string | null;
+    icon: string | null;
+  };
+}
+
+interface BundleWithRelations {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  shortDescription: string | null;
+  thumbnail: string | null;
+  price: number | Prisma.Decimal;
+  comparePrice: number | Prisma.Decimal | null;
+  brand: string | null;
+  createdAt: Date;
+  items: BundleItem[];
+  bundleBadges?: BundleBadgeRelation[];
+}
+
 /**
  * GET /api/public/categories/[slug]
  * Kategori detayı ve ürünlerini getirir
@@ -82,7 +131,7 @@ export async function GET(
       });
 
       // Bundle'ları getir
-      const bundles = await (prisma.bundle as any).findMany({
+      const bundles: BundleWithRelations[] = await (prisma.bundle.findMany as Function)({
         where: {
           isActive: true,
           categories: {
@@ -124,13 +173,13 @@ export async function GET(
       });
 
       // Bundle'ları ürün formatına dönüştür (ProductCard ile uyumlu)
-      const products = bundles.map((bundle: any) => {
+      const products = bundles.map((bundle: BundleWithRelations) => {
         // Stok hesapla: bundle içindeki ürünlerin minimum stoku
         let minStock = Infinity;
         for (const item of bundle.items) {
           if (item.product) {
             const productStock = item.product.variants && item.product.variants.length > 0
-              ? item.product.variants.reduce((sum: number, v: any) => sum + v.stock, 0)
+              ? item.product.variants.reduce((sum: number, v: BundleVariant) => sum + v.stock, 0)
               : item.product.stock;
             const effectiveStock = Math.floor(productStock / item.quantity);
             if (effectiveStock < minStock) {
@@ -140,7 +189,7 @@ export async function GET(
         }
         if (!isFinite(minStock)) minStock = 0;
 
-        const totalValue = bundle.items.reduce((sum: number, item: any) => {
+        const totalValue = bundle.items.reduce((sum: number, item: BundleItem) => {
           return sum + (Number(item.product?.price || 0) * item.quantity);
         }, 0);
         const bundlePrice = Number(bundle.price);
@@ -163,7 +212,7 @@ export async function GET(
           totalValue,
           savings,
           savingsPercent,
-          items: bundle.items.map((item: any) => ({
+          items: bundle.items.map((item: BundleItem) => ({
             id: item.id,
             quantity: item.quantity,
             product: item.product ? {
@@ -186,7 +235,7 @@ export async function GET(
           technicalSpecs: [],
           productFeatureValues: [],
           // Bundle badges
-          badges: (bundle as any).bundleBadges?.map((bb: any) => ({
+          badges: bundle.bundleBadges?.map((bb: BundleBadgeRelation) => ({
             id: bb.badge.id,
             name: bb.badge.label,
             color: bb.badge.bgColor || "#22C55E",

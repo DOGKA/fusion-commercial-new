@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
-import { Prisma } from "@prisma/client";
 
 // Bundle için Prisma include tipi
 const bundleInclude = {
