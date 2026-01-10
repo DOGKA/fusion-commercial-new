@@ -517,18 +517,18 @@ export default function NewBundlePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="mb-2 block text-sm font-medium">Marka</label>
-                      <select
+                            <select
                         value={brand}
                         onChange={(e) => setBrand(e.target.value)}
-                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
-                      >
-                        <option value="">Marka seçin...</option>
-                        {brandOptions.map((b) => (
+                              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
+                            >
+                              <option value="">Marka seçin...</option>
+                              {brandOptions.map((b) => (
                           <option key={b.id} value={b.name}>
                             {b.name}
-                          </option>
-                        ))}
-                      </select>
+                                </option>
+                              ))}
+                            </select>
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium">SKU</label>

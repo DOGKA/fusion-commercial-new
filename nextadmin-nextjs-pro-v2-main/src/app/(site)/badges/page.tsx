@@ -1504,11 +1504,11 @@ export default function BadgesPage() {
               {filteredProducts.length === 0 && (
             <div className="text-center py-12 text-gray-500">
               <p>Henüz ürün bulunmuyor</p>
-                </div>
-              )}
             </div>
           )}
         </div>
+      )}
+      </div>
       )}
 
       {/* Badge Create/Edit Modal */}

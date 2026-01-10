@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       where: includeAll ? {} : { isActive: true },
       include: {
         _count: {
-          select: {
+      select: {
             products: true,
           },
         },

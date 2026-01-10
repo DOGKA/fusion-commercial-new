@@ -43,20 +43,20 @@ export default function BrandsPage() {
     isActive: true,
     sortOrder: 0,
   });
-
+        
   // Markaları API'den yükle
   const fetchBrands = async () => {
-    try {
+            try {
       const res = await fetch("/api/brands?includeInactive=true&includeProductCount=true");
-      if (res.ok) {
-        const data = await res.json();
+              if (res.ok) {
+                const data = await res.json();
         setBrands(data.brands || []);
-      }
-    } catch (error) {
+            }
+      } catch (error) {
       console.error("Error fetching brands:", error);
-    } finally {
-      setLoading(false);
-    }
+      } finally {
+        setLoading(false);
+      }
   };
 
   useEffect(() => {

@@ -829,7 +829,14 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
 
           {/* ORTA - Ana Gorsel / Video */}
           <div className="product-main-image-column" style={{ width: '600px', height: '600px' }}>
-            <div style={{
+            <div 
+              onClick={() => {
+                // Ana görsele tıklayınca bir sonraki görsele geç
+                if (selectedImage !== -1 && !variantImage && galleryImages.length > 1) {
+                  setSelectedImage((selectedImage + 1) % galleryImages.length);
+                }
+              }}
+              style={{
               position: 'relative',
               width: '100%',
               height: '100%',
@@ -839,6 +846,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
               borderRadius: '24px',
               overflow: 'hidden',
               border: '1px solid var(--border)',
+              cursor: selectedImage !== -1 && !variantImage && galleryImages.length > 1 ? 'pointer' : 'default',
             }}>
               {/* Video mode */}
               {selectedImage === -1 && product.videoUrl ? (

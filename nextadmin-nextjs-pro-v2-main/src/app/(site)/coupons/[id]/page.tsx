@@ -131,7 +131,8 @@ export default function EditCouponPage() {
         const categoriesRes = await fetch("/api/categories");
         if (categoriesRes.ok) {
           const data = await categoriesRes.json();
-          setCategories(data || []);
+          // API { categories: [...] } veya direkt array dönebilir
+          setCategories(Array.isArray(data) ? data : (data.categories || []));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

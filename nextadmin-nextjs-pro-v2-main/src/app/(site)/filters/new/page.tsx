@@ -394,7 +394,7 @@ export default function NewFilterPage() {
                   </p>
                 </div>
               )}
-
+              
               {/* Mevcut Seçenekler */}
               {customOptions.length > 0 && (
                 <div className="mb-4 flex flex-wrap gap-2">
@@ -451,27 +451,27 @@ export default function NewFilterPage() {
 
           {/* Filtre Tipi */}
           {selectedFeatureId && (
-            <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+          <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
               <label className="mb-4 block text-sm font-medium">5. Filtre Tipi</label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {availableFilterTypes.map((ft) => (
-                  <button
-                    key={ft.value}
-                    type="button"
-                    onClick={() => setFilterType(ft.value)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      filterType === ft.value
-                        ? "border-primary bg-primary/5"
-                        : "border-stroke dark:border-dark-3 hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="mb-2 text-primary"><FilterTypeIcon type={ft.value} className="w-6 h-6" /></div>
-                    <p className="font-medium text-dark dark:text-white text-sm">{ft.label}</p>
-                    <p className="text-xs text-gray-500 mt-1">{ft.desc}</p>
-                  </button>
-                ))}
-              </div>
+                <button
+                  key={ft.value}
+                  type="button"
+                  onClick={() => setFilterType(ft.value)}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    filterType === ft.value
+                      ? "border-primary bg-primary/5"
+                      : "border-stroke dark:border-dark-3 hover:border-primary/50"
+                  }`}
+                >
+                  <div className="mb-2 text-primary"><FilterTypeIcon type={ft.value} className="w-6 h-6" /></div>
+                  <p className="font-medium text-dark dark:text-white text-sm">{ft.label}</p>
+                  <p className="text-xs text-gray-500 mt-1">{ft.desc}</p>
+                </button>
+              ))}
             </div>
+          </div>
           )}
 
           {/* Aralık Ayarları (sadece RANGE tipi için) */}
