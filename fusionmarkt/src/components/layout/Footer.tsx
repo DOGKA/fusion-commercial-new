@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { 
   Mail, 
   Phone, 
@@ -12,10 +11,12 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
+// Hydration-safe mounted check
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 function useIsMounted() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
+  return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 }
 
 const footerLinks = {
