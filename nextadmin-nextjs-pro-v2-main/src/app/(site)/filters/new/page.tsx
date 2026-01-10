@@ -159,7 +159,7 @@ export default function NewFilterPage() {
         setFilterType('CHECKBOX');
       }
     }
-  }, [selectedFeatureId, selectedFeature]);
+  }, [selectedFeatureId, selectedFeature, name]);
 
   const addCustomOption = () => {
     if (!optionName.trim() || !optionValue.trim()) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 
 interface FeaturePresetValue {
   id: string;
@@ -601,10 +602,13 @@ export default function AttributesPage() {
                                   <td className="px-4 py-2">
                                     <div className="flex items-center gap-2">
                                       {pv.product.thumbnail && (
-                                        <img 
+                                        <Image 
                                           src={pv.product.thumbnail} 
                                           alt={pv.product.name}
+                                          width={32}
+                                          height={32}
                                           className="w-8 h-8 rounded object-cover"
+                                          unoptimized
                                         />
                                       )}
                                       <span className="text-dark dark:text-white font-medium">
