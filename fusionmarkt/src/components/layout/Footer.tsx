@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useSyncExternalStore } from "react";
 import { 
   Mail, 
@@ -190,25 +191,28 @@ export default function Footer() {
                   <span className="text-xs text-[var(--foreground-muted)] uppercase tracking-wide">Pazaryerlerimiz</span>
                   <div className="flex items-center gap-4">
                     <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <img src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" style={{height: '40px', width: '40px'}} />
+                      <Image src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" width={40} height={40} unoptimized />
                     </a>
                     <a href="https://www.hepsiburada.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <img src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" style={{height: '40px', width: '40px'}} />
+                      <Image src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" width={40} height={40} unoptimized />
                     </a>
                     <a href="https://www.n11.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <img src="/pazaryerleri/n11-logo.svg" alt="N11" style={{height: '40px', width: '40px'}} />
+                      <Image src="/pazaryerleri/n11-logo.svg" alt="N11" width={40} height={40} unoptimized />
                     </a>
                     <a href="https://www.koctas.com.tr/fusionmarkt/s/5869" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <img src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" style={{height: '40px', width: '40px'}} />
+                      <Image src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" width={40} height={40} unoptimized />
                     </a>
                   </div>
                 </div>
-                {/* iyzico logosu - 32px height */}
-                <img 
+                {/* iyzico logosu */}
+                <Image 
                   src={IYZICO_LOGO_BAND_URL} 
                   alt="iyzico ödeme yöntemleri" 
-                  style={{height: '18px', width: 'auto'}}
+                  width={180}
+                  height={18}
+                  style={{ width: 'auto', height: '18px' }}
                   className={`opacity-80 ${isDark ? '' : 'invert'}`}
+                  unoptimized
                 />
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
@@ -350,27 +354,30 @@ export default function Footer() {
               <span className="text-[8px] text-[var(--foreground-muted)] uppercase tracking-wide">Pazaryerlerimiz</span>
               <div className="flex items-center" style={{ gap: '3px' }}>
                 <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297" target="_blank" rel="noopener noreferrer">
-                  <img src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" style={{height: '20px', width: 'auto'}} />
+                  <Image src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" width={20} height={20} unoptimized />
                 </a>
                 <a href="https://www.hepsiburada.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer">
-                  <img src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" style={{height: '20px', width: 'auto'}} />
+                  <Image src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" width={20} height={20} unoptimized />
                 </a>
                 <a href="https://www.n11.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer">
-                  <img src="/pazaryerleri/n11-logo.svg" alt="N11" style={{height: '20px', width: 'auto'}} />
+                  <Image src="/pazaryerleri/n11-logo.svg" alt="N11" width={20} height={20} unoptimized />
                 </a>
                 <a href="https://www.koctas.com.tr/fusionmarkt/s/5869" target="_blank" rel="noopener noreferrer">
-                  <img src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" style={{height: '20px', width: 'auto'}} />
+                  <Image src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" width={20} height={20} unoptimized />
                 </a>
               </div>
             </div>
             {/* Sağ: Güvenli Ödeme - iyzico'dan sonra boşluk, sağa hizalı */}
             <div className="flex flex-col items-end" style={{ gap: '2px' }}>
               <span className="text-[8px] text-[var(--foreground-muted)] uppercase tracking-wide">Güvenli Ödeme</span>
-              <img 
+              <Image 
                 src={IYZICO_LOGO_BAND_URL} 
                 alt="iyzico ödeme yöntemleri" 
-                style={{height: '18px', width: 'auto'}}
+                width={140}
+                height={2}
+                style={{ width: 'auto', height: '22px' }}
                 className={`${isDark ? '' : 'invert'}`}
+                unoptimized
               />
             </div>
           </div>

@@ -80,7 +80,6 @@ export default function BundleProductCard({ bundle, className, priority = false 
     price,
     totalValue,
     savings,
-    savingsPercent,
     thumbnail,
     stock,
     items,
