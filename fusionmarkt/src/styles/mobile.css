@@ -10,6 +10,19 @@
    - Small Mobile: max-width 479px
 ═══════════════════════════════════════════════════════════════════════════ */
 
+/* Shipping options - Desktop default */
+.shipping-option-title,
+.shipping-option-price {
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .shipping-option-title,
+  .shipping-option-price {
+    font-size: 11px !important;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    SINGLE PRODUCT VIEW - Ürün Detay Sayfası
    Desktop: 3 kolon (80px + 600px + 600px)
@@ -789,7 +802,7 @@
   
   .checkout-right-column {
     order: 2;
-    padding: 24px !important;
+    padding: 16px !important;
   }
   
   /* Steps - Kompakt */
@@ -814,6 +827,37 @@
   
   .checkout-step-label-long {
     display: none !important;
+  }
+  
+  /* Shipping options mobile font size */
+  .shipping-option-title,
+  .shipping-option-price {
+    font-size: 11px !important;
+  }
+  
+  /* Timer text checkout - mobile override */
+  .timer-text-checkout {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+  }
+}
+
+/* Extra small screens (iPhone 12 Pro, SE vb. - 400px altı) */
+@media (max-width: 400px) {
+  .timer-text-checkout {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Checkout right column - body override */
+  .checkout-right-column {
+    font-size: 13px !important;
+  }
+  
+  .checkout-right-column label {
+    font-size: 13px !important;
   }
   
   .checkout-step-active .checkout-step-label-long,
@@ -978,8 +1022,8 @@
     height: 24px !important;
   }
   
-  /* Fiyat - mobilde her zaman görünür ve doğru renk */
-  .checkout-right-column [style*="font-weight: 600"] {
+  /* Fiyat - mobilde her zaman görünür ve doğru renk (timer hariç) */
+  .checkout-right-column [style*="font-weight: 600"]:not(.timer-text-checkout) {
     font-size: 13px !important;
     color: var(--foreground) !important;
     white-space: nowrap !important;

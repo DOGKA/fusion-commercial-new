@@ -592,9 +592,9 @@ export default function MiniCart() {
                   <div className="w-10 h-10 bg-emerald-500/20 flex items-center justify-center" style={{ borderRadius: '10px' }}>
                     <Gift className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-[13px] font-semibold text-emerald-400">Ücretsiz Kargo Kazandınız! 🎉</p>
-                    <p className="text-[11px] text-emerald-400/60 mt-0.5">Siparişiniz ücretsiz kargo ile gönderilecek</p>
+                  <div className="flex-1 space-y-0">
+                    <p className="text-[13px] font-semibold text-emerald-400 m-0 leading-tight">Ücretsiz Kargo Kazandınız! 🎉</p>
+                    <p className="text-[11px] text-emerald-400/60 m-0 leading-tight">Siparişiniz ücretsiz kargo ile gönderilecek</p>
                   </div>
                   <Truck className="w-5 h-5 text-emerald-400/60" />
                 </div>

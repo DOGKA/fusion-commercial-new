@@ -1341,13 +1341,15 @@ export default function CheckoutPage() {
                   <Loader2 size={24} className="animate-spin" style={{ color: "var(--foreground-muted)" }} />
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {shippingOptions.map((option) => (
                     <label
                       key={option.id}
                       style={{
-                        display: "flex", alignItems: "flex-start", justifyContent: "space-between",
-                        padding: "16px", borderRadius: "12px",
+                        display: "block",
+                        padding: "15px",
+                        borderRadius: "12px",
                         border: selectedShippingId === option.id 
                           ? option.isFree ? "1px solid #10b981" : "1px solid #f59e0b"
                           : "1px solid var(--border)",
@@ -1357,21 +1359,57 @@ export default function CheckoutPage() {
                         cursor: "pointer"
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1 }}>
-                        <div style={{ width: "20px", height: "20px", borderRadius: "50%", border: selectedShippingId === option.id ? (option.isFree ? "2px solid #10b981" : "2px solid #f59e0b") : "2px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px" }}>
-                          {selectedShippingId === option.id && <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: option.isFree ? "#10b981" : "#f59e0b" }} />}
+                      {/* Title Row - Radio + Ücretsiz Kargo + Ücretsiz */}
+                      <div style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: "8px",
+                        marginBottom: "6px"
+                      }}>
+                        {/* Radio Circle */}
+                        <div style={{ 
+                          width: "14px", 
+                          height: "14px", 
+                          borderRadius: "50%", 
+                          border: selectedShippingId === option.id 
+                            ? (option.isFree ? "2px solid #10b981" : "2px solid #f59e0b") 
+                            : "2px solid var(--border)", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: "center",
+                          flexShrink: 0
+                        }}>
+                          {selectedShippingId === option.id && (
+                            <div style={{ 
+                              width: "6px", 
+                              height: "6px", 
+                              borderRadius: "50%", 
+                              backgroundColor: option.isFree ? "#10b981" : "#f59e0b" 
+                            }} />
+                          )}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                            <span style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)" }}>{option.name}</span>
-                            <span style={{ fontSize: "14px", fontWeight: "600", color: option.isFree ? "#10b981" : "var(--foreground)" }}>
-                              {option.isFree ? "Ücretsiz" : formatPrice(option.cost)}
-                            </span>
-                          </div>
-                          {/* Kargo Timer */}
-                          <KargoTimer variant="odeme" isFreeShipping={option.isFree} />
-                        </div>
+                        
+                        {/* Ücretsiz Kargo */}
+                        <span className="shipping-option-title" style={{ fontSize: "11px", fontWeight: "500", color: "var(--foreground)", flex: 1 }}>
+                          {option.name}
+                        </span>
+                        
+                        {/* Ücretsiz Badge */}
+                        <span className="shipping-option-price" style={{ 
+                          fontSize: "11px",
+                          fontWeight: "600", 
+                          color: option.isFree ? "#10b981" : "var(--foreground)",
+                          flexShrink: 0
+                        }}>
+                          {option.isFree ? "Ücretsiz" : formatPrice(option.cost)}
+                        </span>
                       </div>
+                      
+                      {/* Kargo Timer - sol padding ile radio hizasına */}
+                      <div style={{ paddingLeft: "22px" }}>
+                        <KargoTimer variant="odeme" isFreeShipping={option.isFree} />
+                      </div>
+                      
                       <input 
                         type="radio" 
                         name="shipping" 
@@ -1382,6 +1420,7 @@ export default function CheckoutPage() {
                     </label>
                   ))}
                 </div>
+                </>
               )}
             </div>
 

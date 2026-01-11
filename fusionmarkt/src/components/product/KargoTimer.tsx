@@ -9,6 +9,30 @@ const SQUIRCLE = {
   md: '14px',
 };
 
+// Timer pulse animation - CSS injection
+const pulseAnimationStyle = `
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .timer-pulse {
+    animation: timerPulse 1.5s ease-in-out infinite;
+  }
+  .timer-text-checkout {
+    font-size: 13px !important;
+  }
+  @media (max-width: 768px) {
+    .timer-text-checkout {
+      font-size: 8px !important;
+    }
+  }
+  @media (max-width: 400px) {
+    .timer-text-checkout {
+      font-size: 9px !important;
+    }
+  }
+`;
+
 // Hydration-safe mounted state
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
@@ -160,15 +184,26 @@ export function KargoTimer(props: KargoTimerProps) {
   // Checkout sayfasında compact versiyon
   if (isCheckout) {
     return (
-      <div className={className} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
-          <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <>
+        <style>{pulseAnimationStyle}</style>
+        <p
+          className={`${className} timer-text-checkout`}
+          style={{
+            fontWeight: 600,
+            color: 'var(--foreground-muted)',
+            lineHeight: '1.3',
+            margin: 0,
+            wordWrap: 'break-word',
+            whiteSpace: 'normal',
+          }}
+        >
+          <span className="timer-pulse" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: 'var(--foreground)' }}>
             {timer.hours}s {timer.minutes}d {timer.seconds}sn
           </span>
           {" "}içinde ödeme yap,{" "}
-          <span style={{ fontWeight: 700 }}>{timer.dayText}</span> kargoda!
-        </span>
-      </div>
+          <span style={{ fontWeight: 700, color: 'var(--foreground)' }}>{timer.dayText}</span> kargoda!
+        </p>
+      </>
     );
   }
 
@@ -179,71 +214,77 @@ export function KargoTimer(props: KargoTimerProps) {
 
   // Ürün sayfasında minimal, kurumsal banner - compact version
   return (
-    <div 
-      className={className}
-      style={{
-        padding: '10px 14px',
-        backgroundColor: 'var(--glass-bg)',
-        border: '1px solid var(--border)',
-        borderRadius: SQUIRCLE.md,
-      }}
-    >
-      {/* Header + Timer inline */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '6px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '12px' }}>⚡</span>
-          <span style={{ 
-            fontSize: '11px', 
-            fontWeight: 700, 
-            color: 'var(--foreground)',
-            letterSpacing: '0.02em',
-          }}>
-            HIZLI TESLİMAT
-          </span>
+    <>
+      <style>{pulseAnimationStyle}</style>
+      <div 
+        className={className}
+        style={{
+          padding: '10px 14px',
+          backgroundColor: 'var(--glass-bg)',
+          border: '1px solid var(--border)',
+          borderRadius: SQUIRCLE.md,
+        }}
+      >
+        {/* Header + Timer inline */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          gap: '8px',
+          marginBottom: '6px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '12px' }}>⚡</span>
+            <span style={{ 
+              fontSize: '11px', 
+              fontWeight: 700, 
+              color: 'var(--foreground)',
+              letterSpacing: '0.02em',
+            }}>
+              HIZLI TESLİMAT
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span 
+              className="timer-pulse"
+              style={{ 
+                fontSize: '11px', 
+                fontWeight: 700, 
+                color: '#10B981',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {String(timer.hours).padStart(2, '0')}:{String(timer.minutes).padStart(2, '0')}:{String(timer.seconds).padStart(2, '0')}
+            </span>
+            <span style={{ color: 'var(--foreground-muted)' }}>•</span>
+            <span style={{ 
+              fontSize: '11px', 
+              fontWeight: 700, 
+              color: '#10B981',
+            }}>
+              {timer.dayText === 'bugün' ? 'Bugün' : timer.dayText} Kargoda
+            </span>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ 
-            fontSize: '11px', 
-            fontWeight: 600, 
-            color: 'var(--foreground)',
-            fontVariantNumeric: 'tabular-nums',
-          }}>
-            {String(timer.hours).padStart(2, '0')}:{String(timer.minutes).padStart(2, '0')}:{String(timer.seconds).padStart(2, '0')}
-          </span>
-          <span style={{ color: 'var(--foreground-muted)' }}>•</span>
-          <span style={{ 
-            fontSize: '11px', 
-            fontWeight: 600, 
-            color: '#10B981',
-          }}>
-            {timer.dayText === 'bugün' ? 'Bugün' : timer.dayText} Kargoda
-          </span>
-        </div>
-      </div>
 
-      {/* Progress Bar - compact */}
-      <div style={{
-        width: '100%',
-        height: '3px',
-        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-        borderRadius: '2px',
-        overflow: 'hidden',
-      }}>
+        {/* Progress Bar - compact */}
         <div style={{
-          width: `${progressPercent}%`,
-          height: '100%',
-          backgroundColor: '#10B981',
+          width: '100%',
+          height: '3px',
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
           borderRadius: '2px',
-          transition: 'width 1s linear',
-        }} />
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            width: `${progressPercent}%`,
+            height: '100%',
+            backgroundColor: '#10B981',
+            borderRadius: '2px',
+            transition: 'width 1s linear',
+          }} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

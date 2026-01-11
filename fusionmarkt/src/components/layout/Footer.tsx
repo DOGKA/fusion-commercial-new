@@ -346,37 +346,38 @@ export default function Footer() {
         </div>
 
         {/* Mobile Bottom Bar - Kompakt */}
-        <div className="px-4 border-t border-[var(--glass-border)] bg-[var(--background-tertiary)]" style={{ paddingTop: '6px', paddingBottom: '6px' }}>
-          {/* Pazaryerleri + Güvenli Ödeme - kenarlara yakın */}
-          <div className="flex items-start justify-between w-full">
-            {/* Sol: Pazaryerlerimiz - son logo ve text sonu aynı dikey hizda */}
-            <div className="flex flex-col items-start" style={{ gap: '2px' }}>
-              <span className="text-[8px] text-[var(--foreground-muted)] uppercase tracking-wide">Pazaryerlerimiz</span>
-              <div className="flex items-center" style={{ gap: '3px' }}>
-                <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297" target="_blank" rel="noopener noreferrer">
-                  <Image src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" width={20} height={20} unoptimized />
+        <div className="px-4 border-t border-[var(--glass-border)] bg-[var(--background-tertiary)]" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+          {/* Pazaryerleri + Güvenli Ödeme - MOBİL DÜZENİ: Alt alta, aynı genişlikte */}
+          <div className="flex flex-col items-center justify-center w-full" style={{ gap: '12px' }}>
+            {/* Üst: Pazaryerlerimiz - tam genişlik, ortalı */}
+            <div className="flex flex-col items-center w-full" style={{ gap: '6px', maxWidth: '280px' }}>
+              <span className="text-[9px] text-[var(--foreground-muted)] uppercase tracking-wide">Pazaryerlerimiz</span>
+              <div className="flex items-center justify-center w-full" style={{ gap: '12px' }}>
+                <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
+                  <Image src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
-                <a href="https://www.hepsiburada.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer">
-                  <Image src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" width={20} height={20} unoptimized />
+                <a href="https://www.hepsiburada.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
+                  <Image src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
-                <a href="https://www.n11.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer">
-                  <Image src="/pazaryerleri/n11-logo.svg" alt="N11" width={20} height={20} unoptimized />
+                <a href="https://www.n11.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
+                  <Image src="/pazaryerleri/n11-logo.svg" alt="N11" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
-                <a href="https://www.koctas.com.tr/fusionmarkt/s/5869" target="_blank" rel="noopener noreferrer">
-                  <Image src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" width={20} height={20} unoptimized />
+                <a href="https://www.koctas.com.tr/fusionmarkt/s/5869" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
+                  <Image src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
               </div>
             </div>
-            {/* Sağ: Güvenli Ödeme - iyzico'dan sonra boşluk, sağa hizalı */}
-            <div className="flex flex-col items-end" style={{ gap: '2px' }}>
-              <span className="text-[8px] text-[var(--foreground-muted)] uppercase tracking-wide">Güvenli Ödeme</span>
+            
+            {/* Alt: Güvenli Ödeme - aynı genişlik */}
+            <div className="flex flex-col items-center w-full" style={{ gap: '6px', maxWidth: '280px' }}>
+              <span className="text-[9px] text-[var(--foreground-muted)] uppercase tracking-wide">Güvenli Ödeme</span>
               <Image 
                 src={IYZICO_LOGO_BAND_URL} 
                 alt="iyzico ödeme yöntemleri" 
-                width={140}
-                height={2}
-                style={{ width: 'auto', height: '22px' }}
-                className={`${isDark ? '' : 'invert'}`}
+                width={280}
+                height={28}
+                style={{ width: '100%', maxWidth: '280px', height: 'auto', transform: 'translateZ(0)' }}
+                className={`${isDark ? '' : 'invert'} opacity-90`}
                 unoptimized
               />
             </div>
