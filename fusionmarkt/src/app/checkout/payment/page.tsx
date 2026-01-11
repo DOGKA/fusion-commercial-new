@@ -665,12 +665,10 @@ export default function PaymentPage() {
                     overflow: "hidden",
                   }}
                 >
-                  <Image
+                  <img
                     src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg"
                     alt="iyzico ile öde"
-                    width={120}
-                    height={28}
-                    unoptimized
+                    loading="lazy"
                     style={{
                       height: "28px",
                       width: "auto",
@@ -916,7 +914,7 @@ export default function PaymentPage() {
                     <h4 style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
                     {item.variant && <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{item.variant.value}</p>}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px", backgroundColor: "var(--glass-bg)", borderRadius: "8px", padding: "2px" }}>
+                      <div className="checkout-quantity-controls" style={{ display: "flex", alignItems: "center", gap: "4px", backgroundColor: "var(--glass-bg)", borderRadius: "8px", padding: "2px" }}>
                         <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
                           <Minus size={12} />
                         </button>

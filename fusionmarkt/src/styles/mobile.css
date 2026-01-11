@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════════
+/* ===========================================================================
    FUSIONMARKT - Mobile Responsive Overrides
    
    ⚠️ ÖNEMLI: Bu dosya SADECE mobil cihazları etkiler
@@ -8,7 +8,7 @@
    - Tablet: max-width 1023px
    - Mobile: max-width 767px
    - Small Mobile: max-width 479px
-═══════════════════════════════════════════════════════════════════════════ */
+=========================================================================== */
 
 /* Shipping options - Desktop default */
 .shipping-option-title,
@@ -92,10 +92,10 @@
     padding: 16px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      BUNDLE ITEMS - Paket İçeriği Mobile
      Not: Inline style override için !important gerekli
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   .bundle-items-section {
     margin-bottom: 80px !important; /* 1 ürünlük boşluk (~64px item + gap) */
@@ -172,9 +172,9 @@
     padding: 0 16px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      PRODUCT PRICE SECTION - Fiyat ve CTA Alanı Mobile
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   /* İndirim satırı - yatay wrap */
   .product-discount-row {
@@ -207,10 +207,10 @@
     margin-top: 4px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      ÜRÜN DETAY - FİYAT & CTA - KOMPAKT MOBİL LAYOUT
      3 satır: Discount → Fiyat+KDV → Butonlar
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   /* Price Section wrapper - border ve padding azalt */
   .product-price-section {
@@ -243,9 +243,9 @@
     font-weight: 600 !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      WRAPPER: Kompakt layout - az boşluk
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   .product-price-cta-wrapper {
     display: flex !important;
@@ -503,9 +503,9 @@
     padding: 8px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      SQUIRCLE BUTTONS - iOS tarzı yumuşak köşeli butonlar
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   /* Filtre butonu - sol üst, squircle */
   .store-filter-button {
@@ -668,10 +668,10 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* ===========================================================================
    STORE TOOLBAR - SQUIRCLE GLOBAL (Web + Mobile)
    iOS tarzı yumuşak köşeli butonlar
-═══════════════════════════════════════════════════════════════════════════ */
+=========================================================================== */
 
 .store-filter-button,
 .store-sort-button {
@@ -780,9 +780,9 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
+/* =========================================================================
    TABLET (768px - 1023px)
-═══════════════════════════════════════════════════════════════════════ */
+========================================================================= */
 @media (max-width: 1023px) {
   .checkout-page {
     padding-top: 100px !important;
@@ -881,9 +881,9 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
+/* =======================================================================
    MOBİL (max-width: 767px) - TAM OPTİMİZASYON
-═══════════════════════════════════════════════════════════════════════ */
+======================================================================= */
 @media (max-width: 767px) {
   .checkout-page {
     padding-top: 80px !important;
@@ -1060,64 +1060,73 @@
     height: 40px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════
+  /* =======================================================================
      CHECKOUT & CART - QUANTITY CONTROLS - MOBILE FORCE SMALL
-  ═══════════════════════════════════════════════════════════════════════ */
+  ======================================================================= */
   
   /* Checkout quantity controls - mobilde küçük */
   .checkout-quantity-controls {
-    padding: 2px !important;
+    padding: 1px !important;
     gap: 0 !important;
+    border-radius: 6px !important;
   }
   
-  .checkout-quantity-controls button {
+  .checkout-quantity-controls button,
+  .checkout-quantity-controls > button {
     width: 20px !important;
+    max-width: 20px !important;
     min-width: 20px !important;
     height: 20px !important;
+    max-height: 20px !important;
     min-height: 20px !important;
     padding: 0 !important;
+    border-radius: 4px !important;
   }
   
-  .checkout-quantity-controls button svg {
+  .checkout-quantity-controls button svg,
+  .checkout-quantity-controls > button svg {
     width: 10px !important;
     height: 10px !important;
   }
   
-  .checkout-quantity-controls span {
-    width: 18px !important;
-    min-width: 18px !important;
+  .checkout-quantity-controls span,
+  .checkout-quantity-controls > span {
+    width: 16px !important;
+    max-width: 16px !important;
+    min-width: 16px !important;
     font-size: 10px !important;
   }
   
-  /* MiniCart quantity controls - mobilde küçük (sepet sidebar) */
-  .flex.items-center.self-start.bg-white\/\[0\.04\] {
+  /* MiniCart quantity controls - desktop ile aynı boyut (24px butonlar, 12px font) */
+  .minicart-quantity-controls {
     padding: 2px !important;
-    gap: 0 !important;
+    border-radius: 10px !important;
   }
   
-  .flex.items-center.self-start.bg-white\/\[0\.04\] button {
-    width: 20px !important;
-    min-width: 20px !important;
-    height: 20px !important;
-    min-height: 20px !important;
+  .minicart-quantity-controls button {
+    width: 24px !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    min-height: 24px !important;
     padding: 0 !important;
+    border-radius: 8px !important;
   }
   
-  .flex.items-center.self-start.bg-white\/\[0\.04\] button svg {
-    width: 10px !important;
-    height: 10px !important;
+  .minicart-quantity-controls button svg {
+    width: 12px !important;
+    height: 12px !important;
   }
   
-  .flex.items-center.self-start.bg-white\/\[0\.04\] span {
-    width: 18px !important;
-    min-width: 18px !important;
-    font-size: 10px !important;
+  .minicart-quantity-controls span {
+    width: 24px !important;
+    min-width: 24px !important;
+    font-size: 12px !important;
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
+/* =======================================================================
    KÜÇÜK MOBİL (max-width: 400px)
-═══════════════════════════════════════════════════════════════════════ */
+======================================================================= */
 @media (max-width: 400px) {
   .checkout-page {
     padding-top: 70px !important;
@@ -1205,9 +1214,9 @@
 ───────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 767px) {
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      SİPARİŞ KARTI - Order Card Mobile Layout
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   /* Order Card Header - Düzgün grid layout */
   .order-card-header {
@@ -1271,10 +1280,10 @@
     font-size: 14px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      SİPARİŞ TİMELINE - DİKEY LAYOUT (Mobil için)
      5 adım: Sipariş → Ödeme → Hazırlanıyor → Kargoda → Teslim
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   .order-timeline-container {
     overflow: visible !important;
@@ -1368,9 +1377,9 @@
     background: linear-gradient(to bottom, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15)) !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      EXPANDED CONTENT
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   .order-expanded-content {
     padding: 12px !important;
@@ -1514,9 +1523,9 @@
     min-height: auto !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      HESAP DETAYLARI FORMU - Account Details Form Mobile
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   /* Form container */
   .account-details-form {
@@ -1545,9 +1554,9 @@
     font-size: 12px !important;
   }
   
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* ===========================================================================
      HESAP DETAYLARI - BUTONLAR KOMPAKT
-  ═══════════════════════════════════════════════════════════════════════════ */
+  =========================================================================== */
   
   /* Kaydet butonu */
   .account-save-btn {
@@ -2018,6 +2027,25 @@
   .glass-card h2 {
     font-size: 1.375rem !important;
   }
+
+  /* MiniCart quantity controls - tablette ara boyut: daha kompakt */
+  .minicart-quantity-controls button {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+  }
+
+  .minicart-quantity-controls button svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .minicart-quantity-controls span {
+    width: 20px !important;
+    min-width: 20px !important;
+    font-size: 10px !important;
+  }
 }
 
 /* İade Süreci Timeline Mobile */
@@ -2175,10 +2203,10 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* ===========================================================================
    MAĞAZA CAROUSEL - Mobile Touch & Swipe Support
    Category carousels with swipe gestures and dot indicators
-═══════════════════════════════════════════════════════════════════════════ */
+=========================================================================== */
 
 @media (max-width: 1023px) {
   /* Hide left banner on tablet and mobile */
@@ -2249,10 +2277,10 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* ===========================================================================
    RELATED BUNDLE CARDS - BundleProductView Benzer Paketler Mobile
    RelatedProductCard ile aynı mobil layout
-═══════════════════════════════════════════════════════════════════════════ */
+=========================================================================== */
 
 @media (max-width: 767px) {
   /* RelatedBundleCard - Mobil dikey layout */
@@ -2354,10 +2382,10 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* ===========================================================================
    CATEGORY BENTO GRID - Ana Sayfa Kategori Grid Mobil
    Admin panel önizlemesiyle birebir aynı tasarım
-═══════════════════════════════════════════════════════════════════════════ */
+=========================================================================== */
 
 /* Tablet görünümü - 2 kolon */
 @media (max-width: 1023px) {
@@ -2472,6 +2500,30 @@
   .category-bento-section .text-lead {
     font-size: 0.8125rem !important;
     line-height: 1.4 !important;
+  }
+}
+
+/* ===========================================================================
+   CHECKOUT BUTTONS - Mobile Light Theme Override
+   Sadece mobilde, sadece light temada "Ödemeye Geç" ve "Siparişi Onayla"
+   butonlarının icon ve text rengi beyaz olacak
+=========================================================================== */
+@media (max-width: 767px) {
+  /* Light theme only - checkout proceed buttons text white */
+  html:not(.dark) .checkout-right-column button[style*="10b981"],
+  html:not(.dark) .checkout-right-column button[style*="059669"],
+  body:not(.dark) .checkout-right-column button[style*="10b981"],
+  body:not(.dark) .checkout-right-column button[style*="059669"] {
+    color: #ffffff !important;
+  }
+  
+  /* Light theme only - checkout proceed buttons icons white */
+  html:not(.dark) .checkout-right-column button[style*="10b981"] svg,
+  html:not(.dark) .checkout-right-column button[style*="059669"] svg,
+  body:not(.dark) .checkout-right-column button[style*="10b981"] svg,
+  body:not(.dark) .checkout-right-column button[style*="059669"] svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
   }
 }
 

@@ -204,15 +204,13 @@ export default function Footer() {
                     </a>
                   </div>
                 </div>
-                {/* iyzico logosu */}
-                <Image 
-                  src={IYZICO_LOGO_BAND_URL} 
-                  alt="iyzico ödeme yöntemleri" 
-                  width={180}
-                  height={18}
-                  style={{ width: 'auto', height: '18px' }}
-                  className={`opacity-80 ${isDark ? '' : 'invert'}`}
-                  unoptimized
+                {/* iyzico logosu (next/image warning'lerini önlemek için img) */}
+                <img
+                  src={IYZICO_LOGO_BAND_URL}
+                  alt="iyzico ödeme yöntemleri"
+                  loading="lazy"
+                  style={{ width: "auto", height: "18px" }}
+                  className={`opacity-80 ${isDark ? "" : "invert"}`}
                 />
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
@@ -371,14 +369,12 @@ export default function Footer() {
             {/* Alt: Güvenli Ödeme - aynı genişlik */}
             <div className="flex flex-col items-center w-full" style={{ gap: '6px', maxWidth: '280px' }}>
               <span className="text-[9px] text-[var(--foreground-muted)] uppercase tracking-wide">Güvenli Ödeme</span>
-              <Image 
-                src={IYZICO_LOGO_BAND_URL} 
-                alt="iyzico ödeme yöntemleri" 
-                width={280}
-                height={28}
-                style={{ width: '100%', maxWidth: '280px', height: 'auto', transform: 'translateZ(0)' }}
-                className={`${isDark ? '' : 'invert'} opacity-90`}
-                unoptimized
+              <img
+                src={IYZICO_LOGO_BAND_URL}
+                alt="iyzico ödeme yöntemleri"
+                loading="lazy"
+                style={{ width: "100%", maxWidth: "280px", height: "auto", transform: "translateZ(0)" }}
+                className={`${isDark ? "" : "invert"} opacity-90`}
               />
             </div>
           </div>

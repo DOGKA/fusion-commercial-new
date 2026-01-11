@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
   // IMAGE OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════════════════
   images: {
+    // Disable image optimization in development if S3 images timeout
+    unoptimized: process.env.NODE_ENV === 'development',
     remotePatterns: [
       // AWS S3 - Frankfurt (eu-central-1)
       {

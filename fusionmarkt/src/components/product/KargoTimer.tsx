@@ -23,12 +23,7 @@ const pulseAnimationStyle = `
   }
   @media (max-width: 768px) {
     .timer-text-checkout {
-      font-size: 8px !important;
-    }
-  }
-  @media (max-width: 400px) {
-    .timer-text-checkout {
-      font-size: 9px !important;
+      font-size: 10px !important;
     }
   }
 `;

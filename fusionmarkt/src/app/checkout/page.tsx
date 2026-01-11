@@ -117,7 +117,9 @@ export default function CheckoutPage() {
   const [saveToAddresses, setSaveToAddresses] = useState(false); // Kayıtlı adreslerime ekle
   
   // Kişisel bilgileri düzenleme modu
-  const [editingPersonalInfo, setEditingPersonalInfo] = useState(false);
+  // NOTE: Guest checkout'ta input'ların "tamam" olur olmaz kapanmasını engellemek için
+  // varsayılanı true yapıyoruz. Kullanıcı Kaydet/Devam ile kendisi kilitler.
+  const [editingPersonalInfo, setEditingPersonalInfo] = useState(true);
 
   // Shipping options state
   const [shippingOptions, setShippingOptions] = useState<{
@@ -378,23 +380,30 @@ export default function CheckoutPage() {
     }
   }, [city, selectedAddressId, showNewAddressForm]);
 
-  // Check if email is registered (for guest checkout)
-  const checkEmailRegistered = useCallback(async (emailToCheck: string) => {
-    if (!emailToCheck || isAuthenticated) return;
-    
+  const fetchEmailRegistered = useCallback(async (emailToCheck: string) => {
+    if (!emailToCheck || isAuthenticated) return null;
+
     // Basic email validation - require at least 2 char TLD (e.g. .co, .com, .net)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(emailToCheck)) return;
-    
+    if (!emailRegex.test(emailToCheck)) return null;
+
+    const res = await fetch("/api/auth/check-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailToCheck }),
+    });
+    return await res.json();
+  }, [isAuthenticated]);
+
+  // Check if email is registered (for guest checkout) - runs only on explicit action (Enter/Devam)
+  const checkEmailRegistered = useCallback(async (emailToCheck: string) => {
+    if (!emailToCheck || isAuthenticated) return;
+
     setCheckingEmail(true);
     try {
-      const res = await fetch("/api/auth/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailToCheck }),
-      });
-      const data = await res.json();
-      
+      const data = await fetchEmailRegistered(emailToCheck);
+      if (!data) return;
+
       if (data.exists) {
         setEmailRegistered(true);
         setRegisteredUserName(data.userName);
@@ -409,18 +418,7 @@ export default function CheckoutPage() {
     } finally {
       setCheckingEmail(false);
     }
-  }, [isAuthenticated]);
-  
-  // Debounced email check
-  useEffect(() => {
-    if (!email || isAuthenticated) return;
-    
-    const timer = setTimeout(() => {
-      checkEmailRegistered(email);
-    }, 800); // 800ms debounce
-    
-    return () => clearTimeout(timer);
-  }, [email, isAuthenticated, checkEmailRegistered]);
+  }, [fetchEmailRegistered, isAuthenticated]);
   
   // Handle login for registered email
   const handleEmailLogin = async () => {
@@ -479,7 +477,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleProceedToPayment = () => {
+  const handleProceedToPayment = async () => {
     syncFormToContext();
     const newErrors: Record<string, string> = {};
     if (!firstName) newErrors.firstName = "Ad gerekli";
@@ -506,6 +504,31 @@ export default function CheckoutPage() {
       return;
     }
     setErrors({});
+
+    // Guest checkout: kayıtlı e-posta ile devam edilmesini engelle (kontrol sadece Devam/Enter ile)
+    if (!isAuthenticated) {
+      const trimmedEmail = email.trim();
+      try {
+        setCheckingEmail(true);
+        const data = await fetchEmailRegistered(trimmedEmail);
+        if (data?.exists) {
+          setEmailRegistered(true);
+          setRegisteredUserName(data.userName);
+          setShowLoginForm(true);
+          setErrors(prev => ({ ...prev, email: "Bu e-posta kayıtlı. Devam etmek için giriş yapın." }));
+          return;
+        }
+        // Kayıtlı değilse state'i temizle
+        setEmailRegistered(false);
+        setRegisteredUserName(null);
+        setShowLoginForm(false);
+      } catch (err) {
+        console.error("Email check error (proceed):", err);
+      } finally {
+        setCheckingEmail(false);
+      }
+    }
+
     router.push("/checkout/payment");
   };
 
@@ -691,6 +714,23 @@ export default function CheckoutPage() {
                               setLoginPassword("");
                               setLoginError("");
                             }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key !== "Enter") return;
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const trimmed = (e.currentTarget.value || "").trim();
+                            if (trimmed !== email) setEmail(trimmed);
+
+                            const emailError = getEmailError(trimmed);
+                            if (emailError) {
+                              setErrors(prev => ({ ...prev, email: emailError }));
+                              return;
+                            }
+
+                            // Explicit check (guest checkout)
+                            void checkEmailRegistered(trimmed);
                           }}
                           onBlur={() => {
                             // Validate email on blur (only if user finished typing)
