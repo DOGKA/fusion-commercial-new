@@ -665,13 +665,16 @@ export default function PaymentPage() {
                     overflow: "hidden",
                   }}
                 >
-                  <img
+                  <Image
                     src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg"
                     alt="iyzico ile öde"
-                    loading="lazy"
+                    width={120}
+                    height={28}
+                    unoptimized
                     style={{
-                      height: "28px",
+                      height: "auto",
                       width: "auto",
+                      maxHeight: "28px",
                       maxWidth: "100%",
                       objectFit: "contain",
                       display: "block",

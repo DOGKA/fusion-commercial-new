@@ -204,14 +204,17 @@ export default function Footer() {
                     </a>
                   </div>
                 </div>
-                {/* iyzico logosu (next/image warning'lerini önlemek için img) */}
-                <img
-                  src={IYZICO_LOGO_BAND_URL}
-                  alt="iyzico ödeme yöntemleri"
-                  loading="lazy"
-                  style={{ width: "auto", height: "18px" }}
-                  className={`opacity-80 ${isDark ? "" : "invert"}`}
-                />
+                {/* iyzico logosu */}
+                <div className="relative" style={{ width: 200, height: 18 }}>
+                  <Image
+                    src={IYZICO_LOGO_BAND_URL}
+                    alt="iyzico ödeme yöntemleri"
+                    fill
+                    unoptimized
+                    style={{ objectFit: "contain" }}
+                    className={`opacity-80 ${isDark ? "" : "invert"}`}
+                  />
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
                   <Shield className="w-3.5 h-3.5 text-[var(--fusion-success)]" />
@@ -369,18 +372,21 @@ export default function Footer() {
             {/* Alt: Güvenli Ödeme - aynı genişlik */}
             <div className="flex flex-col items-center w-full" style={{ gap: '6px', maxWidth: '280px' }}>
               <span className="text-[9px] text-[var(--foreground-muted)] uppercase tracking-wide">Güvenli Ödeme</span>
-              <img
-                src={IYZICO_LOGO_BAND_URL}
-                alt="iyzico ödeme yöntemleri"
-                loading="lazy"
-                style={{ width: "100%", maxWidth: "280px", height: "auto", transform: "translateZ(0)" }}
-                className={`${isDark ? "" : "invert"} opacity-90`}
-              />
+              <div className="relative w-full" style={{ maxWidth: 280, height: 24, transform: "translateZ(0)" }}>
+                <Image
+                  src={IYZICO_LOGO_BAND_URL}
+                  alt="iyzico ödeme yöntemleri"
+                  fill
+                  unoptimized
+                  style={{ objectFit: "contain" }}
+                  className={`${isDark ? "" : "invert"} opacity-90`}
+                />
+              </div>
             </div>
           </div>
           
           {/* Copyright + Developed by */}
-          <div className="flex items-center justify-center gap-1 text-[9px] leading-none text-[var(--foreground-muted)]" style={{ marginTop: '2px', height: '12px' }}>
+          <div className="flex items-center justify-center gap-1 text-[9px] leading-none text-[var(--foreground-muted)]" style={{ marginTop: '15px', height: '12px' }}>
             <span>FusionMarkt Tüm Hakları Saklıdır 2024-2026</span>
             <span>•</span>
             <span>Developed by</span>
