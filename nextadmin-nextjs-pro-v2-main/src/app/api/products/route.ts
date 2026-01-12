@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
           metaTitle: body.seo?.title || body.metaTitle || null,
           metaDescription: body.seo?.description || body.metaDescription || null,
           metaKeywords: body.tags || [],
-          isActive: body.status === 'PUBLISHED' || body.isActive ?? true,
+          isActive: body.status === 'PUBLISHED' || (body.isActive ?? true),
           isFeatured: body.isFeatured ?? false,
           isNew: body.isNew ?? false,
           freeShipping: body.freeShipping ?? false,
