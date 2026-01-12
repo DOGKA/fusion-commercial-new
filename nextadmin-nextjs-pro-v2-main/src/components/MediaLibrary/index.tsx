@@ -258,8 +258,9 @@ export default function MediaLibrary({
           size: uploadedMedia.size,
           width: uploadedMedia.width,
           height: uploadedMedia.height,
-          alt: seoAlt.trim(),
-          description: seoDescription.trim() || null,
+          alt: seoAlt.trim() || uploadedMedia.filename.replace(/\.[^/.]+$/, ""), // Fallback to filename
+          title: seoTitle.trim() || undefined,
+          description: seoDescription.trim() || undefined,
           usage: uploadedMedia.usage || "OTHER",
         }),
       });

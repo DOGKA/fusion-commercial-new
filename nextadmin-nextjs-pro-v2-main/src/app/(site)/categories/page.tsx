@@ -33,9 +33,11 @@ export default function CategoriesPage() {
     try {
       const res = await fetch("/api/categories?includeAll=true");
       const data = await res.json();
-      setCategories(data);
+      // API { categories: [...] } veya direkt array dönebilir
+      setCategories(Array.isArray(data) ? data : (data.categories || []));
     } catch (error) {
       console.error("Kategoriler yüklenemedi:", error);
+      setCategories([]);
     } finally {
       setLoading(false);
     }

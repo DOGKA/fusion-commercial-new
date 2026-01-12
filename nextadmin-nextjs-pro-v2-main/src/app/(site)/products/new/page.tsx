@@ -135,6 +135,61 @@ export default function NewProductPage() {
   const [technicalFeatureValues, setTechnicalFeatureValues] = useState<TechnicalFeatureValue[]>([]);
   const [loadingTechFeatures, setLoadingTechFeatures] = useState(false);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GENERAL TAB STATE'LERİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [productName, setProductName] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PRICING TAB STATE'LERİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [price, setPrice] = useState("");
+  const [salePrice, setSalePrice] = useState("");
+  const [taxStatus, setTaxStatus] = useState("taxable");
+  const [taxClass, setTaxClass] = useState("standard");
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // INVENTORY TAB STATE'LERİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [sku, setSku] = useState("");
+  const [manageStock, setManageStock] = useState(true);
+  const [stockQty, setStockQty] = useState("");
+  const [lowStockThreshold, setLowStockThreshold] = useState("5");
+  const [stockStatus, setStockStatus] = useState("instock");
+  const [soldIndividually, setSoldIndividually] = useState(false);
+  const [weight, setWeight] = useState("");
+  const [shippingClass, setShippingClass] = useState("");
+  const [dimensionLength, setDimensionLength] = useState("");
+  const [dimensionWidth, setDimensionWidth] = useState("");
+  const [dimensionHeight, setDimensionHeight] = useState("");
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SEO TAB STATE'LERİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [seoTitle, setSeoTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [slug, setSlug] = useState("");
+  const [focusKeyword, setFocusKeyword] = useState("");
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ADVANCED TAB STATE'LERİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [purchaseNote, setPurchaseNote] = useState("");
+  const [menuOrder, setMenuOrder] = useState("");
+  const [enableReviews, setEnableReviews] = useState(false);
+  const [customTabs, setCustomTabs] = useState<Array<{ title: string; content: string }>>([
+    { title: "", content: "" }
+  ]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // YAYIN DURUMU STATE'LERİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [publishStatus, setPublishStatus] = useState("draft");
+  const [visibility, setVisibility] = useState("public");
+  const [catalogVisibility, setCatalogVisibility] = useState("visible");
+  const [isSaving, setIsSaving] = useState(false);
+
   // Kategorileri API'den çek
   useEffect(() => {
     const fetchCategories = async () => {
@@ -370,6 +425,116 @@ export default function NewProductPage() {
     setDragOverImageIndex(null);
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // KAYDETME FONKSİYONU
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleSave = async (asDraft = false) => {
+    // Validation
+    if (!productName.trim()) {
+      alert("Ürün adı zorunludur!");
+      return;
+    }
+    if (!selectedCategories[0]) {
+      alert("Kategori seçimi zorunludur!");
+      return;
+    }
+    if (!price && productType === "simple") {
+      alert("Fiyat zorunludur!");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Slug oluştur
+      const finalSlug = slug || productName
+        .toLowerCase()
+        .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+        .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      const productData = {
+        name: productName,
+        slug: finalSlug,
+        description,
+        shortDescription,
+        categoryId: selectedCategories[0],
+        brandName: brand || null,
+        thumbnail: thumbnail || null,
+        images: productImages,
+        video: productVideo || null,
+        price: price ? parseFloat(price) : 0,
+        salePrice: salePrice ? parseFloat(salePrice) : null,
+        saleEndDate: saleEndDate || null,
+        sku: sku || null,
+        stock: stockQty ? parseInt(stockQty) : 0,
+        lowStockThreshold: lowStockThreshold ? parseInt(lowStockThreshold) : 5,
+        stockStatus,
+        manageStock,
+        weight: weight ? parseFloat(weight) : null,
+        shippingClass: shippingClass || null,
+        dimensions: {
+          length: dimensionLength ? parseFloat(dimensionLength) : null,
+          width: dimensionWidth ? parseFloat(dimensionWidth) : null,
+          height: dimensionHeight ? parseFloat(dimensionHeight) : null,
+        },
+        productType,
+        variants: productType === "variable" ? variants : [],
+        optionGroups: productType === "variable" ? optionGroups : [],
+        features,
+        technicalFeatures: technicalFeatureValues.filter(tf => tf.value).map(tf => ({
+          featureId: tf.featureId,
+          value: tf.value,
+        })),
+        linkedProducts: {
+          frequentlyBoughtTogether,
+          customersAlsoViewed,
+          upsellProducts,
+          crossSellProducts,
+        },
+        seo: {
+          title: seoTitle || null,
+          description: metaDescription || null,
+          focusKeyword: focusKeyword || null,
+        },
+        tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+        status: asDraft ? 'DRAFT' : publishStatus.toUpperCase(),
+        visibility,
+        catalogVisibility,
+        purchaseNote: purchaseNote || null,
+        menuOrder: menuOrder ? parseInt(menuOrder) : 0,
+        enableReviews,
+        customTabs: customTabs.filter(t => t.title && t.content),
+        taxStatus,
+        taxClass,
+        soldIndividually,
+      };
+
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Kaydetme hatası");
+      }
+
+      const result = await res.json();
+      alert(asDraft ? "Taslak kaydedildi!" : "Ürün başarıyla oluşturuldu!");
+      
+      // Yeni ürün sayfasına yönlendir
+      window.location.href = `/products/${result.id}`;
+    } catch (error: any) {
+      console.error("Save error:", error);
+      alert(`Hata: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -379,11 +544,19 @@ export default function NewProductPage() {
           <p className="text-gray-500">Yeni bir ürün oluşturun ve mağazanıza ekleyin</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 rounded-lg border border-stroke text-sm hover:bg-gray-50 dark:border-dark-3 dark:hover:bg-dark-2">
-            Taslak Kaydet
+          <button 
+            onClick={() => handleSave(true)}
+            disabled={isSaving}
+            className="px-4 py-2 rounded-lg border border-stroke text-sm hover:bg-gray-50 dark:border-dark-3 dark:hover:bg-dark-2 disabled:opacity-50"
+          >
+            {isSaving ? "Kaydediliyor..." : "Taslak Kaydet"}
           </button>
-          <button className="px-5 py-2 rounded-lg bg-primary text-white text-sm hover:bg-primary/90">
-            Yayınla
+          <button 
+            onClick={() => handleSave(false)}
+            disabled={isSaving}
+            className="px-5 py-2 rounded-lg bg-primary text-white text-sm hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isSaving ? "Kaydediliyor..." : "Yayınla"}
           </button>
         </div>
       </div>
@@ -437,6 +610,8 @@ export default function NewProductPage() {
             <label className="mb-2 block text-sm font-medium">Ürün Adı *</label>
             <input
               type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
               placeholder="Ürün adını girin..."
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-lg font-medium dark:border-dark-3 focus:border-primary focus:outline-none"
             />
@@ -480,6 +655,8 @@ export default function NewProductPage() {
                     <label className="mb-2 block text-sm font-medium">Kısa Açıklama</label>
                     <textarea
                       rows={3}
+                      value={shortDescription}
+                      onChange={(e) => setShortDescription(e.target.value)}
                       placeholder="Ürün listesinde görünecek kısa açıklama..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
@@ -521,6 +698,8 @@ export default function NewProductPage() {
                       <label className="mb-2 block text-sm font-medium">Normal Fiyat (₺) *</label>
                       <input
                         type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
                         placeholder="0.00"
                         className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                       />
@@ -529,6 +708,8 @@ export default function NewProductPage() {
                       <label className="mb-2 block text-sm font-medium">İndirimli Fiyat (₺)</label>
                       <input
                         type="number"
+                        value={salePrice}
+                        onChange={(e) => setSalePrice(e.target.value)}
                         placeholder="0.00"
                         className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                       />
@@ -566,7 +747,11 @@ export default function NewProductPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="mb-2 block text-sm font-medium">Vergi Durumu</label>
-                      <select className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3">
+                      <select 
+                        value={taxStatus}
+                        onChange={(e) => setTaxStatus(e.target.value)}
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3"
+                      >
                         <option value="taxable">Vergiye Tabi</option>
                         <option value="shipping">Sadece Kargo</option>
                         <option value="none">Yok</option>
@@ -574,7 +759,11 @@ export default function NewProductPage() {
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium">Vergi Sınıfı</label>
-                      <select className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3">
+                      <select 
+                        value={taxClass}
+                        onChange={(e) => setTaxClass(e.target.value)}
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3"
+                      >
                         <option value="standard">Standart</option>
                         <option value="reduced">İndirimli Oran</option>
                         <option value="zero">Sıfır Oran</option>
@@ -591,13 +780,20 @@ export default function NewProductPage() {
                     <label className="mb-2 block text-sm font-medium">SKU (Stok Kodu)</label>
                     <input
                       type="text"
+                      value={sku}
+                      onChange={(e) => setSku(e.target.value)}
                       placeholder="Benzersiz stok kodu..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
                   </div>
 
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" className="h-5 w-5 rounded text-primary" defaultChecked />
+                    <input 
+                      type="checkbox" 
+                      checked={manageStock}
+                      onChange={(e) => setManageStock(e.target.checked)}
+                      className="h-5 w-5 rounded text-primary" 
+                    />
                     <span className="text-sm font-medium">Stok Yönetimini Etkinleştir</span>
                   </label>
 
@@ -606,6 +802,8 @@ export default function NewProductPage() {
                       <label className="mb-2 block text-sm font-medium">Stok Miktarı</label>
                       <input
                         type="number"
+                        value={stockQty}
+                        onChange={(e) => setStockQty(e.target.value)}
                         placeholder="0"
                         className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                       />
@@ -614,6 +812,8 @@ export default function NewProductPage() {
                       <label className="mb-2 block text-sm font-medium">Düşük Stok Eşiği</label>
                       <input
                         type="number"
+                        value={lowStockThreshold}
+                        onChange={(e) => setLowStockThreshold(e.target.value)}
                         placeholder="5"
                         className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                       />
@@ -622,7 +822,11 @@ export default function NewProductPage() {
 
                   <div>
                     <label className="mb-2 block text-sm font-medium">Stok Durumu</label>
-                    <select className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3">
+                    <select 
+                      value={stockStatus}
+                      onChange={(e) => setStockStatus(e.target.value)}
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3"
+                    >
                       <option value="instock">Stokta</option>
                       <option value="outofstock">Stokta Yok</option>
                       <option value="onbackorder">Ön Siparişte</option>
@@ -630,7 +834,12 @@ export default function NewProductPage() {
                   </div>
 
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" className="h-5 w-5 rounded text-primary" />
+                    <input 
+                      type="checkbox" 
+                      checked={soldIndividually}
+                      onChange={(e) => setSoldIndividually(e.target.checked)}
+                      className="h-5 w-5 rounded text-primary" 
+                    />
                     <span className="text-sm font-medium">Tek başına satılır (ön sipariş/stokta yok durumunda bile)</span>
                   </label>
 
@@ -648,13 +857,19 @@ export default function NewProductPage() {
                         <input
                           type="number"
                           step="0.01"
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
                           placeholder="0.00"
                           className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                         />
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-medium">Kargo Sınıfı</label>
-                        <select className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3">
+                        <select 
+                          value={shippingClass}
+                          onChange={(e) => setShippingClass(e.target.value)}
+                          className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3"
+                        >
                           <option value="">Kargo sınıfı yok</option>
                           <option value="heavy">Ağır Ürün</option>
                           <option value="fragile">Kırılgan</option>
@@ -667,16 +882,22 @@ export default function NewProductPage() {
                       <div className="grid grid-cols-3 gap-4">
                         <input
                           type="number"
+                          value={dimensionLength}
+                          onChange={(e) => setDimensionLength(e.target.value)}
                           placeholder="Uzunluk"
                           className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                         />
                         <input
                           type="number"
+                          value={dimensionWidth}
+                          onChange={(e) => setDimensionWidth(e.target.value)}
                           placeholder="Genişlik"
                           className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                         />
                         <input
                           type="number"
+                          value={dimensionHeight}
+                          onChange={(e) => setDimensionHeight(e.target.value)}
                           placeholder="Yükseklik"
                           className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                         />
@@ -1321,20 +1542,24 @@ export default function NewProductPage() {
                     <label className="mb-2 block text-sm font-medium">SEO Başlık</label>
                     <input
                       type="text"
+                      value={seoTitle}
+                      onChange={(e) => setSeoTitle(e.target.value)}
                       placeholder="Arama sonuçlarında görünecek başlık..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
-                    <p className="mt-1 text-xs text-gray-500">Önerilen: 50-60 karakter</p>
+                    <p className="mt-1 text-xs text-gray-500">Önerilen: 50-60 karakter ({seoTitle.length}/60)</p>
                   </div>
 
                   <div>
                     <label className="mb-2 block text-sm font-medium">Meta Açıklama</label>
                     <textarea
                       rows={3}
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
                       placeholder="Arama sonuçlarında görünecek açıklama..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
-                    <p className="mt-1 text-xs text-gray-500">Önerilen: 150-160 karakter</p>
+                    <p className="mt-1 text-xs text-gray-500">Önerilen: 150-160 karakter ({metaDescription.length}/160)</p>
                   </div>
 
                   <div>
@@ -1343,6 +1568,8 @@ export default function NewProductPage() {
                       <span className="text-sm text-gray-500">fusionmarkt.com/urun/</span>
                       <input
                         type="text"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-'))}
                         placeholder="urun-adi"
                         className="flex-1 rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                       />
@@ -1353,6 +1580,8 @@ export default function NewProductPage() {
                     <label className="mb-2 block text-sm font-medium">Focus Anahtar Kelime</label>
                     <input
                       type="text"
+                      value={focusKeyword}
+                      onChange={(e) => setFocusKeyword(e.target.value)}
                       placeholder="Ana anahtar kelime..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
@@ -1362,9 +1591,15 @@ export default function NewProductPage() {
                   <div className="rounded-lg border border-stroke p-4 dark:border-dark-3 bg-gray-50 dark:bg-dark-2">
                     <p className="text-sm font-medium mb-2">Google Önizleme</p>
                     <div className="space-y-1">
-                      <p className="text-[#1a0dab] text-lg hover:underline cursor-pointer">Ürün Adı - FusionMarkt</p>
-                      <p className="text-[#006621] text-sm">fusionmarkt.com › urun › urun-adi</p>
-                      <p className="text-sm text-gray-600">Meta açıklama buraya gelecek. Arama sonuçlarında kullanıcıların göreceği açıklama metni...</p>
+                      <p className="text-[#1a0dab] text-lg hover:underline cursor-pointer">
+                        {seoTitle || productName || "Ürün Adı"} - FusionMarkt
+                      </p>
+                      <p className="text-[#006621] text-sm">
+                        fusionmarkt.com › urun › {slug || "urun-adi"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {metaDescription || "Meta açıklama buraya gelecek. Arama sonuçlarında kullanıcıların göreceği açıklama metni..."}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1377,6 +1612,8 @@ export default function NewProductPage() {
                     <label className="mb-2 block text-sm font-medium">Satın Alma Notu</label>
                     <textarea
                       rows={3}
+                      value={purchaseNote}
+                      onChange={(e) => setPurchaseNote(e.target.value)}
                       placeholder="Sipariş sonrası müşteriye gönderilecek özel not..."
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
@@ -1386,13 +1623,20 @@ export default function NewProductPage() {
                     <label className="mb-2 block text-sm font-medium">Menü Sırası</label>
                     <input
                       type="number"
+                      value={menuOrder}
+                      onChange={(e) => setMenuOrder(e.target.value)}
                       placeholder="0"
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
                   </div>
 
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" className="h-5 w-5 rounded text-primary" />
+                    <input 
+                      type="checkbox" 
+                      checked={enableReviews}
+                      onChange={(e) => setEnableReviews(e.target.checked)}
+                      className="h-5 w-5 rounded text-primary" 
+                    />
                     <span className="text-sm font-medium">Yorumları Etkinleştir</span>
                   </label>
 
@@ -1400,20 +1644,51 @@ export default function NewProductPage() {
                   <div className="border-t border-stroke dark:border-dark-3 pt-4">
                     <h4 className="font-medium mb-3">Özel Sekmeler</h4>
                     <div className="space-y-4">
-                      <div className="p-4 rounded-lg border border-stroke dark:border-dark-3">
-                        <input
-                          type="text"
-                          placeholder="Sekme 1 Başlığı"
-                          className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 mb-2 dark:border-dark-3"
-                        />
-                        <textarea
-                          rows={3}
-                          placeholder="Sekme 1 İçeriği"
-                          className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 dark:border-dark-3"
-                        />
-                      </div>
+                      {customTabs.map((tab, index) => (
+                        <div key={index} className="p-4 rounded-lg border border-stroke dark:border-dark-3 relative">
+                          {customTabs.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setCustomTabs(customTabs.filter((_, i) => i !== index))}
+                              className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          )}
+                          <input
+                            type="text"
+                            value={tab.title}
+                            onChange={(e) => {
+                              const newTabs = [...customTabs];
+                              newTabs[index].title = e.target.value;
+                              setCustomTabs(newTabs);
+                            }}
+                            placeholder={`Sekme ${index + 1} Başlığı`}
+                            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 mb-2 dark:border-dark-3"
+                          />
+                          <textarea
+                            rows={3}
+                            value={tab.content}
+                            onChange={(e) => {
+                              const newTabs = [...customTabs];
+                              newTabs[index].content = e.target.value;
+                              setCustomTabs(newTabs);
+                            }}
+                            placeholder={`Sekme ${index + 1} İçeriği`}
+                            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 dark:border-dark-3"
+                          />
+                        </div>
+                      ))}
                     </div>
-                    <button className="mt-3 text-sm text-primary hover:underline">+ Sekme Ekle</button>
+                    <button 
+                      type="button"
+                      onClick={() => setCustomTabs([...customTabs, { title: "", content: "" }])}
+                      className="mt-3 text-sm text-primary hover:underline"
+                    >
+                      + Sekme Ekle
+                    </button>
                   </div>
                 </div>
               )}
@@ -1429,7 +1704,11 @@ export default function NewProductPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Durum:</span>
-                <select className="rounded border border-stroke bg-transparent px-2 py-1 text-sm dark:border-dark-3">
+                <select 
+                  value={publishStatus}
+                  onChange={(e) => setPublishStatus(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-2 py-1 text-sm dark:border-dark-3"
+                >
                   <option value="draft">Taslak</option>
                   <option value="published">Yayında</option>
                   <option value="pending">Onay Bekliyor</option>
@@ -1437,7 +1716,11 @@ export default function NewProductPage() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Görünürlük:</span>
-                <select className="rounded border border-stroke bg-transparent px-2 py-1 text-sm dark:border-dark-3">
+                <select 
+                  value={visibility}
+                  onChange={(e) => setVisibility(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-2 py-1 text-sm dark:border-dark-3"
+                >
                   <option value="public">Herkese Açık</option>
                   <option value="private">Özel</option>
                   <option value="password">Şifreli</option>
@@ -1445,7 +1728,11 @@ export default function NewProductPage() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Katalog:</span>
-                <select className="rounded border border-stroke bg-transparent px-2 py-1 text-sm dark:border-dark-3">
+                <select 
+                  value={catalogVisibility}
+                  onChange={(e) => setCatalogVisibility(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-2 py-1 text-sm dark:border-dark-3"
+                >
                   <option value="visible">Mağaza ve Arama</option>
                   <option value="catalog">Sadece Mağaza</option>
                   <option value="search">Sadece Arama</option>
