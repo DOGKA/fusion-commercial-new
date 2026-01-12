@@ -164,7 +164,7 @@ const mapApiVariantsToCardVariants = (apiProduct: any): ProductVariant[] => {
  * - comparePrice: Orijinal karşılaştırma fiyatı
  * - saleEndDate: İndirim bitiş tarihi
  */
-export function mapApiProductToCard(apiProduct: any): Product {
+export function mapApiProductToCard(apiProduct: any, freeShippingThreshold: number = 2000): Product {
   // Sadece VARIABLE tipindeki ürünlerde varyantları göster
   const isVariableProduct = apiProduct.productType === "VARIABLE";
   const mappedVariants = isVariableProduct ? mapApiVariantsToCardVariants(apiProduct) : [];
@@ -192,6 +192,12 @@ export function mapApiProductToCard(apiProduct: any): Product {
   const discountPercent = saleActive && comparePrice
     ? calculateDiscountPercent(price, comparePrice)
     : null;
+  
+  // ============================================
+  // FREE SHIPPING - Fiyat kontrolü + API override
+  // ============================================
+  // API'den freeShipping: true geldiyse VEYA fiyat >= threshold ise ücretsiz kargo
+  const hasFreeShipping = apiProduct.freeShipping === true || price >= freeShippingThreshold;
 
   // ============================================
   // BADGES - Manuel + Sistem Rozetleri
@@ -253,7 +259,7 @@ export function mapApiProductToCard(apiProduct: any): Product {
     stockQuantity: stock,
     ratingAverage: apiProduct.ratingAverage || 0,
     ratingCount: apiProduct.ratingCount || apiProduct._count?.reviews || 0,
-    freeShipping: apiProduct.freeShipping || false,
+    freeShipping: hasFreeShipping,
     image: apiProduct.thumbnail || apiProduct.image || (apiProduct.images?.[0]) || undefined,
     // Badges array (sistem + manuel birleşik)
     badges: allBadges.length > 0 ? allBadges : undefined,
@@ -266,7 +272,7 @@ export function mapApiProductToCard(apiProduct: any): Product {
 /**
  * Maps array of API products to ProductCard array
  */
-export function mapApiProductsToCards(apiProducts: any[]): Product[] {
+export function mapApiProductsToCards(apiProducts: any[], freeShippingThreshold: number = 2000): Product[] {
   if (!Array.isArray(apiProducts)) return [];
-  return apiProducts.map(mapApiProductToCard);
+  return apiProducts.map(p => mapApiProductToCard(p, freeShippingThreshold));
 }

@@ -126,15 +126,23 @@ export default function ProductCard({ product, className, priority = false }: Pr
   const hasVariants = variants && variants.length > 0;
 
   return (
-    <div className={cn("relative", className)}>
-      <Link href={`/urun/${slug}`} className="block">
+    <div
+      className={cn("relative", className)}
+      style={{ height: '640px', display: 'flex', flexDirection: 'column' }}
+    >
+      <Link
+        href={`/urun/${slug}`}
+        className="block"
+        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      >
         {/* IMAGE AREA - Tam genişlik, card'ın üstünde */}
         <div 
           className="relative w-full bg-background overflow-hidden border border-border border-b-0"
           style={{ 
             paddingBottom: '100%',
             borderTopLeftRadius: SQUIRCLE.xl, 
-            borderTopRightRadius: SQUIRCLE.xl 
+            borderTopRightRadius: SQUIRCLE.xl,
+            flexShrink: 0,
           }}
         >
           {image ? (
@@ -339,13 +347,15 @@ export default function ProductCard({ product, className, priority = false }: Pr
           {/* CONTENT AREA - Ayrı container, image'ın altında */}
           <div 
             className={cn(
-              "flex-1 flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
+              "flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
               "bg-surface/90 dark:bg-surface/90",
               "hover:border-border-hover"
             )}
             style={{ 
               borderBottomLeftRadius: SQUIRCLE.xl, 
-              borderBottomRightRadius: SQUIRCLE.xl 
+              borderBottomRightRadius: SQUIRCLE.xl,
+              flex: '1 1 auto',
+              minHeight: 0,
             }}
           >
             {/* ÜST KISIM - Brand, Title, Subtitle */}
@@ -534,95 +544,128 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 )}
               </div>
 
-              {/* Video Label */}
-              <div className="min-h-[28px]">
-                {videoLabel && (
-                  <span 
-                    className="inline-flex items-center justify-center gap-2"
-                    style={{
-                      minWidth: 150,
-                      height: 26,
-                      padding: '0 14px',
-                      backgroundColor: 'rgba(34, 211, 238, 0.08)',
-                      border: '1px solid rgba(34, 211, 238, 0.25)',
-                      borderRadius: SQUIRCLE.sm,
-                    }}
-                  >
-                    <Play size={11} style={{ color: '#22d3ee', fill: '#22d3ee' }} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#22d3ee', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {videoLabel}
-                    </span>
-                  </span>
-                )}
-              </div>
             </div>
 
             {/* Spacer - küçük */}
             <div style={{ height: '8px' }} />
 
-            {/* ALT KISIM - Rating, Shipping, Stock */}
-            <div className="flex flex-col">
-              {/* Rating - Video Label ile aynı biçim, beyaz arka plan, sarı yıldızlar */}
-              <div className="min-h-[28px]">
+            {/* ALT KISIM - Grid Cards: Ücretsiz Kargo/Videolu Ürün, Rating, Yetkili Distribütör, 12 Taksit */}
+            <div className="flex flex-col gap-1.5">
+              {/* 1. Ücretsiz Kargo + Videolu Ürün Satırı */}
+              {(freeShipping || videoLabel) && (
+                <div className="flex gap-1.5">
+                  {/* Ücretsiz Kargo */}
+                  {freeShipping && (
+                    <span 
+                      className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
+                      style={{
+                        height: 28,
+                        padding: '0 14px',
+                        border: '1px solid rgba(16, 185, 129, 0.35)',
+                        borderRadius: SQUIRCLE.sm,
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                        <path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/>
+                        <path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/>
+                        <circle cx="7" cy="18" r="2"/>
+                        <circle cx="17" cy="18" r="2"/>
+                      </svg>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>
+                        Ücretsiz Kargo
+                      </span>
+                    </span>
+                  )}
+                  {/* Videolu Ürün */}
+                  {videoLabel && (
+                    <span 
+                      className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
+                      style={{
+                        height: 28,
+                        padding: '0 14px',
+                        border: '1px solid rgba(34, 211, 238, 0.35)',
+                        borderRadius: SQUIRCLE.sm,
+                      }}
+                    >
+                      <Play size={11} style={{ color: '#22d3ee', fill: '#22d3ee' }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#22d3ee' }}>
+                        Videolu Ürün
+                      </span>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* 2. Rating - Yıldızlar */}
+              <span 
+                className="inline-flex items-center justify-center gap-1.5 bg-glass-bg w-full"
+                style={{
+                  height: 28,
+                  padding: '0 14px',
+                  border: '1px solid rgba(251, 191, 36, 0.35)',
+                  borderRadius: SQUIRCLE.sm,
+                }}
+              >
+                {/* 5 Yıldız - Sarı */}
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star 
+                      key={star} 
+                      size={11} 
+                      className={star <= Math.round(ratingAverage || 0) 
+                        ? "fill-amber-400 text-amber-400" 
+                        : "fill-transparent text-foreground-disabled"
+                      }
+                    />
+                  ))}
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
+                  {ratingAverage?.toFixed(1) || "0.0"}
+                </span>
+                <span style={{ fontSize: 9, color: 'var(--foreground-muted)' }}>
+                  ({ratingCount || 0})
+                </span>
+              </span>
+
+              {/* 3 & 4. Yetkili Distribütör + 12 Taksit - Yan yana */}
+              <div className="flex gap-1.5">
                 <span 
-                  className="inline-flex items-center justify-center gap-1.5 bg-glass-bg"
+                  className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
                   style={{
-                    minWidth: 150,
-                    height: 26,
-                    padding: '0 14px',
-                    border: '1px solid rgba(251, 191, 36, 0.35)',
+                    height: 28,
+                    padding: '0 8px',
+                    border: '1px solid rgba(251, 191, 36, 0.25)',
                     borderRadius: SQUIRCLE.sm,
                   }}
                 >
-                  {/* 5 Yıldız - Sarı */}
-                  <div className="flex items-center gap-0.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star 
-                        key={star} 
-                        size={11} 
-                        className={star <= Math.round(ratingAverage || 0) 
-                          ? "fill-amber-400 text-amber-400" 
-                          : "fill-transparent text-foreground-disabled"
-                        }
-                      />
-                    ))}
-                  </div>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
-                    {ratingAverage?.toFixed(1) || "-"}
-                  </span>
-                  <span style={{ fontSize: 9, color: 'var(--foreground-muted)' }}>
-                    ({ratingCount || 0})
+                  <BadgeCheck size={11} className="text-amber-400" />
+                  <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
+                    Yetkili Distribütör
                   </span>
                 </span>
-              </div>
 
-              {/* Shipping & Yetkili Distribütör */}
-              <div className="flex items-center gap-3 flex-wrap">
-                {freeShipping && (
-                  <span className="text-[11px] text-emerald-400 font-medium">
-                    Ücretsiz Kargo
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1 text-[10px] text-amber-400/90 font-medium">
-                  <BadgeCheck size={12} className="text-amber-400" />
-                  Yetkili Distribütör
-                </span>
-              </div>
-
-              {/* 12 Taksit İmkanı */}
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center gap-1 text-[10px] text-violet-400 font-medium">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
+                <span 
+                  className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
+                  style={{
+                    height: 28,
+                    padding: '0 8px',
+                    border: '1px solid rgba(139, 92, 246, 0.35)',
+                    borderRadius: SQUIRCLE.sm,
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
                     <rect width="20" height="14" x="2" y="5" rx="2"/>
                     <line x1="2" x2="22" y1="10" y2="10"/>
                   </svg>
-                  12 Taksit İmkanı
+                  <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
+                    12 Taksit İmkanı
+                  </span>
                 </span>
               </div>
             </div>
 
-            {/* PRICE SECTION */}
-            <div className="pt-2 mt-1 border-t border-border/60">
+            {/* PRICE SECTION - Her zaman altta sabitlendi */}
+            <div className="pt-2 border-t border-border/60" style={{ marginTop: 'auto' }}>
               {/* ROW 9: Eski fiyat & Kazanç - 20px */}
               <div className="h-[20px]">
                 {originalPrice && originalPrice > price ? (

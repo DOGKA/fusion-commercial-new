@@ -9,6 +9,7 @@ import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
   
   // Use CSS Transform carousel hook for ultra-smooth scrolling
   const { containerRef, wrapperRef, containerStyle, wrapperStyle, handlers } = useTransformCarousel({
@@ -18,13 +19,38 @@ export default function FeaturedProducts() {
     friction: 0.95,
   });
 
+  // Fetch shipping threshold first
   useEffect(() => {
+    const fetchShippingSettings = async () => {
+      try {
+        const res = await fetch("/api/public/shipping/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: [] }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFreeShippingThreshold(data.freeShippingThreshold || 2000);
+        } else {
+          setFreeShippingThreshold(2000);
+        }
+      } catch (error) {
+        setFreeShippingThreshold(2000);
+      }
+    };
+    fetchShippingSettings();
+  }, []);
+
+  // Fetch products AFTER shipping threshold is loaded
+  useEffect(() => {
+    if (freeShippingThreshold === null) return; // Wait for threshold
+
     const fetchFeaturedProducts = async () => {
       try {
         const res = await fetch("/api/public/products?featured=true&limit=12");
         if (res.ok) {
           const data = await res.json();
-          setProducts(mapApiProductsToCards(data.products || []));
+          setProducts(mapApiProductsToCards(data.products || [], freeShippingThreshold));
         }
       } catch (error) {
         console.error("Error fetching featured products:", error);
@@ -34,7 +60,7 @@ export default function FeaturedProducts() {
     };
 
     fetchFeaturedProducts();
-  }, []);
+  }, [freeShippingThreshold]);
 
   const scroll = (direction: "left" | "right") => {
     if (!wrapperRef.current || !containerRef.current) return;
@@ -127,7 +153,7 @@ export default function FeaturedProducts() {
                 ref={wrapperRef}
                 style={{ ...wrapperStyle, gap: "20px" }}
                 {...handlers}
-                className="flex"
+                className="flex items-stretch"
               >
                 {displayProducts.map((product, index) => (
                   <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px]">

@@ -79,6 +79,7 @@ interface ProductWithCategory extends Omit<Product, 'badges'> {
   itemCount?: number;
   freeShipping?: boolean;
   badges?: { id: string; name: string; color: string; textColor?: string | null; icon?: string | null }[];
+  videoUrl?: string;
 }
 
 interface CategoryWithProducts {
@@ -134,6 +135,7 @@ interface ApiProduct {
   productType?: "SIMPLE" | "VARIABLE";
   variants?: ApiVariant[];
   shortDescription?: string;
+  videoUrl?: string;
 }
 
 interface ApiCategory {
@@ -246,6 +248,7 @@ export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [sortOpen, setSortOpen] = useState(false);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(2000);
   
   // Filter state
   const [storeFilters, setStoreFilters] = useState<FilterGroup[]>([]);
@@ -324,11 +327,12 @@ export default function StorePage() {
         ]);
 
         // Get free shipping threshold from shipping API
-        let freeShippingThreshold = 2000; // Default
+        let threshold = 2000; // Default
         if (shippingRes && shippingRes.ok) {
           const shippingData = await shippingRes.json();
-          freeShippingThreshold = shippingData.freeShippingThreshold || 2000;
+          threshold = shippingData.freeShippingThreshold || 2000;
         }
+        setFreeShippingThreshold(threshold);
 
         const categoryMap = new Map<string, CategoryWithProducts>();
 
@@ -362,12 +366,13 @@ export default function StorePage() {
             const catThemeColor = product.category?.themeColor || null;
 
             const stockQty = product.stock || 0;
+            const productPrice = Number(product.price) || 0;
             const productWithCategory = {
               id: product.id,
               title: product.title || product.name,
               name: product.name,
               slug: product.slug,
-              price: product.price,
+              price: productPrice,
               originalPrice: product.comparePrice || product.originalPrice,
               discountPercent: product.discountPercentage,
               brand: product.brand || "",
@@ -387,6 +392,8 @@ export default function StorePage() {
               variants: product.variants,
               shortDescription: product.shortDescription,
               isBundle: false,
+              videoUrl: product.videoUrl, // Videolu ürün etiketi için
+              // freeShipping artık mapApiProductToCard içinde hesaplanıyor
             };
 
             // Create category if not exists (fallback)
@@ -449,7 +456,7 @@ export default function StorePage() {
               savingsPercent: savingsPercent,
               items: bundle.items || [],
               itemCount: bundle.itemCount || (bundle.items?.length || 0),
-              freeShipping: bundlePrice >= freeShippingThreshold,
+              freeShipping: bundlePrice >= threshold,
               badges: bundle.badges || [],
             };
 
@@ -850,6 +857,7 @@ export default function StorePage() {
                   category={category} 
                   bannerData={categoryBanners[category.slug]}
                   isDark={isDark}
+                  freeShippingThreshold={freeShippingThreshold}
                 />
               </div>
             ))}
@@ -1004,10 +1012,12 @@ function CategoryCarousel({
   category, 
   bannerData,
   isDark,
+  freeShippingThreshold,
 }: { 
   category: CategoryWithProducts; 
   bannerData?: Banner;
   isDark: boolean;
+  freeShippingThreshold: number;
 }) {
   const [isMobile, setIsMobile] = useState(false);
   
@@ -1176,7 +1186,7 @@ function CategoryCarousel({
               ref={wrapperRef}
               style={{ ...wrapperStyle, gap: '16px' }}
               {...handlers}
-              className="flex items-start"
+              className="flex items-stretch"
             >
               {displayProducts.map((product: ProductWithCategory, idx: number) => (
                 <div 
@@ -1201,12 +1211,13 @@ function CategoryCarousel({
                         ratingCount: product.ratingCount,
                         freeShipping: product.freeShipping,
                         badges: product.badges || [],
+                        videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
                       }}
                       priority={idx < 4}
                     />
                   ) : (
                     <ProductCard 
-                      product={mapApiProductToCard(product)} 
+                      product={mapApiProductToCard(product, freeShippingThreshold)} 
                       priority={idx < 4}
                     />
                   )}

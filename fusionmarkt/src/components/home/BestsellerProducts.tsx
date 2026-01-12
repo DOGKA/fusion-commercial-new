@@ -9,6 +9,7 @@ import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 export default function BestsellerProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
 
   // Use CSS Transform carousel hook for ultra-smooth scrolling
   const { containerRef, wrapperRef, containerStyle, wrapperStyle, handlers } = useTransformCarousel({
@@ -18,14 +19,39 @@ export default function BestsellerProducts() {
     friction: 0.95,
   });
 
+  // Fetch shipping threshold first
   useEffect(() => {
+    const fetchShippingSettings = async () => {
+      try {
+        const res = await fetch("/api/public/shipping/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: [] }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFreeShippingThreshold(data.freeShippingThreshold || 2000);
+        } else {
+          setFreeShippingThreshold(2000); // Fallback
+        }
+      } catch (error) {
+        setFreeShippingThreshold(2000); // Fallback
+      }
+    };
+    fetchShippingSettings();
+  }, []);
+
+  // Fetch products AFTER shipping threshold is loaded
+  useEffect(() => {
+    if (freeShippingThreshold === null) return; // Wait for threshold
+
     const fetchBestsellerProducts = async () => {
       try {
         // Bestseller = en yüksek fiyatlı aktif ürünler
         const res = await fetch("/api/public/products?bestseller=true&limit=6&inStock=true");
         if (res.ok) {
           const data = await res.json();
-          setProducts(mapApiProductsToCards(data.products || []));
+          setProducts(mapApiProductsToCards(data.products || [], freeShippingThreshold));
         }
       } catch (error) {
         console.error("Error fetching bestseller products:", error);
@@ -35,7 +61,7 @@ export default function BestsellerProducts() {
     };
 
     fetchBestsellerProducts();
-  }, []);
+  }, [freeShippingThreshold]);
 
   const scroll = (direction: "left" | "right") => {
     if (!wrapperRef.current || !containerRef.current) return;
@@ -134,7 +160,7 @@ export default function BestsellerProducts() {
                 ref={wrapperRef}
                 style={{ ...wrapperStyle, gap: "24px" }}
                 {...handlers}
-                className="flex"
+                className="flex items-stretch"
               >
                 {displayProducts.map((product, index) => (
                   <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px] relative">

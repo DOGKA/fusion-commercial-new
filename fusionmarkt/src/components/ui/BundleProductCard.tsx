@@ -3,7 +3,7 @@
 import { useState, Fragment, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Heart, Eye, BadgeCheck, Truck } from "lucide-react";
+import { Star, Heart, Eye, BadgeCheck, Truck, Play } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -48,6 +48,7 @@ export interface BundleProduct {
   freeShipping?: boolean;
   hasVariants?: boolean;
   badges?: BundleBadge[];
+  videoLabel?: string;
 }
 
 interface BundleProductCardProps {
@@ -89,6 +90,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
     freeShipping,
     hasVariants,
     badges,
+    videoLabel,
   } = bundle;
 
   const isOutOfStock = stock <= 0;
@@ -414,64 +416,112 @@ export default function BundleProductCard({ bundle, className, priority = false 
           {/* Spacer - flex grow */}
           <div style={{ flex: 1 }} />
 
-          {/* ALT KISIM - Rating, Stock */}
-          <div className="flex flex-col">
-            {/* Rating */}
-            <div className="min-h-[28px]">
+          {/* ALT KISIM - Grid Cards: Ücretsiz Kargo/Videolu Ürün, Rating, Yetkili Distribütör, 12 Taksit */}
+          <div className="flex flex-col gap-1.5">
+            {/* 1. Ücretsiz Kargo + Videolu Ürün Satırı */}
+            {(freeShipping || videoLabel) && (
+              <div className="flex gap-1.5">
+                {/* Ücretsiz Kargo */}
+                {freeShipping && (
+                  <span 
+                    className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
+                    style={{
+                      height: 28,
+                      padding: '0 14px',
+                      border: '1px solid rgba(16, 185, 129, 0.35)',
+                      borderRadius: SQUIRCLE.sm,
+                    }}
+                  >
+                    <Truck size={12} className="text-emerald-400" />
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>
+                      Ücretsiz Kargo
+                    </span>
+                  </span>
+                )}
+                {/* Videolu Ürün */}
+                {videoLabel && (
+                  <span 
+                    className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
+                    style={{
+                      height: 28,
+                      padding: '0 14px',
+                      border: '1px solid rgba(34, 211, 238, 0.35)',
+                      borderRadius: SQUIRCLE.sm,
+                    }}
+                  >
+                    <Play size={11} style={{ color: '#22d3ee', fill: '#22d3ee' }} />
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#22d3ee' }}>
+                      Videolu Ürün
+                    </span>
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* 2. Rating - Yıldızlar */}
+            <span 
+              className="inline-flex items-center justify-center gap-1.5 bg-glass-bg w-full"
+              style={{
+                height: 28,
+                padding: '0 14px',
+                border: '1px solid rgba(251, 191, 36, 0.35)',
+                borderRadius: SQUIRCLE.sm,
+              }}
+            >
+              {/* 5 Yıldız - Sarı */}
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    size={11} 
+                    className={star <= Math.round(ratingAverage || 0) 
+                      ? "fill-amber-400 text-amber-400" 
+                      : "fill-transparent text-foreground-disabled"
+                    }
+                  />
+                ))}
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
+                {ratingAverage?.toFixed(1) || "0.0"}
+              </span>
+              <span style={{ fontSize: 9, color: 'var(--foreground-muted)' }}>
+                ({ratingCount || 0})
+              </span>
+            </span>
+
+            {/* 3 & 4. Yetkili Distribütör + 12 Taksit - Yan yana */}
+            <div className="flex gap-1.5">
               <span 
-                className="inline-flex items-center justify-center gap-1.5"
+                className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
                 style={{
-                  minWidth: 150,
-                  height: 26,
-                  padding: '0 14px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(251, 191, 36, 0.35)',
+                  height: 28,
+                  padding: '0 8px',
+                  border: '1px solid rgba(251, 191, 36, 0.25)',
                   borderRadius: SQUIRCLE.sm,
                 }}
               >
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star 
-                      key={star} 
-                      size={11} 
-                      className={star <= Math.round(ratingAverage || 0) 
-                        ? "fill-amber-400 text-amber-400" 
-                        : "fill-transparent text-foreground-disabled"
-                      }
-                    />
-                  ))}
-                </div>
-                <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>
-                  {ratingAverage?.toFixed(1) || "-"}
-                </span>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>
-                  ({ratingCount || 0})
+                <BadgeCheck size={11} className="text-amber-400" />
+                <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
+                  Yetkili Distribütör
                 </span>
               </span>
-            </div>
 
-            {/* Shipping & Distribütör */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {freeShipping && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
-                  <Truck size={12} />
-                  Ücretsiz Kargo
-                </span>
-              )}
-              <span className="inline-flex items-center gap-1 text-[10px] text-amber-400/90 font-medium">
-                <BadgeCheck size={12} className="text-amber-400" />
-                Yetkili Distribütör
-              </span>
-            </div>
-
-            {/* 12 Taksit İmkanı */}
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1 text-[10px] text-violet-400 font-medium">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
+              <span 
+                className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
+                style={{
+                  height: 28,
+                  padding: '0 8px',
+                  border: '1px solid rgba(139, 92, 246, 0.35)',
+                  borderRadius: SQUIRCLE.sm,
+                }}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
                   <rect width="20" height="14" x="2" y="5" rx="2"/>
                   <line x1="2" x2="22" y1="10" y2="10"/>
                 </svg>
-                12 Taksit İmkanı
+                <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
+                  12 Taksit İmkanı
+                </span>
               </span>
             </div>
           </div>

@@ -273,6 +273,7 @@ export default function CategoryPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBundleCategory, setIsBundleCategory] = useState(false);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(2000);
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>(
@@ -314,6 +315,26 @@ export default function CategoryPage() {
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Fetch free shipping threshold on mount
+  useEffect(() => {
+    const fetchShippingSettings = async () => {
+      try {
+        const res = await fetch("/api/public/shipping/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: [] }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFreeShippingThreshold(data.freeShippingThreshold || 2000);
+        }
+      } catch (error) {
+        // Use default 2000
+      }
+    };
+    fetchShippingSettings();
   }, []);
 
   // Fetch data - Tüm ürünleri al (client-side filtreleme için)
@@ -896,7 +917,7 @@ export default function CategoryPage() {
                   ref={mobileWrapperRef}
                   style={{ ...mobileWrapperStyle, gap: '16px' }}
                   {...mobileScrollHandlers}
-                  className="flex"
+                  className="flex items-stretch"
                 >
                   {/* Triplicate products for 360° infinite scroll */}
                   {[...products, ...products, ...products].map((product, idx) => (
@@ -921,11 +942,13 @@ export default function CategoryPage() {
                             ratingAverage: product.ratingAverage,
                             ratingCount: product.ratingCount,
                             badges: product.badges || [],
+                            freeShipping: Number(product.price) >= freeShippingThreshold,
+                            videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
                           }}
                           priority={idx < 4}
                         />
                       ) : (
-                        <ProductCard product={mapApiProductToCard(product)} priority={idx < 4} />
+                        <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} priority={idx < 4} />
                       )}
                     </div>
                   ))}
@@ -934,9 +957,9 @@ export default function CategoryPage() {
             </div>
 
             {/* DESKTOP: Grid - 4 ürün per satır */}
-            <div className="hidden md:grid grid-cols-4 gap-5">
+            <div className="hidden md:grid grid-cols-4 gap-5 justify-items-center">
               {products.map((product, idx) => (
-                <div key={product.id} className="w-full">
+                <div key={product.id} className="w-[280px]">
                   {isBundleCategory || product.isBundle ? (
                     <BundleProductCard
                       bundle={{
@@ -954,11 +977,13 @@ export default function CategoryPage() {
                         ratingAverage: product.ratingAverage,
                         ratingCount: product.ratingCount,
                         badges: product.badges || [],
+                        freeShipping: Number(product.price) >= freeShippingThreshold,
+                        videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
                       }}
                       priority={idx < 4}
                     />
                   ) : (
-                    <ProductCard product={mapApiProductToCard(product)} />
+                    <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} />
                   )}
                 </div>
               ))}
