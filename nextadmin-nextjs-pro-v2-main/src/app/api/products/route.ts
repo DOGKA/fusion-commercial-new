@@ -121,19 +121,21 @@ export async function POST(request: NextRequest) {
           saleEndDate: body.saleEndDate ? new Date(body.saleEndDate) : null,
           sku: body.sku || null,
           stock: body.stock ? parseInt(body.stock) : 0,
-          brand: body.brand || null,
+          brand: body.brandName || body.brand || null,
           weight: body.weight ? parseFloat(body.weight) : null,
-          dimensions: body.dimensions || null,
-          metaTitle: body.metaTitle || null,
-          metaDescription: body.metaDescription || null,
-          isActive: body.isActive ?? true,
+          dimensions: body.dimensions ? JSON.stringify(body.dimensions) : null,
+          metaTitle: body.seo?.title || body.metaTitle || null,
+          metaDescription: body.seo?.description || body.metaDescription || null,
+          metaKeywords: body.tags || [],
+          isActive: body.status === 'PUBLISHED' || body.isActive ?? true,
           isFeatured: body.isFeatured ?? false,
           isNew: body.isNew ?? false,
           freeShipping: body.freeShipping ?? false,
           thumbnail: body.thumbnail || null,
           images: body.images || [],
-          productType: body.productType || 'SIMPLE',
-          categoryId: body.categoryId || 'default-category-id', // TODO: Handle category properly
+          videoUrl: body.video || body.videoUrl || null,
+          productType: body.productType === 'variable' ? 'VARIABLE' : 'SIMPLE',
+          categoryId: body.categoryId,
         },
       });
 
@@ -156,14 +158,96 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Key Features oluştur (ürün öne çıkan özellikleri)
+      if (body.features && Array.isArray(body.features)) {
+        for (let i = 0; i < body.features.length; i++) {
+          const feature = body.features[i];
+          await tx.keyFeature.create({
+            data: {
+              productId: product.id,
+              title: feature.title,
+              description: feature.description || null,
+              svg: feature.svg || null,
+              color: feature.color || '#5750F1',
+              displayOrder: i,
+            },
+          });
+        }
+      }
+
+      // Technical Features oluştur (kategori bazlı teknik özellikler)
+      if (body.technicalFeatures && Array.isArray(body.technicalFeatures)) {
+        for (const techFeature of body.technicalFeatures) {
+          if (!techFeature.featureId || !techFeature.value) continue;
+          
+          await tx.productFeatureValue.create({
+            data: {
+              productId: product.id,
+              featureId: techFeature.featureId,
+              valueText: techFeature.value,
+              displayOrder: 0,
+            },
+          });
+        }
+      }
+
+      // Related Products oluştur
+      if (body.linkedProducts) {
+        const relations = [];
+        
+        if (body.linkedProducts.frequentlyBoughtTogether) {
+          relations.push(...body.linkedProducts.frequentlyBoughtTogether.map((relatedId: string) => ({
+            fromProductId: product.id,
+            toProductId: relatedId,
+            relationType: 'FREQUENTLY_BOUGHT',
+          })));
+        }
+        
+        if (body.linkedProducts.customersAlsoViewed) {
+          relations.push(...body.linkedProducts.customersAlsoViewed.map((relatedId: string) => ({
+            fromProductId: product.id,
+            toProductId: relatedId,
+            relationType: 'ALSO_VIEWED',
+          })));
+        }
+        
+        if (body.linkedProducts.upsellProducts) {
+          relations.push(...body.linkedProducts.upsellProducts.map((relatedId: string) => ({
+            fromProductId: product.id,
+            toProductId: relatedId,
+            relationType: 'UPSELL',
+          })));
+        }
+        
+        if (body.linkedProducts.crossSellProducts) {
+          relations.push(...body.linkedProducts.crossSellProducts.map((relatedId: string) => ({
+            fromProductId: product.id,
+            toProductId: relatedId,
+            relationType: 'CROSS_SELL',
+          })));
+        }
+        
+        // Toplu oluştur
+        if (relations.length > 0) {
+          await tx.relatedProduct.createMany({
+            data: relations,
+            skipDuplicates: true,
+          });
+        }
+      }
+
       return product;
     });
 
     return NextResponse.json(result, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating product:", error);
     return NextResponse.json(
-      { error: "Ürün oluşturulamadı" },
+      { 
+        error: "Ürün oluşturulamadı",
+        message: error?.message || "Bilinmeyen hata",
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      },
       { status: 500 }
     );
   }

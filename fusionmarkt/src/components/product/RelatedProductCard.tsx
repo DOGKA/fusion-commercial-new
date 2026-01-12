@@ -123,9 +123,11 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
         </div>
 
         <div className="related-product-info" style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: '10px', color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-            {product.brand || 'FUSIONMARKT'}
-          </p>
+          {product.brand && (
+            <p style={{ fontSize: '10px', color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+              {product.brand}
+            </p>
+          )}
           <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '6px', lineHeight: '1.3' }}>
             {product.name}
           </h3>
