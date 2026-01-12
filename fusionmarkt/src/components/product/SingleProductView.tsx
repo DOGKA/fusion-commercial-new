@@ -138,47 +138,6 @@ interface KeyFeature {
   iconSvg?: string; // Backend'ten SVG string olarak gelecek
 }
 
-// Mock key features - Backend'ten gelecek data örneği
-// iconSvg: SVG string olarak eklenirse o gösterilecek
-const mockKeyFeatures: KeyFeature[] = [
-  { 
-    id: "1", 
-    label: "2000Wh Kapasite", 
-    color: "#10B981",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/><line x1="10" x2="10" y1="11" y2="13"/></svg>`
-  },
-  { 
-    id: "2", 
-    label: "3600W Güç", 
-    color: "#3B82F6",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>`
-  },
-  { 
-    id: "3", 
-    label: "LiFePO4 Batarya", 
-    color: "#8B5CF6",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>`
-  },
-  { 
-    id: "4", 
-    label: "10 Yıl Ömür", 
-    color: "#F59E0B",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>`
-  },
-  { 
-    id: "5", 
-    label: "12 Port", 
-    color: "#EC4899",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>`
-  },
-  { 
-    id: "6", 
-    label: "Solar Uyumlu", 
-    color: "#06B6D4",
-    iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`
-  },
-];
-
 interface SingleProductViewProps {
   slug?: string;
 }
@@ -574,7 +533,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
         color: featureColors[idx % featureColors.length],
         iconSvg: f.icon, // API'den icon olarak geliyor
       }))
-    : mockKeyFeatures;
+    : []; // Mock data kaldırıldı - gerçek data yoksa boş göster
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', paddingTop: '120px' }}>
@@ -893,37 +852,38 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
             </div>
 
             {/* KEY FEATURES - Auto-scroll with momentum drag support */}
-            <div style={{ marginBottom: '12px', position: 'relative' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--foreground-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Özellikler
-                </span>
-                {/* Drag hint */}
-                <span style={{ fontSize: '9px', color: 'var(--foreground-muted)' }}>
-                  ← sürükle →
-                </span>
-              </div>
-              
-              {/* Container - viewport */}
-              <div 
-                ref={featuresContainerRef}
-                style={{ 
-                  ...featuresContainerStyle,
-                  paddingBottom: '4px',
-                }}
-              >
-                {/* Wrapper - content moves via transform */}
-                <div
-                  ref={featuresWrapperRef}
+            {features.length > 0 && (
+              <div style={{ marginBottom: '12px', position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--foreground-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Özellikler
+                  </span>
+                  {/* Drag hint */}
+                  <span style={{ fontSize: '9px', color: 'var(--foreground-muted)' }}>
+                    ← sürükle →
+                  </span>
+                </div>
+                
+                {/* Container - viewport */}
+                <div 
+                  ref={featuresContainerRef}
                   style={{ 
-                    ...featuresWrapperStyle,
-                    gap: '8px',
-                    userSelect: 'none',
+                    ...featuresContainerStyle,
+                    paddingBottom: '4px',
                   }}
-                  {...featuresHandlers}
                 >
-                  {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
-                  {[...features, ...features].map((feature, idx) => (
+                  {/* Wrapper - content moves via transform */}
+                  <div
+                    ref={featuresWrapperRef}
+                    style={{ 
+                      ...featuresWrapperStyle,
+                      gap: '8px',
+                      userSelect: 'none',
+                    }}
+                    {...featuresHandlers}
+                  >
+                    {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
+                    {[...features, ...features].map((feature, idx) => (
                     <div
                       key={`${feature.id}-${idx}`}
                       style={{
@@ -958,7 +918,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   ))}
                 </div>
               </div>
-            </div>
+              </div>
+            )}
 
             {/* Taksit & SKU */}
             <div style={{ 
