@@ -8,8 +8,6 @@ import {
   Phone, 
   MapPin, 
   Send,
-  MessageCircle,
-  Clock,
   CheckCircle,
   AlertCircle,
   ArrowRight,
@@ -145,9 +143,9 @@ export default function IletisimPage() {
     {
       icon: MapPin,
       title: "Adres",
-      value: "Ankara, Türkiye",
-      href: "https://maps.google.com/?q=Ankara,Turkey",
-      description: "Turan Güneş Bulvarı, Çankaya",
+      value: "Çankaya, Ankara",
+      href: "",
+      description: "Cezayir Cad. No:6 Kat:5 Ofis, Kat:-2 Depo",
       color: "var(--fusion-success)"
     }
   ];
@@ -190,10 +188,9 @@ export default function IletisimPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6"
             >
-              <MessageCircle className="w-4 h-4 text-[var(--fusion-primary)] flex-shrink-0" />
-              <span className="text-sm font-medium text-[var(--fusion-primary)] whitespace-nowrap">7/24 Destek</span>
+              <span className="text-sm font-medium text-[var(--fusion-primary)]">7/24 Destek</span>
             </motion.div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
@@ -212,31 +209,37 @@ export default function IletisimPage() {
       <section className="py-8 md:py-12">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {contactCards.map((card, index) => (
-              <motion.a
-                key={index}
-                href={card.href}
-                target={card.href.startsWith("http") ? "_blank" : undefined}
-                rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="glass-card p-6 rounded-2xl group hover:border-[var(--glass-border-hover)] transition-all"
-              >
-                <div 
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: `${card.color}15` }}
+            {contactCards.map((card, index) => {
+              const CardWrapper = card.href ? motion.a : motion.div;
+              const linkProps = card.href ? {
+                href: card.href,
+                target: card.href.startsWith("http") ? "_blank" : undefined,
+                rel: card.href.startsWith("http") ? "noopener noreferrer" : undefined,
+              } : {};
+              
+              return (
+                <CardWrapper
+                  key={index}
+                  {...linkProps}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="glass-card p-6 rounded-2xl group hover:border-[var(--glass-border-hover)] transition-all"
                 >
-                  <card.icon className="w-7 h-7" style={{ color: card.color }} />
-                </div>
-                <h3 className="text-lg font-bold mb-1">{card.title}</h3>
-                <p className="text-[var(--foreground)] font-medium mb-2">{card.value}</p>
-                <p className="text-sm text-[var(--foreground-tertiary)] flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  {card.description}
-                </p>
-              </motion.a>
-            ))}
+                  <div 
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
+                    style={{ backgroundColor: `${card.color}15` }}
+                  >
+                    <card.icon className="w-7 h-7" style={{ color: card.color }} />
+                  </div>
+                  <h3 className="text-lg font-bold mb-1">{card.title}</h3>
+                  <p className="text-[var(--foreground)] font-medium mb-2">{card.value}</p>
+                  <p className="text-sm text-[var(--foreground-tertiary)]">
+                    {card.description}
+                  </p>
+                </CardWrapper>
+              );
+            })}
           </div>
         </div>
       </section>

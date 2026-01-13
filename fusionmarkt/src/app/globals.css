@@ -122,6 +122,18 @@
   color: var(--foreground-secondary);
   font-size: 14px;
   line-height: 1.7;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Başlıklar için de wrap */
+.product-description-content h1,
+.product-description-content h2,
+.product-description-content h3,
+.product-description-content h4,
+.product-description-content h5,
+.product-description-content h6 {
+  overflow-wrap: break-word;
 }
 
 /* Görseller */

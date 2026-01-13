@@ -164,7 +164,7 @@ export default function BestsellerProducts() {
               >
                 {displayProducts.map((product, index) => (
                   <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px] relative">
-                    <ProductCard product={product} priority={index < 4} />
+                    <ProductCard product={product} priority={false} />
                   </div>
                 ))}
               </div>

@@ -1703,7 +1703,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
         <div className="flex items-center justify-between pb-4 border-b border-border">
           <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
+        <div className="flex-1 flex flex-col items-center justify-center text-center pt-8">
           <div className="w-14 h-14 rounded-xl bg-glass-bg flex items-center justify-center mb-4">
             <Package size={24} className="text-foreground-disabled" />
           </div>

@@ -206,6 +206,7 @@ export default function Header() {
                             <Link
                               key={sub.name}
                               href={sub.href}
+                              prefetch={false}
                               onClick={() => setActiveDropdown(null)}
                               className="block px-4 py-2.5 text-[13px] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-200"
                             >
@@ -220,6 +221,7 @@ export default function Header() {
                   <Link
                     key={item.name}
                     href={item.href!}
+                    prefetch={false}
                     className={cn(
                       "relative px-3 py-2 text-[13px] font-medium transition-all duration-300 flex items-center gap-1.5",
                       "text-foreground/70 hover:text-foreground",
@@ -371,6 +373,7 @@ export default function Header() {
                           <Link
                             key={sub.name}
                             href={sub.href}
+                            prefetch={false}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="flex items-center gap-2 px-4 py-2.5 text-[14px] text-foreground/50 hover:text-foreground rounded-lg transition-colors"
                           >
@@ -385,6 +388,7 @@ export default function Header() {
                   <Link
                     key={item.name}
                     href={item.href!}
+                    prefetch={false}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
                       "flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-all duration-200",

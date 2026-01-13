@@ -201,6 +201,9 @@ function cleanHtmlContent(html: string): string {
     // ═══════════════════════════════════════════════════════════════════════════
     // Content Cleanup
     // ═══════════════════════════════════════════════════════════════════════════
+    // Kelime ortasındaki <br> taglarını kaldır (WordPress editörden gelen yanlış satır sonları)
+    // Örnek: "taş<br>ınabilir" → "taşınabilir"
+    .replace(/([a-zçğıöşüA-ZÇĞİÖŞÜ0-9])\s*<br\s*\/?>\s*([a-zçğıöşüA-ZÇĞİÖŞÜ])/gi, '$1$2')
     // Escaped newline karakterlerini kaldır
     .replace(/\\n/g, '')
     // Literal \n karakterlerini kaldır  
@@ -2090,19 +2093,21 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                 <h2 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '16px' }}>
                   Açıklama
                 </h2>
-                <div style={{ fontSize: '13px', color: 'var(--foreground-secondary)', lineHeight: '1.6' }}>
+                <div style={{ fontSize: '13px', color: 'var(--foreground-secondary)', lineHeight: '1.6', maxWidth: '100%', overflow: 'hidden' }}>
                   {product.description ? (
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'relative', maxWidth: '100%' }}>
                       <div 
                         ref={descriptionRef}
                         style={{ 
                           maxHeight: (showExpandButton && !descriptionExpanded) ? '400px' : 'none', 
                           overflow: 'hidden',
                           position: 'relative',
+                          maxWidth: '100%',
                         }}
                       >
                         <div 
                           className="product-description-content"
+                          style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
                           dangerouslySetInnerHTML={{ __html: cleanHtmlContent(product.description) }} 
                         />
                       </div>
