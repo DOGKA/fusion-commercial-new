@@ -124,6 +124,12 @@
   line-height: 1.7;
   overflow-wrap: break-word;
   max-width: 100%;
+  /* Kelime kesmesini engelle */
+  word-break: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
 }
 
 /* Başlıklar için de wrap */

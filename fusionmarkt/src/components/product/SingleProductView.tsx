@@ -173,20 +173,37 @@ function cleanHtmlContent(html: string): string {
     // ═══════════════════════════════════════════════════════════════════════════
     // Content Cleanup
     // ═══════════════════════════════════════════════════════════════════════════
-    // Kelime ortasındaki <br> taglarını kaldır (WordPress editörden gelen yanlış satır sonları)
-    // Örnek: "taş<br>ınabilir" → "taşınabilir"
-    .replace(/([a-zçğıöşüA-ZÇĞİÖŞÜ0-9])\s*<br\s*\/?>\s*([a-zçğıöşüA-ZÇĞİÖŞÜ])/gi, '$1$2')
-    // Escaped newline karakterlerini kaldır
+    // 1. &nbsp; karakterlerini normal boşluğa çevir (önce yapılmalı)
+    .replace(/&nbsp;/gi, ' ')
+    // 2. Unicode non-breaking space karakterlerini temizle
+    .replace(/\u00A0/g, ' ')
+    // 3. Soft hyphen karakterlerini kaldır (görünmez tire - kelime kesme noktası)
+    // WordPress/Word'den kopyalanan metinlerde sıkça bulunur
+    .replace(/\u00AD/g, '')
+    .replace(/&shy;/gi, '')
+    // 4. Zero-width karakterleri kaldır (görünmez boşluklar)
+    .replace(/\u200B/g, '') // Zero-width space
+    .replace(/\u200C/g, '') // Zero-width non-joiner
+    .replace(/\u200D/g, '') // Zero-width joiner
+    .replace(/\u2060/g, '') // Word joiner
+    .replace(/\uFEFF/g, '') // BOM (Byte Order Mark)
+    // 5. Kelime ortasındaki <br> taglarını kaldır (WordPress editörden gelen yanlış satır sonları)
+    // Örnek: "taş<br>ınabilir" → "taşınabilir", "şa<br>rj" → "şarj"
+    .replace(/([a-zçğıöşüA-ZÇĞİÖŞÜ0-9])[\s\n\r]*<br\s*\/?>\s*\n?\r?\s*([a-zçğıöşüA-ZÇĞİÖŞÜ])/gi, '$1$2')
+    // 6. Escaped newline karakterlerini kaldır
     .replace(/\\n/g, '')
-    // Literal \n karakterlerini kaldır  
+    // 7. Literal \n karakterlerini kaldır  
     .replace(/\n/g, '')
-    // Quill editör UI span'larını kaldır
+    // 8. Kelime ortasındaki tek satır sonlarını temizle (noktalama olmadan)
+    // Örnek: "yükse\nk" → "yüksek"
+    .replace(/([a-zçğıöşüA-ZÇĞİÖŞÜ])\s*\r?\n\s*([a-zçğıöşüA-ZÇĞİÖŞÜ])/gi, '$1$2')
+    // 9. Quill editör UI span'larını kaldır
     .replace(/<span class="ql-ui"[^>]*>.*?<\/span>/gi, '')
-    // Boş paragrafları temizle
+    // 10. Boş paragrafları temizle
     .replace(/<p>\s*<\/p>/gi, '')
-    // Ardışık boşlukları tek boşluğa indir
+    // 11. Ardışık boşlukları tek boşluğa indir
     .replace(/\s{2,}/g, ' ')
-    // height ve width attribute'larını kaldır (görsellerin responsive olması için)
+    // 12. height ve width attribute'larını kaldır (görsellerin responsive olması için)
     .replace(/\s(height|width)="[^"]*"/gi, '');
   
   return cleaned;
