@@ -430,11 +430,14 @@ export default function HeroSlider() {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle, true), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base")}
+                  className={cn(getButtonClasses(slide.buttonStyle, true), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
                   }}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => e.stopPropagation()}
                 >
                   <span>{slide.buttonText}</span>
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -443,11 +446,14 @@ export default function HeroSlider() {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style, false), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base")}
+                  className={cn(getButtonClasses(slide.button2Style, false), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,
                   }}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => e.stopPropagation()}
                 >
                   <span>{slide.button2Text}</span>
                 </a>
