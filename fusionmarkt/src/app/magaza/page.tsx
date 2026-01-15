@@ -15,7 +15,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
-import BundleProductCard from "@/components/ui/BundleProductCard";
+import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
 import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import WaveMesh from "@/components/ui/WaveMesh";
@@ -25,6 +25,7 @@ import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getAllFilters } from "@/lib/filters/category-filters";
 import { isOnSale, isNewProduct } from "@/lib/badge-config";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
 // Hydration-safe mounted check (same approach as `ThemeToggle`)
 const emptySubscribe = () => () => {};
@@ -1022,7 +1023,16 @@ function CategoryCarousel({
   const [isMobile, setIsMobile] = useState(false);
   
   // Use CSS Transform carousel hook - ultra-smooth GPU scrolling
-  const { containerRef, wrapperRef, containerStyle, wrapperStyle, handlers } = useTransformCarousel({
+  const { 
+    containerRef, 
+    wrapperRef, 
+    containerStyle, 
+    wrapperStyle, 
+    handlers,
+    scrollBy,
+    pauseAutoScroll,
+    resumeAutoScroll,
+  } = useTransformCarousel({
     autoScroll: category.products.length > 0,
     autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
@@ -1080,6 +1090,18 @@ function CategoryCarousel({
           </Link>
         </div>
       )}
+
+      {/* Desktop Navigation Buttons - Above carousel, aligned right */}
+      <div className="hidden lg:flex justify-end mb-3">
+        <CarouselNavButtons
+          scrollBy={scrollBy}
+          pauseAutoScroll={pauseAutoScroll}
+          resumeAutoScroll={resumeAutoScroll}
+          scrollAmount={296}
+          theme="dynamic"
+          themeColor={themeColor}
+        />
+      </div>
       
       {/* Carousel with LEFT Banner - Başlık yok, banner'da var */}
       <div className="relative flex gap-0">
@@ -1168,7 +1190,6 @@ function CategoryCarousel({
           </div>
         </Link>
 
-
         {/* Carousel Area - 360° infinite scroll with CSS Transform */}
         <div className="flex-1 relative overflow-hidden" style={{ marginLeft: isMobile ? '0' : '-100px' }}>
           {/* Container - viewport */}
@@ -1212,7 +1233,7 @@ function CategoryCarousel({
                         freeShipping: product.freeShipping,
                         badges: product.badges || [],
                         videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
-                      }}
+                      } as BundleProduct}
                       priority={idx < 4}
                     />
                   ) : (

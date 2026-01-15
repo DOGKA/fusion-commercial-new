@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 
+const normalizeSlug = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
 // GET - Tek bundle getir
 export async function GET(
   request: NextRequest,
@@ -187,6 +202,16 @@ export async function PUT(
 
     // Transaction ile güncelle
     const result = await prisma.$transaction(async (tx: any) => {
+      const existing = await tx.bundle.findUnique({
+        where: { id },
+        select: { slug: true },
+      });
+      const normalizedSlug =
+        normalizeSlug(String(body.slug ?? "").trim()) ||
+        normalizeSlug(String(body.name ?? "").trim()) ||
+        existing?.slug ||
+        undefined;
+
       // SKU: boş string -> null (unique constraint için)
       const skuValue =
         body.sku && String(body.sku).trim() !== "" ? String(body.sku).trim() : null;
@@ -196,7 +221,7 @@ export async function PUT(
         where: { id },
         data: {
           name: body.name,
-          slug: body.slug,
+          slug: normalizedSlug,
           description: body.description,
           shortDescription: body.shortDescription,
           pricingType: body.pricingType,

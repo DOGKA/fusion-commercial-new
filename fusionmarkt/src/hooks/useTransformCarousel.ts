@@ -5,6 +5,7 @@ import { useRef, useEffect, useCallback } from "react";
 // ═══════════════════════════════════════════════════════════════════════════
 // CSS TRANSFORM CAROUSEL - Ultra-smooth GPU-accelerated scrolling
 // Native touch events with { passive: false } for proper preventDefault
+// Angle-based direction lock for better diagonal swipe handling
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface TransformCarouselOptions {
@@ -14,6 +15,7 @@ interface TransformCarouselOptions {
   friction?: number; // Momentum friction (0-1, yüksek = daha az sürtünme)
   pauseDuration?: number; // ms - interaction sonrası bekleme
   loop?: boolean; // Sonsuz döngü
+  horizontalAngleThreshold?: number; // Yatay hareket için açı eşiği (derece)
 }
 
 export function useTransformCarousel(options: TransformCarouselOptions = {}) {
@@ -23,6 +25,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     pauseOnHover = true,
     friction = 0.92, // Daha hızlı durma
     pauseDuration = 2000,
+    horizontalAngleThreshold = 40, // ±40° içindeki çekişler yatay sayılır
   } = options;
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -49,7 +52,11 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   
   // Direction lock
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
-  const directionLockThreshold = 8;
+  const directionLockThreshold = 6; // Daha düşük threshold - daha erken karar
+  const angleThresholdRef = useRef(horizontalAngleThreshold);
+  
+  // Resume timeout ref - prevent multiple timeouts stacking
+  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Options as refs
   const autoScrollRef = useRef(autoScroll);
@@ -61,6 +68,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   useEffect(() => { autoScrollSpeedRef.current = autoScrollSpeed; }, [autoScrollSpeed]);
   useEffect(() => { frictionRef.current = friction; }, [friction]);
   useEffect(() => { pauseDurationRef.current = pauseDuration; }, [pauseDuration]);
+  useEffect(() => { angleThresholdRef.current = horizontalAngleThreshold; }, [horizontalAngleThreshold]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // HELPERS
@@ -218,6 +226,11 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       clearInterval(retryTimer);
       stopAnimation();
       document.removeEventListener("visibilitychange", handleVisibility);
+      // Clear resume timeout on unmount
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+        resumeTimeoutRef.current = null;
+      }
     };
   }, [getMaxScroll, startAutoScroll, stopAnimation, autoScroll]);
 
@@ -258,32 +271,48 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     };
 
     // ─────────────────────────────────────────────────────────────────────────
-    // TOUCH MOVE
+    // TOUCH MOVE - Angle-based direction lock
     // ─────────────────────────────────────────────────────────────────────────
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       const currentX = touch.clientX;
       const currentY = touch.clientY;
-      const deltaX = Math.abs(currentX - startX.current);
-      const deltaY = Math.abs(currentY - startY.current);
+      const deltaX = currentX - startX.current;
+      const deltaY = currentY - startY.current;
+      const absDeltaX = Math.abs(deltaX);
+      const absDeltaY = Math.abs(deltaY);
       
-      // Direction lock
+      // Direction lock - Açı tabanlı kontrol
       if (scrollDirection.current === null) {
-        if (deltaX > directionLockThreshold || deltaY > directionLockThreshold) {
-          if (deltaX > deltaY * 1.2) {
+        // Minimum hareket eşiğini geç
+        if (absDeltaX > directionLockThreshold || absDeltaY > directionLockThreshold) {
+          // Açıyı hesapla (radyan → derece)
+          // atan2 -180 ile +180 arasında değer döndürür
+          const angleRad = Math.atan2(absDeltaY, absDeltaX);
+          const angleDeg = angleRad * (180 / Math.PI);
+          
+          // ±horizontalAngleThreshold içindeyse yatay hareket
+          // Örn: 40° threshold ile 0-40° arası yatay, 40-90° arası dikey
+          if (angleDeg <= angleThresholdRef.current) {
             scrollDirection.current = "horizontal";
             isDragging.current = true;
+            // Yatay hareket başladı - hemen dikey scroll'u engelle
+            e.preventDefault();
           } else {
             scrollDirection.current = "vertical";
+            // Dikey scroll'a izin ver, fonksiyondan çık
             return;
           }
         } else {
+          // Henüz yeterli hareket yok, bekle
           return;
         }
       }
       
+      // Dikey scroll modundaysa hiçbir şey yapma
       if (scrollDirection.current !== "horizontal") return;
       
+      // Yatay scroll modunda - dikey scroll'u engelle
       e.preventDefault();
       
       const now = performance.now();
@@ -294,8 +323,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         velocity.current = velocity.current * 0.4 + newVelocity * 0.6;
       }
       
-      const dragDelta = currentX - startX.current;
-      translateX.current = startTranslateX.current + dragDelta;
+      translateX.current = startTranslateX.current + deltaX;
       
       const maxScroll = getMaxScroll();
       if (translateX.current > 0) {
@@ -449,6 +477,91 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, pauseOnHover, autoScroll]);
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // NAVIGATION METHODS - For CarouselNavButtons
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /**
+   * Carousel'i belirli miktarda kaydırır
+   * @param amount - Pozitif = sola (önceki), Negatif = sağa (sonraki)
+   * @param smooth - Animasyonlu geçiş (default: true)
+   */
+  const scrollBy = useCallback((amount: number, smooth = true) => {
+    if (!wrapperRef.current || !containerRef.current) return;
+    
+    // Auto-scroll'u durdur
+    isRunning.current = false;
+    isPaused.current = true;
+    velocity.current = 0;
+    
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    
+    const maxScroll = getMaxScroll();
+    
+    // Yeni pozisyonu hesapla
+    let newX = translateX.current + amount;
+    
+    // Sınırları kontrol et
+    if (newX > 0) newX = 0;
+    if (Math.abs(newX) > maxScroll) newX = -maxScroll;
+    
+    // Internal state'i güncelle
+    translateX.current = newX;
+    
+    // Animasyonlu veya direkt uygula
+    if (smooth && wrapperRef.current) {
+      wrapperRef.current.style.transition = "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      applyTransform(newX);
+      
+      // Animasyon sonrası transition'ı kaldır
+      setTimeout(() => {
+        if (wrapperRef.current) {
+          wrapperRef.current.style.transition = "";
+        }
+      }, 350);
+    } else {
+      applyTransform(newX);
+    }
+  }, [getMaxScroll, applyTransform]);
+  
+  /**
+   * Auto-scroll'u durdurur
+   */
+  const pauseAutoScroll = useCallback(() => {
+    isRunning.current = false;
+    isPaused.current = true;
+    
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
+  
+  /**
+   * Auto-scroll'u yeniden başlatır (belirli süre sonra)
+   * @param delay - Başlatma gecikmesi ms (default: pauseDuration)
+   */
+  const resumeAutoScroll = useCallback((delay?: number) => {
+    const resumeDelay = delay ?? pauseDurationRef.current;
+    
+    // Clear previous timeout to prevent stacking
+    if (resumeTimeoutRef.current) {
+      clearTimeout(resumeTimeoutRef.current);
+      resumeTimeoutRef.current = null;
+    }
+    
+    resumeTimeoutRef.current = setTimeout(() => {
+      resumeTimeoutRef.current = null;
+      if (!isDragging.current && autoScrollRef.current) {
+        isPaused.current = false;
+        startAutoScroll();
+      }
+    }, resumeDelay);
+  }, [startAutoScroll]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // RETURN
   // ═══════════════════════════════════════════════════════════════════════════
   return {
@@ -468,5 +581,9 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     },
     // Empty handlers - all handled via native listeners
     handlers: {},
+    // Navigation methods for CarouselNavButtons
+    scrollBy,
+    pauseAutoScroll,
+    resumeAutoScroll,
   };
 }

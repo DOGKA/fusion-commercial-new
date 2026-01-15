@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { mapApiProductsToCards } from "@/lib/mappers";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,7 +13,16 @@ export default function FeaturedProducts() {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
   
   // Use CSS Transform carousel hook for ultra-smooth scrolling
-  const { containerRef, wrapperRef, containerStyle, wrapperStyle, handlers } = useTransformCarousel({
+  const { 
+    containerRef, 
+    wrapperRef, 
+    containerStyle, 
+    wrapperStyle, 
+    handlers,
+    scrollBy,
+    pauseAutoScroll,
+    resumeAutoScroll,
+  } = useTransformCarousel({
     autoScroll: !loading && products.length > 0,
     autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
@@ -62,38 +72,6 @@ export default function FeaturedProducts() {
     fetchFeaturedProducts();
   }, [freeShippingThreshold]);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!wrapperRef.current || !containerRef.current) return;
-    
-    const scrollAmount = 260;
-    const containerWidth = containerRef.current.clientWidth;
-    const contentWidth = wrapperRef.current.scrollWidth;
-    const maxScroll = Math.max(0, contentWidth - containerWidth);
-    
-    // Parse current translateX
-    const currentTransform = wrapperRef.current.style.transform;
-    const match = currentTransform.match(/translateX\((-?\d+\.?\d*)px\)/);
-    let currentX = match ? parseFloat(match[1]) : 0;
-    
-    // Calculate new position
-    if (direction === "left") {
-      currentX = Math.min(0, currentX + scrollAmount);
-    } else {
-      currentX = Math.max(-maxScroll, currentX - scrollAmount);
-    }
-    
-    // Apply smooth transition
-    wrapperRef.current.style.transition = "transform 0.3s ease-out";
-    wrapperRef.current.style.transform = `translateX(${currentX}px)`;
-    
-    // Remove transition after animation
-    setTimeout(() => {
-      if (wrapperRef.current) {
-        wrapperRef.current.style.transition = "";
-      }
-    }, 300);
-  };
-
   // Show nothing if no featured products
   if (!loading && products.length === 0) {
     return null;
@@ -116,22 +94,14 @@ export default function FeaturedProducts() {
             </h2>
           </div>
           
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => scroll("left")}
-              className="w-10 h-10 rounded-full bg-foreground/[0.03] border border-border flex items-center justify-center text-foreground/40 transition-all duration-200 [&:hover]:text-foreground [&:hover]:bg-foreground/10 [&:hover]:border-foreground/20"
-              aria-label="Önceki"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-10 h-10 rounded-full bg-foreground/[0.03] border border-border flex items-center justify-center text-foreground/40 transition-all duration-200 [&:hover]:text-foreground [&:hover]:bg-foreground/10 [&:hover]:border-foreground/20"
-              aria-label="Sonraki"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          {/* Navigation Buttons - Only visible on desktop */}
+          <CarouselNavButtons
+            scrollBy={scrollBy}
+            pauseAutoScroll={pauseAutoScroll}
+            resumeAutoScroll={resumeAutoScroll}
+            scrollAmount={300}
+            theme="neutral"
+          />
         </div>
 
         {/* Loading State */}

@@ -169,13 +169,13 @@ const CHARGE_MODE_MAP: Record<string, Record<ChargeSpeedPreference, { panel: str
   'P1800': {
     'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W
     'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W
-    'fast': { panel: 'SP400', count: 1, connection: 'single' }       // 400W, Voc=52.8V ✓
+    'fast': { panel: 'SP200', count: 1, connection: 'single' }       // 200W
   },
   // Singo2000Pro: Max 500W solar, MPPT 10-50V
   'Singo': {
     'economic': { panel: 'SP100', count: 1, connection: 'single' },  // 100W
     'balanced': { panel: 'SP200', count: 1, connection: 'single' },  // 200W
-    'fast': { panel: 'SP400', count: 1, connection: 'single' }       // 400W, Voc=52.8V → 50V limitine çok yakın!
+    'fast': { panel: 'SP200', count: 1, connection: 'single' }       // 200W
   },
   // P3200: Max 1000W solar, MPPT 12-80V
   'P3200': {
@@ -185,7 +185,7 @@ const CHARGE_MODE_MAP: Record<string, Record<ChargeSpeedPreference, { panel: str
   },
   // SH4000: HV MPPT 70-450V (3000W), LV MPPT 12-50V (600W)
   'SH4000': {
-    'economic': { panel: 'SP200', count: 2, connection: 'parallel' }, // 400W, LV input ✓
+    'economic': { panel: 'SP200', count: 1, connection: 'single' },   // 200W
     'balanced': { panel: 'SP400', count: 2, connection: 'series' },   // 800W, Voc=105.6V → HV ✓
     'fast': { panel: 'SP400', count: 4, connection: 'series' }        // 1600W, Voc=211.2V → HV ✓
   }

@@ -880,7 +880,7 @@ export default function PowerCalculator() {
                     {/* ÜST: Görsel 1:1, kartın üst kenarına yapışık, padding yok */}
                     <div className="relative aspect-square bg-neutral-900">
                       <Image
-                        src={result.powerStation.station.image || `/images/products/${result.powerStation.station.slug}.webp`}
+                        src={dbProducts[result.powerStation.station.id]?.image || result.powerStation.station.image || `/images/products/${result.powerStation.station.slug}.webp`}
                         alt={result.powerStation.station.name}
                         fill
                         sizes="50vw"
@@ -978,7 +978,7 @@ export default function PowerCalculator() {
                     {/* ÜST: Görsel 1:1 */}
                     <div className="relative aspect-square bg-gradient-to-br from-amber-900/50 to-orange-900/50">
                       <Image
-                        src={result.solarPanel.panel?.image || `/images/products/${result.solarPanel.panel?.slug || 'placeholder'}.webp`}
+                        src={(result.solarPanel.panel?.id && dbProducts[result.solarPanel.panel.id]?.image) || result.solarPanel.panel?.image || `/images/products/${result.solarPanel.panel?.slug || 'placeholder'}.webp`}
                         alt={result.solarPanel.panel?.name || 'Solar Panel'}
                         fill
                         sizes="50vw"

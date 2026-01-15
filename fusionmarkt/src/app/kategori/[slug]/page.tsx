@@ -18,12 +18,13 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
-import BundleProductCard from "@/components/ui/BundleProductCard";
+import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
 import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getFiltersByCategory } from "@/lib/filters/category-filters";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
 // ============================================
 // INTERFACES
@@ -298,7 +299,16 @@ export default function CategoryPage() {
   
   // Use CSS Transform carousel hook for mobile - ultra-smooth GPU scrolling
   // CRITICAL: autoScroll must change when products load to trigger effect re-run
-  const { containerRef: mobileContainerRef, wrapperRef: mobileWrapperRef, containerStyle: mobileContainerStyle, wrapperStyle: mobileWrapperStyle, handlers: mobileScrollHandlers } = useTransformCarousel({
+  const { 
+    containerRef: mobileContainerRef, 
+    wrapperRef: mobileWrapperRef, 
+    containerStyle: mobileContainerStyle, 
+    wrapperStyle: mobileWrapperStyle, 
+    handlers: mobileScrollHandlers,
+    scrollBy,
+    pauseAutoScroll,
+    resumeAutoScroll,
+  } = useTransformCarousel({
     autoScroll: products.length > 0, // Trigger effect when products load
     autoScrollSpeed: 40, // px/sn - yavaş & akıcı
     pauseOnHover: true,
@@ -944,7 +954,7 @@ export default function CategoryPage() {
                             badges: product.badges || [],
                             freeShipping: Number(product.price) >= freeShippingThreshold,
                             videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
-                          }}
+                          } as BundleProduct}
                           priority={idx < 4}
                         />
                       ) : (
@@ -979,7 +989,7 @@ export default function CategoryPage() {
                         badges: product.badges || [],
                         freeShipping: Number(product.price) >= freeShippingThreshold,
                         videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
-                      }}
+                      } as BundleProduct}
                       priority={idx < 4}
                     />
                   ) : (

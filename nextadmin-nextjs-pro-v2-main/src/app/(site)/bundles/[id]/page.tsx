@@ -75,6 +75,21 @@ interface BundleData {
   }[];
 }
 
+const generateSlug = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
 export default function EditBundlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -344,8 +359,13 @@ export default function EditBundlePage({ params }: { params: Promise<{ id: strin
 
   // Kaydet
   const handleSave = async () => {
+    const normalizedSlug = slug.trim() || generateSlug(name);
     if (!name) {
       toast.error("Paket adı zorunludur");
+      return;
+    }
+    if (!normalizedSlug) {
+      toast.error("URL slug zorunludur");
       return;
     }
     if (selectedCategories.length === 0) {
@@ -368,7 +388,7 @@ export default function EditBundlePage({ params }: { params: Promise<{ id: strin
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          slug,
+          slug: normalizedSlug,
           description,
           shortDescription,
           pricingType,
