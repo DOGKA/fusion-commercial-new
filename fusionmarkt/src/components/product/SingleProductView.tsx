@@ -713,9 +713,23 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
           <div className="product-main-image-column" style={{ width: '600px', height: '600px' }}>
             <div 
               onClick={() => {
-                // Ana görsele tıklayınca bir sonraki görsele geç
-                if (selectedImage !== -1 && !variantImage && galleryImages.length > 1) {
-                  setSelectedImage((selectedImage + 1) % galleryImages.length);
+                // Ana görsele tıklayınca bir sonraki medyaya geç (video dahil)
+                if (!variantImage) {
+                  const hasVideo = !!product.videoUrl;
+                  const totalMedia = galleryImages.length + (hasVideo ? 1 : 0);
+                  
+                  if (totalMedia > 1) {
+                    if (selectedImage === -1) {
+                      // Video'dan ilk görsele geç
+                      setSelectedImage(0);
+                    } else if (hasVideo && selectedImage === galleryImages.length - 1) {
+                      // Son görselden video'ya geç
+                      setSelectedImage(-1);
+                    } else {
+                      // Sonraki görsele geç
+                      setSelectedImage((selectedImage + 1) % galleryImages.length);
+                    }
+                  }
                 }
               }}
               style={{
@@ -728,7 +742,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               borderRadius: '24px',
               overflow: 'hidden',
               border: '1px solid var(--border)',
-              cursor: selectedImage !== -1 && !variantImage && galleryImages.length > 1 ? 'pointer' : 'default',
+              cursor: !variantImage && (galleryImages.length + (product.videoUrl ? 1 : 0)) > 1 ? 'pointer' : 'default',
             }}>
               {/* Video mode */}
               {selectedImage === -1 && product.videoUrl ? (
@@ -1191,29 +1205,40 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
                       {/* Add to Cart Button */}
                       <div className="product-add-to-cart-wrapper" style={{ flex: 1 }}>
-                        <AddToCartButton
-                          product={{
-                            productId: productData?.id || product.id || '',
-                            slug: productData?.slug || slug || '',
-                            title: productData?.name || product.name || '',
-                            // Brand boşsa "FusionMarkt" gibi mock fallback basma
-                            brand: productData?.brand || product.brand || '',
-                            price: displayPrice,
-                            originalPrice: displayComparePrice,
-                            image: productData?.thumbnail || productData?.images?.[0] || product.images?.[0] || '',
-                            quantity: quantity,
-                            variant: selectedVariant ? {
-                              id: selectedVariant.id,
-                              name: selectedVariant.name || '',
-                              type: selectedVariant.type || 'size',
-                              value: selectedVariant.value || '',
-                            } : undefined,
-                          }}
-                          variant="text"
-                          size="lg"
-                          className="product-add-to-cart-btn w-full h-12"
-                          requiresVariant={product.variants && product.variants.length > 0}
-                        />
+                        {(() => {
+                          // Stok durumu hesaplama
+                          const hasVariants = product.variants && product.variants.length > 0;
+                          const isOutOfStock = hasVariants 
+                            ? (selectedVariant ? selectedVariant.stock <= 0 : false)
+                            : (product.stock ?? 0) <= 0;
+                          
+                          return (
+                            <AddToCartButton
+                              product={{
+                                productId: productData?.id || product.id || '',
+                                slug: productData?.slug || slug || '',
+                                title: productData?.name || product.name || '',
+                                // Brand boşsa "FusionMarkt" gibi mock fallback basma
+                                brand: productData?.brand || product.brand || '',
+                                price: displayPrice,
+                                originalPrice: displayComparePrice,
+                                image: productData?.thumbnail || productData?.images?.[0] || product.images?.[0] || '',
+                                quantity: quantity,
+                                variant: selectedVariant ? {
+                                  id: selectedVariant.id,
+                                  name: selectedVariant.name || '',
+                                  type: selectedVariant.type || 'size',
+                                  value: selectedVariant.value || '',
+                                } : undefined,
+                              }}
+                              variant="text"
+                              size="lg"
+                              className="product-add-to-cart-btn w-full h-12"
+                              disabled={isOutOfStock}
+                              requiresVariant={hasVariants}
+                            />
+                          );
+                        })()}
                       </div>
 
                       {/* Favorite Button */}
