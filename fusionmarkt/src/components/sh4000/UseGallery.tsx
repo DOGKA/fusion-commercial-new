@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { gsap } from './hooks/useGSAP';
+import gsap from 'gsap';
 
 const galleryImages = [
   '/sh4000/sh4000-camp-scene.png',

@@ -44,7 +44,7 @@ export default function BestsellerProducts() {
         } else {
           setFreeShippingThreshold(2000); // Fallback
         }
-      } catch (error) {
+      } catch {
         setFreeShippingThreshold(2000); // Fallback
       }
     };

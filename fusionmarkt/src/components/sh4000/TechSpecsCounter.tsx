@@ -1,7 +1,12 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { gsap, ScrollTrigger } from './hooks/useGSAP';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // Detaylı teknik özellikler - Hero'da olmayan bilgiler
 const specCategories = [

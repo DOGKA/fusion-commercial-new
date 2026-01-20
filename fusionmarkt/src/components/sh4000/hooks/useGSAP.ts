@@ -43,7 +43,6 @@ export function useGSAP(
     return () => {
       ctx.revert(); // Cleanup all GSAP animations
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   return contextRef;

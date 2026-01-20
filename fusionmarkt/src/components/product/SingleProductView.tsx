@@ -130,13 +130,13 @@ interface Review {
   isVerifiedPurchase: boolean;
 }
 
-// Backend'ten gelecek key features tipi
-interface KeyFeature {
-  id: string;
-  label: string;
-  color: string;
-  iconSvg?: string; // Backend'ten SVG string olarak gelecek
-}
+// Backend'ten gelecek key features tipi (şimdilik kullanılmıyor)
+// interface KeyFeature {
+//   id: string;
+//   label: string;
+//   color: string;
+//   iconSvg?: string; // Backend'ten SVG string olarak gelecek
+// }
 
 interface SingleProductViewProps {
   slug?: string;

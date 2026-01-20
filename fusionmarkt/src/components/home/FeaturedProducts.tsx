@@ -44,7 +44,7 @@ export default function FeaturedProducts() {
         } else {
           setFreeShippingThreshold(2000);
         }
-      } catch (error) {
+      } catch {
         setFreeShippingThreshold(2000);
       }
     };

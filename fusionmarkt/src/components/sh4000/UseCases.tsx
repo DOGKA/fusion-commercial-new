@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { gsap } from './hooks/useGSAP';
+import gsap from 'gsap';
 
 interface UseCase {
   id: string;
