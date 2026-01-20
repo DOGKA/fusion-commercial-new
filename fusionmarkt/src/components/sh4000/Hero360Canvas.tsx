@@ -372,7 +372,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       </div>
 
       {/* Bottom content */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center z-20 pt-3 md:pt-0">
+      <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 text-center z-20 pt-6 md:pt-0">
         <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-2 tracking-tight">SH4000</h1>
         <p className="text-foreground-secondary mb-8">All-in-one Hibrit Enerji Depolama</p>
         <div className="w-6 h-10 mx-auto rounded-full border border-foreground-muted/30 flex items-start justify-center p-2">
