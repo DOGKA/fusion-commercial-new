@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import gsap from 'gsap';
 
 const galleryImages = [
@@ -84,12 +85,14 @@ export default function UseGallery() {
           {[...galleryImages, ...galleryImages].map((src, index) => (
             <div
               key={`${src}-${index}`}
-              className="shrink-0 w-[160px] sm:w-[200px] aspect-[9/16] rounded-[24px] overflow-hidden bg-background-secondary/50 shadow-lg"
+              className="relative shrink-0 w-[160px] sm:w-[200px] aspect-[9/16] rounded-[24px] overflow-hidden bg-background-secondary/50 shadow-lg"
             >
-              <img
+              <Image
                 src={src}
                 alt={galleryAlts[index % galleryAlts.length]}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(min-width: 640px) 200px, 160px"
+                className="object-cover"
               />
             </div>
           ))}
@@ -100,12 +103,14 @@ export default function UseGallery() {
           {galleryImages.map((src, index) => (
             <div
               key={src}
-              className="shrink-0 w-[230px] lg:w-[260px] aspect-[9/16] rounded-[24px] overflow-hidden bg-background-secondary/50 shadow-lg"
+              className="relative shrink-0 w-[230px] lg:w-[260px] aspect-[9/16] rounded-[24px] overflow-hidden bg-background-secondary/50 shadow-lg"
             >
-              <img
+              <Image
                 src={src}
                 alt={galleryAlts[index]}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 260px, 230px"
+                className="object-cover"
               />
             </div>
           ))}

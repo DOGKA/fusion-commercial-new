@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
+import NextImage from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -348,13 +349,14 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       ))}
 
       {/* Canvas */}
-      <div ref={canvasContainerRef} className="absolute inset-0 flex items-center justify-center z-10">
-        <img
+      <div ref={canvasContainerRef} className="absolute inset-0 flex items-center justify-center z-10 relative">
+        <NextImage
           src={posterSrc}
           alt="IEETek SH4000"
+          priority
           fetchPriority="high"
-          loading="eager"
-          decoding="async"
+          sizes="100vw"
+          fill
           className={`absolute inset-0 w-full h-full object-contain pointer-events-none transition-opacity duration-300 ${
             imagesLoaded ? 'opacity-0' : 'opacity-100'
           }`}

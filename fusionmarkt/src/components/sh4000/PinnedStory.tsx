@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -128,11 +129,13 @@ export default function PinnedStory() {
             
             {/* SOL - Görsel */}
             <div className="flex-shrink-0" style={{ width: '40%' }}>
-              <div className="aspect-square w-full max-w-[450px] bg-background-secondary rounded-2xl flex items-center justify-center border border-border/30 transition-all duration-500">
-                <img
+              <div className="aspect-square w-full max-w-[450px] bg-background-secondary rounded-2xl flex items-center justify-center border border-border/30 transition-all duration-500 relative p-8">
+                <Image
                   src={currentScene.imageSrc}
                   alt={currentScene.imageLabel}
-                  className="w-full h-full object-contain p-8"
+                  fill
+                  sizes="(min-width: 1024px) 450px, (min-width: 768px) 40vw, 80vw"
+                  className="object-contain"
                 />
               </div>
               <p className="mt-3 text-center text-sm font-medium text-foreground-muted">
@@ -198,11 +201,13 @@ export default function PinnedStory() {
         <div className="px-5">
           {/* Görsel */}
           <div className="flex items-center justify-center mb-6">
-            <div className="relative w-full h-80 bg-background-secondary rounded-2xl flex items-center justify-center border border-border/30">
-              <img
+            <div className="relative w-full h-80 bg-background-secondary rounded-2xl flex items-center justify-center border border-border/30 p-6">
+              <Image
                 src={currentScene.imageSrc}
                 alt={currentScene.imageLabel}
-                className="w-full h-full object-contain p-6"
+                fill
+                sizes="100vw"
+                className="object-contain"
               />
               <span className="absolute top-3 left-3 inline-block px-3 py-1.5 text-[10px] font-semibold tracking-wider text-emerald-400 border border-emerald-400/40 bg-emerald-400/10 rounded-[16px]">
                 {currentScene.badge}
