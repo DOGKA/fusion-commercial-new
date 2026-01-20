@@ -111,7 +111,7 @@ export default function ProductDetailsDiagram() {
               <p className="text-[9px] text-secondary font-medium bg-background/80 px-1 rounded">Gösterge Işıkları</p>
             </div>
             <div className="absolute right-0 top-[92%] -translate-y-full -mt-1 text-right">
-              <p className="text-[9px] text-secondary font-medium bg-background/80 px-1 rounded">4'lü Teker Grubu</p>
+              <p className="text-[9px] text-secondary font-medium bg-background/80 px-1 rounded">4&apos;lü Teker Grubu</p>
             </div>
 
             {/* Çizgiler */}
@@ -284,7 +284,7 @@ export default function ProductDetailsDiagram() {
                 <p className="text-[10px] text-secondary font-medium">Gösterge Işıkları</p>
               </div>
               <div className="absolute left-full top-[88%] pl-4 text-left whitespace-nowrap">
-                <p className="text-[10px] text-secondary font-medium">4'lü Teker Grubu</p>
+                <p className="text-[10px] text-secondary font-medium">4&apos;lü Teker Grubu</p>
               </div>
 
               {/* Çizgiler */}

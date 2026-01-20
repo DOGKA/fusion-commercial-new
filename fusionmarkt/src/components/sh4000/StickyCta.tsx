@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
 
@@ -46,7 +45,6 @@ export default function StickyCta() {
     };
   }, []);
 
-  const productUrl = `/urun/${PRODUCT_SLUG}`;
   const image = product?.thumbnail || product?.images?.[0] || "";
   const pricing = useMemo(() => {
     const price = product?.price ?? 0;

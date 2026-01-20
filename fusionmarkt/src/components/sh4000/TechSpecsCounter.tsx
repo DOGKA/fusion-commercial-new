@@ -98,7 +98,7 @@ export default function TechSpecsCounter() {
             Detaylı <span className="text-primary">Spesifikasyonlar</span>
           </h2>
           <p className="text-foreground-secondary mt-3 sm:mt-4 max-w-2xl mx-auto text-sm sm:text-base">
-            IEETek SH4000'in tüm teknik detayları
+            IEETek SH4000&apos;in tüm teknik detayları
           </p>
         </div>
 
