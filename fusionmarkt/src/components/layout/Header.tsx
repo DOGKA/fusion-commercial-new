@@ -10,7 +10,6 @@ import {
   X,
   ChevronDown,
   Zap,
-  BookOpen,
   Calculator,
   Store
 } from "lucide-react";
@@ -58,15 +57,15 @@ const navigation: NavItem[] = [
       { name: "Teleskopik Merdivenler", href: "/kategori/teleskopik-merdivenler" },
     ]
   },
+  {
+    name: "SH4000",
+    href: "/sh4000",
+    icon: <Zap className="w-4 h-4" />,
+  },
   { 
     name: "Güç Hesaplayıcı", 
     href: "/guc-hesaplayici",
     icon: <Calculator className="w-4 h-4" />
-  },
-  { 
-    name: "Blog", 
-    href: "/blog",
-    icon: <BookOpen className="w-4 h-4" />
   },
 ];
 
