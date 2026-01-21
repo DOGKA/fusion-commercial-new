@@ -57,22 +57,33 @@ export default function StickyCta() {
     <div className="fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-1rem)] max-w-[600px] -translate-x-1/2">
       <div className="flex items-center gap-3 md:gap-5 border border-[var(--glass-border)] bg-[var(--surface)] px-4 py-3 md:px-6 md:py-4 shadow-xl backdrop-blur-xl" style={{ borderRadius: 20 }}>
         {/* Sol: Fiyat Bilgisi */}
-        <div className="flex flex-col gap-0.5 min-w-0 shrink-0">
+        <div className="flex flex-col gap-0.5 min-w-0 shrink-0 min-h-[40px] md:min-h-[52px]">
           <div className="flex items-baseline gap-2">
-            {pricing.compare ? (
-              <span className="text-[10px] md:text-sm line-through text-[var(--foreground-muted)]">
-                {formatPrice(pricing.compare)} TL
-              </span>
-            ) : null}
-            <span className="text-base md:text-2xl font-bold text-[var(--foreground)] whitespace-nowrap">
-              {formatPrice(pricing.price)} TL
-            </span>
+            {isLoading ? (
+              <>
+                <span className="h-[12px] md:h-[16px] w-[70px] md:w-[90px] rounded bg-foreground/10" />
+                <span className="h-[18px] md:h-[26px] w-[90px] md:w-[130px] rounded bg-foreground/10" />
+              </>
+            ) : (
+              <>
+                {pricing.compare ? (
+                  <span className="text-[10px] md:text-sm line-through text-[var(--foreground-muted)]">
+                    {formatPrice(pricing.compare)} TL
+                  </span>
+                ) : null}
+                <span className="text-base md:text-2xl font-bold text-[var(--foreground)] whitespace-nowrap">
+                  {formatPrice(pricing.price)} TL
+                </span>
+              </>
+            )}
           </div>
-          {pricing.savings > 0 && (
+          {isLoading ? (
+            <span className="h-[14px] md:h-[18px] w-[120px] md:w-[150px] rounded bg-foreground/10" />
+          ) : pricing.savings > 0 ? (
             <span className="inline-flex items-center self-start px-2 py-0.5 text-[9px] md:text-xs font-semibold text-emerald-500 bg-emerald-500/20" style={{ borderRadius: 8 }}>
               Kazanç: {formatPrice(pricing.savings)} TL
             </span>
-          )}
+          ) : null}
         </div>
 
         {/* Sağ: Butonlar */}

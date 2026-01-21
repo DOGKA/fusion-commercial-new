@@ -402,6 +402,11 @@ export default function Header() {
                         YENİ
                       </span>
                     )}
+                    {item.name === "SH4000" && (
+                      <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-500 rounded">
+                        Enerji Çözümü
+                      </span>
+                    )}
                   </Link>
                 )
               ))}

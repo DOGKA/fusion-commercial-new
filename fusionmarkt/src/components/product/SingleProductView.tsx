@@ -720,8 +720,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   
                   if (totalMedia > 1) {
                     if (selectedImage === -1) {
-                      // Video'dan ilk görsele geç
-                      setSelectedImage(0);
+                      return;
                     } else if (hasVideo && selectedImage === galleryImages.length - 1) {
                       // Son görselden video'ya geç
                       setSelectedImage(-1);
@@ -750,6 +749,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   src={product.videoUrl}
                   controls
                   autoPlay
+                  onClick={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
                   style={{ 
                     width: '100%', 
                     height: '100%', 

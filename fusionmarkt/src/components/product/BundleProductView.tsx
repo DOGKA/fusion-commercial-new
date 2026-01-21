@@ -858,9 +858,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                   
                   if (totalMedia > 1) {
                     if (selectedImage === -1) {
-                      // Video'dan ilk görsele geç
-                      setSelectedImage(0);
-                    } else if (hasVideo && selectedImage === galleryImages.length - 1) {
+                      return;
+                    }
+                    if (hasVideo && selectedImage === galleryImages.length - 1) {
                       // Son görselden video'ya geç
                       setSelectedImage(-1);
                     } else {
@@ -888,6 +888,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
                   src={product.videoUrl}
                   controls
                   autoPlay
+                  onClick={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
                   style={{ 
                     width: '100%', 
                     height: '100%', 

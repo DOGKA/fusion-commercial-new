@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import NextImage from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -33,6 +33,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
 
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
   const posterSrc = frames[0] || '/sh4000/frame_01.webp';
 
   const imagesRef = useRef<HTMLImageElement[]>([]);
@@ -47,6 +48,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
   const mobileXSettersRef = useRef<QuickSetter[]>([]);
   const mobileOpacitySettersRef = useRef<QuickSetter[]>([]);
   const desktopXSettersRef = useRef<QuickSetter[]>([]);
+  const desktopOpacitySettersRef = useRef<QuickSetter[]>([]);
 
   // Frame çiz
   const drawFrame = useCallback((frameIndex: number) => {
@@ -170,16 +172,61 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
         setMobileOpacity(opacity);
       }
 
+      // Desktop animasyonu - 2 scroll adımı / feature
       const setDesktopX = desktopXSettersRef.current[index];
-      if (setDesktopX) {
-        const desktopTranslate = (() => {
-          if (progress < featureStart) return 120;
-          if (progress >= featureStart && progress < featureEnd) {
-            return 120 - relativeProgress * 240;
+      const setDesktopOpacity = desktopOpacitySettersRef.current[index];
+      if (setDesktopX && setDesktopOpacity) {
+        const RIGHT_POS = 4;   // vw - ürünün sağı (daha yakın)
+        const LEFT_POS = -56;  // vw - ürünün solu (daha sola)
+        const ENTRY_POS = 29;  // vw - sağdan belirme noktası
+        const EXIT_POS = -86;  // vw - soldan çıkış noktası (daha sola)
+
+        const numFeatures = features.length;
+        const totalSteps = numFeatures * 2;
+        const safeStep = Math.min(progress * totalSteps, totalSteps - 0.0001);
+        const stepIndex = Math.floor(safeStep);
+        const stepProgress = safeStep - stepIndex;
+
+        let desktopTranslate = EXIT_POS;
+        let desktopOpacity = 0;
+
+        if (stepIndex === 0) {
+          if (index === 0) {
+            desktopTranslate = RIGHT_POS;
+            desktopOpacity = 1;
           }
-          return -120;
-        })();
+        } else if (stepIndex % 2 === 1) {
+          const currentIndex = (stepIndex - 1) / 2;
+          const nextIndex = currentIndex + 1;
+          const prevIndex = currentIndex - 1;
+
+          if (index === currentIndex) {
+            desktopTranslate =
+              RIGHT_POS - stepProgress * (RIGHT_POS - LEFT_POS);
+            desktopOpacity = 1;
+          } else if (index === nextIndex) {
+            desktopTranslate = ENTRY_POS;
+            desktopOpacity = 1;
+          } else if (index === prevIndex) {
+            desktopTranslate = LEFT_POS - stepProgress * (LEFT_POS - EXIT_POS);
+            desktopOpacity = 1 - stepProgress;
+          }
+        } else {
+          const leftIndex = stepIndex / 2 - 1;
+          const rightIndex = leftIndex + 1;
+
+          if (index === leftIndex) {
+            desktopTranslate = LEFT_POS;
+            desktopOpacity = 1;
+          } else if (index === rightIndex) {
+            desktopTranslate =
+              ENTRY_POS - stepProgress * (ENTRY_POS - RIGHT_POS);
+            desktopOpacity = 1;
+          }
+        }
+
         setDesktopX(`${desktopTranslate}vw`);
+        setDesktopOpacity(desktopOpacity);
       }
     });
   }, []);
@@ -227,22 +274,29 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
     if (!sectionRef.current || !imagesLoaded) return;
 
     let ctx: gsap.Context | null = null;
-    let idleId: number | null = null;
-    let timeoutId: number | null = null;
+    let rafId: number | null = null;
 
     const startAnimation = () => {
       if (!sectionRef.current) return;
       ctx = gsap.context(() => {
-        ScrollTrigger.create({
+        const trigger = ScrollTrigger.create({
           id: 'hero-pin',
           trigger: sectionRef.current,
           start: 'top top',
           end: `+=120%`,
           pin: true,
           pinSpacing: true,
+          pinType: 'transform',
           scrub: 0.6,
           refreshPriority: 1,
           invalidateOnRefresh: true,
+          onRefreshInit: () => {
+            frameBoundsRef.current = null;
+          },
+          onRefresh: () => {
+            frameBoundsRef.current = null;
+            drawFrame(currentFrameRef.current);
+          },
           onUpdate: (self) => {
             scheduleUpdate(self.progress);
           },
@@ -253,28 +307,25 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
             resetToStart();
           },
         });
+
+        trigger.refresh();
+        window.requestAnimationFrame(() => {
+          frameBoundsRef.current = null;
+          drawFrame(currentFrameRef.current);
+          setCanvasReady(true);
+        });
       }, sectionRef);
     };
 
-    const win = window as Window & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-
-    if (win.requestIdleCallback) {
-      idleId = win.requestIdleCallback(startAnimation, { timeout: 1200 });
-    } else {
-      timeoutId = window.setTimeout(startAnimation, 300);
-    }
+    rafId = window.requestAnimationFrame(startAnimation);
 
     return () => {
-      if (idleId != null && win.cancelIdleCallback) win.cancelIdleCallback(idleId);
-      if (timeoutId != null) window.clearTimeout(timeoutId);
+      if (rafId != null) window.cancelAnimationFrame(rafId);
       ctx?.revert();
     };
   }, [imagesLoaded, scheduleUpdate, resetToStart]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!firstFrameLoaded) return;
 
     const noopSetter: QuickSetter = () => {};
@@ -290,7 +341,13 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
     desktopXSettersRef.current = desktopFeatureRefs.current.map((el) =>
       toSetter(el, 'x')
     );
+    desktopOpacitySettersRef.current = desktopFeatureRefs.current.map((el) =>
+      toSetter(el, 'opacity')
+    );
 
+    if (mobileFeatureRefs.current.length > 0) {
+      gsap.set(mobileFeatureRefs.current, { xPercent: 80, opacity: 0 });
+    }
     scheduleUpdate(0);
 
     return () => {
@@ -313,7 +370,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
           ref={(el) => {
             mobileFeatureRefs.current[index] = el;
           }}
-          className="absolute inset-0 md:hidden pointer-events-none z-20"
+          className="absolute inset-0 md:hidden pointer-events-none z-20 opacity-0"
         >
           <div className="absolute top-[24%] left-1/2 -translate-x-1/2 text-center">
             <p className="text-[20vw] font-black text-foreground leading-none tracking-tighter select-none whitespace-nowrap">
@@ -335,13 +392,15 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
           ref={(el) => {
             desktopFeatureRefs.current[index] = el;
           }}
-          className="absolute inset-0 hidden md:flex items-center justify-end pointer-events-none z-0"
+          className={`absolute inset-0 hidden md:flex items-center justify-end pointer-events-none z-0 ${
+            index === 0 ? 'translate-x-[4vw] opacity-100' : 'translate-x-[25vw] opacity-0'
+          }`}
         >
-          <div className="text-left mr-24 lg:mr-32">
-            <p className="text-[13vw] lg:text-[11vw] font-black text-foreground/[0.08] leading-none tracking-tighter select-none whitespace-nowrap">
+          <div className="text-left mr-16 lg:mr-24">
+            <p className="text-[9vw] lg:text-[7vw] font-black text-foreground/[0.08] leading-none tracking-tighter select-none whitespace-nowrap">
               {feature.text}
             </p>
-            <p className="text-xl lg:text-2xl font-semibold text-foreground/[0.15] tracking-[0.2em] uppercase">
+            <p className="text-lg lg:text-xl font-semibold text-foreground/[0.15] tracking-[0.2em] uppercase">
               {feature.subtext}
             </p>
           </div>
@@ -349,19 +408,25 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       ))}
 
       {/* Canvas */}
-      <div ref={canvasContainerRef} className="absolute inset-0 flex items-center justify-center z-10 relative">
-        <NextImage
-          src={posterSrc}
-          alt="IEETek SH4000"
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          fill
-          className={`absolute inset-0 w-full h-full object-contain pointer-events-none transition-opacity duration-300 ${
-            imagesLoaded ? 'opacity-0' : 'opacity-100'
+      <div ref={canvasContainerRef} className="absolute inset-0 flex items-center justify-center z-10">
+        {/* Poster - Mobile (canvas ölçeğine uygun boyut) */}
+        <div
+          className={`absolute md:hidden w-[52%] h-[50%] flex items-center justify-center translate-y-10 transition-opacity duration-300 ${
+            firstFrameLoaded ? "opacity-0" : "opacity-100"
           }`}
-        />
-        <canvas ref={canvasRef} className="w-full h-full" />
+        >
+          <NextImage
+            src={posterSrc}
+            alt="IEETek SH4000"
+            priority
+            fetchPriority="high"
+            fill
+            sizes="(max-width: 768px) 52vw"
+            className="object-contain pointer-events-none"
+          />
+        </div>
+        {/* Desktop poster kaldırıldı - canvas direkt gösteriliyor */}
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       </div>
 
       {/* Top badge */}
