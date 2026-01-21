@@ -278,6 +278,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
 
     const startAnimation = () => {
       if (!sectionRef.current) return;
+      const isMobile = window.innerWidth < 768;
       ctx = gsap.context(() => {
         const trigger = ScrollTrigger.create({
           id: 'hero-pin',
@@ -286,8 +287,8 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
           end: `+=120%`,
           pin: true,
           pinSpacing: true,
-          pinType: 'transform',
-          scrub: 0.6,
+          pinType: isMobile ? 'fixed' : 'transform',
+          scrub: isMobile ? 0.3 : 0.6,
           refreshPriority: 1,
           invalidateOnRefresh: true,
           onRefreshInit: () => {
