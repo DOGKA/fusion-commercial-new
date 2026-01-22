@@ -15,6 +15,7 @@ import {
   sendOrderStatusEmail, 
   sendPaymentConfirmedEmail 
 } from "@/lib/email";
+import { createCancel, createRefund, IYZICO_ENABLED } from "@/lib/iyzico";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -300,11 +301,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const body = await request.json();
 
-    // Check if order exists
+    // Check if order exists (iyzico alanları dahil)
     const existing = await prisma.order.findUnique({
       where: { id },
       include: { items: true },
-    });
+    }) as any; // Cast for iyzico fields access
 
     if (!existing) {
       return NextResponse.json(
@@ -315,6 +316,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const updateData: any = {};
     const now = new Date();
+    let iyzicoResult: any = null;
 
     // Handle status change
     if (body.status && body.status !== existing.status) {
@@ -368,6 +370,72 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             }
           }
           console.log(`✅ Stock restored for order ${existing.orderNumber}`);
+        }
+
+        // 🔄 iyzico İptal/İade İşlemi
+        if (IYZICO_ENABLED && existing.paymentStatus === "PAID" && existing.iyzicoPaymentId) {
+          const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0] || 
+                          request.headers.get("x-real-ip") || 
+                          "127.0.0.1";
+          
+          try {
+            if (body.status === "CANCELLED") {
+              // Aynı gün iptal - Cancel API kullan
+              console.log(`🚫 iyzico Cancel başlatılıyor: ${existing.orderNumber}`);
+              iyzicoResult = await createCancel({
+                conversationId: existing.iyzicoConversationId || existing.orderNumber,
+                paymentId: existing.iyzicoPaymentId,
+                ip: clientIp,
+              });
+              
+              if (iyzicoResult.status === "success") {
+                console.log(`✅ iyzico Cancel başarılı: ${existing.orderNumber}`);
+                updateData.paymentStatus = "REFUNDED";
+              } else {
+                console.error(`❌ iyzico Cancel başarısız: ${iyzicoResult.errorMessage}`);
+                // Cancel başarısız olursa Refund dene (ödeme eski tarihli olabilir)
+                if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
+                  console.log(`🔄 Cancel başarısız, Refund deneniyor...`);
+                  for (const tx of existing.iyzicoPaymentTransactions) {
+                    const refundResult = await createRefund({
+                      conversationId: existing.iyzicoConversationId || existing.orderNumber,
+                      paymentTransactionId: tx.paymentTransactionId,
+                      price: String(tx.paidPrice || tx.price),
+                      ip: clientIp,
+                    });
+                    if (refundResult.status === "success") {
+                      console.log(`✅ iyzico Refund başarılı: ${tx.paymentTransactionId}`);
+                      updateData.paymentStatus = "REFUNDED";
+                      iyzicoResult = refundResult;
+                    } else {
+                      console.error(`❌ iyzico Refund başarısız: ${refundResult.errorMessage}`);
+                    }
+                  }
+                }
+              }
+            } else if (body.status === "REFUNDED") {
+              // İade - Refund API kullan
+              if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
+                console.log(`💸 iyzico Refund başlatılıyor: ${existing.orderNumber}`);
+                for (const tx of existing.iyzicoPaymentTransactions) {
+                  iyzicoResult = await createRefund({
+                    conversationId: existing.iyzicoConversationId || existing.orderNumber,
+                    paymentTransactionId: tx.paymentTransactionId,
+                    price: String(tx.paidPrice || tx.price),
+                    ip: clientIp,
+                  });
+                  if (iyzicoResult.status === "success") {
+                    console.log(`✅ iyzico Refund başarılı: ${tx.paymentTransactionId}`);
+                  } else {
+                    console.error(`❌ iyzico Refund başarısız: ${iyzicoResult.errorMessage}`);
+                  }
+                }
+              }
+            }
+          } catch (iyzicoError) {
+            console.error(`❌ iyzico işlem hatası:`, iyzicoError);
+            // iyzico hatası olsa bile sipariş durumu güncellensin
+          }
         }
       }
     }
@@ -465,6 +533,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       order,
       statusLabel: STATUS_LABELS[order.status] || order.status,
       paymentStatusLabel: PAYMENT_STATUS_LABELS[order.paymentStatus] || order.paymentStatus,
+      iyzicoResult: iyzicoResult ? {
+        status: iyzicoResult.status,
+        errorMessage: iyzicoResult.errorMessage,
+      } : null,
     });
   } catch (error) {
     console.error("❌ [ORDERS API] Patch error:", error);
