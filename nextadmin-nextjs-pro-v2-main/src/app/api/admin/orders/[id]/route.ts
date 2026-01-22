@@ -54,6 +54,26 @@ function normalizeRefundPrice(rawPrice: unknown, orderTotal?: number): number | 
   return Math.round(value * 100) / 100;
 }
 
+function normalizeOrderTotal(rawTotal: unknown): number | null {
+  if (rawTotal === null || rawTotal === undefined) {
+    return null;
+  }
+  if (typeof rawTotal === "number") {
+    return Number.isFinite(rawTotal) ? rawTotal : null;
+  }
+  if (typeof rawTotal === "string") {
+    const normalized = rawTotal.replace(",", ".").trim();
+    const value = Number(normalized);
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof rawTotal === "object" && "toString" in rawTotal) {
+    const normalized = String(rawTotal).replace(",", ".").trim();
+    const value = Number(normalized);
+    return Number.isFinite(value) ? value : null;
+  }
+  return null;
+}
+
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
@@ -287,7 +307,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             request.headers.get("x-forwarded-for") ||
               request.headers.get("x-real-ip"),
           );
-          const orderTotal = Number(existing.total);
+          const orderTotal = normalizeOrderTotal(existing.total);
           
           try {
             if (status === "CANCELLED") {
@@ -307,11 +327,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                   console.log(`🔄 Cancel başarısız, Refund deneniyor (PUT)...`);
                   for (const tx of existing.iyzicoPaymentTransactions as any[]) {
-                    const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                    const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal ?? undefined);
                     if (!refundPrice) {
                       console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
                       continue;
                     }
+                    console.log(`💸 iyzico Refund fiyatı (PUT):`, refundPrice);
                     const refundResult = await createRefund({
                       conversationId: existing.iyzicoConversationId || existing.orderNumber,
                       paymentTransactionId: tx.paymentTransactionId,
@@ -329,11 +350,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
               if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                 console.log(`💸 iyzico Refund başlatılıyor (PUT): ${existing.orderNumber}`);
                 for (const tx of existing.iyzicoPaymentTransactions as any[]) {
-                  const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                  const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal ?? undefined);
                   if (!refundPrice) {
                     console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
                     continue;
                   }
+                  console.log(`💸 iyzico Refund fiyatı (PUT):`, refundPrice);
                   const refundResult = await createRefund({
                     conversationId: existing.iyzicoConversationId || existing.orderNumber,
                     paymentTransactionId: tx.paymentTransactionId,
@@ -493,7 +515,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             request.headers.get("x-forwarded-for") ||
               request.headers.get("x-real-ip"),
           );
-          const orderTotal = Number(existing.total);
+          const orderTotal = normalizeOrderTotal(existing.total);
           
           try {
             if (body.status === "CANCELLED") {
@@ -514,11 +536,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                   console.log(`🔄 Cancel başarısız, Refund deneniyor...`);
                   for (const tx of existing.iyzicoPaymentTransactions) {
-                    const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                    const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal ?? undefined);
                     if (!refundPrice) {
                       console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
                       continue;
                     }
+                    console.log(`💸 iyzico Refund fiyatı:`, refundPrice);
                     const refundResult = await createRefund({
                       conversationId: existing.iyzicoConversationId || existing.orderNumber,
                       paymentTransactionId: tx.paymentTransactionId,
@@ -540,11 +563,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
               if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                 console.log(`💸 iyzico Refund başlatılıyor: ${existing.orderNumber}`);
                 for (const tx of existing.iyzicoPaymentTransactions) {
-                  const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                  const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal ?? undefined);
                   if (!refundPrice) {
                     console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
                     continue;
                   }
+                  console.log(`💸 iyzico Refund fiyatı:`, refundPrice);
                   iyzicoResult = await createRefund({
                     conversationId: existing.iyzicoConversationId || existing.orderNumber,
                     paymentTransactionId: tx.paymentTransactionId,
