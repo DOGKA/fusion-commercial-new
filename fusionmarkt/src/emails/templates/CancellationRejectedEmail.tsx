@@ -1,13 +1,14 @@
 /**
  * Cancellation Rejected Email
  * Sent when admin rejects a cancellation request
+ * 100% table-based for Gmail compatibility
  */
 
 import { Layout } from "../components/Layout";
+import { theme } from "../styles/theme";
 import {
   Greeting,
   Paragraph,
-  InfoCard,
   StatusBadge,
   Button,
 } from "../components/shared";
@@ -34,26 +35,47 @@ export const CancellationRejectedEmail = ({
       </Paragraph>
 
       {reason && (
-        <div style={{ 
-          padding: "16px", 
-          backgroundColor: "#fef2f2", 
-          borderRadius: "8px", 
-          marginBottom: "24px",
-          borderLeft: "4px solid #ef4444"
-        }}>
-          <p style={{ 
-            margin: 0, 
-            fontSize: "12px", 
-            color: "#991b1b", 
-            marginBottom: "4px",
-            fontWeight: "600"
-          }}>
-            Ret Sebebi:
-          </p>
-          <p style={{ margin: 0, fontSize: "14px", color: "#7f1d1d" }}>
-            {reason}
-          </p>
-        </div>
+        <table
+          cellPadding="0"
+          cellSpacing="0"
+          border={0}
+          width="100%"
+          style={{
+            backgroundColor: "#fef2f2",
+            borderRadius: "8px",
+            borderLeft: "4px solid #ef4444",
+            marginBottom: "24px",
+          }}
+        >
+          <tbody>
+            <tr>
+              <td style={{ padding: "16px" }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "12px",
+                    color: "#991b1b",
+                    marginBottom: "4px",
+                    fontWeight: 600,
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Ret Sebebi:
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "14px",
+                    color: "#7f1d1d",
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  {reason}
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       )}
 
       <Paragraph>

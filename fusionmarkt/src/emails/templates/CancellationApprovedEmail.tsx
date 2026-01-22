@@ -1,15 +1,18 @@
 /**
  * Cancellation Approved Email
  * Sent when admin approves a cancellation request
+ * 100% table-based for Gmail compatibility
  */
 
 import { Layout } from "../components/Layout";
+import { theme } from "../styles/theme";
 import {
   Greeting,
   Paragraph,
   InfoCard,
   StatusBadge,
   Button,
+  GlassPanel,
 } from "../components/shared";
 
 interface CancellationApprovedEmailProps {
@@ -47,24 +50,45 @@ export const CancellationApprovedEmail = ({
       <Paragraph>{refundMessage}</Paragraph>
 
       {adminNote && (
-        <div style={{ 
-          padding: "16px", 
-          backgroundColor: "#f3f4f6", 
-          borderRadius: "8px", 
-          marginBottom: "24px" 
-        }}>
-          <p style={{ 
-            margin: 0, 
-            fontSize: "12px", 
-            color: "#6b7280", 
-            marginBottom: "4px" 
-          }}>
-            Not:
-          </p>
-          <p style={{ margin: 0, fontSize: "14px", color: "#374151" }}>
-            {adminNote}
-          </p>
-        </div>
+        <table
+          cellPadding="0"
+          cellSpacing="0"
+          border={0}
+          width="100%"
+          style={{
+            backgroundColor: "#f3f4f6",
+            borderRadius: "8px",
+            marginBottom: "24px",
+          }}
+        >
+          <tbody>
+            <tr>
+              <td style={{ padding: "16px" }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "12px",
+                    color: "#6b7280",
+                    marginBottom: "4px",
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Not:
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "14px",
+                    color: "#374151",
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  {adminNote}
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       )}
 
       <Button href="https://fusionmarkt.com/hesabim">Hesabımı Görüntüle</Button>

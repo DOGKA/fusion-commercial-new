@@ -12,7 +12,6 @@ import { prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { 
-  sendOrderConfirmationEmail, 
   sendOrderPendingPaymentEmail,
   sendAdminNewOrderNotification 
 } from "@/lib/email";
@@ -33,9 +32,21 @@ type AddressSnapshot = {
   address?: string;
 };
 
+type AddressInput = {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  city?: string;
+  district?: string;
+  postalCode?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  address?: string;
+};
+
 function buildAddressSnapshot(
-  billingAddress: any,
-  shippingAddress?: any,
+  billingAddress: AddressInput,
+  shippingAddress?: AddressInput,
 ) {
   const billingSnapshot: AddressSnapshot = {
     fullName: `${billingAddress.firstName || ""} ${billingAddress.lastName || ""}`.trim(),

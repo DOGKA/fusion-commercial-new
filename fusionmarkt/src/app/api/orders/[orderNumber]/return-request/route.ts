@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ReturnReason } from "@prisma/client";
 import {
   checkRateLimit,
   getClientIP,
@@ -332,7 +333,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       data: {
         orderId: order.id,
         userId: user.id,
-        reason: reason as any,
+        reason: reason as ReturnReason,
         description: description?.trim() || null,
         images: imageUrls,
         requestIp: clientIp,

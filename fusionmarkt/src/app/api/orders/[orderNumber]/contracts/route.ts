@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { prisma } from "@repo/db";
+import { prisma, Prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
 import { generateContractsHTML } from "@/lib/contracts";
 
@@ -178,7 +178,7 @@ export async function GET(
 
       await prisma.order.update({
         where: { id: order.id },
-        data: { statusHistory: updatedHistory as any },
+        data: { statusHistory: updatedHistory as unknown as Prisma.InputJsonValue },
       });
 
       contracts = updatedContracts;
