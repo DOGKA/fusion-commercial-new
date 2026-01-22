@@ -495,7 +495,7 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fusionmarkt.com";
     const draft = await prisma.paymentDraft.findUnique({
-      where: { orderNumber: conversationId },
+      where: { order_number: conversationId },
     });
 
     // 3D doğrulama başarısız
