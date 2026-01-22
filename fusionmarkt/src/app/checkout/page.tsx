@@ -136,6 +136,7 @@ export default function CheckoutPage() {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(2000);
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [selectedShippingId, setSelectedShippingId] = useState<string>("free-shipping");
+  const [isDark, setIsDark] = useState(false);
 
   // Hover states
   const [hoverProceed, setHoverProceed] = useState(false);
@@ -193,6 +194,18 @@ export default function CheckoutPage() {
     
     fetchShippingOptions();
   }, [items, city, subtotal]);
+
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+    updateTheme();
+
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Kupon uygula
   const applyCoupon = async () => {
@@ -1364,8 +1377,12 @@ export default function CheckoutPage() {
                   }} />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
-                  <span style={{ fontSize: "10px", color: "var(--foreground-muted)" }}>{formatPrice(subtotal)}</span>
-                  <span style={{ fontSize: "10px", color: "rgba(52,211,153,0.6)" }}>{formatPrice(freeShippingThreshold)} Ücretsiz Kargo</span>
+                  <span style={{ fontSize: "10px", color: isDark ? "var(--foreground-muted)" : "#111827" }}>
+                    {formatPrice(subtotal)}
+                  </span>
+                  <span style={{ fontSize: "10px", color: isDark ? "rgba(52,211,153,0.6)" : "#111827" }}>
+                    {formatPrice(freeShippingThreshold)} Ücretsiz Kargo
+                  </span>
                 </div>
               </div>
             )}

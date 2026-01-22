@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
+import { generateContractsHTML } from "@/lib/contracts";
 
 interface ContractAcceptance {
   type: string;
@@ -45,6 +46,31 @@ export async function GET(
         orderNumber: true,
         userId: true,
         statusHistory: true,
+        createdAt: true,
+        subtotal: true,
+        shippingCost: true,
+        discount: true,
+        total: true,
+        billingAddress: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        items: {
+          select: {
+            price: true,
+            quantity: true,
+            variantInfo: true,
+            product: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -61,7 +87,8 @@ export async function GET(
     // - Admins can view all
     // - Allow public access for email links (order number is the auth)
     const isOwner = session?.user?.id === order.userId;
-    const isAdmin = session?.user?.role === "ADMIN";
+    const userRole = session?.user?.role;
+    const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
     
     // If user is logged in but doesn't own the order and isn't admin, deny access
     // Unless we allow public contract viewing (for email links)
@@ -76,8 +103,8 @@ export async function GET(
     // The order number is only known to the customer and sent via email
 
     // Find contract acceptance in status history
-    const statusHistory = order.statusHistory as unknown[];
-    const contractEntry = statusHistory?.find(
+    const statusHistory = (order.statusHistory as unknown[]) || [];
+    const contractEntry = statusHistory.find(
       (entry: unknown) => (entry as ContractAcceptance).type === "CONTRACT_ACCEPTANCE"
     ) as ContractAcceptance | undefined;
 
@@ -88,7 +115,74 @@ export async function GET(
       );
     }
 
-    const contracts = contractEntry.contracts;
+    let contracts = contractEntry.contracts;
+
+    const missingHTML =
+      !contracts.termsAndConditionsHTML || !contracts.distanceSalesContractHTML;
+
+    if (missingHTML && isAdmin) {
+      const buyerName =
+        order.billingAddress?.fullName ||
+        `${order.billingAddress?.firstName || ""} ${order.billingAddress?.lastName || ""}`.trim() ||
+        order.user?.name ||
+        "Belirtilmedi";
+
+      const buyerAddress = order.billingAddress
+        ? `${order.billingAddress.address || order.billingAddress.addressLine1 || ""}, ${order.billingAddress.district || ""}, ${order.billingAddress.city || ""} ${order.billingAddress.postalCode || ""}`.replace(/,\s*,/g, ",").trim()
+        : "Belirtilmedi";
+
+      const buyerPhone = order.billingAddress?.phone || order.user?.phone || "Belirtilmedi";
+      const buyerEmail = order.user?.email || "Belirtilmedi";
+
+      const orderItems = order.items.map((item) => ({
+        name: item.product?.name || "Ürün",
+        variant: item.variantInfo ? { value: JSON.parse(item.variantInfo)?.value } : undefined,
+        price: Number(item.price),
+        quantity: item.quantity,
+      }));
+
+      const orderTotals = {
+        subtotal: Number(order.subtotal),
+        shipping: Number(order.shippingCost),
+        discount: Number(order.discount),
+        grandTotal: Number(order.total),
+      };
+
+      const contractDate = contractEntry.date ? new Date(contractEntry.date) : order.createdAt;
+      const contractsHTML = generateContractsHTML(
+        {
+          fullName: buyerName,
+          address: buyerAddress,
+          phone: buyerPhone,
+          email: buyerEmail,
+        },
+        orderItems,
+        orderTotals,
+        order.orderNumber,
+        contractDate
+      );
+
+      const updatedContracts = {
+        ...contracts,
+        termsAndConditionsHTML: contractsHTML.termsAndConditions,
+        distanceSalesContractHTML: contractsHTML.distanceSalesContract,
+      };
+
+      const updatedHistory = statusHistory.map((entry) => {
+        const currentEntry = entry as ContractAcceptance;
+        if (currentEntry.type === "CONTRACT_ACCEPTANCE") {
+          return { ...currentEntry, contracts: updatedContracts };
+        }
+        return entry;
+      });
+
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { statusHistory: updatedHistory as any },
+      });
+
+      contracts = updatedContracts;
+    }
 
     // Return requested contract type
     if (type === "terms") {

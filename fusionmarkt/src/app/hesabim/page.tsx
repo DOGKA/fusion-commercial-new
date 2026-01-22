@@ -410,6 +410,48 @@ export default function HesabimPage() {
                     <span className="text-[14px] font-medium">{notification.message}</span>
                   </div>
                 )}
+
+                <style jsx global>{`
+                  .light .account-page-layout {
+                    --background: #ffffff;
+                    --foreground: #0f172a;
+                    --foreground-secondary: #0f172a;
+                    --foreground-tertiary: #0f172a;
+                    --foreground-muted: #0f172a;
+                    --foreground-disabled: #94a3b8;
+                  }
+                  .light .account-page-layout .bg-background {
+                    background-color: #ffffff !important;
+                  }
+                  .light .account-page-layout .bg-glass-bg {
+                    background-color: #ffffff !important;
+                  }
+                  .light .account-page-layout .bg-glass-bg-hover {
+                    background-color: #f8fafc !important;
+                  }
+                  .light .account-page-layout .light-white-card {
+                    background-color: #ffffff !important;
+                  }
+                  .light .account-page-layout .account-sidebar-desktop,
+                  .light .account-page-layout .account-content-card {
+                    background-color: #ffffff !important;
+                  }
+                  .light .account-page-layout .text-foreground {
+                    color: #0f172a !important;
+                  }
+                  .light .account-page-layout .text-foreground-secondary {
+                    color: #0f172a !important;
+                  }
+                  .light .account-page-layout .text-foreground-muted {
+                    color: #0f172a !important;
+                  }
+                  .light .account-page-layout .text-foreground-tertiary {
+                    color: #0f172a !important;
+                  }
+                  .light .account-page-layout .text-foreground-disabled {
+                    color: #9ca3af !important;
+                  }
+                `}</style>
               </div>
             </main>
           </div>
@@ -1555,6 +1597,30 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   
+  // Cancel/Return Request state
+  const [cancelModalOrder, setCancelModalOrder] = useState<Order | null>(null);
+  const [returnModalOrder, setReturnModalOrder] = useState<Order | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [returnLoading, setReturnLoading] = useState(false);
+  const [returnReason, setReturnReason] = useState<string>("");
+  const [returnDescription, setReturnDescription] = useState("");
+  const [returnImages, setReturnImages] = useState<File[]>([]);
+  const [returnImagePreviews, setReturnImagePreviews] = useState<string[]>([]);
+  const [requestError, setRequestError] = useState<string | null>(null);
+  const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
+  
+  // Request status cache (to avoid re-fetching)
+  const [requestStatusCache, setRequestStatusCache] = useState<Record<string, {
+    hasCancellationRequest?: boolean;
+    hasReturnRequest?: boolean;
+    cancellationStatus?: string;
+    cancellationAdminNote?: string;
+    returnStatus?: string;
+    returnAdminNote?: string;
+    returnAddress?: string;
+    returnInstructions?: string;
+  }>>({});
+  
   // Filtered orders
   const filteredOrders = orders.filter(order => {
     // Search filter
@@ -1618,6 +1684,13 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
+
+        if (expandedOrder) {
+          const expanded = data.find((order: Order) => order.id === expandedOrder);
+          if (expanded) {
+            fetchRequestStatus(expanded.orderNumber, true);
+          }
+        }
       }
     } catch {
       // Silently fail
@@ -1634,6 +1707,13 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       }
       const data = await res.json();
       setOrders(data);
+
+      if (expandedOrder) {
+        const expanded = data.find((order: Order) => order.id === expandedOrder);
+        if (expanded) {
+          fetchRequestStatus(expanded.orderNumber, true);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Bir hata oluştu");
     } finally {
@@ -1649,10 +1729,224 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
   };
 
   // Sipariş kartını aç/kapa
-  const toggleOrder = (orderId: string) => {
+  const toggleOrder = (orderId: string, orderNumber: string) => {
     const newExpanded = expandedOrder === orderId ? null : orderId;
     setExpandedOrder(newExpanded);
     onExpandChange?.(newExpanded);
+    
+    // Fetch request status when expanding
+    if (newExpanded) {
+      fetchRequestStatus(orderNumber);
+    }
+  };
+  
+  // Fetch request status for an order
+  const fetchRequestStatus = async (orderNumber: string, forceRefresh = false) => {
+    if (requestStatusCache[orderNumber] && !forceRefresh) return;
+    
+    try {
+      const [cancelRes, returnRes] = await Promise.all([
+        fetch(`/api/orders/${orderNumber}/cancel-request`),
+        fetch(`/api/orders/${orderNumber}/return-request`),
+      ]);
+      
+      const cancelData = cancelRes.ok ? await cancelRes.json() : {};
+      const returnData = returnRes.ok ? await returnRes.json() : {};
+      
+      const latestReturn = returnData.returnRequests?.[0];
+      
+      setRequestStatusCache(prev => ({
+        ...prev,
+        [orderNumber]: {
+          hasCancellationRequest: cancelData.hasCancellationRequest,
+          hasReturnRequest: returnData.hasReturnRequest,
+          cancellationStatus: cancelData.cancellationRequest?.status,
+          cancellationAdminNote: cancelData.cancellationRequest?.adminNote,
+          returnStatus: latestReturn?.status,
+          returnAdminNote: latestReturn?.adminNote,
+          returnAddress: latestReturn?.returnAddress,
+          returnInstructions: latestReturn?.returnInstructions,
+        },
+      }));
+    } catch (e) {
+      console.error("Failed to fetch request status:", e);
+    }
+  };
+  
+  // Handle cancel request submission
+  const handleCancelRequest = async () => {
+    if (!cancelModalOrder) return;
+    
+    setCancelLoading(true);
+    setRequestError(null);
+    
+    try {
+      const res = await fetch(`/api/orders/${cancelModalOrder.orderNumber}/cancel-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setRequestError(data.error || "İptal talebi oluşturulamadı");
+        return;
+      }
+      
+      setRequestSuccess(data.message);
+      setRequestStatusCache(prev => ({
+        ...prev,
+        [cancelModalOrder.orderNumber]: {
+          ...prev[cancelModalOrder.orderNumber],
+          hasCancellationRequest: true,
+          cancellationStatus: "PENDING_ADMIN_APPROVAL",
+        },
+      }));
+      
+      setTimeout(() => {
+        setCancelModalOrder(null);
+        setRequestSuccess(null);
+      }, 3000);
+    } catch (e) {
+      setRequestError("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+  
+  // Handle return request submission
+  const handleReturnRequest = async () => {
+    if (!returnModalOrder) return;
+    
+    if (!returnReason) {
+      setRequestError("Lütfen bir iade sebebi seçiniz");
+      return;
+    }
+    
+    if (returnReason === "OTHER" && !returnDescription.trim()) {
+      setRequestError("Diğer seçeneği için açıklama zorunludur");
+      return;
+    }
+    
+    setReturnLoading(true);
+    setRequestError(null);
+    
+    try {
+      // Use FormData to support file uploads
+      const formData = new FormData();
+      formData.append("reason", returnReason);
+      if (returnDescription.trim()) {
+        formData.append("description", returnDescription.trim());
+      }
+      
+      // Append images
+      returnImages.forEach((file) => {
+        formData.append("images", file);
+      });
+      
+      const res = await fetch(`/api/orders/${returnModalOrder.orderNumber}/return-request`, {
+        method: "POST",
+        body: formData,
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setRequestError(data.error || "İade talebi oluşturulamadı");
+        return;
+      }
+      
+      setRequestSuccess(data.message);
+      setRequestStatusCache(prev => ({
+        ...prev,
+        [returnModalOrder.orderNumber]: {
+          ...prev[returnModalOrder.orderNumber],
+          hasReturnRequest: true,
+          returnStatus: "PENDING_ADMIN_APPROVAL",
+        },
+      }));
+      
+      setTimeout(() => {
+        setReturnModalOrder(null);
+        setRequestSuccess(null);
+        setReturnReason("");
+        setReturnDescription("");
+        setReturnImages([]);
+        setReturnImagePreviews([]);
+      }, 3000);
+    } catch (e) {
+      setRequestError("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+    } finally {
+      setReturnLoading(false);
+    }
+  };
+  
+  // Handle image selection for return request
+  const handleReturnImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    const newFiles = Array.from(files);
+    const totalFiles = returnImages.length + newFiles.length;
+    
+    if (totalFiles > 3) {
+      setRequestError("En fazla 3 görsel yükleyebilirsiniz");
+      return;
+    }
+    
+    // Validate file types and sizes
+    for (const file of newFiles) {
+      if (!["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(file.type)) {
+        setRequestError("Sadece JPEG, PNG ve WebP formatları desteklenir");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setRequestError("Her görsel 5MB'dan küçük olmalıdır");
+        return;
+      }
+    }
+    
+    setRequestError(null);
+    setReturnImages(prev => [...prev, ...newFiles]);
+    
+    // Create previews
+    newFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReturnImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+  
+  // Remove return image
+  const removeReturnImage = (index: number) => {
+    setReturnImages(prev => prev.filter((_, i) => i !== index));
+    setReturnImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+  
+  // Check if order can be cancelled
+  const canCancelOrder = (order: Order) => {
+    const nonCancellableStatuses = ["SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"];
+    return !nonCancellableStatuses.includes(order.status);
+  };
+  
+  // Check if order can be returned
+  const canReturnOrder = (order: Order) => {
+    const returnableStatuses = ["SHIPPED", "DELIVERED"];
+    return returnableStatuses.includes(order.status);
+  };
+  
+  // Close modals
+  const closeModals = () => {
+    setCancelModalOrder(null);
+    setReturnModalOrder(null);
+    setRequestError(null);
+    setRequestSuccess(null);
+    setReturnReason("");
+    setReturnDescription("");
+    setReturnImages([]);
+    setReturnImagePreviews([]);
   };
 
   // Loading State
@@ -1810,7 +2104,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
             >
               {/* Order Header - Always Visible */}
               <button
-                onClick={() => toggleOrder(order.id)}
+                onClick={() => toggleOrder(order.id, order.orderNumber)}
                 className="order-card-header w-full p-4 flex items-center gap-4 text-left relative"
               >
                 {/* Status Icon */}
@@ -2092,12 +2386,427 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                       <p className="text-[13px] text-foreground-secondary italic">&quot;{order.customerNote}&quot;</p>
                     </div>
                   )}
+                  
+                  {/* Request Status Cards & Buttons */}
+                  <div className="pt-3 border-t border-border space-y-3">
+                    {/* Cancellation Request Status */}
+                    {requestStatusCache[order.orderNumber]?.cancellationStatus === "PENDING_ADMIN_APPROVAL" && (
+                      <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <Clock size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[13px] font-medium text-amber-400">İptal Talebi Beklemede</p>
+                            <p className="text-[12px] text-amber-400/80 mt-1">İptal talebiniz mağaza onayı bekliyor.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {requestStatusCache[order.orderNumber]?.cancellationStatus === "APPROVED" && (
+                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[13px] font-medium text-emerald-400">İptal Onaylandı</p>
+                            <p className="text-[12px] text-emerald-400/80 mt-1">Siparişiniz iptal edildi. Ödemeniz iade edilecektir.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {requestStatusCache[order.orderNumber]?.cancellationStatus === "REJECTED" && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <XCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[13px] font-medium text-red-400">İptal Reddedildi</p>
+                            {requestStatusCache[order.orderNumber]?.cancellationAdminNote && (
+                              <p className="text-[12px] text-red-400/80 mt-1">
+                                Sebep: {requestStatusCache[order.orderNumber]?.cancellationAdminNote}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Return Request Status */}
+                    {requestStatusCache[order.orderNumber]?.returnStatus === "PENDING_ADMIN_APPROVAL" && (
+                      <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <Clock size={16} className="text-purple-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[13px] font-medium text-purple-400">İade Talebi Beklemede</p>
+                            <p className="text-[12px] text-purple-400/80 mt-1">İade talebiniz mağaza onayı bekliyor.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {requestStatusCache[order.orderNumber]?.returnStatus === "APPROVED" && (
+                      <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg space-y-3">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                          <p className="text-[13px] font-medium text-emerald-400">İadeniz Onaylandı</p>
+                        </div>
+                        
+                        {requestStatusCache[order.orderNumber]?.returnAddress && (
+                          <div className="p-3 bg-glass-bg rounded-lg">
+                            <p className="text-[11px] text-foreground-muted mb-1 flex items-center gap-1">
+                              <MapPin size={10} />
+                              İade Adresi
+                            </p>
+                            <p className="text-[12px] text-foreground whitespace-pre-line">
+                              {requestStatusCache[order.orderNumber]?.returnAddress}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="p-3 bg-glass-bg rounded-lg light-white-card">
+                          <p className="text-[11px] text-amber-400 mb-2 flex items-center gap-1 font-medium">
+                            <AlertCircle size={10} />
+                            Önemli Bilgiler
+                          </p>
+                          <ul className="text-[12px] text-foreground-secondary space-y-1">
+                            <li className="flex items-start gap-2">
+                              <span className="text-amber-400">•</span>
+                              Kargo ücreti alıcı ödemeli olarak gönderilmelidir
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-amber-400">•</span>
+                              Ürünü orijinal kutusunda gönderin
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-amber-400">•</span>
+                              Faturanızı kutuya koyun
+                            </li>
+                          </ul>
+                          {requestStatusCache[order.orderNumber]?.returnInstructions && (
+                            <p className="text-[12px] text-foreground-secondary mt-2 pt-2 border-t border-amber-500/10">
+                              {requestStatusCache[order.orderNumber]?.returnInstructions}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {requestStatusCache[order.orderNumber]?.returnStatus === "REJECTED" && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <XCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[13px] font-medium text-red-400">İade Reddedildi</p>
+                            {requestStatusCache[order.orderNumber]?.returnAdminNote && (
+                              <p className="text-[12px] text-red-400/80 mt-1">
+                                Sebep: {requestStatusCache[order.orderNumber]?.returnAdminNote}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Action Buttons - Only show if order is not cancelled/refunded */}
+                    {order.status !== "CANCELLED" && order.status !== "REFUNDED" && (
+                      <>
+                        {/* Info message for shipped orders */}
+                        {order.status === "SHIPPED" && !requestStatusCache[order.orderNumber]?.hasReturnRequest && (
+                          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                            <p className="text-[12px] text-amber-400 flex items-start gap-2">
+                              <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                              <span>Ürününüz kargolandı. Bu aşamada iptal sağlayamamaktayız. İade talebiniz olursa lütfen iade işlemlerini başlatınız.</span>
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {/* Cancel Button */}
+                          {canCancelOrder(order) && !requestStatusCache[order.orderNumber]?.hasCancellationRequest && (
+                            <button
+                              onClick={() => {
+                                fetchRequestStatus(order.orderNumber);
+                                setCancelModalOrder(order);
+                              }}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[13px] font-medium hover:bg-red-500/20 hover:border-red-500/30 transition-all"
+                            >
+                              <XCircle size={14} />
+                              Siparişi İptal Et
+                            </button>
+                          )}
+                          
+                          {/* Return Button */}
+                          {canReturnOrder(order) && !requestStatusCache[order.orderNumber]?.hasReturnRequest && (
+                            <button
+                              onClick={() => {
+                                fetchRequestStatus(order.orderNumber);
+                                setReturnModalOrder(order);
+                              }}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-lg text-[13px] font-medium hover:bg-purple-500/20 hover:border-purple-500/30 transition-all"
+                            >
+                              <RefreshCw size={14} />
+                              İade Talebi Oluştur
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
       </div>
+      
+      {/* Cancel Request Modal */}
+      {cancelModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeModals}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h3 className="text-[16px] font-semibold text-foreground">Sipariş İptali</h3>
+              <button
+                onClick={closeModals}
+                className="p-1.5 rounded-lg hover:bg-glass-bg-hover transition-colors"
+              >
+                <X size={18} className="text-foreground-muted" />
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-4 space-y-4">
+              {requestSuccess ? (
+                <div className="text-center py-4">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <Check size={28} className="text-emerald-400" />
+                  </div>
+                  <p className="text-[14px] text-foreground">{requestSuccess}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="p-3 bg-glass-bg rounded-lg">
+                    <p className="text-[12px] text-foreground-muted mb-1">Sipariş No</p>
+                    <p className="text-[14px] font-mono text-foreground">#{cancelModalOrder.orderNumber}</p>
+                  </div>
+                  
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg light-white-card">
+                    <p className="text-[13px] text-amber-400">
+                      <strong>Uyarı:</strong> İptal talebiniz mağaza onayına gönderilecektir. Onay sonrası ödemeniz iade edilecektir.
+                    </p>
+                  </div>
+                  
+                  <p className="text-[14px] text-foreground-secondary text-center">
+                    Bu siparişi iptal etmek istediğinize emin misiniz?
+                  </p>
+                  
+                  {requestError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <p className="text-[13px] text-red-400">{requestError}</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            
+            {/* Footer */}
+            {!requestSuccess && (
+              <div className="flex gap-3 p-4 border-t border-border">
+                <button
+                  onClick={closeModals}
+                  className="flex-1 px-4 py-2.5 bg-glass-bg border border-border text-foreground rounded-lg text-[14px] font-medium hover:bg-glass-bg-hover transition-all"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={handleCancelRequest}
+                  disabled={cancelLoading}
+                  className="flex-1 px-4 py-2.5 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-[14px] font-medium hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {cancelLoading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      İşleniyor...
+                    </>
+                  ) : (
+                    "Evet, İptal Et"
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Return Request Modal */}
+      {returnModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeModals}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h3 className="text-[16px] font-semibold text-foreground">İade Talebi</h3>
+              <button
+                onClick={closeModals}
+                className="p-1.5 rounded-lg hover:bg-glass-bg-hover transition-colors"
+              >
+                <X size={18} className="text-foreground-muted" />
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-4 space-y-4">
+              {requestSuccess ? (
+                <div className="text-center py-4">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <Check size={28} className="text-emerald-400" />
+                  </div>
+                  <p className="text-[14px] text-foreground">{requestSuccess}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="p-3 bg-glass-bg rounded-lg">
+                    <p className="text-[12px] text-foreground-muted mb-1">Sipariş No</p>
+                    <p className="text-[14px] font-mono text-foreground">#{returnModalOrder.orderNumber}</p>
+                  </div>
+                  
+                  {/* Return Reason Select */}
+                  <div>
+                    <label className="block text-[13px] text-foreground-secondary mb-2">
+                      İade Sebebi <span className="text-red-400">*</span>
+                    </label>
+                    <select
+                      value={returnReason}
+                      onChange={(e) => setReturnReason(e.target.value)}
+                      className="w-full h-11 px-3 rounded-lg bg-glass-bg border border-border text-[14px] text-foreground appearance-none cursor-pointer focus:outline-none focus:border-purple-500/50 transition-all"
+                      style={{ 
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, 
+                        backgroundRepeat: 'no-repeat', 
+                        backgroundPosition: 'right 12px center' 
+                      }}
+                    >
+                      <option value="">Seçiniz...</option>
+                      <option value="DAMAGED">Ürün hasarlı geldi</option>
+                      <option value="WRONG_PRODUCT">Yanlış ürün gönderildi</option>
+                      <option value="NOT_AS_EXPECTED">Ürün beklentimi karşılamadı</option>
+                      <option value="CHANGED_MIND">Fikrim değişti</option>
+                      <option value="DEFECTIVE">Ürün arızalı/kusurlu</option>
+                      <option value="OTHER">Diğer</option>
+                    </select>
+                  </div>
+                  
+                  {/* Description (optional, required for OTHER) */}
+                  <div>
+                    <label className="block text-[13px] text-foreground-secondary mb-2">
+                      Açıklama {returnReason === "OTHER" && <span className="text-red-400">*</span>}
+                    </label>
+                    <textarea
+                      value={returnDescription}
+                      onChange={(e) => setReturnDescription(e.target.value)}
+                      placeholder="Lütfen iade sebebinizi açıklayınız..."
+                      rows={3}
+                      className="w-full px-3 py-2.5 rounded-lg bg-glass-bg border border-border text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-purple-500/50 transition-all resize-none"
+                    />
+                  </div>
+                  
+                  {/* Image Upload */}
+                  <div>
+                    <label className="block text-[13px] text-foreground-secondary mb-2">
+                      Ürün Görselleri <span className="text-foreground-muted">(İsteğe bağlı, max 3)</span>
+                    </label>
+                    
+                    {/* Image Previews */}
+                    {returnImagePreviews.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {returnImagePreviews.map((preview, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={preview}
+                              alt={`Görsel ${index + 1}`}
+                              className="w-20 h-20 object-cover rounded-lg border border-border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeReturnImage(index)}
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Upload Button */}
+                    {returnImages.length < 3 && (
+                      <label className="flex items-center justify-center gap-2 px-4 py-3 bg-glass-bg border border-dashed border-border rounded-lg cursor-pointer hover:border-purple-500/50 hover:bg-glass-bg-hover transition-all">
+                        <Camera size={18} className="text-foreground-muted" />
+                        <span className="text-[13px] text-foreground-muted">
+                          Görsel Ekle ({returnImages.length}/3)
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          multiple
+                          onChange={handleReturnImageSelect}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                    <p className="text-[11px] text-foreground-muted mt-2">
+                      Ürünün durumunu gösteren görseller yükleyebilirsiniz
+                    </p>
+                  </div>
+                  
+                  {requestError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <p className="text-[13px] text-red-400">{requestError}</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            
+            {/* Footer */}
+            {!requestSuccess && (
+              <div className="flex gap-3 p-4 border-t border-border">
+                <button
+                  onClick={closeModals}
+                  className="flex-1 px-4 py-2.5 bg-glass-bg border border-border text-foreground rounded-lg text-[14px] font-medium hover:bg-glass-bg-hover transition-all"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={handleReturnRequest}
+                  disabled={returnLoading || !returnReason}
+                  className="flex-1 px-4 py-2.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 rounded-lg text-[14px] font-medium hover:bg-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {returnLoading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      İşleniyor...
+                    </>
+                  ) : (
+                    "Talep Oluştur"
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

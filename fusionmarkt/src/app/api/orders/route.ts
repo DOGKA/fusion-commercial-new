@@ -20,6 +20,57 @@ import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
 import { generateContractsHTML } from "@/lib/contracts";
 import { isValidEmail } from "@/lib/utils";
 
+type AddressSnapshot = {
+  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  city?: string;
+  district?: string;
+  postalCode?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  address?: string;
+};
+
+function buildAddressSnapshot(
+  billingAddress: any,
+  shippingAddress?: any,
+) {
+  const billingSnapshot: AddressSnapshot = {
+    fullName: `${billingAddress.firstName || ""} ${billingAddress.lastName || ""}`.trim(),
+    firstName: billingAddress.firstName,
+    lastName: billingAddress.lastName,
+    phone: billingAddress.phone,
+    city: billingAddress.city,
+    district: billingAddress.district,
+    postalCode: billingAddress.postalCode,
+    addressLine1: billingAddress.addressLine1,
+    addressLine2: billingAddress.addressLine2,
+    address: billingAddress.addressLine1,
+  };
+
+  const shipAddr = shippingAddress || billingAddress;
+  const shippingSnapshot: AddressSnapshot = {
+    fullName: `${shipAddr.firstName || ""} ${shipAddr.lastName || ""}`.trim(),
+    firstName: shipAddr.firstName,
+    lastName: shipAddr.lastName,
+    phone: shipAddr.phone,
+    city: shipAddr.city,
+    district: shipAddr.district,
+    postalCode: shipAddr.postalCode,
+    addressLine1: shipAddr.addressLine1,
+    addressLine2: shipAddr.addressLine2,
+    address: shipAddr.addressLine1,
+  };
+
+  return {
+    billingAddress: billingSnapshot,
+    shippingAddress: shippingSnapshot,
+    shippingSameAsBilling: !shippingAddress,
+  };
+}
+
 // Generate order number
 function generateOrderNumber(): string {
   const date = new Date();
@@ -105,6 +156,19 @@ export async function POST(request: NextRequest) {
     // Validate email format
     if (!isValidEmail(billingAddress.email)) {
       return NextResponse.json({ error: "Geçerli bir e-posta adresi girin" }, { status: 400 });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sözleşme Onayı Kontrolü (ZORUNLU)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (!contracts?.termsAndConditions || !contracts?.distanceSalesContract) {
+      return NextResponse.json(
+        { 
+          error: "Sipariş oluşturabilmek için Kullanıcı Sözleşmesi ve Mesafeli Satış Sözleşmesi'ni onaylamanız gerekmektedir.",
+          code: "CONTRACTS_NOT_ACCEPTED"
+        },
+        { status: 400 }
+      );
     }
 
     // Check if guest is using a registered email
@@ -264,12 +328,20 @@ export async function POST(request: NextRequest) {
       contractDate
     );
 
+    const addressSnapshot = buildAddressSnapshot(billingAddress, shippingAddress);
+
     // Initial status history with contract acceptance and full HTML
     const initialStatusHistory = [
       {
         status: "PENDING",
         date: new Date().toISOString(),
         note: "Sipariş oluşturuldu",
+      },
+      {
+        type: "ADDRESS_SNAPSHOT",
+        date: contractDate.toISOString(),
+        addresses: addressSnapshot,
+        note: "Sipariş adresleri kaydedildi",
       },
       {
         type: "CONTRACT_ACCEPTANCE",
@@ -336,8 +408,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Reduce stock for each item (for all orders - stock is reserved when order is created)
-    if (true) {
+    const isBankTransfer = order.paymentMethod === "BANK_TRANSFER";
+
+    // Reduce stock only for bank transfer orders (stock reserved on payment pending)
+    if (isBankTransfer) {
       for (const item of items) {
         try {
           // Check if variant exists
@@ -369,6 +443,8 @@ export async function POST(request: NextRequest) {
           // Continue with other items even if one fails
         }
       }
+    } else {
+      console.log(`⏳ Credit card order created, stock not reserved: ${order.orderNumber}`);
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -379,73 +455,39 @@ export async function POST(request: NextRequest) {
     const customerName = `${billingAddress.firstName} ${billingAddress.lastName}`;
     const customerPhone = billingAddress.phone;
 
-    // Send customer confirmation email
-    if (customerEmail) {
-      // Check if payment method is bank transfer (handle both formats)
-      const isBankTransfer = paymentMethod === "BANK_TRANSFER" || 
-                              paymentMethod === "bank_transfer" || 
-                              order.paymentMethod === "BANK_TRANSFER";
-      
-      if (isBankTransfer) {
-        // Havale/EFT - ödeme bekleniyor maili
+    // Send emails only for bank transfer orders.
+    // Credit card orders get notifications after payment success (callback).
+    // (already determined above from order.paymentMethod)
+    
+    if (isBankTransfer) {
+      // Customer pending payment email
+      if (customerEmail) {
         sendOrderPendingPaymentEmail(customerEmail, order.orderNumber, customerName, orderTotal)
           .catch(err => console.error("Customer email error:", err));
-      } else {
-        // Kredi kartı - sipariş onayı maili
-        sendOrderConfirmationEmail(customerEmail, {
-          orderNumber: order.orderNumber,
-          orderDate: order.createdAt,
-          customerName,
-          customerEmail,
-          items: items.map((item: { name?: string; title?: string; quantity: number; price: number }) => ({
-            name: item.name || item.title || "Ürün",
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          subtotal: orderSubtotal,
-          shipping: orderShipping,
-          discount: orderDiscount,
-          total: orderTotal,
-          shippingAddress: {
-            fullName: `${shippingAddress?.firstName || billingAddress.firstName} ${shippingAddress?.lastName || billingAddress.lastName}`,
-            address: shippingAddress?.addressLine1 || billingAddress.addressLine1 || "",
-            city: shippingAddress?.city || billingAddress.city || "",
-            district: shippingAddress?.district || billingAddress.district || "",
-            postalCode: shippingAddress?.postalCode || billingAddress.postalCode || "",
-            phone: shippingAddress?.phone || billingAddress.phone || "",
-          },
-          billingAddress: {
-            fullName: `${billingAddress.firstName} ${billingAddress.lastName}`,
-            address: billingAddress.addressLine1 || "",
-            city: billingAddress.city || "",
-            district: billingAddress.district || "",
-            postalCode: billingAddress.postalCode || "",
-            phone: billingAddress.phone || "",
-          },
-          paymentMethod: "CREDIT_CARD",
-        }).catch(err => console.error("Customer email error:", err));
+        console.log(`📧 Customer pending-payment email queued: ${customerEmail}`);
       }
-      console.log(`📧 Customer email queued: ${customerEmail}`);
-    }
 
-    // Send admin notification
-    sendAdminNewOrderNotification({
-      orderNumber: order.orderNumber,
-      orderDate: order.createdAt,
-      customerName,
-      customerEmail: customerEmail || "Belirtilmedi",
-      customerPhone: customerPhone || "",
-      total: orderTotal,
-      itemCount: items.length,
-      paymentMethod: paymentMethod === "credit_card" || paymentMethod === "card_sipay" ? "CREDIT_CARD" : "BANK_TRANSFER",
-      shippingCity: shippingAddress?.city || billingAddress?.city || "",
-      items: items.map((item: { name?: string; title?: string; quantity: number; price: number }) => ({
-        name: item.name || item.title || "Ürün",
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    }).catch(err => console.error("Admin notification error:", err));
-    console.log(`📧 Admin notification queued for new order: ${order.orderNumber}`);
+      // Admin notification (bank transfer order created)
+      sendAdminNewOrderNotification({
+        orderNumber: order.orderNumber,
+        orderDate: order.createdAt,
+        customerName,
+        customerEmail: customerEmail || "Belirtilmedi",
+        customerPhone: customerPhone || "",
+        total: orderTotal,
+        itemCount: items.length,
+        paymentMethod: "BANK_TRANSFER",
+        shippingCity: shippingAddress?.city || billingAddress?.city || "",
+        items: items.map((item: { name?: string; title?: string; quantity: number; price: number }) => ({
+          name: item.name || item.title || "Ürün",
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      }).catch(err => console.error("Admin notification error:", err));
+      console.log(`📧 Admin notification queued for bank transfer order: ${order.orderNumber}`);
+    } else {
+      console.log(`⏳ Credit card order created, notifications deferred: ${order.orderNumber}`);
+    }
 
     return NextResponse.json({
       success: true,

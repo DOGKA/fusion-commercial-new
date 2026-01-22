@@ -11,7 +11,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { threedsInitialize, formatIyzicoPrice, IYZICO_ENABLED } from "@/lib/iyzico";
+import { prisma } from "@/lib/prisma";
 import type { ThreeDSInitializeRequest, BasketItem } from "@/lib/iyzico";
+
+function generateOrderNumber(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const random = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
+  return `FM-${year}-${random}`;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +35,8 @@ export async function POST(request: NextRequest) {
     const {
       // Sipariş bilgileri
       orderNumber,
+      orderData,
+      userId,
       // Kart bilgileri
       cardHolderName,
       cardNumber,
@@ -48,11 +58,38 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validation
-    if (!orderNumber || !cardNumber || !cvc || !buyer || !basketItems) {
+    if (!cardNumber || !cvc || !buyer || !basketItems) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+    if (!orderNumber && !orderData) {
+      return NextResponse.json(
+        { error: "Missing order reference" },
+        { status: 400 }
+      );
+    }
+
+    const finalOrderNumber = orderNumber || generateOrderNumber();
+
+    if (orderData) {
+      await prisma.paymentDraft.upsert({
+        where: { orderNumber: finalOrderNumber },
+        update: {
+          payload: orderData,
+          userId: userId || null,
+          paymentMethod: "CREDIT_CARD",
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        },
+        create: {
+          orderNumber: finalOrderNumber,
+          payload: orderData,
+          userId: userId || null,
+          paymentMethod: "CREDIT_CARD",
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        },
+      });
     }
 
     // IP adresi al
@@ -83,12 +120,12 @@ export async function POST(request: NextRequest) {
     // 3D Secure başlat
     const iyzicoRequest: ThreeDSInitializeRequest = {
       locale: "tr",
-      conversationId: orderNumber,
+      conversationId: finalOrderNumber,
       price: formatIyzicoPrice(price),
       paidPrice: formatIyzicoPrice(paidPrice || price),
       currency: "TRY",
       installment: String(installment || 1), // Taksit sayısı
-      basketId: orderNumber,
+      basketId: finalOrderNumber,
       paymentChannel: "WEB",
       paymentGroup: "PRODUCT",
       callbackUrl,
@@ -140,6 +177,7 @@ export async function POST(request: NextRequest) {
         success: true,
         htmlContent,
         conversationId: result.conversationId,
+        orderNumber: finalOrderNumber,
       });
     } else {
       console.error("❌ iyzico 3DS Initialize Failed:", result);

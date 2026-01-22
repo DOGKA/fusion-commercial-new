@@ -56,7 +56,7 @@ interface AddressApiResponse {
 
 export default function PaymentPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { state, setContractAccepted } = useCheckout();
   const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, clearCart, isHydrated } = useCart();
   const { addItem: addFavorite } = useFavorites();
@@ -350,7 +350,7 @@ export default function PaymentPage() {
     }));
 
     try {
-      // 1. Önce siparişi oluştur (PENDING_PAYMENT status ile)
+      // Sipariş verileri - ödeme sonrası oluşturulacak (kredi kartı)
       const orderData = {
         billingAddress: state.billingAddress,
         shippingAddress: state.shippingAddress || state.billingAddress,
@@ -371,27 +371,7 @@ export default function PaymentPage() {
         },
       };
 
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        // Check if email is registered - redirect to checkout to login
-        if (result.code === "EMAIL_REGISTERED") {
-          alert(result.error || "Bu e-posta adresi kayıtlı. Lütfen giriş yapın.");
-          router.push("/checkout");
-          return;
-        }
-        throw new Error(result.error || "Sipariş oluşturulamadı");
-      }
-
-      const orderNumber = result.orderNumber;
-
-      // 2. Kredi kartı ödeme ise iyzico 3D Secure başlat
+      // Kredi kartı ödeme ise iyzico 3D Secure başlat (sipariş henüz oluşturulmaz)
       if (paymentMethod === "card") {
         // iyzico kuralı: basketItems toplamı = price olmalı
         // Kupon indirimi varsa, ürün fiyatlarından orantılı düşülür
@@ -451,7 +431,8 @@ export default function PaymentPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            orderNumber,
+            orderData,
+            userId: isAuthenticated ? user?.id : null,
             cardHolderName,
             cardNumber: cardNumber.replace(/\s/g, ""),
             expireMonth: expiryMonth,
@@ -510,7 +491,27 @@ export default function PaymentPage() {
         return;
       }
 
-      // Havale/EFT için normal akış
+      // Havale/EFT için normal akış (sipariş hemen oluşturulur)
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        // Check if email is registered - redirect to checkout to login
+        if (result.code === "EMAIL_REGISTERED") {
+          alert(result.error || "Bu e-posta adresi kayıtlı. Lütfen giriş yapın.");
+          router.push("/checkout");
+          return;
+        }
+        throw new Error(result.error || "Sipariş oluşturulamadı");
+      }
+
+      const orderNumber = result.orderNumber;
+
       // Kullanıcı profilini güncelle (ad/soyad/telefon bilgilerini kaydet)
       if (isAuthenticated && state.billingAddress) {
         try {

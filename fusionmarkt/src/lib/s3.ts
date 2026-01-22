@@ -37,6 +37,24 @@ export function generateReviewImageKey(userId: string, filename: string): string
 }
 
 /**
+ * Generate S3 key for return request image
+ * Format: <prefix>/return-requests/<orderNumber>/<timestamp>-<uuid>.<ext>
+ */
+export function generateReturnImageKey(orderNumber: string, filename: string): string {
+  const safeFilename = filename
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]/g, '-')
+    .replace(/-+/g, '-')
+    .substring(0, 50);
+  
+  const uuid = randomUUID().split('-')[0];
+  const timestamp = Date.now();
+  const ext = safeFilename.split('.').pop() || 'webp';
+  
+  return `${S3_PREFIX}/return-requests/${orderNumber}/${timestamp}-${uuid}.${ext}`;
+}
+
+/**
  * Generate public URL for S3 object
  */
 export function getS3PublicUrl(key: string): string {

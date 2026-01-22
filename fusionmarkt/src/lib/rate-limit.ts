@@ -158,5 +158,102 @@ export const RATE_LIMITS = {
     limit: 200,
     windowSeconds: 60, // 200 requests per minute
   },
+  
+  // Cancellation request - strict (per user)
+  cancellationRequestUser: {
+    limit: 2,
+    windowSeconds: 3600, // 2 requests per hour
+  },
+  
+  // Cancellation request - strict (per IP)
+  cancellationRequestIp: {
+    limit: 3,
+    windowSeconds: 3600, // 3 requests per hour
+  },
+  
+  // Return request - moderate (per user)
+  returnRequestUser: {
+    limit: 5,
+    windowSeconds: 3600, // 5 requests per hour
+  },
+  
+  // Return request - moderate (per IP)
+  returnRequestIp: {
+    limit: 8,
+    windowSeconds: 3600, // 8 requests per hour
+  },
 } as const;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// IP BAN CONFIGURATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const BAN_DURATIONS = {
+  // Soft ban for cancellation abuse (3 hours)
+  cancellationAbuse: 3 * 60 * 60 * 1000, // 3 hours in ms
+  
+  // Order creation block after cancellation abuse (3 hours)
+  orderCreationBlock: 3 * 60 * 60 * 1000, // 3 hours in ms
+} as const;
+
+// In-memory IP ban store (for quick checks, backed by database)
+const ipBanStore = new Map<string, { bannedUntil: number; reason: string }>();
+
+/**
+ * Check if an IP is banned
+ */
+export function isIpBanned(ip: string): { banned: boolean; reason?: string; bannedUntil?: Date } {
+  const ban = ipBanStore.get(ip);
+  
+  if (!ban) {
+    return { banned: false };
+  }
+  
+  const now = Date.now();
+  
+  if (now > ban.bannedUntil) {
+    // Ban expired, remove it
+    ipBanStore.delete(ip);
+    return { banned: false };
+  }
+  
+  return {
+    banned: true,
+    reason: ban.reason,
+    bannedUntil: new Date(ban.bannedUntil),
+  };
+}
+
+/**
+ * Ban an IP address
+ */
+export function banIp(ip: string, durationMs: number, reason: string): void {
+  const bannedUntil = Date.now() + durationMs;
+  ipBanStore.set(ip, { bannedUntil, reason });
+}
+
+/**
+ * Unban an IP address
+ */
+export function unbanIp(ip: string): void {
+  ipBanStore.delete(ip);
+}
+
+/**
+ * Get remaining ban time in human readable format
+ */
+export function getBanTimeRemaining(bannedUntil: Date): string {
+  const now = Date.now();
+  const remaining = bannedUntil.getTime() - now;
+  
+  if (remaining <= 0) return "0 dakika";
+  
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.ceil((remaining % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (hours > 0) {
+    return `${hours} saat ${minutes} dakika`;
+  }
+  return `${minutes} dakika`;
+}
 

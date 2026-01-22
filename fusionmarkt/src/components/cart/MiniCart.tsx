@@ -624,8 +624,12 @@ export default function MiniCart() {
                     />
                   </div>
                   <div className="flex justify-between mt-1.5">
-                    <span className="text-[10px] text-foreground-muted">{formatPrice(subtotal)} ₺</span>
-                    <span className="text-[10px] text-emerald-400/60">{formatPrice(shippingInfo.freeShippingThreshold)} ₺ Ücretsiz Kargo</span>
+                    <span className={cn("text-[10px]", isDark ? "text-foreground-muted" : "text-slate-900")}>
+                      {formatPrice(subtotal)} ₺
+                    </span>
+                    <span className={cn("text-[10px]", isDark ? "text-emerald-400/60" : "text-slate-900")}>
+                      {formatPrice(shippingInfo.freeShippingThreshold)} ₺ Ücretsiz Kargo
+                    </span>
                   </div>
                 </div>
               )}
