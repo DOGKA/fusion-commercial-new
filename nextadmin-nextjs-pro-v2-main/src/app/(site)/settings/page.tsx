@@ -6,6 +6,7 @@ import ShippingSettings from "@/components/Settings/ShippingSettings";
 import PaymentSettings from "@/components/Settings/PaymentSettings";
 import EmailSettings from "@/components/Settings/EmailSettings";
 import SocialSettings from "@/components/Settings/SocialSettings";
+import ReturnSettings from "@/components/Settings/ReturnSettings";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -41,6 +42,7 @@ export default function SettingsPage() {
     { id: "payment", label: "Ödeme" },
     { id: "email", label: "E-posta" },
     { id: "social", label: "Sosyal Medya" },
+    { id: "return", label: "İade" },
   ];
 
   return (
@@ -110,8 +112,10 @@ export default function SettingsPage() {
 
       {activeTab === "social" && <SocialSettings />}
 
-      {/* Save Button - sadece shipping dışındaki tab'larda göster */}
-      {activeTab !== "shipping" && (
+      {activeTab === "return" && <ReturnSettings />}
+
+      {/* Save Button - sadece shipping ve return dışındaki tab'larda göster */}
+      {activeTab !== "shipping" && activeTab !== "return" && (
         <div className="flex justify-end">
           <button className="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90">
             Kaydet

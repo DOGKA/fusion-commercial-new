@@ -78,6 +78,34 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
+type AddressSnapshot = {
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  city?: string;
+  district?: string;
+  postalCode?: string;
+  address?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  title?: string;
+};
+
+function extractAddressSnapshot(statusHistory: unknown) {
+  if (!Array.isArray(statusHistory)) return null;
+  const entry = statusHistory.find(
+    (item: any) => item?.type === "ADDRESS_SNAPSHOT" && item?.addresses,
+  );
+  return entry?.addresses as
+    | {
+        billingAddress?: AddressSnapshot;
+        shippingAddress?: AddressSnapshot;
+        shippingSameAsBilling?: boolean;
+      }
+    | null;
+}
+
 // 🔒 Yetkilendirme kontrolü helper
 async function checkAdminAuth() {
   const session = await getServerSession(authOptions);
@@ -168,6 +196,38 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         { error: "Sipariş bulunamadı" },
         { status: 404 }
       );
+    }
+
+    const addressSnapshot = extractAddressSnapshot(order.statusHistory);
+    if (addressSnapshot) {
+      const orderWithFallback = { ...order } as any;
+
+      if (!orderWithFallback.billingAddress && addressSnapshot.billingAddress) {
+        orderWithFallback.billingAddress = {
+          id: "snapshot-billing",
+          ...addressSnapshot.billingAddress,
+          phone: addressSnapshot.billingAddress.phone || "",
+          city: addressSnapshot.billingAddress.city || "",
+        };
+      }
+
+      if (!orderWithFallback.shippingAddress) {
+        const fallbackShipping =
+          addressSnapshot.shippingSameAsBilling
+            ? addressSnapshot.billingAddress
+            : addressSnapshot.shippingAddress || addressSnapshot.billingAddress;
+
+        if (fallbackShipping) {
+          orderWithFallback.shippingAddress = {
+            id: addressSnapshot.shippingSameAsBilling ? "snapshot-billing" : "snapshot-shipping",
+            ...fallbackShipping,
+            phone: fallbackShipping.phone || "",
+            city: fallbackShipping.city || "",
+          };
+        }
+      }
+
+      return NextResponse.json(orderWithFallback);
     }
 
     return NextResponse.json(order);

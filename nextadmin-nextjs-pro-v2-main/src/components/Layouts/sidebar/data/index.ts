@@ -40,9 +40,12 @@ export const NAV_DATA: NavGroup[] = [
       },
       {
         title: "Siparişler",
-        url: "/orders",
         icon: Icons.Alphabet,
-        items: [],
+        items: [
+          { title: "Tüm Siparişler", url: "/orders" },
+          { title: "İptal Talepleri", url: "/cancellation-requests" },
+          { title: "İade Talepleri", url: "/return-requests" },
+        ],
       },
       {
         title: "Müşteriler",

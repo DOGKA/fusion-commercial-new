@@ -732,24 +732,37 @@ export default function OrderDetailPage() {
               (h: any) => h.type === "CONTRACT_ACCEPTANCE"
             );
             const contracts = contractHistory?.contracts;
+            const hasContracts = !!contracts;
+            const effectiveContracts = contracts || {
+              termsAndConditions: false,
+              distanceSalesContract: false,
+              newsletter: undefined,
+              acceptedAt: null,
+            };
 
-            return contracts ? (
+            return (
               <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-dark dark:text-white">
                   <ScrollText size={18} />
                   Kabul Edilen Sözleşmeler
                 </h2>
-                
+
+                {!hasContracts && (
+                  <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/30 dark:bg-amber-900/20 dark:text-amber-300">
+                    Bu sipariş için sözleşme kabul kaydı bulunamadı. Görüntüle seçeneği yeniden oluşturulmuş metni gösterecektir.
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   {/* Terms and Conditions */}
                   <div className="flex items-center justify-between rounded-lg border border-stroke p-3 dark:border-dark-3">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
-                        contracts.termsAndConditions 
+                        effectiveContracts.termsAndConditions 
                           ? "bg-green-100 dark:bg-green-500/20" 
                           : "bg-red-100 dark:bg-red-500/20"
                       }`}>
-                        {contracts.termsAndConditions ? (
+                        {effectiveContracts.termsAndConditions ? (
                           <Check size={14} className="text-green-600" />
                         ) : (
                           <XCircle size={14} className="text-red-600" />
@@ -774,11 +787,11 @@ export default function OrderDetailPage() {
                   <div className="flex items-center justify-between rounded-lg border border-stroke p-3 dark:border-dark-3">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
-                        contracts.distanceSalesContract 
+                        effectiveContracts.distanceSalesContract 
                           ? "bg-green-100 dark:bg-green-500/20" 
                           : "bg-red-100 dark:bg-red-500/20"
                       }`}>
-                        {contracts.distanceSalesContract ? (
+                        {effectiveContracts.distanceSalesContract ? (
                           <Check size={14} className="text-green-600" />
                         ) : (
                           <XCircle size={14} className="text-red-600" />
@@ -800,14 +813,14 @@ export default function OrderDetailPage() {
                   </div>
 
                   {/* Newsletter */}
-                  {contracts.newsletter !== undefined && (
+                  {effectiveContracts.newsletter !== undefined && (
                     <div className="flex items-center gap-3 rounded-lg border border-stroke p-3 dark:border-dark-3">
                       <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
-                        contracts.newsletter 
+                        effectiveContracts.newsletter 
                           ? "bg-blue-100 dark:bg-blue-500/20" 
                           : "bg-gray-100 dark:bg-gray-500/20"
                       }`}>
-                        {contracts.newsletter ? (
+                        {effectiveContracts.newsletter ? (
                           <Check size={14} className="text-blue-600" />
                         ) : (
                           <XCircle size={14} className="text-gray-400" />
@@ -820,14 +833,14 @@ export default function OrderDetailPage() {
                   )}
 
                   {/* Acceptance Date */}
-                  {contracts.acceptedAt && (
+                  {effectiveContracts.acceptedAt && (
                     <p className="mt-2 text-xs text-gray-500">
-                      Onay Tarihi: {formatDate(contracts.acceptedAt)}
+                      Onay Tarihi: {formatDate(effectiveContracts.acceptedAt)}
                     </p>
                   )}
                 </div>
               </div>
-            ) : null;
+            );
           })()}
         </div>
 
