@@ -241,7 +241,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         console.log(`✅ Stock restored for order ${existing.orderNumber}`);
 
         // 🔄 iyzico İptal/İade İşlemi (PUT endpoint)
-        if (IYZICO_ENABLED && existing.paymentStatus === "PAID" && existing.iyzicoPaymentId) {
+        if (!IYZICO_ENABLED) {
+          console.log(`⚠️ iyzico disabled (PUT): ${existing.orderNumber}`);
+        } else if (!existing.iyzicoPaymentId) {
+          console.log(`⚠️ iyzico paymentId missing (PUT): ${existing.orderNumber}`);
+        } else {
           const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0] || 
                           request.headers.get("x-real-ip") || 
                           "127.0.0.1";
@@ -431,7 +435,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }
 
         // 🔄 iyzico İptal/İade İşlemi
-        if (IYZICO_ENABLED && existing.paymentStatus === "PAID" && existing.iyzicoPaymentId) {
+        if (!IYZICO_ENABLED) {
+          console.log(`⚠️ iyzico disabled: ${existing.orderNumber}`);
+        } else if (!existing.iyzicoPaymentId) {
+          console.log(`⚠️ iyzico paymentId missing: ${existing.orderNumber}`);
+        } else {
           const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0] || 
                           request.headers.get("x-real-ip") || 
                           "127.0.0.1";
