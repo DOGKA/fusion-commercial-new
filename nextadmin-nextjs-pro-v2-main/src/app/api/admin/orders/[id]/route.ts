@@ -268,10 +268,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                   console.log(`🔄 Cancel başarısız, Refund deneniyor (PUT)...`);
                   for (const tx of existing.iyzicoPaymentTransactions as any[]) {
+                    const refundPrice = Number(tx.paidPrice ?? tx.price);
+                    if (!Number.isFinite(refundPrice)) {
+                      console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
+                      continue;
+                    }
                     const refundResult = await createRefund({
                       conversationId: existing.iyzicoConversationId || existing.orderNumber,
                       paymentTransactionId: tx.paymentTransactionId,
-                      price: String(tx.paidPrice || tx.price),
+                      price: refundPrice,
                       ip: clientIp,
                     });
                     if (refundResult.status === "success") {
@@ -285,10 +290,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
               if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                 console.log(`💸 iyzico Refund başlatılıyor (PUT): ${existing.orderNumber}`);
                 for (const tx of existing.iyzicoPaymentTransactions as any[]) {
+                  const refundPrice = Number(tx.paidPrice ?? tx.price);
+                  if (!Number.isFinite(refundPrice)) {
+                    console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
+                    continue;
+                  }
                   const refundResult = await createRefund({
                     conversationId: existing.iyzicoConversationId || existing.orderNumber,
                     paymentTransactionId: tx.paymentTransactionId,
-                    price: String(tx.paidPrice || tx.price),
+                    price: refundPrice,
                     ip: clientIp,
                   });
                   if (refundResult.status === "success") {
@@ -463,10 +473,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                   console.log(`🔄 Cancel başarısız, Refund deneniyor...`);
                   for (const tx of existing.iyzicoPaymentTransactions) {
+                    const refundPrice = Number(tx.paidPrice ?? tx.price);
+                    if (!Number.isFinite(refundPrice)) {
+                      console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
+                      continue;
+                    }
                     const refundResult = await createRefund({
                       conversationId: existing.iyzicoConversationId || existing.orderNumber,
                       paymentTransactionId: tx.paymentTransactionId,
-                      price: String(tx.paidPrice || tx.price),
+                      price: refundPrice,
                       ip: clientIp,
                     });
                     if (refundResult.status === "success") {
@@ -484,10 +499,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
               if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                 console.log(`💸 iyzico Refund başlatılıyor: ${existing.orderNumber}`);
                 for (const tx of existing.iyzicoPaymentTransactions) {
+                  const refundPrice = Number(tx.paidPrice ?? tx.price);
+                  if (!Number.isFinite(refundPrice)) {
+                    console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
+                    continue;
+                  }
                   iyzicoResult = await createRefund({
                     conversationId: existing.iyzicoConversationId || existing.orderNumber,
                     paymentTransactionId: tx.paymentTransactionId,
-                    price: String(tx.paidPrice || tx.price),
+                    price: refundPrice,
                     ip: clientIp,
                   });
                   if (iyzicoResult.status === "success") {

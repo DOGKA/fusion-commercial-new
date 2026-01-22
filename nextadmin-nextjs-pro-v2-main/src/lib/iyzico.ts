@@ -46,7 +46,7 @@ export interface RefundRequest {
   locale?: "tr" | "en";
   conversationId: string;
   paymentTransactionId: string;
-  price: string;
+  price: number;
   currency?: "TRY" | "USD" | "EUR" | "GBP";
   ip: string;
 }
