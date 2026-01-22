@@ -52,54 +52,18 @@ export interface RefundRequest {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// AUTH HELPERS (iyzico PKI string format)
+// AUTH HELPERS (iyzico V2 signature format)
 // ═══════════════════════════════════════════════════════════════════════════
 
 function generateRandomString(length: number): string {
   return crypto.randomBytes(length).toString("hex").slice(0, length);
 }
 
-function generateAuthorizationHeader(request: Record<string, any>, endpoint: string): string {
-  const randomString = generateRandomString(8);
-  
-  // Build PKI string (iyzico's format)
-  const pkiString = buildPkiString(request);
-  
-  // Create hash
-  const hashString = API_KEY + randomString + SECRET_KEY + pkiString;
-  const hash = crypto.createHash("sha1").update(hashString).digest("base64");
-  
-  // Authorization header format
-  const authString = `IYZWS ${API_KEY}:${hash}`;
-  
-  return authString;
-}
-
-function buildPkiString(obj: Record<string, any>): string {
-  let result = "[";
-  
-  for (const [key, value] of Object.entries(obj)) {
-    if (value !== null && value !== undefined) {
-      if (typeof value === "object" && !Array.isArray(value)) {
-        result += `${key}=${buildPkiString(value)},`;
-      } else if (Array.isArray(value)) {
-        result += `${key}=[`;
-        for (const item of value) {
-          if (typeof item === "object") {
-            result += `${buildPkiString(item)}, `;
-          } else {
-            result += `${item}, `;
-          }
-        }
-        result = result.slice(0, -2) + "],";
-      } else {
-        result += `${key}=${value},`;
-      }
-    }
-  }
-  
-  result = result.slice(0, -1) + "]";
-  return result;
+function buildAuthorizationHeader(endpoint: string, requestBody: string, randomString: string): string {
+  const dataToSign = `${randomString}${endpoint}${requestBody}`;
+  const signature = crypto.createHmac("sha256", SECRET_KEY).update(dataToSign).digest("base64");
+  const authorization = Buffer.from(`${API_KEY}:${randomString}:${signature}`).toString("base64");
+  return `IYZWSv2 ${authorization}`;
 }
 
 async function iyzicoRequest(endpoint: string, body: Record<string, any>): Promise<IyzicoResult> {
@@ -107,16 +71,8 @@ async function iyzicoRequest(endpoint: string, body: Record<string, any>): Promi
   
   // Generate random string for this request
   const randomString = generateRandomString(8);
-  
-  // Build PKI string
-  const pkiString = buildPkiString(body);
-  
-  // Create hash: apiKey + randomKey + secretKey + pkiString
-  const hashString = API_KEY + randomString + SECRET_KEY + pkiString;
-  const hash = crypto.createHash("sha1").update(hashString).digest("base64");
-  
-  // Authorization header
-  const authorization = `IYZWS ${API_KEY}:${hash}`;
+  const requestBody = JSON.stringify(body);
+  const authorization = buildAuthorizationHeader(endpoint, requestBody, randomString);
   
   console.log(`🔐 iyzico Request to ${endpoint}`);
   console.log(`📦 Body:`, JSON.stringify(body, null, 2));
@@ -128,7 +84,7 @@ async function iyzicoRequest(endpoint: string, body: Record<string, any>): Promi
       "Authorization": authorization,
       "x-iyzi-rnd": randomString,
     },
-    body: JSON.stringify(body),
+    body: requestBody,
   });
   
   const result = await response.json() as IyzicoResult;
