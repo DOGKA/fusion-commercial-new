@@ -6,6 +6,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   // ═══════════════════════════════════════════════════════════════════════════
+  // EXTERNAL PACKAGES (don't bundle, use from node_modules)
+  // ═══════════════════════════════════════════════════════════════════════════
+  serverExternalPackages: ["iyzipay"],
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // MONOREPO: Allow importing from fusionmarkt emails
   // ═══════════════════════════════════════════════════════════════════════════
   transpilePackages: ["fusionmarkt"],
