@@ -46,7 +46,7 @@ export interface RefundRequest {
   locale?: "tr" | "en";
   conversationId: string;
   paymentTransactionId: string;
-  price: number;
+  price: number | string;
   currency?: "TRY" | "USD" | "EUR" | "GBP";
   ip: string;
 }
@@ -138,7 +138,7 @@ export async function createRefund(request: RefundRequest): Promise<IyzicoResult
     locale: request.locale || "tr",
     conversationId: request.conversationId,
     paymentTransactionId: request.paymentTransactionId,
-    price: request.price,
+    price: typeof request.price === "number" ? request.price.toFixed(2) : request.price,
     currency: request.currency || "TRY",
     ip: request.ip,
   };

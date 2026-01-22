@@ -332,11 +332,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                       console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
                       continue;
                     }
-                    console.log(`💸 iyzico Refund fiyatı (PUT):`, refundPrice);
+                    const formattedRefundPrice = refundPrice.toFixed(2);
+                    console.log(`💸 iyzico Refund fiyatı (PUT):`, formattedRefundPrice);
                     const refundResult = await createRefund({
                       conversationId: existing.iyzicoConversationId || existing.orderNumber,
                       paymentTransactionId: tx.paymentTransactionId,
-                      price: refundPrice,
+                      price: formattedRefundPrice,
                       ip: clientIp,
                     });
                     if (refundResult.status === "success") {
@@ -355,11 +356,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                     console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
                     continue;
                   }
-                  console.log(`💸 iyzico Refund fiyatı (PUT):`, refundPrice);
+                  const formattedRefundPrice = refundPrice.toFixed(2);
+                  console.log(`💸 iyzico Refund fiyatı (PUT):`, formattedRefundPrice);
                   const refundResult = await createRefund({
                     conversationId: existing.iyzicoConversationId || existing.orderNumber,
                     paymentTransactionId: tx.paymentTransactionId,
-                    price: refundPrice,
+                    price: formattedRefundPrice,
                     ip: clientIp,
                   });
                   if (refundResult.status === "success") {
@@ -541,11 +543,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                       console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
                       continue;
                     }
-                    console.log(`💸 iyzico Refund fiyatı:`, refundPrice);
+                    const formattedRefundPrice = refundPrice.toFixed(2);
+                    console.log(`💸 iyzico Refund fiyatı:`, formattedRefundPrice);
                     const refundResult = await createRefund({
                       conversationId: existing.iyzicoConversationId || existing.orderNumber,
                       paymentTransactionId: tx.paymentTransactionId,
-                      price: refundPrice,
+                      price: formattedRefundPrice,
                       ip: clientIp,
                     });
                     if (refundResult.status === "success") {
@@ -568,11 +571,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                     console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
                     continue;
                   }
-                  console.log(`💸 iyzico Refund fiyatı:`, refundPrice);
+                  const formattedRefundPrice = refundPrice.toFixed(2);
+                  console.log(`💸 iyzico Refund fiyatı:`, formattedRefundPrice);
                   iyzicoResult = await createRefund({
                     conversationId: existing.iyzicoConversationId || existing.orderNumber,
                     paymentTransactionId: tx.paymentTransactionId,
-                    price: refundPrice,
+                    price: formattedRefundPrice,
                     ip: clientIp,
                   });
                   if (iyzicoResult.status === "success") {
