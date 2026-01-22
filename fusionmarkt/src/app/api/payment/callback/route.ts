@@ -524,7 +524,7 @@ export async function POST(request: NextRequest) {
 
       if (draft) {
         try {
-          await prisma.paymentDraft.delete({ where: { orderNumber: conversationId } });
+          await prisma.paymentDraft.delete({ where: { order_number: conversationId } });
         } catch (deleteError) {
           console.error("⚠️ Failed to delete payment draft:", deleteError);
         }
@@ -558,14 +558,14 @@ export async function POST(request: NextRequest) {
           await createOrderFromDraft(
             conversationId,
             draft.payload as DraftPayload,
-            draft.userId || null,
+            draft.user_id || null,
             {
               paymentId: paymentResult.paymentId,
               itemTransactions: paymentResult.itemTransactions,
             }
           );
           try {
-            await prisma.paymentDraft.delete({ where: { orderNumber: conversationId } });
+            await prisma.paymentDraft.delete({ where: { order_number: conversationId } });
           } catch (deleteError) {
             console.error("⚠️ Failed to delete payment draft:", deleteError);
           }

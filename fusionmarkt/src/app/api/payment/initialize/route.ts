@@ -75,19 +75,19 @@ export async function POST(request: NextRequest) {
 
     if (orderData) {
       await prisma.paymentDraft.upsert({
-        where: { orderNumber: finalOrderNumber },
+        where: { order_number: finalOrderNumber },
         update: {
           payload: orderData,
-          userId: userId || null,
-          paymentMethod: "CREDIT_CARD",
-          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          user_id: userId || null,
+          payment_method: "CREDIT_CARD",
+          expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
         },
         create: {
-          orderNumber: finalOrderNumber,
+          order_number: finalOrderNumber,
           payload: orderData,
-          userId: userId || null,
-          paymentMethod: "CREDIT_CARD",
-          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          user_id: userId || null,
+          payment_method: "CREDIT_CARD",
+          expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
         },
       });
     }
