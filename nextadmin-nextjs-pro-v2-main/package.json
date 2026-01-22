@@ -29,7 +29,6 @@
     "dayjs": "^1.11.13",
     "dropzone": "^6.0.0-beta.2",
     "flatpickr": "^4.6.13",
-    "iyzipay": "^2.0.64",
     "jsvectormap": "^1.6.0",
     "lucide-react": "^0.562.0",
     "next": "^15.4.7",
