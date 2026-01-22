@@ -16,6 +16,43 @@ import {
   sendPaymentConfirmedEmail 
 } from "@/lib/email";
 import { createCancel, createRefund, IYZICO_ENABLED } from "@/lib/iyzico";
+function normalizeIyzicoIp(rawIp?: string | null): string {
+  const candidate = (rawIp || "").split(",")[0]?.trim();
+  if (!candidate) {
+    return process.env.IYZICO_IP_OVERRIDE || "127.0.0.1";
+  }
+  if (candidate.startsWith("::ffff:")) {
+    return candidate.replace("::ffff:", "");
+  }
+  if (candidate.includes(":")) {
+    return process.env.IYZICO_IP_OVERRIDE || "127.0.0.1";
+  }
+  return candidate;
+}
+
+function normalizeRefundPrice(rawPrice: unknown, orderTotal?: number): number | null {
+  let value: number;
+  if (typeof rawPrice === "string") {
+    const normalized = rawPrice.replace(",", ".").trim();
+    value = Number(normalized);
+  } else if (typeof rawPrice === "number") {
+    value = rawPrice;
+  } else {
+    return null;
+  }
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  if (typeof orderTotal === "number" && Number.isFinite(orderTotal) && orderTotal > 0) {
+    if (value > orderTotal * 10) {
+      value = value / 100;
+    }
+  }
+
+  return Math.round(value * 100) / 100;
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -246,9 +283,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         } else if (!existing.iyzicoPaymentId) {
           console.log(`⚠️ iyzico paymentId missing (PUT): ${existing.orderNumber}`);
         } else {
-          const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0] || 
-                          request.headers.get("x-real-ip") || 
-                          "127.0.0.1";
+          const clientIp = normalizeIyzicoIp(
+            request.headers.get("x-forwarded-for") ||
+              request.headers.get("x-real-ip"),
+          );
+          const orderTotal = Number(existing.total);
           
           try {
             if (status === "CANCELLED") {
@@ -268,8 +307,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                   console.log(`🔄 Cancel başarısız, Refund deneniyor (PUT)...`);
                   for (const tx of existing.iyzicoPaymentTransactions as any[]) {
-                    const refundPrice = Number(tx.paidPrice ?? tx.price);
-                    if (!Number.isFinite(refundPrice)) {
+                    const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                    if (!refundPrice) {
                       console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
                       continue;
                     }
@@ -290,8 +329,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
               if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                 console.log(`💸 iyzico Refund başlatılıyor (PUT): ${existing.orderNumber}`);
                 for (const tx of existing.iyzicoPaymentTransactions as any[]) {
-                  const refundPrice = Number(tx.paidPrice ?? tx.price);
-                  if (!Number.isFinite(refundPrice)) {
+                  const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                  if (!refundPrice) {
                     console.error(`❌ iyzico Refund fiyatı geçersiz (PUT):`, tx);
                     continue;
                   }
@@ -450,9 +489,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         } else if (!existing.iyzicoPaymentId) {
           console.log(`⚠️ iyzico paymentId missing: ${existing.orderNumber}`);
         } else {
-          const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0] || 
-                          request.headers.get("x-real-ip") || 
-                          "127.0.0.1";
+          const clientIp = normalizeIyzicoIp(
+            request.headers.get("x-forwarded-for") ||
+              request.headers.get("x-real-ip"),
+          );
+          const orderTotal = Number(existing.total);
           
           try {
             if (body.status === "CANCELLED") {
@@ -473,8 +514,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                   console.log(`🔄 Cancel başarısız, Refund deneniyor...`);
                   for (const tx of existing.iyzicoPaymentTransactions) {
-                    const refundPrice = Number(tx.paidPrice ?? tx.price);
-                    if (!Number.isFinite(refundPrice)) {
+                    const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                    if (!refundPrice) {
                       console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
                       continue;
                     }
@@ -499,8 +540,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
               if (existing.iyzicoPaymentTransactions && Array.isArray(existing.iyzicoPaymentTransactions)) {
                 console.log(`💸 iyzico Refund başlatılıyor: ${existing.orderNumber}`);
                 for (const tx of existing.iyzicoPaymentTransactions) {
-                  const refundPrice = Number(tx.paidPrice ?? tx.price);
-                  if (!Number.isFinite(refundPrice)) {
+                  const refundPrice = normalizeRefundPrice(tx.paidPrice ?? tx.price, orderTotal);
+                  if (!refundPrice) {
                     console.error(`❌ iyzico Refund fiyatı geçersiz:`, tx);
                     continue;
                   }
