@@ -175,13 +175,19 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Get the return request with order
+    // Get the return request with order and user
     const returnRequest = await prisma.returnRequest.findUnique({
       where: { id },
       include: {
         order: {
           include: {
             items: true,
+            user: {
+              select: {
+                email: true,
+                name: true,
+              },
+            },
           },
         },
       },
@@ -264,21 +270,30 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }
       }
 
-      // 3. Update order status
+      // 3. Update order status - fetch fresh order to get statusHistory
+      const freshOrder = await prisma.order.findUnique({
+        where: { id: order.id },
+        select: { statusHistory: true },
+      });
+      
+      const existingHistory = Array.isArray(freshOrder?.statusHistory) ? freshOrder.statusHistory : [];
+      const updatedHistory = [
+        ...existingHistory,
+        {
+          status: "REFUNDED",
+          date: now.toISOString(),
+          previousStatus: order.status,
+          note: `Admin tarafından iade talebi onaylandı${adminNote ? `: ${adminNote}` : ''}`,
+        },
+      ];
+      
       await prisma.order.update({
         where: { id: order.id },
         data: {
           status: "REFUNDED",
           paymentStatus: isCardPayment ? "REFUNDED" : order.paymentStatus,
           refundedAt: now,
-          statusHistory: {
-            push: {
-              status: "REFUNDED",
-              date: now.toISOString(),
-              previousStatus: order.status,
-              note: `Admin tarafından iade talebi onaylandı${adminNote ? `: ${adminNote}` : ''}`,
-            },
-          },
+          statusHistory: updatedHistory,
         },
       });
 
@@ -296,6 +311,29 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       });
 
       console.log(`✅ Return request approved for order ${order.orderNumber}`);
+
+      // 5. Send approval email
+      if (order.user?.email) {
+        try {
+          const emailApiUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "https://fusionmarkt.com";
+          await fetch(`${emailApiUrl}/api/email/return-approved`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: order.user.email,
+              orderNumber: order.orderNumber,
+              name: order.user.name,
+              total: `₺${Number(order.total).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}`,
+              returnAddress: returnAddress?.trim(),
+              returnInstructions: returnInstructions?.trim(),
+              adminNote,
+            }),
+          });
+          console.log(`📧 Return approved email sent to ${order.user.email}`);
+        } catch (emailError) {
+          console.error(`❌ Email send error:`, emailError);
+        }
+      }
 
       revalidateTag("orders");
       revalidateTag("return-requests");
@@ -321,6 +359,26 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       });
 
       console.log(`❌ Return request rejected for order ${order.orderNumber}`);
+
+      // Send rejection email
+      if (order.user?.email) {
+        try {
+          const emailApiUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "https://fusionmarkt.com";
+          await fetch(`${emailApiUrl}/api/email/return-rejected`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: order.user.email,
+              orderNumber: order.orderNumber,
+              name: order.user.name,
+              reason: adminNote,
+            }),
+          });
+          console.log(`📧 Return rejected email sent to ${order.user.email}`);
+        } catch (emailError) {
+          console.error(`❌ Email send error:`, emailError);
+        }
+      }
 
       revalidateTag("return-requests");
 

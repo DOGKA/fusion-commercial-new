@@ -1007,6 +1007,9 @@ interface ContractViewModalProps {
 
 function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, formatDate: formatDateFn }: ContractViewModalProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const [fetchedHTML, setFetchedHTML] = useState<string | null>(null);
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchedFromAPI, setFetchedFromAPI] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -1029,23 +1032,58 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
     };
   }, [isOpen, onClose]);
 
+  // Fetch contracts from frontend API (triggers backfill for old orders)
+  useEffect(() => {
+    if (!isOpen || fetchedFromAPI) return;
+    
+    const fetchContracts = async () => {
+      setFetchLoading(true);
+      try {
+        const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "https://fusionmarkt.com";
+        const typeParam = contractType === "distanceSales" ? "distance" : "terms";
+        const res = await fetch(`${frontendUrl}/api/orders/${order.orderNumber}/contracts?type=${typeParam}`);
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.html) {
+            setFetchedHTML(data.html);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch contract from API:", err);
+      } finally {
+        setFetchLoading(false);
+        setFetchedFromAPI(true);
+      }
+    };
+    
+    fetchContracts();
+  }, [isOpen, contractType, order.orderNumber, fetchedFromAPI]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFetchedHTML(null);
+      setFetchedFromAPI(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  // Check for stored HTML contracts in statusHistory
+  // Check for stored HTML contracts in statusHistory (local fallback)
   const statusHistoryArray = Array.isArray(order.statusHistory) ? order.statusHistory : [];
   const contractHistory = statusHistoryArray.find(
     (h: any) => h.type === "CONTRACT_ACCEPTANCE"
   );
   const storedContracts = contractHistory?.contracts;
   
-  // Check if we have stored HTML contracts
-  const hasStoredHTML = contractType === "distanceSales"
-    ? !!storedContracts?.distanceSalesContractHTML
-    : !!storedContracts?.termsAndConditionsHTML;
-  
-  const storedHTML = contractType === "distanceSales"
+  // Use fetched HTML first, then local stored HTML
+  const localStoredHTML = contractType === "distanceSales"
     ? storedContracts?.distanceSalesContractHTML
     : storedContracts?.termsAndConditionsHTML;
+  
+  const storedHTML = fetchedHTML || localStoredHTML;
+  const hasStoredHTML = !!storedHTML;
 
   // Build buyer info from order (fallback for old orders without stored HTML)
   const buyerName = order.user?.name || 

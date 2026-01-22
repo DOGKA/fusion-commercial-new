@@ -401,7 +401,7 @@ export default function HesabimPage() {
                 
                 {/* Global Notification */}
                 {notification && (
-                  <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border ${
+                  <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border notification-toast ${
                     notification.type === "success" 
                       ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
                       : "bg-red-500/10 border-red-500/30 text-red-400"
@@ -450,6 +450,39 @@ export default function HesabimPage() {
                   }
                   .light .account-page-layout .text-foreground-disabled {
                     color: #9ca3af !important;
+                  }
+                  /* Status card backgrounds - white in light mode */
+                  .light .account-page-layout .bg-emerald-500\/10 {
+                    background-color: #ffffff !important;
+                    border-color: #10b981 !important;
+                  }
+                  .light .account-page-layout .bg-amber-500\/10 {
+                    background-color: #ffffff !important;
+                    border-color: #f59e0b !important;
+                  }
+                  .light .account-page-layout .bg-red-500\/10 {
+                    background-color: #ffffff !important;
+                    border-color: #ef4444 !important;
+                  }
+                  .light .account-page-layout .bg-purple-500\/10 {
+                    background-color: #ffffff !important;
+                    border-color: #a855f7 !important;
+                  }
+                  /* Toast notification - white background in light mode */
+                  .light .notification-toast.bg-emerald-500\/10 {
+                    background-color: #ffffff !important;
+                    border-color: #10b981 !important;
+                  }
+                  .light .notification-toast.bg-red-500\/10 {
+                    background-color: #ffffff !important;
+                    border-color: #ef4444 !important;
+                  }
+                  /* Modal success/error elements - white in light mode */
+                  .light .account-page-layout .bg-emerald-500\/20 {
+                    background-color: #d1fae5 !important;
+                  }
+                  .light .account-page-layout .bg-red-500\/20 {
+                    background-color: #fee2e2 !important;
                   }
                 `}</style>
               </div>

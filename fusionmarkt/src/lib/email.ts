@@ -23,6 +23,10 @@ import { PaymentConfirmedEmail } from "@/emails/templates/PaymentConfirmedEmail"
 import { CartReminderEmail } from "@/emails/templates/CartReminderEmail";
 import { AdminNewOrderEmail } from "@/emails/templates/AdminNewOrderEmail";
 import { ReviewReminderEmail } from "@/emails/templates/ReviewReminderEmail";
+import { CancellationApprovedEmail } from "@/emails/templates/CancellationApprovedEmail";
+import { CancellationRejectedEmail } from "@/emails/templates/CancellationRejectedEmail";
+import { ReturnApprovedEmail } from "@/emails/templates/ReturnApprovedEmail";
+import { ReturnRejectedEmail } from "@/emails/templates/ReturnRejectedEmail";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -489,6 +493,112 @@ export async function sendContactFormNotification(params: {
   return sendEmail({
     to: CONTACT_EMAIL,
     subject: `İletişim Formu: ${params.subject || params.name}`,
+    html,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CANCELLATION & RETURN REQUEST EMAILS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Send cancellation approved email
+ */
+export async function sendCancellationApprovedEmail(params: {
+  to: string;
+  orderNumber: string;
+  name?: string;
+  total: string;
+  paymentMethod: "card" | "bank";
+  adminNote?: string;
+}) {
+  const html = await render(
+    CancellationApprovedEmail({
+      orderNumber: params.orderNumber,
+      name: params.name,
+      total: params.total,
+      paymentMethod: params.paymentMethod,
+      adminNote: params.adminNote,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - İptal Talebiniz Onaylandı #${params.orderNumber}`,
+    html,
+  });
+}
+
+/**
+ * Send cancellation rejected email
+ */
+export async function sendCancellationRejectedEmail(params: {
+  to: string;
+  orderNumber: string;
+  name?: string;
+  reason?: string;
+}) {
+  const html = await render(
+    CancellationRejectedEmail({
+      orderNumber: params.orderNumber,
+      name: params.name,
+      reason: params.reason,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - İptal Talebiniz Reddedildi #${params.orderNumber}`,
+    html,
+  });
+}
+
+/**
+ * Send return approved email
+ */
+export async function sendReturnApprovedEmail(params: {
+  to: string;
+  orderNumber: string;
+  name?: string;
+  total: string;
+  returnAddress: string;
+  returnInstructions?: string;
+  adminNote?: string;
+}) {
+  const html = await render(
+    ReturnApprovedEmail({
+      orderNumber: params.orderNumber,
+      name: params.name,
+      total: params.total,
+      returnAddress: params.returnAddress,
+      returnInstructions: params.returnInstructions,
+      adminNote: params.adminNote,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - İade Talebiniz Onaylandı #${params.orderNumber}`,
+    html,
+  });
+}
+
+/**
+ * Send return rejected email
+ */
+export async function sendReturnRejectedEmail(params: {
+  to: string;
+  orderNumber: string;
+  name?: string;
+  reason?: string;
+}) {
+  const html = await render(
+    ReturnRejectedEmail({
+      orderNumber: params.orderNumber,
+      name: params.name,
+      reason: params.reason,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - İade Talebiniz Reddedildi #${params.orderNumber}`,
     html,
   });
 }

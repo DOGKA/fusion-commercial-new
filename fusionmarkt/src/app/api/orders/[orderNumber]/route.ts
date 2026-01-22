@@ -65,13 +65,91 @@ export async function GET(
       }
     });
 
-    // Get addresses
-    const billingAddr = order.billingAddressId 
+    // Get addresses - first try from Address table, then from statusHistory snapshot
+    let billingAddr = order.billingAddressId 
       ? await prisma.address.findUnique({ where: { id: order.billingAddressId } })
       : null;
-    const shippingAddr = order.shippingAddressId 
+    let shippingAddr = order.shippingAddressId 
       ? await prisma.address.findUnique({ where: { id: order.shippingAddressId } })
       : null;
+
+    // If no address found in Address table, check statusHistory for snapshot
+    if (!billingAddr && order.statusHistory) {
+      const statusHistory = order.statusHistory as Array<{
+        type?: string;
+        addresses?: {
+          billingAddress?: {
+            fullName?: string;
+            firstName?: string;
+            lastName?: string;
+            phone?: string;
+            city?: string;
+            district?: string;
+            postalCode?: string;
+            addressLine1?: string;
+            address?: string;
+          };
+          shippingAddress?: {
+            fullName?: string;
+            firstName?: string;
+            lastName?: string;
+            phone?: string;
+            city?: string;
+            district?: string;
+            postalCode?: string;
+            addressLine1?: string;
+            address?: string;
+          };
+        };
+      }>;
+      
+      const addressSnapshot = statusHistory.find(entry => entry.type === "ADDRESS_SNAPSHOT");
+      if (addressSnapshot?.addresses) {
+        const snapshot = addressSnapshot.addresses;
+        if (snapshot.billingAddress) {
+          billingAddr = {
+            id: "snapshot",
+            userId: order.userId,
+            title: "Sipariş Adresi",
+            firstName: snapshot.billingAddress.firstName || "",
+            lastName: snapshot.billingAddress.lastName || "",
+            phone: snapshot.billingAddress.phone || "",
+            city: snapshot.billingAddress.city || "",
+            district: snapshot.billingAddress.district || "",
+            postalCode: snapshot.billingAddress.postalCode || "",
+            addressLine1: snapshot.billingAddress.addressLine1 || snapshot.billingAddress.address || "",
+            addressLine2: null,
+            address: snapshot.billingAddress.address || snapshot.billingAddress.addressLine1 || "",
+            country: "Türkiye",
+            type: "BILLING",
+            isDefault: false,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+          } as unknown as typeof billingAddr;
+        }
+        if (snapshot.shippingAddress && !shippingAddr) {
+          shippingAddr = {
+            id: "snapshot",
+            userId: order.userId,
+            title: "Teslimat Adresi",
+            firstName: snapshot.shippingAddress.firstName || "",
+            lastName: snapshot.shippingAddress.lastName || "",
+            phone: snapshot.shippingAddress.phone || "",
+            city: snapshot.shippingAddress.city || "",
+            district: snapshot.shippingAddress.district || "",
+            postalCode: snapshot.shippingAddress.postalCode || "",
+            addressLine1: snapshot.shippingAddress.addressLine1 || snapshot.shippingAddress.address || "",
+            addressLine2: null,
+            address: snapshot.shippingAddress.address || snapshot.shippingAddress.addressLine1 || "",
+            country: "Türkiye",
+            type: "SHIPPING",
+            isDefault: false,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+          } as unknown as typeof shippingAddr;
+        }
+      }
+    }
 
     // Format response with real product data
     const response = {
