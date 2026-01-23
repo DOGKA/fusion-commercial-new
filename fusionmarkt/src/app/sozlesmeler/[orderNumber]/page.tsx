@@ -107,11 +107,11 @@ export default function ContractViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-4 sm:py-8 px-3 sm:px-4">
+    <div className="min-h-screen bg-background pt-20 sm:pt-24 pb-4 sm:pb-8 px-3 sm:px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-[#0f0f0f] rounded-t-2xl border border-white/10 border-b-0">
-          <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 bg-emerald-500/5">
+          <div className="p-4 sm:p-6 flex flex-row items-center justify-between gap-3 border-b border-white/10 bg-emerald-500/5">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
                 <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
