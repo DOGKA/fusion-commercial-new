@@ -12,7 +12,7 @@ export default function FeaturedProducts() {
   const [loading, setLoading] = useState(true);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
   
-  // Use CSS Transform carousel hook for ultra-smooth scrolling
+  // CSS Transform carousel - manual scroll only
   const { 
     containerRef, 
     wrapperRef, 
@@ -20,14 +20,7 @@ export default function FeaturedProducts() {
     wrapperStyle, 
     handlers,
     scrollBy,
-    pauseAutoScroll,
-    resumeAutoScroll,
-  } = useTransformCarousel({
-    autoScroll: !loading && products.length > 0,
-    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
-    pauseOnHover: true,
-    friction: 0.95,
-  });
+  } = useTransformCarousel({ friction: 0.95 });
 
   // Fetch shipping threshold first
   useEffect(() => {
@@ -97,43 +90,40 @@ export default function FeaturedProducts() {
           {/* Navigation Buttons - Only visible on desktop */}
           <CarouselNavButtons
             scrollBy={scrollBy}
-            pauseAutoScroll={pauseAutoScroll}
-            resumeAutoScroll={resumeAutoScroll}
             scrollAmount={300}
             theme="neutral"
           />
         </div>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
-          </div>
-        ) : (
-          /* Products Carousel - CSS Transform for ultra-smooth GPU scrolling */
-          <div className="relative -mx-4 px-4">
-            {/* Container - viewport */}
+        {/* Products Carousel - CSS Transform for ultra-smooth GPU scrolling */}
+        <div className="relative -mx-4 px-4">
+          {/* Container - viewport */}
+          <div
+            ref={containerRef}
+            style={containerStyle}
+            className="pb-4"
+          >
+            {/* Wrapper - content moves via transform */}
             <div
-              ref={containerRef}
-              style={containerStyle}
-              className="pb-4"
+              ref={wrapperRef}
+              style={{ ...wrapperStyle, gap: "20px" }}
+              {...handlers}
+              className="flex items-stretch"
             >
-              {/* Wrapper - content moves via transform */}
-              <div
-                ref={wrapperRef}
-                style={{ ...wrapperStyle, gap: "20px" }}
-                {...handlers}
-                className="flex items-stretch"
-              >
-                {displayProducts.map((product, index) => (
+              {loading ? (
+                <div className="flex items-center justify-center py-20 w-full">
+                  <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+                </div>
+              ) : (
+                displayProducts.map((product, index) => (
                   <div key={`${product.id}-${index}`} className="flex-shrink-0 w-[280px]">
                     <ProductCard product={product} priority={false} />
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

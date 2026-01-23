@@ -1511,10 +1511,7 @@ enum RequestStatus {
 enum ReturnReason {
   DAMAGED
   WRONG_PRODUCT
-  NOT_AS_EXPECTED
-  CHANGED_MIND
-  DEFECTIVE
-  OTHER
+  SPECS_MISMATCH
 }
 
 enum BanType {

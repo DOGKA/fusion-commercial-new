@@ -297,8 +297,7 @@ export default function CategoryPage() {
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
   
-  // Use CSS Transform carousel hook for mobile - ultra-smooth GPU scrolling
-  // CRITICAL: autoScroll must change when products load to trigger effect re-run
+  // CSS Transform carousel for mobile - manual scroll only
   const { 
     containerRef: mobileContainerRef, 
     wrapperRef: mobileWrapperRef, 
@@ -306,15 +305,7 @@ export default function CategoryPage() {
     wrapperStyle: mobileWrapperStyle, 
     handlers: mobileScrollHandlers,
     scrollBy,
-    pauseAutoScroll,
-    resumeAutoScroll,
-  } = useTransformCarousel({
-    autoScroll: products.length > 0, // Trigger effect when products load
-    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
-    pauseOnHover: true,
-    pauseDuration: 3000,
-    friction: 0.95,
-  });
+  } = useTransformCarousel({ friction: 0.95 });
 
   // Get theme color from category or use default
   const themeColor = category?.themeColor || DEFAULT_THEME_COLOR;
@@ -844,23 +835,8 @@ export default function CategoryPage() {
     });
   };
 
-  // Loading
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div
-            className="w-16 h-16 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: `${themeColor}40`, borderTopColor: themeColor }}
-          />
-          <span className="text-foreground-muted">Yükleniyor...</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Not found
-  if (!category) {
+  // Not found (only when NOT loading)
+  if (!loading && !category) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 px-4">
         <div className="w-24 h-24 rounded-full bg-foreground/5 flex items-center justify-center">
@@ -912,60 +888,80 @@ export default function CategoryPage() {
       {/* PRODUCTS */}
       {/* ============================================ */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {products.length > 0 ? (
-          <>
-            {/* MOBILE: 360° Carousel with CSS Transform - ultra-smooth GPU scrolling */}
-            <div className="md:hidden relative">
-              {/* Container - viewport */}
-              <div
-                ref={mobileContainerRef}
-                style={{ ...mobileContainerStyle, paddingLeft: '16px', paddingRight: '16px' }}
-                className="pb-4"
-              >
-                {/* Wrapper - content moves via transform */}
-                <div
-                  ref={mobileWrapperRef}
-                  style={{ ...mobileWrapperStyle, gap: '16px' }}
-                  {...mobileScrollHandlers}
-                  className="flex items-stretch"
-                >
-                  {/* Triplicate products for 360° infinite scroll */}
-                  {[...products, ...products, ...products].map((product, idx) => (
-                    <div 
-                      key={`${product.id}-${idx}`} 
-                      className="flex-shrink-0 w-[280px]"
-                    >
-                      {isBundleCategory || product.isBundle ? (
-                        <BundleProductCard
-                          bundle={{
-                            id: String(product.id),
-                            slug: product.slug,
-                            name: product.title || product.name,
-                            price: Number(product.price) || 0,
-                            totalValue: Number(product.totalValue || product.comparePrice || product.originalPrice || product.price) || 0,
-                            savings: Number(product.savings) || 0,
-                            savingsPercent: Number(product.savingsPercent) || 0,
-                            thumbnail: product.thumbnail || product.image || null,
-                            stock: Number(product.stock || 0),
-                            items: product.items || [],
-                            itemCount: Number(product.itemCount || 0),
-                            ratingAverage: product.ratingAverage,
-                            ratingCount: product.ratingCount,
-                            badges: product.badges || [],
-                            freeShipping: Number(product.price) >= freeShippingThreshold,
-                            videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
-                          } as BundleProduct}
-                          priority={idx < 4}
-                        />
-                      ) : (
-                        <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} priority={idx < 4} />
-                      )}
-                    </div>
-                  ))}
+        {/* MOBILE: 360° Carousel with CSS Transform - always render refs */}
+        <div className="md:hidden relative">
+          {/* Container - viewport */}
+          <div
+            ref={mobileContainerRef}
+            style={{ ...mobileContainerStyle, paddingLeft: '16px', paddingRight: '16px' }}
+            className="pb-4"
+          >
+            {/* Wrapper - content moves via transform */}
+            <div
+              ref={mobileWrapperRef}
+              style={{ ...mobileWrapperStyle, gap: '16px' }}
+              {...mobileScrollHandlers}
+              className="flex items-stretch"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center py-20 w-full">
+                  <div
+                    className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
+                    style={{ borderColor: `${themeColor}40`, borderTopColor: themeColor }}
+                  />
                 </div>
-              </div>
+              ) : products.length > 0 ? (
+                [...products, ...products, ...products].map((product, idx) => (
+                  <div 
+                    key={`${product.id}-${idx}`} 
+                    className="flex-shrink-0 w-[280px]"
+                  >
+                    {isBundleCategory || product.isBundle ? (
+                      <BundleProductCard
+                        bundle={{
+                          id: String(product.id),
+                          slug: product.slug,
+                          name: product.title || product.name,
+                          price: Number(product.price) || 0,
+                          totalValue: Number(product.totalValue || product.comparePrice || product.originalPrice || product.price) || 0,
+                          savings: Number(product.savings) || 0,
+                          savingsPercent: Number(product.savingsPercent) || 0,
+                          thumbnail: product.thumbnail || product.image || null,
+                          stock: Number(product.stock || 0),
+                          items: product.items || [],
+                          itemCount: Number(product.itemCount || 0),
+                          ratingAverage: product.ratingAverage,
+                          ratingCount: product.ratingCount,
+                          badges: product.badges || [],
+                          freeShipping: Number(product.price) >= freeShippingThreshold,
+                          videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
+                        } as BundleProduct}
+                        priority={idx < 4}
+                      />
+                    ) : (
+                      <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} priority={idx < 4} />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center py-20 w-full text-foreground-muted">
+                  Bu kategoride ürün bulunmuyor
+                </div>
+              )}
             </div>
+          </div>
+        </div>
 
+        {/* DESKTOP */}
+        {loading ? (
+          <div className="hidden md:flex items-center justify-center py-20">
+            <div
+              className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
+              style={{ borderColor: `${themeColor}40`, borderTopColor: themeColor }}
+            />
+          </div>
+        ) : products.length > 0 ? (
+          <>
             {/* DESKTOP: Grid - 4 ürün per satır */}
             <div className="hidden md:grid grid-cols-4 gap-5 justify-items-center">
               {products.map((product, idx) => (
@@ -1000,7 +996,7 @@ export default function CategoryPage() {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
+          <div className="hidden md:flex flex-col items-center justify-center py-16 sm:py-20 text-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-foreground/5 flex items-center justify-center mb-4 sm:mb-6">
               <Package className="w-8 h-8 sm:w-10 sm:h-10 text-foreground-muted" />
             </div>

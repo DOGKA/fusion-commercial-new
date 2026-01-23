@@ -1022,7 +1022,7 @@ function CategoryCarousel({
 }) {
   const [isMobile, setIsMobile] = useState(false);
   
-  // Use CSS Transform carousel hook - ultra-smooth GPU scrolling
+  // CSS Transform carousel - manual scroll only
   const { 
     containerRef, 
     wrapperRef, 
@@ -1030,15 +1030,7 @@ function CategoryCarousel({
     wrapperStyle, 
     handlers,
     scrollBy,
-    pauseAutoScroll,
-    resumeAutoScroll,
-  } = useTransformCarousel({
-    autoScroll: category.products.length > 0,
-    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
-    pauseOnHover: true,
-    pauseDuration: 3000,
-    friction: 0.95,
-  });
+  } = useTransformCarousel({ friction: 0.95 });
 
   // Mobile check
   useEffect(() => {
@@ -1095,8 +1087,6 @@ function CategoryCarousel({
       <div className="hidden lg:flex justify-end mb-3">
         <CarouselNavButtons
           scrollBy={scrollBy}
-          pauseAutoScroll={pauseAutoScroll}
-          resumeAutoScroll={resumeAutoScroll}
           scrollAmount={296}
           theme="dynamic"
           themeColor={themeColor}

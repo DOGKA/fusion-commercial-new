@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import gsap from 'gsap';
+import { gsap } from '@/lib/gsap';
 
 const galleryImages = [
-  '/sh4000/sh4000-camp-scene.png',
-  '/sh4000/sh4000-caravan-scene.png',
-  '/sh4000/sh4000-chicken-scene.png',
-  '/sh4000/sh4000-yatch-scene.png',
+  '/sh4000/sh4000-camp-scene.webp',
+  '/sh4000/sh4000-caravan-scene.webp',
+  '/sh4000/sh4000-chicken-scene.webp',
+  '/sh4000/sh4000-yatch-scene.webp',
 ];
 
 const galleryAlts = [
@@ -21,6 +21,33 @@ const galleryAlts = [
 export default function UseGallery() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  // IntersectionObserver ile görünürlük kontrolü
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Loop pause/play kontrolü
+  useEffect(() => {
+    if (!tweenRef.current) return;
+    if (isInView) {
+      tweenRef.current.play();
+    } else {
+      tweenRef.current.pause();
+    }
+  }, [isInView]);
 
   useEffect(() => {
     if (!sectionRef.current || !trackRef.current) return;
@@ -31,20 +58,20 @@ export default function UseGallery() {
       if (!section || !track) return;
 
       const mm = gsap.matchMedia();
-      let tween: gsap.core.Tween | null = null;
 
       const setupLoop = () => {
         const singleWidth = track.scrollWidth / 2;
         if (!singleWidth) return;
 
         const wrapX = gsap.utils.wrap(-singleWidth, 0);
-        tween?.kill();
+        tweenRef.current?.kill();
         gsap.set(track, { x: 0 });
-        tween = gsap.to(track, {
+        tweenRef.current = gsap.to(track, {
           x: -singleWidth,
           duration: 18,
           ease: 'none',
           repeat: -1,
+          paused: true, // Başlangıçta durdur, isInView ile kontrol et
           modifiers: {
             x: (x) => `${wrapX(parseFloat(x))}px`,
           },
@@ -58,8 +85,8 @@ export default function UseGallery() {
 
         return () => {
           observer.disconnect();
-          tween?.kill();
-          tween = null;
+          tweenRef.current?.kill();
+          tweenRef.current = null;
         };
       });
 

@@ -2,13 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import NextImage from 'next/image';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register plugin
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 interface Hero360CanvasProps {
   frames: string[];

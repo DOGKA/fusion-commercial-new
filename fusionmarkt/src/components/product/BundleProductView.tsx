@@ -464,14 +464,9 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
     fetchBundle();
   }, [slug]);
 
-  // CSS Transform carousel for key features strip - ultra-smooth GPU scrolling
+  // CSS Transform carousel - manual scroll only
   // Not: Bu carousel şu an kullanılmıyor ama ileride key features için lazım olabilir
-  useTransformCarousel({
-    autoScroll: true,
-    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
-    pauseOnHover: true,
-    friction: 0.95,
-  });
+  useTransformCarousel({ friction: 0.95 });
   
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);

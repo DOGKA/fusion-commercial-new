@@ -49,12 +49,9 @@ interface RouteParams {
 
 // Return reason labels for Turkish
 const RETURN_REASON_LABELS: Record<string, string> = {
-  DAMAGED: "Ürün hasarlı geldi",
-  WRONG_PRODUCT: "Yanlış ürün gönderildi",
-  NOT_AS_EXPECTED: "Ürün beklentimi karşılamadı",
-  CHANGED_MIND: "Fikrim değişti",
-  DEFECTIVE: "Ürün arızalı/kusurlu",
-  OTHER: "Diğer",
+  DAMAGED: "Ürün Hasarlı Geldi",
+  WRONG_PRODUCT: "Ürün Yanlış Gönderildi",
+  SPECS_MISMATCH: "Teknik Özellikler Siparişimle Uyuşmamaktadır",
 };
 
 /**
@@ -213,22 +210,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const validReasons = [
       "DAMAGED",
       "WRONG_PRODUCT",
-      "NOT_AS_EXPECTED",
-      "CHANGED_MIND",
-      "DEFECTIVE",
-      "OTHER",
+      "SPECS_MISMATCH",
     ];
     if (!reason || !validReasons.includes(reason)) {
       return NextResponse.json(
         { error: "Geçerli bir iade sebebi seçiniz" },
-        { status: 400 }
-      );
-    }
-
-    // If reason is OTHER, description is required
-    if (reason === "OTHER" && !description?.trim()) {
-      return NextResponse.json(
-        { error: "Diğer seçeneği için açıklama zorunludur" },
         { status: 400 }
       );
     }

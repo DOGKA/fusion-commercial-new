@@ -3,44 +3,27 @@
 import { useRef, useEffect, useCallback } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CSS TRANSFORM CAROUSEL - Ultra-smooth GPU-accelerated scrolling
-// Native touch events with { passive: false } for proper preventDefault
-// Angle-based direction lock for better diagonal swipe handling
+// CSS TRANSFORM CAROUSEL - Manual scroll only (no auto-scroll)
+// GPU-accelerated with momentum physics
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface TransformCarouselOptions {
-  autoScroll?: boolean;
-  autoScrollSpeed?: number; // px/saniye
-  pauseOnHover?: boolean;
-  friction?: number; // Momentum friction (0-1, yüksek = daha az sürtünme)
-  pauseDuration?: number; // ms - interaction sonrası bekleme
-  loop?: boolean; // Sonsuz döngü
-  horizontalAngleThreshold?: number; // Yatay hareket için açı eşiği (derece)
+  friction?: number; // Momentum friction (0-1, higher = less friction)
+  horizontalAngleThreshold?: number; // Angle threshold for horizontal swipe detection (degrees)
 }
 
 export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   const {
-    autoScroll = true,
-    autoScrollSpeed = 40, // px/saniye - yavaş & akıcı
-    pauseOnHover = true,
-    friction = 0.92, // Daha hızlı durma
-    pauseDuration = 2000,
-    horizontalAngleThreshold = 40, // ±40° içindeki çekişler yatay sayılır
+    friction = 0.92,
+    horizontalAngleThreshold = 40,
   } = options;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // REFS
-  // ═══════════════════════════════════════════════════════════════════════════
+  // Refs
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  
-  // State refs
   const translateX = useRef(0);
   const rafRef = useRef<number | null>(null);
-  const isRunning = useRef(false);
-  const isPaused = useRef(false);
   const isDragging = useRef(false);
-  const lastTickRef = useRef(0);
   
   // Touch/Mouse tracking
   const startX = useRef(0);
@@ -52,27 +35,9 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   
   // Direction lock
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
-  const directionLockThreshold = 6; // Daha düşük threshold - daha erken karar
-  const angleThresholdRef = useRef(horizontalAngleThreshold);
-  
-  // Resume timeout ref - prevent multiple timeouts stacking
-  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const directionLockThreshold = 6;
 
-  // Options as refs
-  const autoScrollRef = useRef(autoScroll);
-  const autoScrollSpeedRef = useRef(autoScrollSpeed);
-  const frictionRef = useRef(friction);
-  const pauseDurationRef = useRef(pauseDuration);
-  
-  useEffect(() => { autoScrollRef.current = autoScroll; }, [autoScroll]);
-  useEffect(() => { autoScrollSpeedRef.current = autoScrollSpeed; }, [autoScrollSpeed]);
-  useEffect(() => { frictionRef.current = friction; }, [friction]);
-  useEffect(() => { pauseDurationRef.current = pauseDuration; }, [pauseDuration]);
-  useEffect(() => { angleThresholdRef.current = horizontalAngleThreshold; }, [horizontalAngleThreshold]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // HELPERS
-  // ═══════════════════════════════════════════════════════════════════════════
+  // Helpers
   const applyTransform = useCallback((x: number) => {
     if (wrapperRef.current) {
       wrapperRef.current.style.transform = `translate3d(${x}px, 0, 0)`;
@@ -81,68 +46,15 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
 
   const getMaxScroll = useCallback(() => {
     if (!containerRef.current || !wrapperRef.current) return 0;
-    const containerWidth = containerRef.current.clientWidth;
-    const contentWidth = wrapperRef.current.scrollWidth;
-    return Math.max(0, contentWidth - containerWidth);
+    return Math.max(0, wrapperRef.current.scrollWidth - containerRef.current.clientWidth);
   }, []);
 
-  const stopAnimation = useCallback(() => {
-    isRunning.current = false;
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-  }, []);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // AUTO-SCROLL
-  // ═══════════════════════════════════════════════════════════════════════════
-  const startAutoScroll = useCallback(() => {
-    if (isRunning.current || !autoScrollRef.current) return false;
-    
-    const maxScroll = getMaxScroll();
-    if (maxScroll <= 0) return false;
-    
-    isRunning.current = true;
-    lastTickRef.current = performance.now();
-    
-    const tick = () => {
-      if (!isRunning.current) return;
-      
-      if (isPaused.current || isDragging.current) {
-        lastTickRef.current = performance.now();
-        rafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-      
-      const now = performance.now();
-      const dt = (now - lastTickRef.current) / 1000;
-      lastTickRef.current = now;
-      
-      translateX.current -= autoScrollSpeedRef.current * dt;
-      
-      const currentMax = getMaxScroll();
-      if (Math.abs(translateX.current) >= currentMax) {
-        translateX.current = 0;
-      }
-      
-      applyTransform(translateX.current);
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    
-    rafRef.current = requestAnimationFrame(tick);
-    return true;
-  }, [getMaxScroll, applyTransform]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MOMENTUM
-  // ═══════════════════════════════════════════════════════════════════════════
+  // Momentum animation
   const startMomentum = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
-    isRunning.current = false;
     
     const maxScroll = getMaxScroll();
     
@@ -161,18 +73,11 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
         
         applyTransform(translateX.current);
-        
-        setTimeout(() => {
-          if (!isDragging.current && !isRunning.current) {
-            isPaused.current = false;
-            startAutoScroll();
-          }
-        }, pauseDurationRef.current);
         return;
       }
       
       translateX.current += velocity.current;
-      velocity.current *= frictionRef.current;
+      velocity.current *= friction;
       
       // Boundary clamp
       if (translateX.current > 0) {
@@ -188,58 +93,12 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     };
     
     rafRef.current = requestAnimationFrame(tick);
-  }, [getMaxScroll, applyTransform, startAutoScroll]);
+  }, [getMaxScroll, applyTransform, friction]);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // EFFECT 1: TIMERS - Always run, check wrapper inside
-  // ═══════════════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    // Start auto-scroll with delay
-    const startTimer = setTimeout(() => {
-      if (autoScrollRef.current && getMaxScroll() > 0 && wrapperRef.current) {
-        startAutoScroll();
-      }
-    }, 300);
-    
-    // Aggressive retry for dynamic content loading - checks every 150ms
-    const retryTimer = setInterval(() => {
-      const wrapper = wrapperRef.current;
-      if (!wrapper) return; // Wrapper henüz yok, bekle
-      
-      if (!isRunning.current && autoScrollRef.current && getMaxScroll() > 0 && !isDragging.current && !isPaused.current) {
-        startAutoScroll();
-      }
-    }, 150);
-
-    // Visibility change handler
-    const handleVisibility = () => {
-      if (document.hidden) {
-        stopAnimation();
-      } else if (!isDragging.current && autoScrollRef.current && wrapperRef.current) {
-        setTimeout(() => startAutoScroll(), 100);
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      clearTimeout(startTimer);
-      clearInterval(retryTimer);
-      stopAnimation();
-      document.removeEventListener("visibilitychange", handleVisibility);
-      // Clear resume timeout on unmount
-      if (resumeTimeoutRef.current) {
-        clearTimeout(resumeTimeoutRef.current);
-        resumeTimeoutRef.current = null;
-      }
-    };
-  }, [getMaxScroll, startAutoScroll, stopAnimation, autoScroll]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // EFFECT 2: NATIVE EVENT LISTENERS - Only when wrapper exists
-  // ═══════════════════════════════════════════════════════════════════════════
+  // Event listeners effect
   useEffect(() => {
     const wrapper = wrapperRef.current;
-    if (!wrapper) return; // Wrapper yok, listener ekleme
+    if (!wrapper) return;
 
     // GPU hints
     wrapper.style.willChange = "transform";
@@ -248,12 +107,8 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
     wrapper.style.cursor = "grab";
     wrapper.style.touchAction = "pan-y pinch-zoom";
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TOUCH START
-    // ─────────────────────────────────────────────────────────────────────────
+    // Touch handlers
     const handleTouchStart = (e: TouchEvent) => {
-      isRunning.current = false;
-      isPaused.current = true;
       scrollDirection.current = null;
       velocity.current = 0;
       
@@ -270,9 +125,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       lastTime.current = performance.now();
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TOUCH MOVE - Angle-based direction lock
-    // ─────────────────────────────────────────────────────────────────────────
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       const currentX = touch.clientX;
@@ -282,38 +134,26 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       const absDeltaX = Math.abs(deltaX);
       const absDeltaY = Math.abs(deltaY);
       
-      // Direction lock - Açı tabanlı kontrol
+      // Direction lock
       if (scrollDirection.current === null) {
-        // Minimum hareket eşiğini geç
         if (absDeltaX > directionLockThreshold || absDeltaY > directionLockThreshold) {
-          // Açıyı hesapla (radyan → derece)
-          // atan2 -180 ile +180 arasında değer döndürür
-          const angleRad = Math.atan2(absDeltaY, absDeltaX);
-          const angleDeg = angleRad * (180 / Math.PI);
+          const angleDeg = Math.atan2(absDeltaY, absDeltaX) * (180 / Math.PI);
           
-          // ±horizontalAngleThreshold içindeyse yatay hareket
-          // Örn: 40° threshold ile 0-40° arası yatay, 40-90° arası dikey
-          if (angleDeg <= angleThresholdRef.current) {
+          if (angleDeg <= horizontalAngleThreshold) {
             scrollDirection.current = "horizontal";
             isDragging.current = true;
-            // Yatay hareket başladı - hemen dikey scroll'u engelle
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
           } else {
             scrollDirection.current = "vertical";
-            // Dikey scroll'a izin ver, fonksiyondan çık
             return;
           }
         } else {
-          // Henüz yeterli hareket yok, bekle
           return;
         }
       }
       
-      // Dikey scroll modundaysa hiçbir şey yapma
       if (scrollDirection.current !== "horizontal") return;
-      
-      // Yatay scroll modunda - dikey scroll'u engelle
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       
       const now = performance.now();
       const timeDelta = now - lastTime.current;
@@ -338,9 +178,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       lastTime.current = now;
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TOUCH END
-    // ─────────────────────────────────────────────────────────────────────────
     const handleTouchEnd = () => {
       if (scrollDirection.current === "horizontal") {
         isDragging.current = false;
@@ -351,27 +188,15 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
           const maxScroll = getMaxScroll();
           if (translateX.current > 0) translateX.current = 0;
           else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
-          
           applyTransform(translateX.current);
-          
-          setTimeout(() => {
-            if (!isDragging.current && !isRunning.current) {
-              isPaused.current = false;
-              startAutoScroll();
-            }
-          }, pauseDurationRef.current);
         }
       }
       scrollDirection.current = null;
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // MOUSE HANDLERS
-    // ─────────────────────────────────────────────────────────────────────────
+    // Mouse handlers
     const handleMouseDown = (e: MouseEvent) => {
-      isRunning.current = false;
       isDragging.current = true;
-      isPaused.current = true;
       velocity.current = 0;
       
       if (rafRef.current) {
@@ -427,95 +252,61 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
         const maxScroll = getMaxScroll();
         if (translateX.current > 0) translateX.current = 0;
         else if (Math.abs(translateX.current) > maxScroll) translateX.current = -maxScroll;
-        
         applyTransform(translateX.current);
-        
-        setTimeout(() => {
-          if (!isDragging.current && !isRunning.current) {
-            isPaused.current = false;
-            startAutoScroll();
-          }
-        }, pauseDurationRef.current);
       }
-    };
-
-    const handleMouseEnter = () => {
-      if (pauseOnHover) isPaused.current = true;
     };
 
     const handleMouseLeave = () => {
       if (isDragging.current) handleMouseUp();
-      isPaused.current = false;
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ADD EVENT LISTENERS
-    // ─────────────────────────────────────────────────────────────────────────
+    // Add listeners
     wrapper.addEventListener("touchstart", handleTouchStart, { passive: true });
     wrapper.addEventListener("touchmove", handleTouchMove, { passive: false });
     wrapper.addEventListener("touchend", handleTouchEnd, { passive: true });
     wrapper.addEventListener("touchcancel", handleTouchEnd, { passive: true });
-    
     wrapper.addEventListener("mousedown", handleMouseDown);
     wrapper.addEventListener("mousemove", handleMouseMove);
     wrapper.addEventListener("mouseup", handleMouseUp);
     wrapper.addEventListener("mouseleave", handleMouseLeave);
-    wrapper.addEventListener("mouseenter", handleMouseEnter);
 
     return () => {
       wrapper.removeEventListener("touchstart", handleTouchStart);
       wrapper.removeEventListener("touchmove", handleTouchMove);
       wrapper.removeEventListener("touchend", handleTouchEnd);
       wrapper.removeEventListener("touchcancel", handleTouchEnd);
-      
       wrapper.removeEventListener("mousedown", handleMouseDown);
       wrapper.removeEventListener("mousemove", handleMouseMove);
       wrapper.removeEventListener("mouseup", handleMouseUp);
       wrapper.removeEventListener("mouseleave", handleMouseLeave);
-      wrapper.removeEventListener("mouseenter", handleMouseEnter);
+      
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
-  }, [getMaxScroll, applyTransform, startAutoScroll, startMomentum, pauseOnHover, autoScroll]);
+  }, [getMaxScroll, applyTransform, startMomentum, horizontalAngleThreshold]);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // NAVIGATION METHODS - For CarouselNavButtons
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  /**
-   * Carousel'i belirli miktarda kaydırır
-   * @param amount - Pozitif = sola (önceki), Negatif = sağa (sonraki)
-   * @param smooth - Animasyonlu geçiş (default: true)
-   */
+  // Navigation method for buttons
   const scrollBy = useCallback((amount: number, smooth = true) => {
     if (!wrapperRef.current || !containerRef.current) return;
     
-    // Auto-scroll'u durdur
-    isRunning.current = false;
-    isPaused.current = true;
     velocity.current = 0;
-    
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
     
     const maxScroll = getMaxScroll();
-    
-    // Yeni pozisyonu hesapla
     let newX = translateX.current + amount;
     
-    // Sınırları kontrol et
     if (newX > 0) newX = 0;
     if (Math.abs(newX) > maxScroll) newX = -maxScroll;
     
-    // Internal state'i güncelle
     translateX.current = newX;
     
-    // Animasyonlu veya direkt uygula
     if (smooth && wrapperRef.current) {
       wrapperRef.current.style.transition = "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
       applyTransform(newX);
-      
-      // Animasyon sonrası transition'ı kaldır
       setTimeout(() => {
         if (wrapperRef.current) {
           wrapperRef.current.style.transition = "";
@@ -525,45 +316,7 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       applyTransform(newX);
     }
   }, [getMaxScroll, applyTransform]);
-  
-  /**
-   * Auto-scroll'u durdurur
-   */
-  const pauseAutoScroll = useCallback(() => {
-    isRunning.current = false;
-    isPaused.current = true;
-    
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-  }, []);
-  
-  /**
-   * Auto-scroll'u yeniden başlatır (belirli süre sonra)
-   * @param delay - Başlatma gecikmesi ms (default: pauseDuration)
-   */
-  const resumeAutoScroll = useCallback((delay?: number) => {
-    const resumeDelay = delay ?? pauseDurationRef.current;
-    
-    // Clear previous timeout to prevent stacking
-    if (resumeTimeoutRef.current) {
-      clearTimeout(resumeTimeoutRef.current);
-      resumeTimeoutRef.current = null;
-    }
-    
-    resumeTimeoutRef.current = setTimeout(() => {
-      resumeTimeoutRef.current = null;
-      if (!isDragging.current && autoScrollRef.current) {
-        isPaused.current = false;
-        startAutoScroll();
-      }
-    }, resumeDelay);
-  }, [startAutoScroll]);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // RETURN
-  // ═══════════════════════════════════════════════════════════════════════════
   return {
     containerRef,
     wrapperRef,
@@ -577,13 +330,9 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
       willChange: "transform",
       backfaceVisibility: "hidden" as const,
       cursor: "grab",
-      touchAction: "pan-y pinch-zoom", // Allow vertical scroll
+      touchAction: "pan-y pinch-zoom",
     },
-    // Empty handlers - all handled via native listeners
     handlers: {},
-    // Navigation methods for CarouselNavButtons
     scrollBy,
-    pauseAutoScroll,
-    resumeAutoScroll,
   };
 }

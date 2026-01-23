@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import gsap from 'gsap';
+import { gsap } from '@/lib/gsap';
 
 interface UseCase {
   id: string;
@@ -138,8 +138,34 @@ export default function UseCases() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0); // "Ev Kullanımı" ile başla
   const [isVisible, setIsVisible] = useState(false);
+  const [isInView, setIsInView] = useState(false);
   const activeIndexRef = useRef(0);
   const loopRef = useRef<gsap.core.Tween | null>(null);
+
+  // IntersectionObserver ile görünürlük kontrolü
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Loop pause/play kontrolü
+  useEffect(() => {
+    if (!loopRef.current) return;
+    if (isInView) {
+      loopRef.current.play();
+    } else {
+      loopRef.current.pause();
+    }
+  }, [isInView]);
 
   useEffect(() => {
     if (!sectionRef.current || !containerRef.current) return;
@@ -166,6 +192,7 @@ export default function UseCases() {
         duration: 24,
         ease: 'none',
         repeat: -1,
+        paused: true, // Başlangıçta durdur, isInView ile kontrol et
         modifiers: {
           x: (x) => `${wrapX(parseFloat(x))}px`,
         },
@@ -188,7 +215,7 @@ export default function UseCases() {
 
 
   return (
-    <section ref={sectionRef} className="bg-background overflow-hidden py-10">
+    <section ref={sectionRef} className="bg-background overflow-hidden py-10" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
       {/* Header */}
       <div className={`text-center mb-6 px-6 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase text-primary border border-primary/30 bg-primary/10 mb-3">

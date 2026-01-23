@@ -2,12 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 export default function ProductDetailsDiagram() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -29,7 +24,7 @@ export default function ProductDetailsDiagram() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-8 bg-background overflow-hidden">
+    <section ref={sectionRef} className="py-8 bg-background overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
       <div className="max-w-[1400px] mx-auto px-8">
         {/* Header */}
         <div className="mb-6">
@@ -69,7 +64,7 @@ export default function ProductDetailsDiagram() {
             <div className="border border-dashed border-foreground-muted/30 rounded-xl p-2">
               <div className="bg-background-secondary/30 rounded-lg flex items-center justify-center h-[300px]">
                 <Image
-                  src="/sh4000/sol-gorunum-200x260.png"
+                  src="/sh4000/sol-gorunum-200x260.webp"
                   alt="Sol Görünüm"
                   width={200}
                   height={260}
@@ -158,7 +153,7 @@ export default function ProductDetailsDiagram() {
             <div className="border border-dashed border-foreground-muted/30 rounded-xl p-2">
               <div className="bg-background-secondary/30 rounded-lg flex items-center justify-center h-[420px]">
                 <Image
-                  src="/sh4000/on-gorunum-280x360.png"
+                  src="/sh4000/on-gorunum-280x360.webp"
                   alt="Ön Görünüm"
                   width={280}
                   height={360}
@@ -202,7 +197,7 @@ export default function ProductDetailsDiagram() {
             <div className="border border-dashed border-foreground-muted/30 rounded-xl p-2">
               <div className="bg-background-secondary/30 rounded-lg flex items-center justify-center h-[300px]">
                 <Image
-                  src="/sh4000/sag-gorunum-200x260.png"
+                  src="/sh4000/sag-gorunum-200x260.webp"
                   alt="Sağ Görünüm"
                   width={200}
                   height={260}
@@ -250,7 +245,7 @@ export default function ProductDetailsDiagram() {
               <div className="border border-dashed border-foreground-muted/30 rounded-xl p-2">
                 <div className="bg-background-secondary/30 rounded-lg flex items-center justify-center" style={{ width: '100%', height: '300px' }}>
                   <Image
-                    src="/sh4000/sol-gorunum-200x260.png"
+                    src="/sh4000/sol-gorunum-200x260.webp"
                     alt="Sol Görünüm"
                     width={200}
                     height={260}
@@ -350,7 +345,7 @@ export default function ProductDetailsDiagram() {
               <div className="border border-dashed border-foreground-muted/30 rounded-xl p-2">
                 <div className="bg-background-secondary/30 rounded-lg flex items-center justify-center" style={{ width: '100%', height: '420px' }}>
                   <Image
-                    src="/sh4000/on-gorunum-280x360.png"
+                    src="/sh4000/on-gorunum-280x360.webp"
                     alt="Ön Görünüm"
                     width={280}
                     height={360}
@@ -398,7 +393,7 @@ export default function ProductDetailsDiagram() {
               <div className="border border-dashed border-foreground-muted/30 rounded-xl p-2">
                 <div className="bg-background-secondary/30 rounded-lg flex items-center justify-center" style={{ width: '100%', height: '300px' }}>
                   <Image
-                    src="/sh4000/sag-gorunum-200x260.png"
+                    src="/sh4000/sag-gorunum-200x260.webp"
                     alt="Sağ Görünüm"
                     width={200}
                     height={260}

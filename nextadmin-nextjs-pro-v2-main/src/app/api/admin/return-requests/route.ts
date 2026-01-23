@@ -32,12 +32,9 @@ const STATUS_LABELS: Record<string, string> = {
 
 // Return reason labels
 const REASON_LABELS: Record<string, string> = {
-  DAMAGED: "Ürün hasarlı geldi",
-  WRONG_PRODUCT: "Yanlış ürün gönderildi",
-  NOT_AS_EXPECTED: "Ürün beklentimi karşılamadı",
-  CHANGED_MIND: "Fikrim değişti",
-  DEFECTIVE: "Ürün arızalı/kusurlu",
-  OTHER: "Diğer",
+  DAMAGED: "Ürün Hasarlı Geldi",
+  WRONG_PRODUCT: "Ürün Yanlış Gönderildi",
+  SPECS_MISMATCH: "Teknik Özellikler Siparişimle Uyuşmamaktadır",
 };
 
 /**

@@ -2,12 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 interface Scene {
   id: string;
@@ -26,7 +21,7 @@ const scenes: Scene[] = [
     id: 'expansion',
     label: 'GENİŞLEME',
     imageLabel: 'B5120 Batarya Modülü',
-    imageSrc: '/sh4000/b5120-800x800.png',
+    imageSrc: '/sh4000/b5120-800x800.webp',
     badge: 'MODÜLER GENİŞLEME',
     title: 'B5120',
     highlight: '20kWh',
@@ -41,7 +36,7 @@ const scenes: Scene[] = [
     id: 'solar',
     label: 'GÜNEŞ',
     imageLabel: 'PV Panel Bağlantısı',
-    imageSrc: '/sh4000/pv-800x800.png',
+    imageSrc: '/sh4000/pv-800x800.webp',
     badge: 'ÇİFT MPPT GİRİŞ',
     title: '3600W',
     highlight: '%99.9',
@@ -56,7 +51,7 @@ const scenes: Scene[] = [
     id: 'lcd',
     label: 'KONTROL',
     imageLabel: 'LCD Kontrol Ekranı',
-    imageSrc: '/sh4000/lcd-800x800.png',
+    imageSrc: '/sh4000/lcd-800x800.webp',
     badge: 'AKILLI KONTROL',
     title: 'LCD',
     highlight: 'Wi-Fi',
@@ -71,7 +66,7 @@ const scenes: Scene[] = [
     id: 'mobility',
     label: 'TAŞIMA',
     imageLabel: 'Dayanıklı Tekerlekler',
-    imageSrc: '/sh4000/wheel-800x800.png',
+    imageSrc: '/sh4000/wheel-800x800.webp',
     badge: 'TAŞINABİLİRLİK',
     title: '65kg',
     highlight: 'Mobil',

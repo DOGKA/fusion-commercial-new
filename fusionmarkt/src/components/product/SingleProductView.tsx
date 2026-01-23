@@ -305,13 +305,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     fetchProduct();
   }, [slug]);
 
-  // CSS Transform carousel for key features strip - ultra-smooth GPU scrolling
-  const { containerRef: featuresContainerRef, wrapperRef: featuresWrapperRef, containerStyle: featuresContainerStyle, wrapperStyle: featuresWrapperStyle, handlers: featuresHandlers } = useTransformCarousel({
-    autoScroll: true,
-    autoScrollSpeed: 40, // px/sn - yavaş & akıcı
-    pauseOnHover: true,
-    friction: 0.95,
-  });
+  // CSS Transform carousel - manual scroll only
+  const { containerRef: featuresContainerRef, wrapperRef: featuresWrapperRef, containerStyle: featuresContainerStyle, wrapperStyle: featuresWrapperStyle, handlers: featuresHandlers } = useTransformCarousel({ friction: 0.95 });
   
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);

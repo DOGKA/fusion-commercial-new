@@ -1,13 +1,18 @@
-import {
-  Hero360Canvas,
-  PinnedStory,
-  ProductDetailsDiagram,
-  SystemDiagram,
-  TechSpecsCounter,
-  UseCases,
-  UseGallery,
-  StickyCta,
-} from '@/components/sh4000';
+import dynamic from 'next/dynamic';
+
+// Hero hemen yüklensin
+import { Hero360Canvas } from '@/components/sh4000';
+
+// Diğerleri lazy load
+const PinnedStory = dynamic(() => import('@/components/sh4000/PinnedStory'), {
+  loading: () => <div className="h-screen" />,
+});
+const ProductDetailsDiagram = dynamic(() => import('@/components/sh4000/ProductDetailsDiagram'));
+const SystemDiagram = dynamic(() => import('@/components/sh4000/SystemDiagram'));
+const TechSpecsCounter = dynamic(() => import('@/components/sh4000/TechSpecsCounter'));
+const UseCases = dynamic(() => import('@/components/sh4000/UseCases'));
+const UseGallery = dynamic(() => import('@/components/sh4000/UseGallery'));
+const StickyCta = dynamic(() => import('@/components/sh4000/StickyCta'));
 
 // 360 frame paths
 const frames = Array.from({ length: 12 }, (_, i) =>

@@ -14,7 +14,7 @@ import {
 // ═══════════════════════════════════════════════════════════════════════════
 
 type RequestStatus = "PENDING_ADMIN_APPROVAL" | "APPROVED" | "REJECTED";
-type ReturnReason = "DAMAGED" | "WRONG_PRODUCT" | "NOT_AS_EXPECTED" | "CHANGED_MIND" | "DEFECTIVE" | "OTHER";
+type ReturnReason = "DAMAGED" | "WRONG_PRODUCT" | "SPECS_MISMATCH";
 
 interface ReturnRequest {
   id: string;
@@ -92,12 +92,9 @@ const STATUS_CONFIG: Record<RequestStatus, { label: string; color: string; bgCol
 };
 
 const REASON_CONFIG: Record<ReturnReason, { label: string; icon: any; color: string }> = {
-  DAMAGED: { label: "Hasarlı", icon: AlertTriangle, color: "text-orange-500" },
-  WRONG_PRODUCT: { label: "Yanlış Ürün", icon: Package, color: "text-red-500" },
-  NOT_AS_EXPECTED: { label: "Beklenti Karşılamadı", icon: ThumbsDown, color: "text-yellow-500" },
-  CHANGED_MIND: { label: "Fikir Değişikliği", icon: RefreshCcw, color: "text-blue-500" },
-  DEFECTIVE: { label: "Arızalı", icon: XCircle, color: "text-red-600" },
-  OTHER: { label: "Diğer", icon: HelpCircle, color: "text-gray-500" },
+  DAMAGED: { label: "Ürün Hasarlı Geldi", icon: AlertTriangle, color: "text-orange-500" },
+  WRONG_PRODUCT: { label: "Ürün Yanlış Gönderildi", icon: Package, color: "text-red-500" },
+  SPECS_MISMATCH: { label: "Teknik Özellikler Uyuşmadı", icon: XCircle, color: "text-purple-500" },
 };
 
 const ITEMS_PER_PAGE = 20;
@@ -407,12 +404,9 @@ export default function ReturnRequestsPage() {
           className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         >
           <option value="ALL">Tüm Sebepler</option>
-          <option value="DAMAGED">Hasarlı</option>
-          <option value="WRONG_PRODUCT">Yanlış Ürün</option>
-          <option value="NOT_AS_EXPECTED">Beklenti Karşılamadı</option>
-          <option value="CHANGED_MIND">Fikir Değişikliği</option>
-          <option value="DEFECTIVE">Arızalı</option>
-          <option value="OTHER">Diğer</option>
+          <option value="DAMAGED">Ürün Hasarlı Geldi</option>
+          <option value="WRONG_PRODUCT">Ürün Yanlış Gönderildi</option>
+          <option value="SPECS_MISMATCH">Teknik Özellikler Uyuşmadı</option>
         </select>
       </div>
 

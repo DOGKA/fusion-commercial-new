@@ -3,16 +3,82 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { NAV_DATA } from "./data";
 import { ChevronUp } from "./icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 
+// Badge counts interface
+interface BadgeCounts {
+  orders: number;
+  cancellations: number;
+  returns: number;
+  contacts: number;
+}
+
+// Map URL paths to badge count keys
+const BADGE_URL_MAP: Record<string, keyof BadgeCounts> = {
+  "/orders": "orders",
+  "/cancellation-requests": "cancellations",
+  "/return-requests": "returns",
+  "/contact": "contacts",
+};
+
 export function Sidebar() {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [badgeCounts, setBadgeCounts] = useState<BadgeCounts>({
+    orders: 0,
+    cancellations: 0,
+    returns: 0,
+    contacts: 0,
+  });
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch badge counts
+  const fetchBadgeCounts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/notifications/counts");
+      if (res.ok) {
+        const data = await res.json();
+        setBadgeCounts({
+          orders: data.orders || 0,
+          cancellations: data.cancellations || 0,
+          returns: data.returns || 0,
+          contacts: data.contacts || 0,
+        });
+      }
+    } catch (error) {
+      // Silently fail - badges will show 0
+    }
+  }, []);
+
+  // Fetch badge counts on mount and every 30 seconds
+  useEffect(() => {
+    fetchBadgeCounts();
+    
+    const intervalId = setInterval(fetchBadgeCounts, 30000);
+    
+    return () => {
+      clearInterval(intervalId);
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, [fetchBadgeCounts]);
+
+  // Get badge count for a URL
+  const getBadgeCount = (url: string): number => {
+    const key = BADGE_URL_MAP[url];
+    return key ? badgeCounts[key] : 0;
+  };
+
+  // Get total badge count for parent item with sub-items
+  const getParentBadgeCount = (subItems: { url: string }[]): number => {
+    return subItems.reduce((total, subItem) => total + getBadgeCount(subItem.url), 0);
+  };
 
   const toggleExpanded = useCallback((title: string) => {
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
@@ -94,52 +160,72 @@ export function Sidebar() {
                     {section.items.map((item) => (
                       <li key={item.title}>
                         {item.items.length ? (
-                          <div>
-                            <MenuItem
-                              isActive={item.items.some(
-                                ({ url }) => url === pathname,
-                              )}
-                              onClick={() => toggleExpanded(item.title)}
-                            >
-                              <item.icon
-                                className="size-6 shrink-0"
-                                aria-hidden="true"
-                              />
+                          (() => {
+                            const parentBadge = getParentBadgeCount(item.items);
+                            return (
+                              <div>
+                                <MenuItem
+                                  isActive={item.items.some(
+                                    ({ url }) => url === pathname,
+                                  )}
+                                  onClick={() => toggleExpanded(item.title)}
+                                >
+                                  <item.icon
+                                    className="size-6 shrink-0"
+                                    aria-hidden="true"
+                                  />
 
-                              <span>{item.title}</span>
+                                  <span>{item.title}</span>
 
-                              <ChevronUp
-                                className={cn(
-                                  "ml-auto rotate-180 transition-transform duration-200",
-                                  expandedItems.includes(item.title) &&
-                                    "rotate-0",
-                                )}
-                                aria-hidden="true"
-                              />
-                            </MenuItem>
+                                  {parentBadge > 0 && !expandedItems.includes(item.title) && (
+                                    <div className="ml-auto flex size-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                                      {parentBadge > 99 ? "99+" : parentBadge}
+                                    </div>
+                                  )}
+
+                                  <ChevronUp
+                                    className={cn(
+                                      parentBadge > 0 && !expandedItems.includes(item.title) ? "ml-2" : "ml-auto",
+                                      "rotate-180 transition-transform duration-200",
+                                      expandedItems.includes(item.title) &&
+                                        "rotate-0",
+                                    )}
+                                    aria-hidden="true"
+                                  />
+                                </MenuItem>
 
                             {expandedItems.includes(item.title) && (
                               <ul
                                 className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
                                 role="menu"
                               >
-                                {item.items.map((subItem) => (
-                                  <li key={subItem.title} role="none">
-                                    <MenuItem
-                                      as="link"
-                                      href={subItem.url}
-                                      isActive={pathname === subItem.url}
-                                      isPro={
-                                        "isPro" in subItem && subItem.isPro
-                                      }
-                                    >
-                                      <span>{subItem.title}</span>
-                                    </MenuItem>
-                                  </li>
-                                ))}
+                                {item.items.map((subItem) => {
+                                  const subItemBadge = getBadgeCount(subItem.url);
+                                  return (
+                                    <li key={subItem.title} role="none">
+                                      <MenuItem
+                                        as="link"
+                                        href={subItem.url}
+                                        isActive={pathname === subItem.url}
+                                        isPro={
+                                          "isPro" in subItem && subItem.isPro
+                                        }
+                                      >
+                                        <span>{subItem.title}</span>
+                                        {subItemBadge > 0 && (
+                                          <div className="ml-auto flex size-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                                            {subItemBadge > 99 ? "99+" : subItemBadge}
+                                          </div>
+                                        )}
+                                      </MenuItem>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             )}
                           </div>
+                            );
+                          })()
                         ) : (
                           (() => {
                             const href =
@@ -147,6 +233,8 @@ export function Sidebar() {
                                 ? item.url + ""
                                 : "/" +
                                   item.title.toLowerCase().split(" ").join("-");
+                            
+                            const itemBadge = getBadgeCount(href);
 
                             return (
                               <MenuItem
@@ -163,9 +251,9 @@ export function Sidebar() {
 
                                 <span>{item.title}</span>
 
-                                {"badge" in item && (
-                                  <div className="ml-auto mr-10 flex size-[19px] items-center justify-center rounded-full bg-red-light-5 text-[10px] font-medium text-red">
-                                    {item.badge}
+                                {itemBadge > 0 && (
+                                  <div className="ml-auto mr-10 flex size-[19px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                                    {itemBadge > 99 ? "99+" : itemBadge}
                                   </div>
                                 )}
                               </MenuItem>

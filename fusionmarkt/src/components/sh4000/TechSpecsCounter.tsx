@@ -1,12 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 // Detaylı teknik özellikler - Hero'da olmayan bilgiler
 const specCategories = [
@@ -92,7 +87,7 @@ export default function TechSpecsCounter() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="pt-10 pb-6 sm:pt-16 sm:pb-8 bg-background">
+    <section ref={sectionRef} className="pt-10 pb-6 sm:pt-16 sm:pb-8 bg-background" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-10">

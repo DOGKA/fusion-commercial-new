@@ -1,12 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 type FlowMode = 'normal' | 'emergency';
 
@@ -36,7 +31,7 @@ export default function SystemDiagram() {
   const lineColor = '#374151';
 
   return (
-    <section ref={sectionRef} className="py-8 bg-background overflow-hidden">
+    <section ref={sectionRef} className="py-8 bg-background overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}>
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-6">
@@ -229,7 +224,7 @@ export default function SystemDiagram() {
             <g>
               <rect x="350" y="120" width="300" height="350" rx="16" fill="transparent" stroke={activeColor} strokeWidth="3" />
               <image
-                href="/sh4000/diagram-300x400.png"
+                href="/sh4000/diagram-300x400.webp"
                 x="350"
                 y="120"
                 width="300"

@@ -293,7 +293,7 @@ export default function HesabimPage() {
   // AUTHENTICATED VIEW - Minimal Dashboard (Larger Layout)
   // ═══════════════════════════════════════════════════════════════════════════
   
-  const CONTAINER_HEIGHT = 680; // Larger fixed height for both containers
+  const CONTAINER_HEIGHT = 780; // Larger fixed height for both containers
   
   if (isAuthenticated && user) {
     return (
@@ -333,7 +333,7 @@ export default function HesabimPage() {
             {/* ═══════════════════ LEFT SIDEBAR - Desktop'ta görünür ═══════════════════ */}
             <aside className="account-sidebar-desktop w-[300px] flex-shrink-0">
               <div 
-                className="bg-background border border-border rounded-2xl overflow-hidden flex flex-col"
+                className="account-sidebar-card bg-background border border-border rounded-2xl overflow-hidden flex flex-col"
                 style={{ height: `${CONTAINER_HEIGHT}px` }}
               >
                 {/* User Info */}
@@ -412,12 +412,20 @@ export default function HesabimPage() {
                 )}
 
                 <style jsx global>{`
+                  /* Light mode - page background */
+                  .light .min-h-screen.bg-background {
+                    background-color: #f8fafc !important;
+                  }
+                  /* Hide gradient background in light mode */
+                  .light .fixed.inset-0.z-0 {
+                    display: none !important;
+                  }
                   .light .account-page-layout {
                     --background: #ffffff;
                     --foreground: #0f172a;
                     --foreground-secondary: #0f172a;
                     --foreground-tertiary: #0f172a;
-                    --foreground-muted: #0f172a;
+                    --foreground-muted: #64748b;
                     --foreground-disabled: #94a3b8;
                   }
                   .light .account-page-layout .bg-background {
@@ -432,9 +440,11 @@ export default function HesabimPage() {
                   .light .account-page-layout .light-white-card {
                     background-color: #ffffff !important;
                   }
-                  .light .account-page-layout .account-sidebar-desktop,
+                  .light .account-page-layout .account-sidebar-card,
                   .light .account-page-layout .account-content-card {
                     background-color: #ffffff !important;
+                    border-color: #e2e8f0 !important;
+                    border-radius: 16px !important;
                   }
                   .light .account-page-layout .text-foreground {
                     color: #0f172a !important;
@@ -483,6 +493,19 @@ export default function HesabimPage() {
                   }
                   .light .account-page-layout .bg-red-500\/20 {
                     background-color: #fee2e2 !important;
+                  }
+                  /* Sidebar and content card inner elements - white bg in light mode */
+                  .light .account-page-layout .account-sidebar-card > *,
+                  .light .account-page-layout .account-sidebar-card nav,
+                  .light .account-page-layout .account-sidebar-card > div {
+                    background-color: #ffffff !important;
+                  }
+                  /* Modal container - white background in light mode */
+                  .light .modal-container {
+                    background-color: #ffffff !important;
+                  }
+                  .light .modal-container .light-white-card {
+                    background-color: #ffffff !important;
                   }
                 `}</style>
               </div>
@@ -1856,11 +1879,6 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       return;
     }
     
-    if (returnReason === "OTHER" && !returnDescription.trim()) {
-      setRequestError("Diğer seçeneği için açıklama zorunludur");
-      return;
-    }
-    
     setReturnLoading(true);
     setRequestError(null);
     
@@ -2503,15 +2521,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                           <ul className="text-[12px] text-foreground-secondary space-y-1">
                             <li className="flex items-start gap-2">
                               <span className="text-amber-400">•</span>
-                              Kargo ücreti alıcı ödemeli olarak gönderilmelidir
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-amber-400">•</span>
-                              Ürünü orijinal kutusunda gönderin
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-amber-400">•</span>
-                              Faturanızı kutuya koyun
+                              Lütfen Ürünü Orijinal Kutusuyla Gönderin
                             </li>
                           </ul>
                           {requestStatusCache[order.orderNumber]?.returnInstructions && (
@@ -2601,7 +2611,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
           />
           
           {/* Modal Content */}
-          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden light-white-card modal-container">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="text-[16px] font-semibold text-foreground">Sipariş İptali</h3>
@@ -2616,7 +2626,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
             {/* Body */}
             <div className="p-4 space-y-4">
               {requestSuccess ? (
-                <div className="text-center py-4">
+                <div className="text-center py-4 light-white-card">
                   <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
                     <Check size={28} className="text-emerald-400" />
                   </div>
@@ -2687,7 +2697,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
           />
           
           {/* Modal Content */}
-          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden light-white-card modal-container">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="text-[16px] font-semibold text-foreground">İade Talebi</h3>
@@ -2702,7 +2712,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
             {/* Body */}
             <div className="p-4 space-y-4">
               {requestSuccess ? (
-                <div className="text-center py-4">
+                <div className="text-center py-4 light-white-card">
                   <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
                     <Check size={28} className="text-emerald-400" />
                   </div>
@@ -2731,19 +2741,16 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                       }}
                     >
                       <option value="">Seçiniz...</option>
-                      <option value="DAMAGED">Ürün hasarlı geldi</option>
-                      <option value="WRONG_PRODUCT">Yanlış ürün gönderildi</option>
-                      <option value="NOT_AS_EXPECTED">Ürün beklentimi karşılamadı</option>
-                      <option value="CHANGED_MIND">Fikrim değişti</option>
-                      <option value="DEFECTIVE">Ürün arızalı/kusurlu</option>
-                      <option value="OTHER">Diğer</option>
+                      <option value="DAMAGED">Ürün Hasarlı Geldi</option>
+                      <option value="WRONG_PRODUCT">Ürün Yanlış Gönderildi</option>
+                      <option value="SPECS_MISMATCH">Teknik Özellikler Siparişimle Uyuşmamaktadır</option>
                     </select>
                   </div>
                   
-                  {/* Description (optional, required for OTHER) */}
+                  {/* Description (optional) */}
                   <div>
                     <label className="block text-[13px] text-foreground-secondary mb-2">
-                      Açıklama {returnReason === "OTHER" && <span className="text-red-400">*</span>}
+                      Açıklama <span className="text-foreground-muted">(İsteğe bağlı)</span>
                     </label>
                     <textarea
                       value={returnDescription}
