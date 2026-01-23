@@ -11,6 +11,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { 
   sendOrderPendingPaymentEmail,
   sendAdminNewOrderNotification 
@@ -341,6 +342,9 @@ export async function POST(request: NextRequest) {
 
     const addressSnapshot = buildAddressSnapshot(billingAddress, shippingAddress);
 
+    // Generate contract access token for secure contract viewing
+    const contractAccessToken = randomBytes(32).toString("hex");
+
     // Initial status history with contract acceptance and full HTML
     const initialStatusHistory = [
       {
@@ -385,6 +389,7 @@ export async function POST(request: NextRequest) {
         billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
         shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
         customerNote: billingAddress?.orderNotes || null,
+        contractAccessToken, // Token for secure contract access
         statusHistory: initialStatusHistory, // Sözleşme onaylarını dahil et
         // Create order items
         items: {

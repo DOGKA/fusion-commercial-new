@@ -186,6 +186,7 @@ export async function sendOrderConfirmationEmail(
       phone: string;
     };
     paymentMethod: "CREDIT_CARD" | "BANK_TRANSFER";
+    contractAccessToken?: string; // Token for secure contract access
   }
 ) {
   const html = await render(OrderConfirmationEmail(params));

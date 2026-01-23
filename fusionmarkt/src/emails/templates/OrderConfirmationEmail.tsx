@@ -43,6 +43,7 @@ interface OrderConfirmationEmailProps {
   shippingAddress: Address;
   billingAddress: Address;
   paymentMethod: "CREDIT_CARD" | "BANK_TRANSFER";
+  contractAccessToken?: string; // Token for secure contract access
 }
 
 export const OrderConfirmationEmail = ({
@@ -57,6 +58,7 @@ export const OrderConfirmationEmail = ({
   shippingAddress,
   billingAddress,
   paymentMethod,
+  contractAccessToken,
 }: OrderConfirmationEmailProps) => {
   const maskedShippingAddress = {
     name: maskName(shippingAddress.fullName),
@@ -275,13 +277,13 @@ export const OrderConfirmationEmail = ({
           <div style={{ marginBottom: "8px" }}>
             <span style={{ color: theme.colors.primary, fontSize: "14px", marginRight: "8px" }}>✓</span>
             <Link
-              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=terms`}
+              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=terms${contractAccessToken ? `&token=${contractAccessToken}` : ''}`}
               style={{ color: theme.colors.text, fontSize: "13px", textDecoration: "none", fontFamily: theme.fonts.sans }}
             >
               Kullanıcı Sözleşmesi ve Şartlar
             </Link>
             <Link
-              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=terms`}
+              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=terms${contractAccessToken ? `&token=${contractAccessToken}` : ''}`}
               style={{ float: "right", color: theme.colors.primary, fontSize: "12px", textDecoration: "none", fontFamily: theme.fonts.sans }}
             >
               Görüntüle →
@@ -291,13 +293,13 @@ export const OrderConfirmationEmail = ({
           <div>
             <span style={{ color: theme.colors.primary, fontSize: "14px", marginRight: "8px" }}>✓</span>
             <Link
-              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=distance`}
+              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=distance${contractAccessToken ? `&token=${contractAccessToken}` : ''}`}
               style={{ color: theme.colors.text, fontSize: "13px", textDecoration: "none", fontFamily: theme.fonts.sans }}
             >
               Mesafeli Satış Sözleşmesi
             </Link>
             <Link
-              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=distance`}
+              href={`${siteUrl}/sozlesmeler/${orderNumber}?contract=distance${contractAccessToken ? `&token=${contractAccessToken}` : ''}`}
               style={{ float: "right", color: theme.colors.primary, fontSize: "12px", textDecoration: "none", fontFamily: theme.fonts.sans }}
             >
               Görüntüle →

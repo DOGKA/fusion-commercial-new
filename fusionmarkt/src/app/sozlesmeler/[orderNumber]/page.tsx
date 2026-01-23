@@ -34,11 +34,16 @@ export default function ContractViewPage() {
     contractType === "distance" ? "distance" : "terms"
   );
 
+  // Get token from URL for secure access
+  const token = searchParams.get("token");
+
   useEffect(() => {
     const fetchContracts = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/orders/${orderNumber}/contracts`);
+        // Include token in API request if available
+        const tokenParam = token ? `?token=${token}` : "";
+        const res = await fetch(`/api/orders/${orderNumber}/contracts${tokenParam}`);
         
         if (!res.ok) {
           const errData = await res.json();
@@ -57,7 +62,7 @@ export default function ContractViewPage() {
     if (orderNumber) {
       fetchContracts();
     }
-  }, [orderNumber]);
+  }, [orderNumber, token]);
 
   const formatDate = (dateStr: string) => {
     return new Intl.DateTimeFormat("tr-TR", {

@@ -18,6 +18,7 @@ import {
   sendAdminNewOrderNotification 
 } from "@/lib/email";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { generateContractsHTML } from "@/lib/contracts";
 import { isValidEmail } from "@/lib/utils";
 
@@ -346,6 +347,9 @@ async function createOrderFromDraft(
     paidPrice: item.paidPrice,
   })) || [];
 
+  // Generate contract access token for secure contract viewing
+  const contractAccessToken = randomBytes(32).toString("hex");
+
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -363,6 +367,7 @@ async function createOrderFromDraft(
       billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
       shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
       customerNote: billingAddress.orderNotes || null,
+      contractAccessToken, // Token for secure contract access
       paidAt: new Date(),
       iyzicoPaymentId: paymentResult.paymentId || null,
       iyzicoConversationId: orderNumber,
@@ -452,6 +457,7 @@ async function createOrderFromDraft(
         phone: billingAddress.phone || "",
       },
       paymentMethod: "CREDIT_CARD",
+      contractAccessToken, // Token for secure contract access
     }).catch(err => console.error("Customer email error:", err));
   }
 

@@ -38,6 +38,9 @@ export async function GET(
     // Get session for authentication
     const session = await getServerSession(authOptions);
 
+    // Get token from query params
+    const token = searchParams.get("token");
+
     // Find order
     const order = await prisma.order.findUnique({
       where: { orderNumber },
@@ -45,6 +48,7 @@ export async function GET(
         id: true,
         orderNumber: true,
         userId: true,
+        contractAccessToken: true,
         statusHistory: true,
         createdAt: true,
         subtotal: true,
@@ -81,26 +85,23 @@ export async function GET(
       );
     }
 
-    // Authorization: 
-    // - Order number acts as a secret token (received via email)
-    // - If user is logged in, verify they own the order
-    // - Admins can view all
-    // - Allow public access for email links (order number is the auth)
+    // Authorization:
+    // 1. Valid token → access granted (no login required)
+    // 2. Logged in + owns order → access granted (no token required)
+    // 3. Admin/SuperAdmin → access granted
+    // 4. Otherwise → access denied
     const isOwner = session?.user?.id === order.userId;
     const userRole = session?.user?.role;
     const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
-    
-    // If user is logged in but doesn't own the order and isn't admin, deny access
-    // Unless we allow public contract viewing (for email links)
-    if (session?.user && !isOwner && !isAdmin) {
+    const hasValidToken = token && order.contractAccessToken && token === order.contractAccessToken;
+
+    // Check access
+    if (!hasValidToken && !isOwner && !isAdmin) {
       return NextResponse.json(
-        { error: "Bu siparişe erişim yetkiniz yok" },
+        { error: "Bu sözleşmeye erişim yetkiniz yok" },
         { status: 403 }
       );
     }
-    
-    // If not logged in, allow access (order number in email is the auth token)
-    // The order number is only known to the customer and sent via email
 
     // Find contract acceptance in status history
     const statusHistory = (order.statusHistory as unknown[]) || [];

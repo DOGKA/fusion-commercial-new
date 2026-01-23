@@ -428,6 +428,7 @@ model Order {
   iyzicoPaymentId           String?
   iyzicoPaymentTransactions Json?                @db.Json
   reviewReminderSent        Boolean              @default(false)
+  contractAccessToken       String?              @unique
   items                     OrderItem[]
   billingAddress            Address?             @relation("BillingAddress", fields: [billingAddressId], references: [id])
   coupon                    Coupon?              @relation(fields: [couponId], references: [id])
