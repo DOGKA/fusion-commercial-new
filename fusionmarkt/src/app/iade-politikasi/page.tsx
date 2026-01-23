@@ -1,14 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { motion } from "framer-motion";
 import { 
   RotateCcw, 
-  Gift, 
   Calendar, 
-  MapPin, 
   FileText, 
-  Package, 
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -17,20 +13,15 @@ import {
   CreditCard,
   Shield,
   Smartphone,
-  Clock,
-  Phone,
-  MessageCircle
+  Clock
 } from "lucide-react";
 
 const nonReturnableItems = [
-  "Açılmış televizyonlar ve 37″ üzeri monitörler",
-  "Açılmış bilgisayarlar ve yazılımlar",
-  "Elektronik yazılım indirmeleri",
-  "Açılmış sarf malzemeleri (film, mürekkep kartuşları, CD/DVD vb.)",
-  "Özel siparişle üretilen bilgisayarlar",
-  "İade edilemez olarak belirtilen ürünler",
-  "Açılmış iç giyim ve kişisel kullanım ürünleri",
-  "Gıda ve takviye ürünleri"
+  "Kurulmuş ve kullanılmış güneş panelleri",
+  "Fiziksel hasar görmüş veya çizilmiş ürünler",
+  "Eksik aksesuar veya parça içeren ürünler",
+  "Orijinal ambalajı olmayan veya hasarlı ambalajlı ürünler",
+  "Ürün sayfasında 'iade edilemez' olarak belirtilen ürünler",
 ];
 
 export default function IadePolitikasiPage() {
@@ -53,7 +44,7 @@ export default function IadePolitikasiPage() {
               İade Politikası
             </h1>
             <p className="text-lg text-[var(--foreground-secondary)]">
-              30 günlük kolay iade garantisi
+              14 günlük yasal cayma hakkı garantisi
             </p>
           </motion.div>
         </div>
@@ -64,28 +55,7 @@ export default function IadePolitikasiPage() {
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto space-y-10">
             
-            {/* Uzatılmış Tatil İade */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="p-6 md:p-8 rounded-2xl bg-gradient-to-r from-[var(--fusion-primary)]/10 to-[var(--fusion-accent)]/10 border border-[var(--fusion-primary)]/20"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/20 flex items-center justify-center flex-shrink-0">
-                  <Gift className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold">Uzatılmış Tatil İade ve Değişimleri</h2>
-                  <p className="text-sm text-[var(--fusion-primary)]">Özel dönem avantajı</p>
-                </div>
-              </div>
-              <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                Tatil sezonunda bir nezaket olarak iade ve değişim sürelerimizi uzattık. Bu süre uzatımı dışında diğer tüm standart iade politikası koşulları geçerlidir.
-              </p>
-            </motion.div>
-
-            {/* 30 Günlük Kolay İade */}
+            {/* 14 Günlük Yasal İade */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -97,27 +67,21 @@ export default function IadePolitikasiPage() {
                   <Calendar className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold">30 Günlük Kolay İade Politikası</h2>
-                  <p className="text-sm text-[var(--fusion-success)]">Memnuniyet garantisi</p>
+                  <h2 className="text-xl md:text-2xl font-bold">14 Günlük Yasal Cayma Hakkı</h2>
+                  <p className="text-sm text-[var(--fusion-success)]">Mesafeli satış sözleşmesi kapsamında</p>
                 </div>
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                Satın aldığınız üründen memnun kalmazsanız, teslim tarihinden itibaren <strong>15 iş günü</strong> içinde iade işlemi başlatabilirsiniz.
+                Mesafeli Satışlar Yönetmeliği kapsamında, satın aldığınız üründen memnun kalmazsanız teslim tarihinden itibaren <strong>14 gün</strong> içinde cayma hakkınızı kullanabilirsiniz.
               </p>
 
-              <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-center">
-                  <Phone className="w-6 h-6 text-[var(--fusion-primary)] mx-auto mb-2" />
-                  <p className="text-sm font-medium">Telefonla</p>
-                </div>
-                <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-center">
-                  <FileText className="w-6 h-6 text-[var(--fusion-accent)] mx-auto mb-2" />
-                  <p className="text-sm font-medium">Çevrimiçi</p>
-                </div>
-                <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-center">
-                  <MessageCircle className="w-6 h-6 text-[var(--fusion-success)] mx-auto mb-2" />
-                  <p className="text-sm font-medium">Canlı Sohbet</p>
+              <div className="p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Tüm iptal ve iade işlemleri <strong>Hesabım → Siparişlerim</strong> bölümünden çevrimiçi olarak yapılmaktadır.
+                  </p>
                 </div>
               </div>
 
@@ -138,38 +102,7 @@ export default function IadePolitikasiPage() {
               </div>
             </motion.div>
 
-            {/* Şahsen İade Etme */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="glass-card p-6 md:p-8 rounded-2xl"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
-                <h2 className="text-xl md:text-2xl font-bold">Şahsen İade Etme</h2>
-              </div>
-              
-              <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                Ürünü şahsen Türkiye depomuzdaki İade Departmanına iade edebilirsiniz:
-              </p>
-
-              <div className="p-5 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold mb-1">İade Adresi</p>
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      Turan Güneş Bulvarı, Cezayir Cd. No:6/7, Yıldızevler, ÇANKAYA, ANKARA
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* İade Süreci */}
+            {/* İptal ve İade Süreci */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -180,7 +113,33 @@ export default function IadePolitikasiPage() {
                 <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
                   <FileText className="w-6 h-6 text-[var(--fusion-primary)]" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold">İade Süreci</h2>
+                <h2 className="text-xl md:text-2xl font-bold">İptal ve İade Süreci</h2>
+              </div>
+
+              {/* Sipariş İptali */}
+              <div className="mb-6 p-5 rounded-xl bg-[var(--fusion-accent)]/10 border border-[var(--fusion-accent)]/20">
+                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <XCircle className="w-5 h-5 text-[var(--fusion-accent)]" />
+                  Sipariş İptali (Kargoya Verilmemiş Siparişler)
+                </h3>
+                <p className="text-sm text-[var(--foreground-secondary)] mb-3">
+                  Siparişiniz henüz kargoya verilmediyse, <strong>Hesabım → Siparişlerim</strong> bölümünden doğrudan iptal talebinde bulunabilirsiniz.
+                </p>
+                <ul className="text-sm text-[var(--foreground-secondary)] space-y-1 ml-4 list-disc">
+                  <li>Beklemede veya hazırlanıyor durumundaki siparişler iptal edilebilir</li>
+                  <li>İptal talebiniz mağaza tarafından onaylandıktan sonra ödemeniz iade edilir</li>
+                </ul>
+              </div>
+
+              {/* Ürün İadesi */}
+              <div className="mb-6 p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
+                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <RotateCcw className="w-5 h-5 text-[var(--fusion-success)]" />
+                  Ürün İadesi (Kargoya Verilmiş/Teslim Edilmiş Siparişler)
+                </h3>
+                <p className="text-sm text-[var(--foreground-secondary)] mb-3">
+                  Siparişiniz kargoya verilmiş veya teslim edildiyse, iade talebi oluşturmanız gerekir.
+                </p>
               </div>
               
               <div className="space-y-4">
@@ -189,9 +148,9 @@ export default function IadePolitikasiPage() {
                     <span className="text-white font-bold">1</span>
                   </div>
                   <div className="flex-1 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <h4 className="font-semibold mb-1">Siparişinizi Bulun</h4>
+                    <h4 className="font-semibold mb-1">İade Talebi Oluşturun</h4>
                     <p className="text-sm text-[var(--foreground-secondary)]">
-                      Hesabım/Siparişlerim bölümüne giriş yaparak uygun siparişlerinizi görüntüleyin ve iade talebi oluşturun.
+                      <strong>Hesabım → Siparişlerim</strong> bölümünden ilgili siparişi seçin ve &quot;İade Talebi&quot; butonuna tıklayın.
                     </p>
                   </div>
                 </div>
@@ -201,9 +160,9 @@ export default function IadePolitikasiPage() {
                     <span className="text-white font-bold">2</span>
                   </div>
                   <div className="flex-1 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <h4 className="font-semibold mb-1">RMA Talebi Oluşturun</h4>
+                    <h4 className="font-semibold mb-1">Sebep Seçin ve Fotoğraf Ekleyin</h4>
                     <p className="text-sm text-[var(--foreground-secondary)]">
-                      Çevrimiçi Ürün İade Yetkilendirme (RMA) formunu doldurun ve size verilen iade kodunu not edin.
+                      İade sebebini seçin (hasarlı ürün, yanlış ürün, teknik uyuşmazlık) ve varsa ürün fotoğraflarını yükleyin (en fazla 3 adet).
                     </p>
                   </div>
                 </div>
@@ -213,9 +172,21 @@ export default function IadePolitikasiPage() {
                     <span className="text-white font-bold">3</span>
                   </div>
                   <div className="flex-1 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
+                    <h4 className="font-semibold mb-1">Onay Bekleyin</h4>
+                    <p className="text-sm text-[var(--foreground-secondary)]">
+                      Talebiniz incelendikten sonra size iade adresi ve talimatlar e-posta ile gönderilecektir.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[var(--fusion-warning)] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold">4</span>
+                  </div>
+                  <div className="flex-1 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <h4 className="font-semibold mb-1">Paketle ve Gönder</h4>
                     <p className="text-sm text-[var(--foreground-secondary)]">
-                      Ürünleri orijinal ambalajında fatura ile birlikte paketleyin. İade etiketini yapıştırarak kargoya verin.
+                      Ürünü orijinal ambalajında, tüm aksesuarları ile birlikte belirtilen adrese kargolayın.
                     </p>
                   </div>
                 </div>
@@ -310,7 +281,7 @@ export default function IadePolitikasiPage() {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-[var(--fusion-success)]" />
                   <p className="text-sm text-[var(--foreground-secondary)]">
-                    <strong>İyi haber:</strong> İade edilen kusurlu ürünler için nakliye masrafları tarafımızdan karşılanır.
+                    İade edilen kusurlu ürünler için nakliye masrafları tarafımızdan karşılanır.
                   </p>
                 </div>
               </div>
@@ -358,21 +329,12 @@ export default function IadePolitikasiPage() {
                 İade edilen ürünlerin incelenmesinin ardından iadeniz işleme alınır.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                  <CreditCard className="w-6 h-6 text-[var(--fusion-success)] mb-3" />
-                  <h4 className="font-semibold mb-2">Kredi Kartı İadesi</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    Para iadesi veya kredi işlemi <strong>5-7 iş günü</strong> içinde hesabınızda görünür.
-                  </p>
-                </div>
-                <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <FileText className="w-6 h-6 text-[var(--fusion-accent)] mb-3" />
-                  <h4 className="font-semibold mb-2">Çek İadesi</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    Çekle ödeme yapılmışsa, iade çeki <strong>10 iş günü</strong> içinde düzenlenir.
-                  </p>
-                </div>
+              <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
+                <CreditCard className="w-6 h-6 text-[var(--fusion-success)] mb-3" />
+                <h4 className="font-semibold mb-2">Kredi Kartı / Havale İadesi</h4>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Kredi kartı ödemelerinde iade <strong>5-7 iş günü</strong> içinde kartınıza yansır. Havale/EFT ödemelerinde ise ödemeniz <strong>3 iş günü</strong> içinde gönderim yaptığınız banka hesabına iade edilir.
+                </p>
               </div>
 
               <div className="mt-4 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
@@ -431,18 +393,34 @@ export default function IadePolitikasiPage() {
                 </div>
                 <h2 className="text-xl md:text-2xl font-bold">İade Öncesi Hazırlık</h2>
               </div>
+
+              <p className="text-[var(--foreground-secondary)] mb-4">
+                Ürünlerinizi iade etmeden önce aşağıdaki hazırlıkları yapmanız gerekmektedir:
+              </p>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <h4 className="font-semibold mb-2">Fabrika Ayarlarına Sıfırlama</h4>
+                  <h4 className="font-semibold mb-2">Ayarları Sıfırlayın</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
-                    Tüm elektronik cihazlar, kişisel verileri içermemesi için fabrika ayarlarına sıfırlanmalıdır.
+                    Güç istasyonları ve WiFi özellikli ürünlerde kayıtlı WiFi ağları, kullanıcı ayarları ve kişisel veriler sıfırlanmalıdır.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <h4 className="font-semibold mb-2">Kilit Açma</h4>
+                  <h4 className="font-semibold mb-2">Pil Şarj Durumu</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
-                    Şifre korumalı cihazlar iade edilmeden önce kilitleri açılmalıdır.
+                    Güç istasyonlarının pil şarj seviyesini %20-50 aralığına getirin. Tam dolu veya tamamen boş pil ile kargolama önerilmez.
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
+                  <h4 className="font-semibold mb-2">Orijinal Ambalaj</h4>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Ürünü orijinal kutusunda, koruyucu köpükler ve tüm aksesuarları ile birlikte paketleyin.
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
+                  <h4 className="font-semibold mb-2">Kablo ve Aksesuarlar</h4>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Şarj kabloları, adaptörler, kullanım kılavuzu ve ürünle birlikte gelen tüm aksesuarlar dahil edilmelidir.
                   </p>
                 </div>
               </div>
