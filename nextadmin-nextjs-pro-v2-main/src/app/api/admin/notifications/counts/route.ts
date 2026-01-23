@@ -52,7 +52,7 @@ export async function GET() {
       // Unread contact messages
       prisma.contactMessage.count({
         where: {
-          isRead: false
+          status: "UNREAD"
         }
       }),
     ]);
