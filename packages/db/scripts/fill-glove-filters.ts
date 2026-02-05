@@ -31,6 +31,11 @@ const TOUCHSCREEN_MODELS = new Set([
 
 // Kesilme direnci listesi
 const CUT_LEVELS: Record<string, string> = {
+  TM100: "A",
+  TM106: "1",
+  TM112: "1",
+  TM178: "1",
+  TM410: "1",
   TG1060: "A",
   TG1072: "A",
   TG1140: "A",
@@ -73,7 +78,7 @@ const CUT_LEVELS: Record<string, string> = {
 const prisma = new PrismaClient();
 
 function extractModelCode(text: string): string | null {
-  const match = text.match(/\b(TD\d{2}|TG\d{4}|TGSL1)\b/i);
+  const match = text.match(/\b(TD\d{2}|TG\d{4}|TGSL1|TM\d{3})\b/i);
   return match ? match[1].toUpperCase() : null;
 }
 
