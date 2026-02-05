@@ -92,6 +92,7 @@ export async function GET(
             title: true,
             comment: true,
             images: true,
+            displayName: true, // Kullanıcının tercih ettiği görünen isim
             isVerified: true,
             adminReply: true,
             adminReplyAt: true,

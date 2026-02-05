@@ -117,10 +117,24 @@ export async function GET(request: NextRequest) {
       });
     };
 
-    const sortedProducts = products.map((p: ProductWithVariants) => ({
-      ...p,
-      variants: sortVariants(p.variants || []),
-    }));
+    const sortedProducts = products.map((p: ProductWithVariants & { reviews?: { rating: number }[] }) => {
+      // Rating hesapla
+      const reviews = p.reviews || [];
+      const ratingCount = reviews.length;
+      const ratingAverage = ratingCount > 0 
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount 
+        : 0;
+      
+      // reviews array'ini response'dan kaldır (sadece count ve average gönder)
+      const { reviews: _, ...productWithoutReviews } = p;
+      
+      return {
+        ...productWithoutReviews,
+        variants: sortVariants(p.variants || []),
+        ratingAverage,
+        ratingCount,
+      };
+    });
 
     return NextResponse.json({
       products: sortedProducts,

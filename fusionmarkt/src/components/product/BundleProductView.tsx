@@ -27,6 +27,7 @@ interface ApiReview {
   user?: { name?: string; email?: string };
   userName?: string;
   userEmail?: string;
+  displayName?: string; // Kullanıcının tercih ettiği görünen isim
   rating: number;
   title?: string;
   comment?: string;
@@ -397,7 +398,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
           if (data.reviews) {
             const mappedReviews = data.reviews.map((r: ApiReview) => ({
               id: r.id,
-              userName: r.user?.name || "Anonim",
+              userName: r.displayName || r.user?.name || "Anonim", // displayName varsa onu kullan
               userEmail: r.user?.email || "",
               rating: r.rating,
               title: r.title || "",

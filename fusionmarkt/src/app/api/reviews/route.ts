@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
               title: data.title || null,
               comment: data.comment,
               images: data.images || existingReview.images || [],
+              displayName: displayName, // İsim tercihini güncelle
               isApproved: false, // Tekrar onay bekliyor
               adminReply: null, // Admin yanıtı sıfırla
               adminReplyAt: null,
@@ -166,6 +167,7 @@ export async function POST(request: NextRequest) {
         title: data.title || null,
         comment: data.comment,
         images: data.images || [],
+        displayName: displayName, // Kullanıcının tercih ettiği görünen isim
         isVerified: isVerified,
         isApproved: false, // Requires admin approval
       },

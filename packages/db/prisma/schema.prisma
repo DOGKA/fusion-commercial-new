@@ -361,6 +361,7 @@ model Review {
   title        String?
   comment      String
   images       String[]
+  displayName  String?   // Kullanıcının tercih ettiği görünen isim (maskeli veya tam)
   isVerified   Boolean   @default(false)
   isApproved   Boolean   @default(false)
   createdAt    DateTime  @default(now())

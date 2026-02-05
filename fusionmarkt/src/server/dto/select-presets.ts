@@ -216,6 +216,11 @@ export const selectProductPublic = {
       position: 'asc' as const,
     },
   },
+  // Review istatistikleri için
+  reviews: {
+    where: { isApproved: true },
+    select: { rating: true },
+  },
 }; // Note: Run `prisma generate` after schema changes
 
 // Variant include for public API - separate to avoid type issues

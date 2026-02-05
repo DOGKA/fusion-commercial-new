@@ -328,7 +328,7 @@ export async function GET(
     });
 
     // Ürünleri getir (teknik özellikler dahil)
-    const products = await prisma.product.findMany({
+    const productsRaw = await prisma.product.findMany({
       where: {
         categoryId: category.id,
         isActive: true,
@@ -368,12 +368,34 @@ export async function GET(
           },
           orderBy: { displayOrder: "asc" },
         },
+        // Review istatistikleri için
+        reviews: {
+          where: { isApproved: true },
+          select: { rating: true },
+        },
       },
       orderBy,
       skip: (page - 1) * limit,
       take: limit,
     });
 
+    // Rating hesapla ve products'a ekle
+    const products = productsRaw.map(p => {
+      const reviews = p.reviews || [];
+      const ratingCount = reviews.length;
+      const ratingAverage = ratingCount > 0 
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount 
+        : 0;
+      
+      // reviews array'ini response'dan kaldır
+      const { reviews: _, ...productWithoutReviews } = p;
+      
+      return {
+        ...productWithoutReviews,
+        ratingAverage,
+        ratingCount,
+      };
+    });
 
     const totalPages = Math.ceil(totalProducts / limit);
     
