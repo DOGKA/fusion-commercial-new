@@ -192,10 +192,11 @@ export async function GET(
     const bundlePrice = Number(bundle.price);
 
     // Rating hesapla
-    const reviews = (bundle as any).reviews || [];
+    type BundleReview = { rating: number };
+    const reviews = (bundle as unknown as { reviews?: BundleReview[] }).reviews || [];
     const ratingCount = reviews.length;
     const ratingAverage = ratingCount > 0 
-      ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / ratingCount 
+      ? reviews.reduce((sum: number, r: BundleReview) => sum + r.rating, 0) / ratingCount 
       : 0;
 
     return NextResponse.json({
