@@ -18,7 +18,6 @@ import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
-import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 
 // API Response types
 interface ApiReview {
@@ -305,9 +304,6 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     fetchProduct();
   }, [slug]);
 
-  // CSS Transform carousel - manual scroll only
-  const { containerRef: featuresContainerRef, wrapperRef: featuresWrapperRef, containerStyle: featuresContainerStyle, wrapperStyle: featuresWrapperStyle, handlers: featuresHandlers } = useTransformCarousel({ friction: 0.95 });
-  
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewRating, setReviewRating] = useState(0);
@@ -881,7 +877,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
               />
             </div>
 
-            {/* KEY FEATURES - Auto-scroll with momentum drag support */}
+            {/* KEY FEATURES - Native scroll for reliable mobile support */}
             {features.length > 0 && (
               <div style={{ marginBottom: '12px', position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -894,60 +890,36 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                   </span>
                 </div>
                 
-                {/* Container - viewport */}
+                {/* Native scroll container - works reliably on all mobile devices */}
                 <div 
-                  ref={featuresContainerRef}
+                  className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
                   style={{ 
-                    ...featuresContainerStyle,
-                    paddingBottom: '4px',
+                    WebkitOverflowScrolling: 'touch',
+                    scrollSnapType: 'x mandatory',
+                    msOverflowStyle: 'none',
+                    scrollbarWidth: 'none',
                   }}
                 >
-                  {/* Wrapper - content moves via transform */}
-                  <div
-                    ref={featuresWrapperRef}
-                    style={{ 
-                      ...featuresWrapperStyle,
-                      gap: '8px',
-                    }}
-                    className="flex items-stretch select-none"
-                    {...featuresHandlers}
-                  >
-                    {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
-                    {[...features, ...features].map((feature, idx) => (
+                  {features.map((feature, idx) => (
                     <div
                       key={`${feature.id}-${idx}`}
-                      style={{
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        backgroundColor: 'var(--glass-bg)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '10px',
-                        transition: 'all 0.2s ease',
-                        pointerEvents: 'none',
-                      }}
+                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-[var(--glass-bg)]"
+                      style={{ scrollSnapAlign: 'start' }}
                     >
                       {/* SVG Icon - Backend'ten gelir */}
                       {feature.iconSvg && (
                         <div
-                          style={{ 
-                            color: feature.color,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
+                          style={{ color: feature.color }}
+                          className="flex items-center justify-center"
                           dangerouslySetInnerHTML={{ __html: feature.iconSvg }}
                         />
                       )}
-                      <span style={{ fontSize: '11px', color: 'var(--foreground-secondary)', whiteSpace: 'nowrap' }}>
+                      <span className="text-[11px] text-foreground-secondary whitespace-nowrap">
                         {feature.label}
                       </span>
                     </div>
                   ))}
                 </div>
-              </div>
               </div>
             )}
 
