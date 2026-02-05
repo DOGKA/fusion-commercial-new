@@ -24,6 +24,16 @@ interface Props {
 // Ürün verisini fetch eden yardımcı fonksiyon
 async function getProduct(slug: string) {
   try {
+    // Önce ürünün var olup olmadığını kontrol et (isActive dahil değil)
+    const productExists = await prisma.product.findFirst({
+      where: { slug },
+      select: { id: true, slug: true, isActive: true },
+    });
+    
+    if (productExists && !productExists.isActive) {
+      console.log(`Product found but inactive: ${slug}, id: ${productExists.id}`);
+    }
+    
     const product = await prisma.product.findFirst({
       where: { 
         slug,
@@ -36,9 +46,16 @@ async function getProduct(slug: string) {
       },
     });
 
+    if (!product) {
+      console.log(`Product not found or inactive for slug: ${slug}`);
+    }
+
     return product;
   } catch (error) {
     console.error("Error fetching product for SEO:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", error.message, error.stack);
+    }
     return null;
   }
 }
@@ -67,7 +84,10 @@ async function getBundle(slug: string) {
       },
     });
 
-    if (!bundle) return null;
+    if (!bundle) {
+      console.log(`Bundle not found or inactive for slug: ${slug}`);
+      return null;
+    }
 
     // Stok ve toplam değer hesapla
     type BundleItemType = { quantity: number; product: { stock: number; price: unknown } | null };

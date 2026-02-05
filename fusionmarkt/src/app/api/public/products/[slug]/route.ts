@@ -33,6 +33,8 @@ export async function GET(
     const resolvedParams = await context.params;
     const slug = resolvedParams.slug;
 
+    console.log(`[Product API] Fetching product with slug: ${slug}`);
+    
     const product = await prisma.product.findUnique({
       where: { slug },
       include: {

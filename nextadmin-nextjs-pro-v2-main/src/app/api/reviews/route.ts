@@ -40,6 +40,13 @@ export async function GET(request: NextRequest) {
             thumbnail: true,
           },
         },
+        bundle: {
+          select: {
+            id: true,
+            name: true,
+            thumbnail: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

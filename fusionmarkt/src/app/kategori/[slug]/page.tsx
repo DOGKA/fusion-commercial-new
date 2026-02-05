@@ -284,9 +284,16 @@ export default function CategoryPage() {
   const [isBundleCategory, setIsBundleCategory] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(2000);
 
-  // UI State
+  // UI State - sort parametresini validate et
+  const getValidSortOption = (sortParam: string | null): SortOption => {
+    const validOptions: SortOption[] = ["newest", "price_asc", "price_desc", "name_asc", "bestseller"];
+    if (sortParam && validOptions.includes(sortParam as SortOption)) {
+      return sortParam as SortOption;
+    }
+    return "newest";
+  };
   const [sortBy, setSortBy] = useState<SortOption>(
-    (searchParams.get("sort") as SortOption) || "newest"
+    getValidSortOption(searchParams.get("sort"))
   );
   const [currentPage, setCurrentPage] = useState(
     parseInt(searchParams.get("page") || "1")

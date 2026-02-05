@@ -80,7 +80,9 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
-    const sort = searchParams.get("sort") || "newest";
+    // sort parametresi "newest:1" gibi gelebilir, sadece ilk kısmı al
+    const sortRaw = searchParams.get("sort") || "newest";
+    const sort = sortRaw.includes(":") ? sortRaw.split(":")[0] : sortRaw;
 
     // ═══════════════════════════════════════════════════════════════════════════
     // BUNDLE KATEGORİSİ KONTROLÜ - Önce bundle mi kontrol et
@@ -209,9 +211,12 @@ export async function GET(
 
       // Bundle'ları ürün formatına dönüştür (ProductCard ile uyumlu)
       const products = bundles.map((bundle: BundleWithRelations) => {
+        // Defensive: items array'ini güvenli şekilde al
+        const bundleItems = bundle.items || [];
+        
         // Stok hesapla: bundle içindeki ürünlerin minimum stoku
         let minStock = Infinity;
-        for (const item of bundle.items) {
+        for (const item of bundleItems) {
           if (item.product) {
             const productStock = item.product.variants && item.product.variants.length > 0
               ? item.product.variants.reduce((sum: number, v: BundleVariant) => sum + v.stock, 0)
@@ -224,7 +229,7 @@ export async function GET(
         }
         if (!isFinite(minStock)) minStock = 0;
 
-        const totalValue = bundle.items.reduce((sum: number, item: BundleItem) => {
+        const totalValue = bundleItems.reduce((sum: number, item: BundleItem) => {
           return sum + (Number(item.product?.price || 0) * item.quantity);
         }, 0);
         const bundlePrice = Number(bundle.price);
@@ -250,11 +255,11 @@ export async function GET(
           stock: minStock,
           brand: bundle.brand || "Bundle / Paket",
           isBundle: true,
-          itemCount: bundle.items.length,
+          itemCount: bundleItems.length,
           totalValue,
           savings,
           savingsPercent,
-          items: bundle.items.map((item: BundleItem) => ({
+          items: bundleItems.map((item: BundleItem) => ({
             id: item.id,
             quantity: item.quantity,
             product: item.product ? {
@@ -460,8 +465,17 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching category:", error);
+    // Hata detaylarını logla
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return NextResponse.json(
-      { error: "Kategori yüklenirken hata oluştu" },
+      { 
+        error: "Kategori yüklenirken hata oluştu",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }

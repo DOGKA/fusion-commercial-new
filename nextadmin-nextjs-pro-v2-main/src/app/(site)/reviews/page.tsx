@@ -23,7 +23,12 @@ interface Review {
     id: string;
     name: string;
     thumbnail: string | null;
-  };
+  } | null;
+  bundle: {
+    id: string;
+    name: string;
+    thumbnail: string | null;
+  } | null;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -227,12 +232,18 @@ export default function ReviewsPage() {
   const [approveModal, setApproveModal] = useState<Review | null>(null);
 
   const fetchReviews = useCallback(async () => {
+    setLoading(true);
     try {
       const url = filter === "all" ? "/api/reviews" : `/api/reviews?status=${filter}`;
-      const res = await fetch(url);
+      // Cache-busting için timestamp ekle
+      const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}_t=${Date.now()}`, {
+        cache: 'no-store',
+      });
       if (res.ok) {
         const data = await res.json();
         setReviews(data);
+      } else {
+        console.error("Error fetching reviews:", res.status, res.statusText);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -253,12 +264,13 @@ export default function ReviewsPage() {
         body: JSON.stringify({ 
           isApproved: true, 
           adminReply: adminReply || null,
-          adminReplyAt: adminReply ? new Date().toISOString() : null,
         }),
       });
       if (res.ok) {
-        const updatedReview = await res.json();
-        setReviews(reviews.map((r) => (r.id === id ? updatedReview : r)));
+        // Onaylama başarılı - listeyi yeniden çek
+        await fetchReviews();
+      } else {
+        console.error("Error approving review:", res.status, res.statusText);
       }
     } catch (error) {
       console.error("Error updating review:", error);
@@ -273,7 +285,8 @@ export default function ReviewsPage() {
         body: JSON.stringify({ isApproved: false }),
       });
       if (res.ok) {
-        setReviews(reviews.map((r) => (r.id === id ? { ...r, isApproved: false } : r)));
+        // Onay kaldırma başarılı - listeyi yeniden çek
+        await fetchReviews();
       }
     } catch (error) {
       console.error("Error updating review:", error);
@@ -286,7 +299,8 @@ export default function ReviewsPage() {
     try {
       const res = await fetch(`/api/reviews/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setReviews(reviews.filter((r) => r.id !== id));
+        // Silme başarılı - listeyi yeniden çek
+        await fetchReviews();
       }
     } catch (error) {
       console.error("Error deleting review:", error);
@@ -312,7 +326,7 @@ export default function ReviewsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-dark dark:text-white">Ürün Yorumları</h1>
+        <h1 className="text-2xl font-bold text-dark dark:text-white">Ürün ve Paket Yorumları</h1>
         <p className="text-gray-500">Müşteri yorumlarını yönetin, görselleri inceleyin ve yanıt verin</p>
       </div>
 
@@ -414,10 +428,24 @@ export default function ReviewsPage() {
                   </div>
                 </div>
 
-                {/* Ürün bilgisi */}
+                {/* Ürün/Bundle bilgisi */}
                 <div className="mb-2">
-                  <span className="text-sm text-gray-500">Ürün: </span>
-                  <span className="text-sm font-medium text-primary">{review.product.name}</span>
+                  {review.product ? (
+                    <>
+                      <span className="text-sm text-gray-500">Ürün: </span>
+                      <span className="text-sm font-medium text-primary">{review.product.name}</span>
+                    </>
+                  ) : review.bundle ? (
+                    <>
+                      <span className="text-sm text-gray-500">Paket: </span>
+                      <span className="text-sm font-medium text-green-600">{review.bundle.name}</span>
+                      <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                        Bundle
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-gray-500">Ürün bilgisi yok</span>
+                  )}
                 </div>
 
                 {/* Rating ve Başlık */}

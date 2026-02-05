@@ -15,6 +15,7 @@ export async function GET(
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
         product: { select: { id: true, name: true, thumbnail: true } },
+        bundle: { select: { id: true, name: true, thumbnail: true } },
       },
     });
 
@@ -73,6 +74,7 @@ export async function PUT(
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
         product: { select: { id: true, name: true, thumbnail: true } },
+        bundle: { select: { id: true, name: true, thumbnail: true } },
       },
     });
 
