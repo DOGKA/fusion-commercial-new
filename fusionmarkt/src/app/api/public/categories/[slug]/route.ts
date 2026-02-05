@@ -35,6 +35,10 @@ interface BundleBadgeRelation {
   };
 }
 
+interface BundleReview {
+  rating: number;
+}
+
 interface BundleWithRelations {
   id: string;
   name: string;
@@ -48,6 +52,7 @@ interface BundleWithRelations {
   createdAt: Date;
   items: BundleItem[];
   bundleBadges?: BundleBadgeRelation[];
+  reviews?: BundleReview[];
 }
 
 /**
@@ -160,6 +165,11 @@ export async function GET(
             },
             orderBy: { sortOrder: "asc" },
           },
+          // Bundle yorumları - rating hesabı için
+          reviews: {
+            where: { isApproved: true },
+            select: { rating: true },
+          },
         },
         orderBy: bundleOrderBy,
         skip: (page - 1) * limit,
@@ -222,6 +232,13 @@ export async function GET(
         const savings = totalValue - bundlePrice;
         const savingsPercent = totalValue > 0 ? Math.round((savings / totalValue) * 100) : 0;
 
+        // Bundle rating hesapla
+        const bundleReviews = bundle.reviews || [];
+        const bundleRatingCount = bundleReviews.length;
+        const bundleRatingAverage = bundleRatingCount > 0
+          ? bundleReviews.reduce((sum: number, r: BundleReview) => sum + r.rating, 0) / bundleRatingCount
+          : 0;
+
         return {
           id: bundle.id,
           name: bundle.name,
@@ -268,6 +285,9 @@ export async function GET(
             textColor: bb.badge.color || "#FFFFFF",
             icon: bb.badge.icon || null,
           })) || [],
+          // Rating
+          ratingAverage: bundleRatingAverage,
+          ratingCount: bundleRatingCount,
         };
       });
 

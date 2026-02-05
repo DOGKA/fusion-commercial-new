@@ -54,6 +54,30 @@ const bundleInclude = {
       position: "asc" as const,
     },
   },
+  // Bundle yorumları
+  reviews: {
+    where: { isApproved: true },
+    orderBy: { createdAt: "desc" as const },
+    take: 50,
+    select: {
+      id: true,
+      rating: true,
+      title: true,
+      comment: true,
+      images: true,
+      displayName: true,
+      isVerified: true,
+      adminReply: true,
+      adminReplyAt: true,
+      createdAt: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  },
 };
 
 // GET - Tek bundle detayı (frontend için)
@@ -167,6 +191,13 @@ export async function GET(
 
     const bundlePrice = Number(bundle.price);
 
+    // Rating hesapla
+    const reviews = (bundle as any).reviews || [];
+    const ratingCount = reviews.length;
+    const ratingAverage = ratingCount > 0 
+      ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / ratingCount 
+      : 0;
+
     return NextResponse.json({
       id: bundle.id,
       name: bundle.name,
@@ -194,6 +225,13 @@ export async function GET(
       savingsPercent: totalValue > 0 
         ? Math.round(((totalValue - bundlePrice) / totalValue) * 100) 
         : 0,
+      
+      // Rating
+      ratingAverage,
+      ratingCount,
+      
+      // Yorumlar
+      reviews,
       
       // İlişkiler
       categories,

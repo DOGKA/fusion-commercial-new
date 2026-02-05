@@ -14,7 +14,7 @@ function maskName(fullName: string): string {
   }).join(" ");
 }
 
-// POST - Create a new review (allows guest users too)
+// POST - Create a new review (allows guest users too, supports both products and bundles)
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
@@ -23,10 +23,20 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     const isGuest = !session?.user?.email;
 
-    // Validate required fields
-    if (!data.productId || !data.rating || !data.comment) {
+    // Validate required fields - either productId or bundleId must be provided
+    const hasProductId = !!data.productId;
+    const hasBundleId = !!data.bundleId;
+    
+    if (!hasProductId && !hasBundleId) {
       return NextResponse.json(
-        { error: "Ürün ID, puan ve yorum zorunludur" },
+        { error: "Ürün ID veya Paket ID zorunludur" },
+        { status: 400 }
+      );
+    }
+
+    if (!data.rating || !data.comment) {
+      return NextResponse.json(
+        { error: "Puan ve yorum zorunludur" },
         { status: 400 }
       );
     }
@@ -48,17 +58,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id: data.productId },
-      select: { id: true, name: true },
-    });
+    // Check if product or bundle exists
+    if (hasProductId) {
+      const product = await prisma.product.findUnique({
+        where: { id: data.productId },
+        select: { id: true, name: true },
+      });
+      if (!product) {
+        return NextResponse.json(
+          { error: "Ürün bulunamadı" },
+          { status: 404 }
+        );
+      }
+    }
 
-    if (!product) {
-      return NextResponse.json(
-        { error: "Ürün bulunamadı" },
-        { status: 404 }
-      );
+    if (hasBundleId) {
+      const bundle = await prisma.bundle.findUnique({
+        where: { id: data.bundleId },
+        select: { id: true, name: true },
+      });
+      if (!bundle) {
+        return NextResponse.json(
+          { error: "Paket bulunamadı" },
+          { status: 404 }
+        );
+      }
     }
 
     let userId: string | null = null;
@@ -85,25 +109,38 @@ export async function POST(request: NextRequest) {
           displayName = maskName(user.name || "Kullanıcı");
         }
 
-        // Check if user has purchased this product (for verification badge)
-        const hasPurchased = await prisma.orderItem.findFirst({
-          where: {
-            productId: data.productId,
-            order: {
-              userId: user.id,
-              status: "DELIVERED",
+        // Check if user has purchased this product/bundle (for verification badge)
+        if (hasProductId) {
+          const hasPurchased = await prisma.orderItem.findFirst({
+            where: {
+              productId: data.productId,
+              order: {
+                userId: user.id,
+                status: "DELIVERED",
+              },
             },
-          },
-        });
+          });
+          isVerified = !!hasPurchased;
+        } else if (hasBundleId) {
+          const hasPurchased = await prisma.orderItem.findFirst({
+            where: {
+              bundleId: data.bundleId,
+              order: {
+                userId: user.id,
+                status: "DELIVERED",
+              },
+            },
+          });
+          isVerified = !!hasPurchased;
+        }
 
-        isVerified = !!hasPurchased;
-
-        // Check if user already reviewed this product
+        // Check if user already reviewed this product/bundle
+        const existingReviewWhere = hasProductId 
+          ? { productId: data.productId, userId: user.id }
+          : { bundleId: data.bundleId, userId: user.id };
+          
         const existingReview = await prisma.review.findFirst({
-          where: {
-            productId: data.productId,
-            userId: user.id,
-          },
+          where: existingReviewWhere,
         });
 
         if (existingReview) {
@@ -123,6 +160,7 @@ export async function POST(request: NextRequest) {
             include: {
               user: { select: { name: true, email: true } },
               product: { select: { name: true } },
+              bundle: { select: { name: true } },
             },
           });
 
@@ -161,7 +199,8 @@ export async function POST(request: NextRequest) {
     // Create the review
     const review = await prisma.review.create({
       data: {
-        productId: data.productId,
+        productId: hasProductId ? data.productId : null,
+        bundleId: hasBundleId ? data.bundleId : null,
         userId: userId,
         rating: rating, // 1-5 integer
         title: data.title || null,
@@ -174,6 +213,7 @@ export async function POST(request: NextRequest) {
       include: {
         user: { select: { name: true, email: true } },
         product: { select: { name: true } },
+        bundle: { select: { name: true } },
       },
     });
 

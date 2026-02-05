@@ -56,6 +56,11 @@ const bundleListInclude = {
       position: "asc" as const,
     },
   },
+  // Bundle yorumları - rating hesabı için
+  reviews: {
+    where: { isApproved: true },
+    select: { rating: true },
+  },
 };
 
 // GET - Public bundle listesi (frontend için)
@@ -119,6 +124,13 @@ export async function GET(request: NextRequest) {
       
       const bundlePrice = Number(bundle.price);
 
+      // Rating hesapla
+      const reviews = (bundle as { reviews?: { rating: number }[] }).reviews || [];
+      const ratingCount = reviews.length;
+      const ratingAverage = ratingCount > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount
+        : 0;
+
       return {
         id: bundle.id,
         name: bundle.name,
@@ -164,6 +176,9 @@ export async function GET(request: NextRequest) {
           textColor: bb.badge.color, // color -> textColor (text)
           icon: bb.badge.icon,
         })).filter((b) => b.name) || [],
+        // Rating
+        ratingAverage,
+        ratingCount,
       };
     });
 

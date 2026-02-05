@@ -620,7 +620,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          productId: productData?.id || product?.id,
+          bundleId: productData?.id || product?.id, // Bundle için bundleId kullan
           rating: reviewRating,
           title: reviewTitle || null,
           comment: reviewComment,

@@ -355,7 +355,8 @@ model BundleBadge {
 
 model Review {
   id           String    @id @default(cuid())
-  productId    String
+  productId    String?   // Ürün yorumu için (opsiyonel - bundle veya product olabilir)
+  bundleId     String?   // Bundle yorumu için (opsiyonel)
   userId       String
   rating       Int
   title        String?
@@ -368,10 +369,12 @@ model Review {
   updatedAt    DateTime  @updatedAt
   adminReply   String?
   adminReplyAt DateTime?
-  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product      Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bundle       Bundle?   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+  @@index([bundleId])
   @@index([userId])
   @@index([isApproved])
   @@map("reviews")
@@ -1203,6 +1206,7 @@ model Bundle {
   bundleBadges     BundleBadge[]
   categories       BundleCategory[]
   items            BundleItem[]
+  reviews          Review[]          // Bundle yorumları
   brandRef         Brand?            @relation(fields: [brandId], references: [id])
   cartItems        CartItem[]
   orderItems       OrderItem[]
