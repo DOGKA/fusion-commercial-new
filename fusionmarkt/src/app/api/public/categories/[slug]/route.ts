@@ -82,6 +82,11 @@ export async function GET(
     const limit = parseInt(searchParams.get("limit") || "12");
     const sort = searchParams.get("sort") || "newest";
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // BUNDLE KATEGORİSİ KONTROLÜ - Önce bundle mi kontrol et
+    // ═══════════════════════════════════════════════════════════════════════════
+    const isBundleCategory = slug.includes('bundle') || slug.includes('paket');
+
     // Kategoriyi bul
     const category = await prisma.category.findUnique({
       where: { slug },
@@ -96,17 +101,13 @@ export async function GET(
       },
     });
 
-    if (!category) {
+    // Bundle kategorisi için kategori bulunamasa da devam et
+    if (!category && !isBundleCategory) {
       return NextResponse.json({ error: "Kategori bulunamadı" }, { status: 404 });
     }
 
     // themeColor yeni eklenen alan - runtime'da mevcut
-    const categoryWithTheme = category as typeof category & { themeColor?: string | null };
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // BUNDLE KATEGORİSİ KONTROLÜ - Bundle'ları getir
-    // ═══════════════════════════════════════════════════════════════════════════
-    const isBundleCategory = slug.includes('bundle') || slug.includes('paket');
+    const categoryWithTheme = category as (typeof category & { themeColor?: string | null }) | null;
     
     if (isBundleCategory) {
       // Bundle sıralaması
@@ -123,28 +124,26 @@ export async function GET(
           break;
       }
 
-      // Bu kategorideki bundle'ları say
-      const totalBundles = await prisma.bundle.count({
-        where: {
-          isActive: true,
+      // Bundle where koşulu - kategori varsa kategoriye göre filtrele, yoksa tüm aktif bundle'ları getir
+      const bundleWhere: Prisma.BundleWhereInput = {
+        isActive: true,
+        ...(category ? {
           categories: {
             some: {
               categoryId: category.id,
             },
           },
-        },
+        } : {}),
+      };
+
+      // Bu kategorideki bundle'ları say
+      const totalBundles = await prisma.bundle.count({
+        where: bundleWhere,
       });
 
       // Bundle'ları getir
       const bundlesRaw = await prisma.bundle.findMany({
-        where: {
-          isActive: true,
-          categories: {
-            some: {
-              categoryId: category.id,
-            },
-          },
-        },
+        where: bundleWhere,
         include: {
           items: {
             include: {
@@ -268,10 +267,14 @@ export async function GET(
           })),
           createdAt: bundle.createdAt,
           // ProductCard uyumluluğu için ek alanlar
-          category: {
+          category: category ? {
             id: category.id,
             name: category.name,
             slug: category.slug,
+          } : {
+            id: "bundle-category",
+            name: "Bundle / Paket Ürünler",
+            slug: slug,
           },
           variants: [],
           productBadges: [],
@@ -295,7 +298,7 @@ export async function GET(
 
       return NextResponse.json({
         success: true,
-        category: {
+        category: categoryWithTheme ? {
           id: categoryWithTheme.id,
           name: categoryWithTheme.name,
           slug: categoryWithTheme.slug,
@@ -304,6 +307,15 @@ export async function GET(
           icon: categoryWithTheme.icon,
           themeColor: categoryWithTheme.themeColor ?? null,
           parent: categoryWithTheme.parent,
+        } : {
+          id: "bundle-category",
+          name: "Bundle / Paket Ürünler",
+          slug: slug,
+          description: "Özel paket ürünlerimiz ile tasarruf edin",
+          image: null,
+          icon: null,
+          themeColor: "#10B981",
+          parent: null,
         },
         products,
         isBundle: true,
@@ -321,6 +333,11 @@ export async function GET(
     // ═══════════════════════════════════════════════════════════════════════════
     // NORMAL ÜRÜN KATEGORİSİ
     // ═══════════════════════════════════════════════════════════════════════════
+    
+    // Bu noktada category kesinlikle var (bundle değilse ve null ise zaten 404 döndük)
+    if (!category || !categoryWithTheme) {
+      return NextResponse.json({ error: "Kategori bulunamadı" }, { status: 404 });
+    }
     
     // Sıralama
     let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // newest
