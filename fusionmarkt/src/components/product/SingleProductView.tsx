@@ -908,8 +908,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                     style={{ 
                       ...featuresWrapperStyle,
                       gap: '8px',
-                      userSelect: 'none',
                     }}
+                    className="flex items-stretch select-none"
                     {...featuresHandlers}
                   >
                     {/* Backend'ten gelen features - 2x duplicate for seamless loop */}
@@ -925,8 +925,8 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         backgroundColor: 'var(--glass-bg)',
                         border: '1px solid var(--border)',
                         borderRadius: '10px',
-                        cursor: 'default',
                         transition: 'all 0.2s ease',
+                        pointerEvents: 'none',
                       }}
                     >
                       {/* SVG Icon - Backend'ten gelir */}

@@ -60,7 +60,6 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ];
 
 // Default theme color
-const DEFAULT_THEME_COLOR = "#8B5CF6";
 
 // ============================================
 // GLASSMORPHISM BANNER COMPONENT
@@ -90,6 +89,7 @@ function GlassBanner({
 }: GlassBannerProps) {
   const sortButtonRef = useRef<HTMLButtonElement>(null);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+  const hasThemeColor = Boolean(themeColor);
 
   // Update dropdown position when sortOpen changes
   useEffect(() => {
@@ -107,19 +107,27 @@ function GlassBanner({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div 
           className="relative rounded-xl backdrop-blur-md px-4 py-2.5 flex items-center gap-3"
-          style={{
-            background: `linear-gradient(90deg, ${themeColor}35 0%, ${themeColor}20 100%)`,
-            border: `1px solid ${themeColor}50`,
-          }}
+          style={
+            hasThemeColor
+              ? {
+                  background: `linear-gradient(90deg, ${themeColor}35 0%, ${themeColor}20 100%)`,
+                  border: `1px solid ${themeColor}50`,
+                }
+              : undefined
+          }
         >
           {/* Shimmer Effect - Sadece Banner İçinde */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
             <div 
               className="absolute inset-0 opacity-40"
-              style={{
-                background: `linear-gradient(90deg, transparent 0%, ${themeColor}60 50%, transparent 100%)`,
-                animation: 'banner-shimmer 2.5s ease-in-out infinite',
-              }}
+              style={
+                hasThemeColor
+                  ? {
+                      background: `linear-gradient(90deg, transparent 0%, ${themeColor}60 50%, transparent 100%)`,
+                      animation: "banner-shimmer 2.5s ease-in-out infinite",
+                    }
+                  : undefined
+              }
             />
           </div>
 
@@ -142,7 +150,7 @@ function GlassBanner({
             {activeFilterCount > 0 && (
               <span 
                 className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white rounded-full"
-                style={{ backgroundColor: themeColor }}
+                style={hasThemeColor ? { backgroundColor: themeColor } : undefined}
               >
                 {activeFilterCount}
               </span>
@@ -307,8 +315,9 @@ export default function CategoryPage() {
     scrollBy,
   } = useTransformCarousel({ friction: 0.95 });
 
-  // Get theme color from category or use default
-  const themeColor = category?.themeColor || DEFAULT_THEME_COLOR;
+  // Get theme color only from category (no fallback)
+  const themeColor = category?.themeColor ?? "";
+  const hasThemeColor = Boolean(themeColor);
 
   // Check mobile
   useEffect(() => {
@@ -907,7 +916,7 @@ export default function CategoryPage() {
                 <div className="flex items-center justify-center py-20 w-full">
                   <div
                     className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
-                    style={{ borderColor: `${themeColor}40`, borderTopColor: themeColor }}
+                    style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}
                   />
                 </div>
               ) : products.length > 0 ? (
@@ -957,7 +966,7 @@ export default function CategoryPage() {
           <div className="hidden md:flex items-center justify-center py-20">
             <div
               className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
-              style={{ borderColor: `${themeColor}40`, borderTopColor: themeColor }}
+              style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}
             />
           </div>
         ) : products.length > 0 ? (
@@ -1043,7 +1052,7 @@ export default function CategoryPage() {
                         "w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-medium transition-colors text-sm",
                         page === currentPage ? "text-foreground" : "text-foreground-secondary hover:bg-foreground/5"
                       )}
-                      style={page === currentPage ? { backgroundColor: themeColor } : {}}
+                      style={page === currentPage && hasThemeColor ? { backgroundColor: themeColor } : {}}
                     >
                       {page}
                     </button>
