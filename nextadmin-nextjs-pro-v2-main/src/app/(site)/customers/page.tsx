@@ -2,6 +2,9 @@ import { Metadata } from "next";
 import { prisma } from "@/libs/prismaDb";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Müşteriler",
 };
@@ -28,15 +31,24 @@ async function getCustomers() {
     },
     include: {
       orders: {
+        where: {
+          // Sadece ödemesi alınmış siparişleri say (CANCELLED ve PENDING hariç)
+          paymentStatus: "PAID",
+        },
         select: {
           id: true,
           total: true,
           status: true,
+          paymentStatus: true,
         },
       },
       _count: {
         select: {
-          orders: true,
+          orders: {
+            where: {
+              paymentStatus: "PAID",
+            },
+          },
         },
       },
     },
@@ -67,7 +79,9 @@ async function getStats() {
       where: {
         role: "CUSTOMER",
         orders: {
-          some: {},
+          some: {
+            paymentStatus: "PAID",
+          },
         },
       },
     }),

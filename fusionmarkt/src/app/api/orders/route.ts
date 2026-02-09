@@ -309,16 +309,28 @@ export async function POST(request: NextRequest) {
       email: billingAddress.email,
     };
     
-    // Fetch product names from database for contract generation
-    const productIds = items.map((item: { productId: string }) => item.productId);
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: { id: true, name: true },
-    });
-    const productNameMap = new Map(products.map(p => [p.id, p.name || "Ürün"]));
+    // Fetch product and bundle names from database for contract generation
+    const productIds = items.filter((item: { isBundle?: boolean }) => !item.isBundle).map((item: { productId: string }) => item.productId);
+    const bundleIds = items.filter((item: { isBundle?: boolean; bundleId?: string }) => item.isBundle && item.bundleId).map((item: { bundleId?: string }) => item.bundleId!);
     
-    const orderItems = items.map((item: { productId: string; name?: string; title?: string; variant?: { value?: string }; price: number; quantity: number }) => ({
-      name: productNameMap.get(item.productId) || item.name || item.title || "Ürün",
+    const [products, bundles] = await Promise.all([
+      prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, name: true },
+      }),
+      bundleIds.length > 0 ? prisma.bundle.findMany({
+        where: { id: { in: bundleIds } },
+        select: { id: true, name: true },
+      }) : Promise.resolve([]),
+    ]);
+    
+    const productNameMap = new Map(products.map(p => [p.id, p.name || "Ürün"]));
+    const bundleNameMap = new Map(bundles.map(b => [b.id, b.name || "Paket"]));
+    
+    const orderItems = items.map((item: { productId: string; name?: string; title?: string; variant?: { value?: string }; price: number; quantity: number; isBundle?: boolean; bundleId?: string }) => ({
+      name: item.isBundle && item.bundleId 
+        ? bundleNameMap.get(item.bundleId) || item.name || "Paket"
+        : productNameMap.get(item.productId) || item.name || item.title || "Ürün",
       variant: item.variant,
       price: item.price,
       quantity: item.quantity,
@@ -494,8 +506,10 @@ export async function POST(request: NextRequest) {
         itemCount: items.length,
         paymentMethod: "BANK_TRANSFER",
         shippingCity: shippingAddress?.city || billingAddress?.city || "",
-        items: items.map((item: { name?: string; title?: string; quantity: number; price: number }) => ({
-          name: item.name || item.title || "Ürün",
+        items: items.map((item: { productId: string; name?: string; title?: string; quantity: number; price: number; isBundle?: boolean; bundleId?: string }) => ({
+          name: item.isBundle && item.bundleId 
+            ? bundleNameMap.get(item.bundleId) || item.name || "Paket"
+            : productNameMap.get(item.productId) || item.name || item.title || "Ürün",
           quantity: item.quantity,
           price: item.price,
         })),

@@ -273,15 +273,27 @@ async function createOrderFromDraft(
     email: billingAddress.email,
   };
 
-  const productIds = items.map((item) => item.productId);
-  const products = await prisma.product.findMany({
-    where: { id: { in: productIds } },
-    select: { id: true, name: true },
-  });
+  const productIds = items.filter((item) => !item.isBundle).map((item) => item.productId);
+  const bundleIds = items.filter((item) => item.isBundle && item.bundleId).map((item) => item.bundleId!);
+  
+  const [products, bundles] = await Promise.all([
+    prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, name: true },
+    }),
+    bundleIds.length > 0 ? prisma.bundle.findMany({
+      where: { id: { in: bundleIds } },
+      select: { id: true, name: true },
+    }) : Promise.resolve([]),
+  ]);
+  
   const productNameMap = new Map(products.map((p) => [p.id, p.name || "Ürün"]));
+  const bundleNameMap = new Map(bundles.map((b) => [b.id, b.name || "Paket"]));
 
   const orderItemsForContract = items.map((item) => ({
-    name: productNameMap.get(item.productId) || item.name || item.title || "Ürün",
+    name: item.isBundle && item.bundleId 
+      ? bundleNameMap.get(item.bundleId) || item.name || "Paket"
+      : productNameMap.get(item.productId) || item.name || item.title || "Ürün",
     variant: item.variant,
     price: item.price,
     quantity: item.quantity,
@@ -369,6 +381,8 @@ async function createOrderFromDraft(
       customerNote: billingAddress.orderNotes || null,
       contractAccessToken, // Token for secure contract access
       paidAt: new Date(),
+      confirmedAt: new Date(), // Ödeme onaylandı
+      preparingAt: new Date(), // Hazırlanıyor durumuna geçti
       iyzicoPaymentId: paymentResult.paymentId || null,
       iyzicoConversationId: orderNumber,
       iyzicoPaymentTransactions,
@@ -472,7 +486,9 @@ async function createOrderFromDraft(
     paymentMethod: "CREDIT_CARD",
     shippingCity: shipAddr?.city || "",
     items: items.map((item) => ({
-      name: item.name || item.title || "Ürün",
+      name: item.isBundle && item.bundleId 
+        ? bundleNameMap.get(item.bundleId) || item.name || "Paket"
+        : productNameMap.get(item.productId) || item.name || item.title || "Ürün",
       quantity: item.quantity,
       price: item.price,
     })),

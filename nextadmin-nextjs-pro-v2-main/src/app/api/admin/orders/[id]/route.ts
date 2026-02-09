@@ -293,9 +293,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           break;
         case "SHIPPED":
           updateData.shippedAt = now;
+          // Eğer preparingAt eksikse, kargoya verilmeden önce hazırlandığını varsay
+          if (!existing.preparingAt) updateData.preparingAt = now;
+          if (!existing.confirmedAt) updateData.confirmedAt = now;
           break;
         case "DELIVERED":
           updateData.deliveredAt = now;
+          // Önceki adımlar eksikse otomatik ayarla
+          if (!existing.shippedAt) updateData.shippedAt = now;
+          if (!existing.preparingAt) updateData.preparingAt = now;
+          if (!existing.confirmedAt) updateData.confirmedAt = now;
           break;
         case "CANCELLED":
           updateData.cancelledAt = now;
@@ -449,6 +456,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             email: true,
           },
         },
+        billingAddress: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
         items: {
           include: {
             product: {
@@ -463,6 +476,29 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
 
     console.log(`✅ Order updated: ${order.orderNumber} -> ${status || 'fields updated'}`);
+
+    // Send email notification if status changed
+    if (status && status !== existing.status) {
+      const customerEmail = order.user?.email;
+      const customerName = order.user?.name || 
+        (order.billingAddress ? `${order.billingAddress.firstName} ${order.billingAddress.lastName}` : undefined);
+      
+      if (customerEmail) {
+        // Send status update email (async, don't wait)
+        sendOrderStatusEmail({
+          to: customerEmail,
+          orderNumber: order.orderNumber,
+          status: status,
+          customerName,
+          trackingNumber: trackingNumber || order.trackingNumber || undefined,
+          carrierName: carrierName || order.carrierName || undefined,
+        }).catch(err => console.error("Email send error (PUT):", err));
+        
+        console.log(`📧 Status email queued for ${customerEmail} (PUT)`);
+      } else {
+        console.log(`⚠️ No customer email found for order ${order.orderNumber}`);
+      }
+    }
 
     // Revalidate cache
     revalidateTag("orders");
@@ -525,9 +561,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           break;
         case "SHIPPED":
           updateData.shippedAt = now;
+          // Eğer preparingAt eksikse, kargoya verilmeden önce hazırlandığını varsay
+          if (!existing.preparingAt) updateData.preparingAt = now;
+          if (!existing.confirmedAt) updateData.confirmedAt = now;
           break;
         case "DELIVERED":
           updateData.deliveredAt = now;
+          // Önceki adımlar eksikse otomatik ayarla
+          if (!existing.shippedAt) updateData.shippedAt = now;
+          if (!existing.preparingAt) updateData.preparingAt = now;
+          if (!existing.confirmedAt) updateData.confirmedAt = now;
           break;
         case "CANCELLED":
           updateData.cancelledAt = now;

@@ -1,6 +1,9 @@
 import { prisma } from "@/libs/prismaDb";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getDashboardStats() {
   // Date calculations
   const now = new Date();
@@ -45,25 +48,34 @@ async function getDashboardStats() {
     prisma.order.count({ where: { status: "SHIPPED" } }),
     prisma.order.count({ where: { status: "DELIVERED" } }),
     prisma.order.count({ where: { status: "CANCELLED" } }),
-    // Today's orders
+    // Today's orders (only PAID)
     prisma.order.aggregate({
-      where: { createdAt: { gte: todayStart } },
+      where: { 
+        createdAt: { gte: todayStart },
+        paymentStatus: "PAID",
+      },
       _sum: { total: true },
       _count: true,
     }),
-    // Week's orders
+    // Week's orders (only PAID)
     prisma.order.aggregate({
-      where: { createdAt: { gte: weekStart } },
+      where: { 
+        createdAt: { gte: weekStart },
+        paymentStatus: "PAID",
+      },
       _sum: { total: true },
       _count: true,
     }),
-    // Month's orders
+    // Month's orders (only PAID)
     prisma.order.aggregate({
-      where: { createdAt: { gte: monthStart } },
+      where: { 
+        createdAt: { gte: monthStart },
+        paymentStatus: "PAID",
+      },
       _sum: { total: true },
       _count: true,
     }),
-    // Total revenue
+    // Total revenue (only PAID)
     prisma.order.aggregate({
       where: { paymentStatus: "PAID" },
       _sum: { total: true },
