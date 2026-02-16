@@ -105,13 +105,15 @@ const blogs = [
 
 <h3>IEETek Güç İstasyonlarında PD Çıkış</h3>
 <table>
-<tr><th>Model</th><th>USB-C PD Çıkış</th><th>Maks. PD Gücü</th><th>PD Versiyonu</th></tr>
-<tr><td>IEETek P800</td><td>1× USB-C</td><td>100W</td><td>PD 3.0</td></tr>
-<tr><td>IEETek P1800</td><td>2× USB-C</td><td>100W</td><td>PD 3.0</td></tr>
-<tr><td>IEETek P2400</td><td>2× USB-C</td><td>100W</td><td>PD 3.0</td></tr>
-<tr><td>IEETek P3200</td><td>2× USB-C</td><td>100W</td><td>PD 3.0</td></tr>
-<tr><td>Singo2000 PRO</td><td>USB-C PD çıkışlar mevcut</td><td>100W</td><td>PD 3.0</td></tr>
+<tr><th>Model</th><th>USB-C PD Çıkış</th><th>Maks. PD Gücü</th><th>USB-A Çıkış</th></tr>
+<tr><td>IEETek P800</td><td>1× 100W + 2× 30W (3 port)</td><td>100W</td><td>2× QC 30W</td></tr>
+<tr><td>IEETek P1800</td><td>1× 100W + 2× 30W (3 port)</td><td>100W</td><td>3× QC 30W</td></tr>
+<tr><td>IEETek P2400</td><td>2× 100W + 2× 30W (4 port)</td><td>100W</td><td>4× QC 30W</td></tr>
+<tr><td>IEETek P3200</td><td>2× 100W + 2× 30W (4 port)</td><td>100W</td><td>4× QC 30W</td></tr>
+<tr><td>Singo2000 PRO</td><td>2× 100W (2 port)</td><td>100W</td><td>1× USB-A 12W + 2× QC3.0 18W</td></tr>
+<tr><td>IEETek SH4000</td><td>2× 100W (2 port)</td><td>100W</td><td>—</td></tr>
 </table>
+<p><strong>Not:</strong> 30W USB-C portlar 5V/3A, 9V/3A, 12V/2.5A, 15V/2A ve 20V/1.5A destekler — telefon, tablet ve küçük cihazlar için idealdir. 100W port ise laptop şarjı için tasarlanmıştır.</p>
 
 <h3>PD Çıkışla Şarj Edilebilen Cihazlar</h3>
 
@@ -184,7 +186,7 @@ const blogs = [
 <li><strong>Laptop kapağını kapatıp şarj edin:</strong> Ekran kapalıyken daha hızlı dolar ve daha az enerji harcar</li>
 <li><strong>Geceleri PD'den şarj edin:</strong> Güç istasyonu AC inverteri kapalı kalır, sessiz ve verimli şarj</li>
 <li><strong>PD şarj gücünü bilin:</strong> Laptopunuzun orijinal adaptör gücünü kontrol edin. 100W PD çıkışlı güç istasyonları çoğu laptopu tam hızda şarj eder</li>
-<li><strong>Telefon + laptop aynı anda:</strong> İki USB-C PD portu olan güç istasyonlarında (P1800, P2400, P3200) laptop ve telefon eş zamanlı şarj edilebilir</li>
+<li><strong>Telefon + laptop aynı anda:</strong> Tüm IEETek güç istasyonlarında birden fazla USB-C PD portu bulunur — 100W porttan laptop, 30W porttan telefon eş zamanlı şarj edilebilir</li>
 </ol>
 
 <h2>Güç İstasyonunu PD ile Şarj Etmek (Giriş)</h2>

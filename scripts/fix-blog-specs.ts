@@ -129,6 +129,21 @@ const replacements: { old: string; new: string }[] = [
   // P1800 Ağırlık Düzeltmesi (12.5 → 12.7 kg)
   // ══════════════════════════════════════════════════════════════════════
   { old: "(IEETek P1800: 12.5 kg)", new: "(IEETek P1800: 12.7 kg)" },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // USB PD Blog: USB-C Port Sayıları Düzeltmeleri (datasheet doğrulaması)
+  // P800:  3 USB-C (1×100W + 2×30W) + 2 USB-A QC
+  // P1800: 3 USB-C (1×100W + 2×30W) + 3 USB-A QC
+  // P2400: 4 USB-C (2×100W + 2×30W) + 4 USB-A QC
+  // P3200: 4 USB-C (2×100W + 2×30W) + 4 USB-A QC
+  // Singo2000 PRO: 2 USB-C (2×100W) + 1 USB-A + 2 QC3.0
+  // SH4000: 2 USB-C (2×100W)
+  // ══════════════════════════════════════════════════════════════════════
+  // Tablo tamamen yeniden yazılıyor
+  { old: "<tr><th>Model</th><th>USB-C PD Çıkış</th><th>Maks. PD Gücü</th><th>PD Versiyonu</th></tr>\n<tr><td>IEETek P800</td><td>1× USB-C</td><td>100W</td><td>PD 3.0</td></tr>\n<tr><td>IEETek P1800</td><td>2× USB-C</td><td>100W</td><td>PD 3.0</td></tr>\n<tr><td>IEETek P2400</td><td>2× USB-C</td><td>100W</td><td>PD 3.0</td></tr>\n<tr><td>IEETek P3200</td><td>2× USB-C</td><td>100W</td><td>PD 3.0</td></tr>\n<tr><td>Singo2000 PRO</td><td>USB-C PD çıkışlar mevcut</td><td>100W</td><td>PD 3.0</td></tr>", new: "<tr><th>Model</th><th>USB-C PD Çıkış</th><th>Maks. PD Gücü</th><th>USB-A Çıkış</th></tr>\n<tr><td>IEETek P800</td><td>1× 100W + 2× 30W (3 port)</td><td>100W</td><td>2× QC 30W</td></tr>\n<tr><td>IEETek P1800</td><td>1× 100W + 2× 30W (3 port)</td><td>100W</td><td>3× QC 30W</td></tr>\n<tr><td>IEETek P2400</td><td>2× 100W + 2× 30W (4 port)</td><td>100W</td><td>4× QC 30W</td></tr>\n<tr><td>IEETek P3200</td><td>2× 100W + 2× 30W (4 port)</td><td>100W</td><td>4× QC 30W</td></tr>\n<tr><td>Singo2000 PRO</td><td>2× 100W (2 port)</td><td>100W</td><td>1× USB-A 12W + 2× QC3.0 18W</td></tr>\n<tr><td>IEETek SH4000</td><td>2× 100W (2 port)</td><td>100W</td><td>—</td></tr>" },
+  // 30W açıklama notu ekleniyor (tablo sonrası)
+  // Eş zamanlı şarj metni düzeltmesi
+  { old: "İki USB-C PD portu olan güç istasyonlarında (P1800, P2400, P3200) laptop ve telefon eş zamanlı şarj edilebilir", new: "Tüm IEETek güç istasyonlarında birden fazla USB-C PD portu bulunur — 100W porttan laptop, 30W porttan telefon eş zamanlı şarj edilebilir" },
 ];
 
 async function fixBlogs() {
