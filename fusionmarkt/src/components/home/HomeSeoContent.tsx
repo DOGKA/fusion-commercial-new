@@ -71,11 +71,11 @@ export default function HomeSeoContent() {
           <div className="mt-8 flex flex-wrap gap-2">
             {[
               { label: "Taşınabilir Güç Kaynakları", href: "/kategori/tasinabilir-guc-kaynaklari" },
-              { label: "Solar Panel", href: "/kategori/solar-panel" },
+              { label: "Güneş Panelleri", href: "/kategori/gunes-panelleri" },
               { label: "Paket Setler", href: "/kategori/bundle-paket-urunler" },
-              { label: "Yalıtkan Merdivenler", href: "/kategori/yalitkan-merdiven" },
-              { label: "İş Güvenliği Eldivenleri", href: "/kategori/is-guvenligi-eldiveni" },
-              { label: "Aksesuarlar", href: "/kategori/aksesuarlar" },
+              { label: "Teleskopik Merdivenler", href: "/kategori/teleskopik-merdivenler" },
+              { label: "Endüstriyel Eldivenler", href: "/kategori/endustriyel-eldivenler" },
+              { label: "Tüm Ürünler", href: "/magaza" },
             ].map((link) => (
               <Link
                 key={link.href}
