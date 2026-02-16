@@ -179,7 +179,7 @@ const blogs = [
 </ol>
 
 <h2>Sonuç</h2>
-<p>LiFePO4 güç istasyonları kışın da güvenle kullanılabilir, yeter ki soğukta şarj kuralına dikkat edin ve kapasite kaybını planlayın. -20°C'de bile cihazlarınızı besleyebilecek güçtedirler. <a href="/kategori/tasinabilir-guc-kaynaklari">FusionMarkt güç istasyonları</a> ile dört mevsim enerji bağımsızlığının keyfini çıkarın.</p>`,
+<p>LiFePO4 güç istasyonları kışın da güvenle kullanılabilir, yeter ki soğukta şarj kuralına dikkat edin ve kapasite kaybını planlayın. -15°C'de bile cihazlarınızı besleyebilecek güçtedirler (SH4000 ile -20°C). <a href="/kategori/tasinabilir-guc-kaynaklari">FusionMarkt güç istasyonları</a> ile dört mevsim enerji bağımsızlığının keyfini çıkarın.</p>`,
   },
 ];
 

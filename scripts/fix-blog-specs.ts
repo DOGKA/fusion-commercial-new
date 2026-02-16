@@ -125,6 +125,7 @@ const replacements: { old: string; new: string }[] = [
   // Genel deşarj metni: -20°C → -15°C
   { old: "LiFePO4 bataryalar <strong>-20°C'ye kadar güvenle deşarj edilebilir</strong> (kullanılabilir).", new: "LiFePO4 bataryalar <strong>-15°C'ye kadar güvenle deşarj edilebilir</strong> (kullanılabilir). SH4000 modeli ise -20°C'ye kadar destekler." },
   { old: "Deşarj (Kullanım): -20°C'ye Kadar Güvenli", new: "Deşarj (Kullanım): -15°C'ye Kadar Güvenli (SH4000: -20°C)" },
+  { old: "-20°C'de bile cihazlarınızı besleyebilecek güçtedirler.", new: "-15°C'de bile cihazlarınızı besleyebilecek güçtedirler (SH4000 ile -20°C)." },
 
   // ══════════════════════════════════════════════════════════════════════
   // P1800 Ağırlık Düzeltmesi (12.5 → 12.7 kg)
