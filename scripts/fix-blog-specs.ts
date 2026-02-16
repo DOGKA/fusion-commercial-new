@@ -23,11 +23,16 @@ const prisma = new PrismaClient();
 const replacements: { old: string; new: string }[] = [
   // ══════════════════════════════════════════════════════════════════════
   // P800 Solar Giriş Düzeltmeleri (28V/8A/200W → 60V/10A/300W)
+  // ÖNEMLİ: Özel cümleler ÖNCE, genel değişimler SONRA yapılmalı!
   // ══════════════════════════════════════════════════════════════════════
   { old: "P800</td><td>28V</td><td>8A</td><td>200W</td>", new: "P800</td><td>60V</td><td>10A</td><td>300W</td>" },
+  { old: "<tr><td>IEETek P800</td><td>28V</td></tr>", new: "<tr><td>IEETek P800</td><td>60V</td></tr>" },
+  // Özel cümle düzeltmeleri (sıralama hatası düzeltmesi - zaten 28V→60V olmuş olabilir)
+  { old: "P800'ün 60V limitine çok yakındır; aşırı soğuklarda dikkat edilmelidir.", new: "P800'ün 60V limitinin çok altındadır, güvenlidir." },
+  { old: "P800'ün 28V limitine çok yakındır; aşırı soğuklarda dikkat edilmelidir.", new: "P800'ün 60V limitinin çok altındadır, güvenlidir." },
+  // Genel metin değişimleri
   { old: "P800'ün 28V limitine", new: "P800'ün 60V limitine" },
   { old: "P800'ün 28V limiti", new: "P800'ün 60V limiti" },
-  { old: "<tr><td>IEETek P800</td><td>28V</td></tr>", new: "<tr><td>IEETek P800</td><td>60V</td></tr>" },
 
   // ══════════════════════════════════════════════════════════════════════
   // P1800 Solar Giriş Düzeltmeleri (55V/12A/400W → 52V/11A/500W)
@@ -49,15 +54,11 @@ const replacements: { old: string; new: string }[] = [
   // P3200 Solar Giriş Düzeltmeleri (60V/15A/500W → 80V/16A/1000W)
   // ══════════════════════════════════════════════════════════════════════
   { old: "P3200</td><td>60V</td><td>15A</td><td>500W</td>", new: "P3200</td><td>80V</td><td>16A</td><td>1000W</td>" },
+  { old: "<tr><td>IEETek P3200</td><td>60V</td></tr>", new: "<tr><td>IEETek P3200</td><td>80V</td></tr>" },
   { old: "P3200 limiti 60V", new: "P3200 limiti 80V" },
   { old: "P3200'ün 60V limiti", new: "P3200'ün 80V limiti" },
 
-  // ══════════════════════════════════════════════════════════════════════
-  // VOC blog: P800 limiti artık 60V, seri bağlantı örneği güncellenmeli
-  // "P800'ün 28V limitine çok yakındır; aşırı soğuklarda dikkat edilmelidir"
-  // → P800 artık 60V, SP200 VOC=24V soğukta 28.8V → sorun yok
-  // ══════════════════════════════════════════════════════════════════════
-  { old: "P800'ün 28V limitine çok yakındır; aşırı soğuklarda dikkat edilmelidir.", new: "P800'ün 60V limitinin çok altındadır, güvenlidir." },
+  // VOC blog P800 özel cümle düzeltmesi yukarıda P800 bölümüne taşındı
 
   // ══════════════════════════════════════════════════════════════════════
   // Seri/Paralel blog: P1800+2xSP200 seri hesaplama düzeltme
