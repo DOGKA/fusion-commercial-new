@@ -137,9 +137,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
       select: {
         slug: true,
-        name: true,
         updatedAt: true,
-        mainImage: true,
+        thumbnail: true,
         images: true,
       },
       orderBy: { updatedAt: "desc" },
@@ -151,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
       images: [
-        ...(product.mainImage ? [product.mainImage] : []),
+        ...(product.thumbnail ? [product.thumbnail] : []),
         ...(Array.isArray(product.images) ? (product.images as string[]).slice(0, 4) : []),
       ].filter(Boolean),
     }));
