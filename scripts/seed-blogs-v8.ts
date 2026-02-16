@@ -116,7 +116,7 @@ const blogs = [
 
 <h3>Senaryo 4: Çok Günlük Doğa Belgeseli</h3>
 <p>Tüm ekipman × 3+ gün</p>
-<p><strong>Öneri: IEETek P3200 (3200Wh) + SP200 güneş paneli</strong> — Gündüz solar şarj, gece kullanım döngüsü ile sınırsız çekim.</p>
+<p><strong>Öneri: IEETek P3200 (2048Wh, 3200W) + SP200 güneş paneli</strong> — Gündüz solar şarj, gece kullanım döngüsü ile sınırsız çekim.</p>
 
 <h2>USB-C PD: Fotoğrafçının En İyi Dostu</h2>
 <p>Modern fotoğraf ve video ekipmanlarının çoğu USB-C PD ile şarj edilebilir:</p>

@@ -50,7 +50,7 @@ const blogs = [
 <h3>Orta Seviye: IEETek P1800 (1024Wh)</h3>
 <p>İletişim + aydınlatma + radyo/modem. SP100 güneş paneli ile birlikte kullanılırsa 72 saatin ötesine geçilebilir. Aile için önerilen minimum seviye.</p>
 
-<h3>Kapsamlı: IEETek P2400-P3200 (2048-3200Wh)</h3>
+<h3>Kapsamlı: IEETek P2400-P3200 (2048Wh)</h3>
 <p>Medikal cihaz dahil tüm ihtiyaçlar. SP200 güneş paneli ile birlikte haftalarca bağımsız enerji. Çok kişilik aile veya kronik hasta bulunan haneler için.</p>
 
 <h2>Güneş Paneli: Sınırsız Enerji Uzatma</h2>

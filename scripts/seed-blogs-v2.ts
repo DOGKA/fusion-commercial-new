@@ -68,10 +68,10 @@ const blogs: BlogInput[] = [
 
 <table>
 <tr><th>Güç İstasyonu</th><th>Maks. Solar Giriş Voltajı</th></tr>
-<tr><td>IEETek P800</td><td>28V</td></tr>
-<tr><td>IEETek P1800</td><td>55V</td></tr>
-<tr><td>IEETek P2400</td><td>55V</td></tr>
-<tr><td>IEETek P3200</td><td>60V</td></tr>
+<tr><td>IEETek P800</td><td>60V</td></tr>
+<tr><td>IEETek P1800</td><td>52V</td></tr>
+<tr><td>IEETek P2400</td><td>60V</td></tr>
+<tr><td>IEETek P3200</td><td>80V</td></tr>
 </table>
 
 <p><strong>Eğer güneş panelinin VOC değeri, güç istasyonunun maksimum giriş voltajını aşarsa, güç istasyonunun MPPT kontrolcüsü veya giriş devresi zarar görebilir!</strong> Bu yüzden panel seçerken, özellikle soğuk havadaki VOC artışını hesaba katmanız gerekir.</p>
@@ -80,7 +80,7 @@ const blogs: BlogInput[] = [
 <p>Güvenli panel seçimi için şu formül kullanılır:</p>
 <p><strong>Maks. VOC (soğukta) = Etiket VOC × 1.20</strong></p>
 <p>Bu değerin, güç istasyonunuzun maksimum giriş voltajından <strong>düşük</strong> olması gerekir.</p>
-<p>Örnek: SP200 panelin etiket VOC'si 24V → Soğukta tahmini maks: 24 × 1.20 = <strong>28.8V</strong>. Bu, P1800'ün 55V limitinin çok altındadır, güvenlidir. Ama P800'ün 28V limitine çok yakındır; aşırı soğuklarda dikkat edilmelidir.</p>
+<p>Örnek: SP200 panelin etiket VOC'si 24V → Soğukta tahmini maks: 24 × 1.20 = <strong>28.8V</strong>. Bu, P1800'ün 52V limitinin çok altındadır, güvenlidir. P800'ün 60V limitinin de çok altındadır, güvenlidir.</p>
 
 <h2>Bataryalarda VOC</h2>
 
@@ -144,7 +144,7 @@ const blogs: BlogInput[] = [
 <tr><td><strong>IEETek P800</strong></td><td>2× DC5525</td><td>13.2V / max 8A</td></tr>
 <tr><td><strong>IEETek P1800</strong></td><td>2× DC5525</td><td>13.2V / max 8A</td></tr>
 <tr><td><strong>IEETek P3200</strong></td><td>2× DC5525</td><td>13.2V / max 8A</td></tr>
-<tr><td><strong>Singo2000 PRO</strong></td><td>DC5525 çıkışları mevcut</td><td>13.2V / max 8A</td></tr>
+<tr><td><strong>Singo2000 PRO</strong></td><td>2× DC5525</td><td>13.2V / max 10A</td></tr>
 </table>
 
 <h2>DC5525 ile Hangi Cihazlar Çalıştırılabilir?</h2>

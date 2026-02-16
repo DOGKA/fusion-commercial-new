@@ -89,7 +89,7 @@ const blogs = [
 <h3>5. Taşınabilirlik</h3>
 <p>Aynı enerji kapasitesi için ağırlık karşılaştırması:</p>
 <ul>
-<li><strong>LiFePO4 güç istasyonu 1kWh:</strong> ~10 kg (IEETek P1800: 12.5 kg)</li>
+<li><strong>LiFePO4 güç istasyonu 1kWh:</strong> ~10 kg (IEETek P1800: 12.7 kg)</li>
 <li><strong>Kurşun-asit akü 1kWh:</strong> ~30-35 kg</li>
 <li><strong>NiCd akü 1kWh:</strong> ~20-25 kg</li>
 <li><strong>Benzinli jeneratör 1kW:</strong> ~15-25 kg + yakıt ağırlığı</li>
@@ -284,10 +284,10 @@ Panel B (-) ────┘
 <h3>IEETek Güç İstasyonları Solar Giriş Limitleri</h3>
 <table>
 <tr><th>Model</th><th>Maks. Giriş Voltajı (VOC)</th><th>Maks. Giriş Akımı</th><th>Maks. Solar Giriş Gücü</th></tr>
-<tr><td>P800</td><td>28V</td><td>8A</td><td>200W</td></tr>
-<tr><td>P1800</td><td>55V</td><td>12A</td><td>400W</td></tr>
-<tr><td>P2400</td><td>55V</td><td>15A</td><td>500W</td></tr>
-<tr><td>P3200</td><td>60V</td><td>15A</td><td>500W</td></tr>
+<tr><td>P800</td><td>60V</td><td>10A</td><td>300W</td></tr>
+<tr><td>P1800</td><td>52V</td><td>11A</td><td>500W</td></tr>
+<tr><td>P2400</td><td>60V</td><td>10A</td><td>500W</td></tr>
+<tr><td>P3200</td><td>80V</td><td>16A</td><td>1000W</td></tr>
 </table>
 
 <h3>Güvenli Bağlantı Kontrol Listesi</h3>
@@ -301,19 +301,19 @@ Panel B (-) ────┘
 
 <p><strong>P1800 + 2× SP200 Seri:</strong></p>
 <ul>
-<li>Toplam VOC: 24V + 24V = 48V → Soğukta: 48 × 1.20 = 57.6V → P1800 limiti 55V → <strong>RİSKLİ! Seri bağlamayın.</strong></li>
+<li>Toplam VOC: 24V + 24V = 48V → Soğukta: 48 × 1.20 = 57.6V → P1800 limiti 52V → <strong>RİSKLİ! Seri bağlamayın.</strong></li>
 </ul>
 
 <p><strong>P1800 + 2× SP200 Paralel:</strong></p>
 <ul>
-<li>VOC: 24V (değişmez) → Soğukta: 28.8V → P1800 limiti 55V → <strong>GÜVENLİ</strong></li>
-<li>Toplam akım: 11A + 11A = 22A → P1800 limiti 12A → <strong>AŞIYOR! Güç istasyonu otomatik sınırlayacak.</strong> Güç kaybı olur ama zarar vermez.</li>
+<li>VOC: 24V (değişmez) → Soğukta: 28.8V → P1800 limiti 52V → <strong>GÜVENLİ</strong></li>
+<li>Toplam akım: 11A + 11A = 22A → P1800 limiti 11A → <strong>AŞIYOR! Güç istasyonu otomatik sınırlayacak.</strong> Güç kaybı olur ama zarar vermez.</li>
 </ul>
 
 <p><strong>P3200 + 2× SP200 Seri:</strong></p>
 <ul>
-<li>Toplam VOC: 48V → Soğukta: 57.6V → P3200 limiti 60V → <strong>GÜVENLİ (ama sınırda, dikkatli olun)</strong></li>
-<li>Toplam güç: 400W → P3200 limiti 500W → <strong>GÜVENLİ</strong></li>
+<li>Toplam VOC: 48V → Soğukta: 57.6V → P3200 limiti 80V → <strong>GÜVENLİ (büyük marjla)</strong></li>
+<li>Toplam güç: 400W → P3200 limiti 1000W → <strong>GÜVENLİ</strong></li>
 </ul>
 
 <h2>Seri-Paralel Hibrit Bağlantı (3+ Panel)</h2>

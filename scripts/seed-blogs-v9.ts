@@ -131,14 +131,14 @@ const blogs = [
 <h3>IEETek Modellerin Geçiş Süreleri</h3>
 <table>
 <tr><th>Model</th><th>Pass-Through</th><th>UPS Geçiş Süresi</th><th>UPS Modu</th></tr>
-<tr><td>P800</td><td>Var</td><td>~20ms</td><td>Temel UPS</td></tr>
-<tr><td>P1800</td><td>Var</td><td>~20ms</td><td>Temel UPS</td></tr>
-<tr><td>P2400</td><td>Var</td><td>~20ms</td><td>Temel UPS</td></tr>
-<tr><td>P3200</td><td>Var</td><td>~20ms</td><td>Temel UPS</td></tr>
-<tr><td><strong>SH4000</strong></td><td><strong>Var</strong></td><td><strong>&lt;10ms</strong></td><td><strong>Profesyonel UPS</strong></td></tr>
+<tr><td>P800</td><td>Var</td><td><strong>&lt;10ms</strong></td><td>UPS</td></tr>
+<tr><td>P1800</td><td>Var</td><td><strong>&lt;10ms</strong></td><td>UPS</td></tr>
+<tr><td>P2400</td><td>Var</td><td><strong>&lt;10ms</strong></td><td>UPS</td></tr>
+<tr><td>P3200</td><td>Var</td><td><strong>&lt;10ms</strong></td><td>UPS</td></tr>
+<tr><td>SH4000</td><td>Var</td><td><strong>&lt;10ms</strong></td><td>Profesyonel UPS</td></tr>
 </table>
 
-<p><strong>SH4000</strong>, 10ms altı geçiş süresiyle bilgisayar, NAS, güvenlik kamerası ve CPAP gibi hassas cihazlar için tam anlamıyla kesintisiz güç kaynağı görevi görür.</p>
+<p>IEETek güç istasyonlarının tümü <strong>10ms altı geçiş süresiyle</strong> bilgisayar, modem, NAS, güvenlik kamerası ve CPAP gibi hassas cihazlar için tam anlamıyla kesintisiz güç kaynağı görevi görür.</p>
 
 <h2>Pass-Through Şarjın Bataryaya Etkisi</h2>
 <p>En çok sorulan sorulardan biri: "Sürekli prize takılı bırakmak bataryayı yıpratır mı?"</p>
@@ -185,7 +185,7 @@ const blogs = [
 <tr><td>Solar şarj</td><td><strong>Var</strong></td><td>Yok</td></tr>
 <tr><td>Çoklu çıkış (USB/DC)</td><td><strong>Var</strong></td><td>Sadece AC</td></tr>
 <tr><td>Batarya ömrü</td><td><strong>4000+ döngü (LiFePO4)</strong></td><td>300-500 döngü (kurşun-asit)</td></tr>
-<tr><td>Geçiş süresi</td><td>10-20ms (SH4000: &lt;10ms)</td><td><strong>2-5ms (online UPS)</strong></td></tr>
+<tr><td>Geçiş süresi</td><td><strong>&lt;10ms (tüm modeller)</strong></td><td>2-5ms (online UPS)</td></tr>
 <tr><td>Fiyat</td><td>Daha yüksek</td><td>Daha uygun (düşük kapasitede)</td></tr>
 </table>
 

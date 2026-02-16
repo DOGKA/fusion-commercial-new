@@ -446,7 +446,7 @@ const blogs: BlogInput[] = [
 <p><strong>IEETek P1800 + SP200 güneş paneli:</strong> 1024Wh kapasite + günde ~800-1000Wh solar şarj. Hafta sonu gezileri ve kısa süreli konaklamalar için ideal.</p>
 
 <h3>Profesyonel Seviye</h3>
-<p><strong>IEETek P3200 + 2x SP200 güneş paneli:</strong> 3200Wh kapasite + günde 1600-2000Wh solar şarj. Uzun süreli seyahatler, tam off-grid yaşam için yeterli.</p>
+<p><strong>IEETek P3200 + 2x SP200 güneş paneli:</strong> 2048Wh kapasite + günde 1600-2000Wh solar şarj. Uzun süreli seyahatler, tam off-grid yaşam için yeterli.</p>
 
 <h2>Karavan Solar Panel Montaj İpuçları</h2>
 <ul>

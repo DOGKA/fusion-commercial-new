@@ -142,7 +142,7 @@ const blogs = [
 
 <h3>Senaryo 4: Ağır İnşaat (Hilti + Kompresör + Testere)</h3>
 <p>2000W+ sürekli yük gerektiren ağır aletler.</p>
-<p><strong>IEETek P3200 (3200Wh, 3200W çıkış):</strong> Hilti, daire testere ve küçük kompresörü çalıştırabilir. Yarım günlük yoğun saha çalışması için yeterli. Solar panel ile öğle arası şarj.</p>
+<p><strong>IEETek P3200 (2048Wh, 3200W çıkış):</strong> Hilti, daire testere ve küçük kompresörü çalıştırabilir. Yarım günlük yoğun saha çalışması için yeterli. Solar panel ile öğle arası şarj.</p>
 
 <h2>Saf Sinüs Dalga ve Elektrikli Aletler</h2>
 <p>Endüktif yük içeren elektrikli aletler (motor tahrikli) saf sinüs dalga gerektirir. Modifiye sinüs dalga ile çalışan motorlar:</p>

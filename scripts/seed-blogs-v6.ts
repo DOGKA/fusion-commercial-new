@@ -112,9 +112,9 @@ const blogs = [
 <tr><th>IEETek Model</th><th>Kapasite</th><th>CPAP Çalışma Süresi (DC)</th><th>Kaç Gece?</th></tr>
 <tr><td>P800</td><td>512Wh</td><td>~15 saat</td><td><strong>~1.5-2 gece</strong></td></tr>
 <tr><td>P1800</td><td>1024Wh</td><td>~31 saat</td><td><strong>~3-4 gece</strong></td></tr>
-<tr><td>Singo2000</td><td>2000Wh</td><td>~60 saat</td><td><strong>~7 gece</strong></td></tr>
+<tr><td>Singo2000 PRO</td><td>1920Wh</td><td>~58 saat</td><td><strong>~7 gece</strong></td></tr>
 <tr><td>P2400</td><td>2048Wh</td><td>~62 saat</td><td><strong>~7-8 gece</strong></td></tr>
-<tr><td>P3200</td><td>3200Wh</td><td>~96 saat</td><td><strong>~12 gece</strong></td></tr>
+<tr><td>P3200</td><td>2048Wh</td><td>~65 saat</td><td><strong>~8 gece</strong></td></tr>
 </table>
 <p><em>DC5525 veya USB-C PD ile bağlantıda hesaplanmıştır. AC ile bağlantıda %15-20 daha kısa sürer.</em></p>
 

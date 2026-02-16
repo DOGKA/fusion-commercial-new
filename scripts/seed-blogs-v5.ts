@@ -50,9 +50,9 @@ const blogs = [
 <tr><td>IEETek P800</td><td>512Wh</td><td>512Wh</td><td><strong>YASAK</strong></td></tr>
 <tr><td>IEETek Singo1000</td><td>1000Wh</td><td>1000Wh</td><td><strong>YASAK</strong></td></tr>
 <tr><td>IEETek P1800</td><td>1024Wh</td><td>1024Wh</td><td><strong>YASAK</strong></td></tr>
-<tr><td>IEETek Singo2000</td><td>2000Wh</td><td>2000Wh</td><td><strong>YASAK</strong></td></tr>
+<tr><td>IEETek Singo2000</td><td>1440Wh</td><td>1440Wh</td><td><strong>YASAK</strong></td></tr>
 <tr><td>IEETek P2400</td><td>2048Wh</td><td>2048Wh</td><td><strong>YASAK</strong></td></tr>
-<tr><td>IEETek P3200</td><td>3200Wh</td><td>3200Wh</td><td><strong>YASAK</strong></td></tr>
+<tr><td>IEETek P3200</td><td>2048Wh</td><td>2048Wh</td><td><strong>YASAK</strong></td></tr>
 <tr><td>IEETek SH4000</td><td>5120Wh</td><td>5120Wh</td><td><strong>YASAK</strong></td></tr>
 </table>
 
@@ -123,8 +123,8 @@ const blogs = [
 
 <h2>Soğukta Deşarj vs Şarj: Kritik Fark</h2>
 
-<h3>Deşarj (Kullanım): -20°C'ye Kadar Güvenli</h3>
-<p>LiFePO4 bataryalar <strong>-20°C'ye kadar güvenle deşarj edilebilir</strong> (kullanılabilir). Kapasite düşer ama cihazlarınızı besleyebilir. IEETek güç istasyonlarının BMS (Battery Management System) sistemi, sıcaklık sensörleriyle bataryayı sürekli izler.</p>
+<h3>Deşarj (Kullanım): -15°C'ye Kadar Güvenli (SH4000: -20°C)</h3>
+<p>LiFePO4 bataryalar <strong>-15°C'ye kadar güvenle deşarj edilebilir</strong> (kullanılabilir). SH4000 modeli ise -20°C'ye kadar destekler. Kapasite düşer ama cihazlarınızı besleyebilir. IEETek güç istasyonlarının BMS (Battery Management System) sistemi, sıcaklık sensörleriyle bataryayı sürekli izler.</p>
 
 <h3>Şarj: 0°C Altında DİKKAT!</h3>
 <p><strong>Bu en kritik bilgidir:</strong> LiFePO4 bataryalar 0°C altında şarj edilmemelidir. Soğukta şarj, lityum metalinin anotta birikmesine (lityum kaplama/plating) neden olur ve bu batarya hücrelerine kalıcı hasar verir, hatta kısa devreye yol açabilir.</p>
@@ -142,11 +142,11 @@ const blogs = [
 <h2>IEETek Model Bazlı Soğuk Hava Özellikleri</h2>
 <table>
 <tr><th>Model</th><th>Çalışma Sıcaklığı (Deşarj)</th><th>Şarj Sıcaklığı</th><th>Düşük Sıcaklık Koruması</th></tr>
-<tr><td>P800 (512Wh)</td><td>-20°C ~ +45°C</td><td>0°C ~ +45°C</td><td>BMS otomatik kesme</td></tr>
-<tr><td>P1800 (1024Wh)</td><td>-20°C ~ +45°C</td><td>0°C ~ +45°C</td><td>BMS otomatik kesme</td></tr>
-<tr><td>P2400 (2048Wh)</td><td>-20°C ~ +45°C</td><td>0°C ~ +45°C</td><td>BMS otomatik kesme</td></tr>
-<tr><td>P3200 (3200Wh)</td><td>-20°C ~ +45°C</td><td>0°C ~ +45°C</td><td>BMS otomatik kesme</td></tr>
-<tr><td>SH4000 (5120Wh)</td><td>-20°C ~ +55°C</td><td>-10°C ~ +55°C</td><td>BMS + yerleşik ısıtma</td></tr>
+<tr><td>P800 (512Wh)</td><td>-15°C ~ +40°C</td><td>0°C ~ +40°C</td><td>BMS otomatik kesme</td></tr>
+<tr><td>P1800 (1024Wh)</td><td>-15°C ~ +40°C</td><td>0°C ~ +40°C</td><td>BMS otomatik kesme</td></tr>
+<tr><td>P2400 (2048Wh)</td><td>-15°C ~ +40°C</td><td>0°C ~ +40°C</td><td>BMS otomatik kesme</td></tr>
+<tr><td>P3200 (2048Wh)</td><td>-15°C ~ +40°C</td><td>0°C ~ +40°C</td><td>BMS otomatik kesme</td></tr>
+<tr><td>SH4000 (5120Wh)</td><td>-20°C ~ +40°C</td><td>0°C ~ +40°C</td><td>BMS + yerleşik ısıtma</td></tr>
 </table>
 
 <h2>Kış Kampı Enerji Planlaması</h2>
