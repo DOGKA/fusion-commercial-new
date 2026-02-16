@@ -68,18 +68,18 @@ export default function HomeSeoContent() {
           </div>
 
           {/* Quick links for internal linking */}
-          <div className="mt-8 flex flex-wrap gap-2 lg:gap-3">
+          <div className="mt-8 grid grid-cols-2 lg:flex lg:flex-wrap gap-2 lg:gap-3">
             {[
               { label: "Taşınabilir Güç Kaynakları", href: "/kategori/tasinabilir-guc-kaynaklari" },
               { label: "Güneş Panelleri", href: "/kategori/gunes-panelleri" },
               { label: "Paket Setler", href: "/kategori/bundle-paket-urunler" },
               { label: "Teleskopik Merdivenler", href: "/kategori/teleskopik-merdivenler" },
-              { label: "Endüstriyel Eldivenler", href: "/kategori/endustriyel-eldivenler" },
+              { label: "Endüstriyel Eldivenler", href: "/kategori/endustriyel-eldivenler", className: "col-span-2" },
             ].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm rounded-full border border-white/10 text-foreground/50 hover:text-foreground hover:border-white/20 transition-all"
+                className={`px-3 py-2 lg:px-4 lg:py-2 text-xs lg:text-sm text-center rounded-full border border-white/10 text-foreground/50 hover:text-foreground hover:border-white/20 transition-all ${'className' in link ? link.className : ''}`}
               >
                 {link.label}
               </Link>
