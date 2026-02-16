@@ -58,6 +58,7 @@ export default async function PartnerPage({ params }: PageProps) {
   return (
     <>
       <JsonLd data={[brandSchema, breadcrumbSchema]} />
+      <h1 className="sr-only">{partner.name} Ürünleri - FusionMarkt Yetkili Distribütör</h1>
       <BrandPageClient partner={partner} />
     </>
   );

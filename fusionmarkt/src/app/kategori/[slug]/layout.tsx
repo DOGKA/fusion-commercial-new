@@ -1,11 +1,14 @@
 /**
  * Kategori Layout - Dinamik SEO Metadata
+ * ISR: Her 1 saatte bir yeniden oluşturulur
  */
 
 import { Metadata } from "next";
 import { generateCategoryMetadata, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
 import { prisma } from "@/lib/prisma";
+
+export const revalidate = 3600; // 1 saat ISR
 
 interface Props {
   params: Promise<{ slug: string }>;

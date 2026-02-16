@@ -1,11 +1,16 @@
 /**
  * FusionMarkt Dynamic Sitemap
  * Otomatik olarak tüm sayfaları, ürünleri, kategorileri ve blog yazılarını içerir
+ * Google Image Sitemap desteği ile ürün görselleri de dahil
  */
 
 import { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
+
+// Sabit tarihler - her build'de değişmemeli (SEO best practice)
+const STATIC_LAST_MODIFIED = new Date("2026-01-15");
+const LEGAL_LAST_MODIFIED = new Date("2025-12-20");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
@@ -25,6 +30,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/sh4000`,
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -32,92 +43,92 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/hakkimizda`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
       url: `${baseUrl}/iletisim`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
       url: `${baseUrl}/sikca-sorulan-sorular`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
       url: `${baseUrl}/guc-hesaplayici`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/kullanim-kilavuzlari`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.5,
     },
     {
       url: `${baseUrl}/gonderim-yerleri`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.4,
     },
     {
       url: `${baseUrl}/odeme-secenekleri`,
-      lastModified: new Date(),
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.4,
     },
     // Yasal sayfalar
     {
       url: `${baseUrl}/gizlilik-politikasi`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/cerez-politikasi`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/kullanim-kosullari`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/iade-politikasi`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/mesafeli-satis-sozlesmesi`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/kullanici-sozlesmesi`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/ucretlendirme-politikasi`,
-      lastModified: new Date(),
+      lastModified: LEGAL_LAST_MODIFIED,
       changeFrequency: "yearly",
       priority: 0.3,
     },
   ];
 
-  // Dinamik sayfalar - Ürünler
+  // Dinamik sayfalar - Ürünler (görseller dahil - Google Image Sitemap)
   let productPages: MetadataRoute.Sitemap = [];
   try {
     const products = await prisma.product.findMany({
@@ -126,16 +137,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
       select: {
         slug: true,
+        name: true,
         updatedAt: true,
+        mainImage: true,
+        images: true,
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    productPages = products.map((product: { slug: string; updatedAt: Date }) => ({
+    productPages = products.map((product) => ({
       url: `${baseUrl}/urun/${product.slug}`,
       lastModified: product.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+      images: [
+        ...(product.mainImage ? [product.mainImage] : []),
+        ...(Array.isArray(product.images) ? (product.images as string[]).slice(0, 4) : []),
+      ].filter(Boolean),
     }));
   } catch (error) {
     console.error("Sitemap: Error fetching products", error);
@@ -162,12 +180,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Sitemap: Error fetching categories", error);
   }
 
-  // Markalar - Sabit liste (Brand modeli yok, product.brand string alanı)
+  // Markalar - Sabit liste
   const brandPages: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/marka/ieetek`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.75 },
-    { url: `${baseUrl}/marka/traffi`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${baseUrl}/marka/telesteps`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${baseUrl}/marka/rgp-balls`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.65 },
+    { url: `${baseUrl}/marka/ieetek`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: "weekly" as const, priority: 0.75 },
+    { url: `${baseUrl}/marka/traffi`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${baseUrl}/marka/telesteps`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${baseUrl}/marka/rgp-balls`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: "weekly" as const, priority: 0.65 },
   ];
 
   // Dinamik sayfalar - Bundle / Paket Ürünler
@@ -188,7 +206,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/urun/${bundle.slug}`,
       lastModified: bundle.updatedAt,
       changeFrequency: "weekly" as const,
-      priority: 0.85, // Paketler biraz daha yüksek öncelikli (yüksek değer ürünler)
+      priority: 0.85,
     }));
   } catch (error) {
     console.error("Sitemap: Error fetching bundles", error);
@@ -221,10 +239,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...productPages,
-    ...bundlePages, // Paketler ürünlerden hemen sonra
+    ...bundlePages,
     ...categoryPages,
     ...brandPages,
     ...blogPages,
   ];
 }
-

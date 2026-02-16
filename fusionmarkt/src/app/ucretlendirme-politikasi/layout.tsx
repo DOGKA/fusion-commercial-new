@@ -1,8 +1,9 @@
 /**
- * Ücretlendirme Politikası Layout - SEO Metadata
+ * Ücretlendirme Politikası Layout - SEO Metadata + Breadcrumb
  */
 
-import { staticPageMetadata } from "@/lib/seo";
+import { staticPageMetadata, generateBreadcrumbSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/seo";
 
 export const metadata = staticPageMetadata.pricingPolicy;
 
@@ -11,6 +12,15 @@ export default function UcretlendirmePolitikasiLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
-}
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Ana Sayfa", url: "/" },
+    { name: "Ücretlendirme Politikası", url: "/ucretlendirme-politikasi" },
+  ]);
 
+  return (
+    <>
+      <JsonLd data={breadcrumbSchema} />
+      {children}
+    </>
+  );
+}

@@ -431,6 +431,34 @@ export function generateItemListSchema({ name, items, url }: ItemListParams) {
 }
 
 /**
+ * WebPage Schema - Ana sayfa ve genel sayfalar için
+ */
+export interface WebPageSchemaParams {
+  name: string;
+  description: string;
+  url: string;
+  type?: "WebPage" | "CollectionPage" | "AboutPage" | "ContactPage" | "FAQPage";
+}
+
+export function generateWebPageSchema(params: WebPageSchemaParams) {
+  return {
+    "@context": "https://schema.org",
+    "@type": params.type || "WebPage",
+    "@id": `${siteConfig.url}${params.url}#webpage`,
+    name: params.name,
+    description: params.description,
+    url: `${siteConfig.url}${params.url}`,
+    isPartOf: {
+      "@id": `${siteConfig.url}/#website`,
+    },
+    about: {
+      "@id": `${siteConfig.url}/#organization`,
+    },
+    inLanguage: siteConfig.language,
+  };
+}
+
+/**
  * HowTo Schema - Kullanım kılavuzları için
  */
 export interface HowToStep {

@@ -24,6 +24,7 @@ export {
 export {
   generateOrganizationSchema,
   generateWebSiteSchema,
+  generateWebPageSchema,
   generateProductSchema,
   generateBreadcrumbSchema,
   generateFAQSchema,
@@ -38,5 +39,6 @@ export {
   type ItemListParams,
   type HowToStep,
   type HowToSchemaParams,
+  type WebPageSchemaParams,
 } from "./json-ld";
 

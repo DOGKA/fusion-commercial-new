@@ -28,9 +28,11 @@ export default function BlogCard({
     year: "numeric",
   });
 
-  // Clean excerpt from \r\n
+  // Clean excerpt: strip HTML tags, normalize whitespace
   const cleanExcerpt = excerpt
-    ?.replace(/\\r\\n|\\n|\\r/g, " ")
+    ?.replace(/<[^>]+>/g, "")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\\r\\n|\\n|\\r/g, " ")
     .replace(/\r\n|\n|\r/g, " ")
     .replace(/\s+/g, " ")
     .trim();

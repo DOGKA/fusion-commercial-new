@@ -187,6 +187,25 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // SEO: Trailing slash & URL normalization
+  // ═══════════════════════════════════════════════════════════════════════════
+  trailingSlash: false,
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SEO: Redirects (www → non-www canonical)
+  // ═══════════════════════════════════════════════════════════════════════════
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.fusionmarkt.com" }],
+        destination: "https://fusionmarkt.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // CSS CONFIGURATION
   // ═══════════════════════════════════════════════════════════════════════════
   // Disable CSS optimization that causes preload warnings

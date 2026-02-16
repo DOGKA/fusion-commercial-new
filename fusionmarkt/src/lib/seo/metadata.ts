@@ -316,49 +316,52 @@ export function generateBlogMetadata({
  */
 export const staticPageMetadata = {
   home: generateMetadata({
-    // Root `app/layout.tsx` title template zaten sonuna `| FusionMarkt` ekliyor.
-    title: "Taşınabilir Güç Kaynakları & Enerji Çözümleri",
-    description: "ieetek,İnitial Entropy Energy ,IEETEK taşınabilir güç kaynakları, güneş panelleri ve enerji depolama sistemleri. Yetkili distribütör garantisiyle güvenli alışveriş.",
+    title: "Taşınabilir Güç Kaynakları & Solar Panel | Enerji Çözümleri",
+    description: "Taşınabilir güç kaynağı, LiFePO4 batarya, solar panel ve portable power station modelleri. IEETek yetkili distribütörü. Ücretsiz kargo, 2 yıl garanti ile Türkiye'nin güvenilir enerji marketi.",
     canonical: "/",
+    keywords: ["taşınabilir güç kaynağı", "solar panel", "portable power station", "güç istasyonu", "lifepo4 batarya", "güneş paneli", "off-grid enerji"],
   }),
   
   shop: generateMetadata({
-    title: "Mağaza - Tüm Ürünler",
-    description: "Taşınabilir güç kaynakları, güneş panelleri ve aksesuarlar. En iyi fiyat garantisi ve hızlı kargo ile FusionMarkt'ta.",
+    title: "Mağaza - Taşınabilir Güç Kaynağı, Solar Panel ve Tüm Ürünler",
+    description: "Taşınabilir güç kaynağı, solar panel, LiFePO4 portable power station, yalıtkan merdiven ve iş güvenliği eldiveni modelleri. En iyi fiyat garantisi, ücretsiz kargo ve 12 taksit imkanı ile FusionMarkt'ta.",
     canonical: "/magaza",
-    keywords: ["power station", "güç kaynağı", "güneş paneli", "ecoflow", "bluetti"],
+    keywords: ["taşınabilir güç kaynağı", "portable power station", "solar panel", "güneş paneli", "power station fiyat", "güç kaynağı satın al"],
   }),
   
   about: generateMetadata({
-    title: "Hakkımızda",
-    description: "FusionMarkt - Türkiye'nin önde gelen taşınabilir enerji çözümleri distribütörü. Yetkili satıcı garantisi ve profesyonel destek.",
+    title: "Hakkımızda - Türkiye'nin Güvenilir Enerji Marketi",
+    description: "FusionMarkt - IEETek, Traffi, Telesteps yetkili distribütörü. Taşınabilir güç kaynağı, solar panel ve iş güvenliği ekipmanları alanında Türkiye'nin güvenilir marketi. Profesyonel destek, 2 yıl garanti.",
     canonical: "/hakkimizda",
   }),
   
   contact: generateMetadata({
-    title: "İletişim",
-    description: "FusionMarkt ile iletişime geçin. Sorularınız, önerileriniz ve destek talepleriniz için buradayız.",
+    title: "İletişim - Bize Ulaşın",
+    description: "FusionMarkt iletişim bilgileri. Taşınabilir güç kaynağı, solar panel siparişi ve teknik destek için bize ulaşın. Ankara merkez ofis, telefon ve e-posta.",
     canonical: "/iletisim",
+    keywords: ["fusionmarkt iletişim", "güç kaynağı teknik destek", "fusionmarkt telefon"],
   }),
   
   blog: generateMetadata({
-    title: "Blog - Enerji Rehberi",
-    description: "Taşınabilir enerji, off-grid yaşam, kamp ipuçları ve ürün incelemeleri. Enerji bağımsızlığı hakkında her şey.",
+    title: "Blog - Taşınabilir Güç Kaynağı Rehberi ve Enerji Çözümleri",
+    description: "Taşınabilir güç kaynağı karşılaştırmaları, solar panel kurulum rehberi, LiFePO4 batarya bilgileri, kamp enerji çözümleri ve ürün incelemeleri. Enerji bağımsızlığı hakkında uzman içerikler.",
     canonical: "/blog",
     type: "website",
+    keywords: ["taşınabilir güç kaynağı rehber", "solar panel karşılaştırma", "lifepo4 batarya", "kamp enerji"],
   }),
   
   faq: generateMetadata({
-    title: "Sıkça Sorulan Sorular",
-    description: "Taşınabilir güç kaynakları, sipariş, kargo ve iade hakkında merak ettikleriniz. Tüm sorularınızın cevapları burada.",
+    title: "Sıkça Sorulan Sorular - Taşınabilir Güç Kaynağı SSS",
+    description: "Taşınabilir güç kaynağı, solar panel, LiFePO4 batarya, sipariş, kargo ve iade hakkında en çok sorulan sorular ve cevapları. Power station seçim rehberi.",
     canonical: "/sikca-sorulan-sorular",
+    keywords: ["taşınabilir güç kaynağı sss", "power station soru", "solar panel sss"],
   }),
   
   powerCalculator: generateMetadata({
-    title: "Güç Hesaplayıcı",
-    description: "İhtiyacınıza uygun güç kaynağını bulun. Cihazlarınızın güç tüketimini hesaplayın ve doğru ürünü seçin.",
+    title: "Güç Hesaplayıcı - Hangi Taşınabilir Güç Kaynağı Size Uygun?",
+    description: "Cihazlarınızın watt tüketimini girin, size uygun taşınabilir güç kaynağını bulun. Power station kapasite hesaplama aracı. Kamp, karavan ve ev kullanımı için doğru ürünü seçin.",
     canonical: "/guc-hesaplayici",
-    keywords: ["güç hesaplama", "watt hesaplama", "power station seçimi"],
+    keywords: ["güç hesaplama", "watt hesaplama", "power station seçimi", "güç kaynağı kapasite hesaplama", "kamp güç ihtiyacı"],
   }),
   
   shippingLocations: generateMetadata({

@@ -1,5 +1,6 @@
 import BlogCard from "@/components/blog/BlogCard";
-import { staticPageMetadata } from "@/lib/seo";
+import { staticPageMetadata, generateBreadcrumbSchema, generateItemListSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/seo";
 import "@/styles/blog.css";
 
 export const metadata = staticPageMetadata.blog;
@@ -24,15 +25,19 @@ function calculateReadingTime(content: string): number {
 }
 
 // Strip HTML tags and clean content for excerpt
-function createExcerpt(content: string, maxLength: number = 140): string {
+function createExcerpt(content: string, maxLength: number = 200): string {
   const text = content
     .replace(/<[^>]+>/g, "")           // Remove HTML tags
+    .replace(/&[a-z]+;/gi, " ")       // Remove HTML entities
     .replace(/\\r\\n|\\n|\\r/g, " ")   // Remove escaped newlines
     .replace(/\r\n|\n|\r/g, " ")       // Remove actual newlines
     .replace(/\s+/g, " ")              // Normalize whitespace
     .trim();
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength).trim() + "...";
+  // Cut at last space before maxLength to avoid mid-word break
+  const truncated = text.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return (lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated) + "...";
 }
 
 // Fetch blog posts from database
@@ -76,8 +81,29 @@ async function getBlogPosts(): Promise<BlogPost[]> {
 export default async function BlogPage() {
   const posts = await getBlogPosts();
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Ana Sayfa", url: "/" },
+    { name: "Blog", url: "/blog" },
+  ]);
+
+  const schemas: Record<string, unknown>[] = [breadcrumbSchema];
+
+  if (posts.length > 0) {
+    const blogListSchema = generateItemListSchema({
+      name: "FusionMarkt Blog Yazıları",
+      url: "/blog",
+      items: posts.map((post) => ({
+        name: post.title,
+        url: `/blog/${post.slug}`,
+        image: post.featuredImage || undefined,
+      })),
+    });
+    schemas.push(blogListSchema);
+  }
+
   return (
     <main className="min-h-screen bg-[var(--background)]">
+      <JsonLd data={schemas} />
       <div className="container px-4 md:px-6 lg:px-8 pt-[120px] pb-12 md:pb-16">
         {/* Page Header */}
         <header className="blog-page-header">

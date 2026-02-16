@@ -90,10 +90,10 @@ export const metadata: Metadata = {
     },
   },
   
-  // Verification (gerekirse eklenecek)
+  // Verification - Google Search Console & Yandex
   verification: {
-    // google: "google-site-verification-code",
-    // yandex: "yandex-verification-code",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || undefined,
   },
   
   // Category

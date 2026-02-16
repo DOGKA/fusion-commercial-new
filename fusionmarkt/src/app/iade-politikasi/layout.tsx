@@ -1,8 +1,9 @@
 /**
- * İade Politikası Layout - SEO Metadata
+ * İade Politikası Layout - SEO Metadata + Breadcrumb
  */
 
-import { staticPageMetadata } from "@/lib/seo";
+import { staticPageMetadata, generateBreadcrumbSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/seo";
 
 export const metadata = staticPageMetadata.returnPolicy;
 
@@ -11,6 +12,15 @@ export default function IadePolitikasiLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
-}
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Ana Sayfa", url: "/" },
+    { name: "İade Politikası", url: "/iade-politikasi" },
+  ]);
 
+  return (
+    <>
+      <JsonLd data={breadcrumbSchema} />
+      {children}
+    </>
+  );
+}

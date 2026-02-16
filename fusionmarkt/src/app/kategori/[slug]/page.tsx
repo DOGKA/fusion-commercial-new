@@ -868,6 +868,9 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* SEO: Screen-reader accessible h1 with category name */}
+      <h1 className="sr-only">{category?.name || "Kategori"} - FusionMarkt</h1>
+
       {/* ============================================ */}
       {/* GLASSMORPHISM BANNER - Shimmer sadece içinde */}
       {/* ============================================ */}

@@ -1,8 +1,9 @@
 /**
- * Kullanıcı Sözleşmesi Layout - SEO Metadata
+ * Kullanıcı Sözleşmesi Layout - SEO Metadata + Breadcrumb
  */
 
-import { staticPageMetadata } from "@/lib/seo";
+import { staticPageMetadata, generateBreadcrumbSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/seo";
 
 export const metadata = staticPageMetadata.userAgreement;
 
@@ -11,6 +12,15 @@ export default function KullaniciSozlesmesiLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
-}
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Ana Sayfa", url: "/" },
+    { name: "Kullanıcı Sözleşmesi", url: "/kullanici-sozlesmesi" },
+  ]);
 
+  return (
+    <>
+      <JsonLd data={breadcrumbSchema} />
+      {children}
+    </>
+  );
+}
