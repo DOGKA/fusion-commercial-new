@@ -375,7 +375,7 @@ export default function ServisFormuPage() {
                 </div>
 
                 {/* Row: Purchase Date */}
-                <div>
+                <div className="overflow-hidden">
                   <label className="flex items-center gap-1 text-sm font-medium mb-2">
                     <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>Satın Alım Tarihi <span className="text-[var(--fusion-primary)]">*</span></span>
@@ -386,7 +386,7 @@ export default function ServisFormuPage() {
                     value={formData.purchaseDate}
                     onChange={handleChange}
                     max={new Date().toISOString().split("T")[0]}
-                    className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full max-w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base box-border ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
                   />
                   <ErrorMsg field="purchaseDate" />
                 </div>
