@@ -84,6 +84,24 @@ export async function uploadToS3(
 }
 
 /**
+ * Generate S3 key for service form file
+ * Format: <prefix>/service-forms/<timestamp>-<uuid>/<filename>
+ */
+export function generateServiceFormKey(filename: string): string {
+  const safeFilename = filename
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]/g, '-')
+    .replace(/-+/g, '-')
+    .substring(0, 80);
+  
+  const uuid = randomUUID().split('-')[0];
+  const timestamp = Date.now();
+  const ext = safeFilename.split('.').pop() || 'bin';
+  
+  return `${S3_PREFIX}/service-forms/${timestamp}-${uuid}.${ext}`;
+}
+
+/**
  * Check if S3 credentials are configured
  */
 export function isS3Configured(): boolean {

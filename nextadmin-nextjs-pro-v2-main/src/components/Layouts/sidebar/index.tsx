@@ -15,6 +15,7 @@ interface BadgeCounts {
   cancellations: number;
   returns: number;
   contacts: number;
+  serviceForms: number;
 }
 
 // Map URL paths to badge count keys
@@ -23,6 +24,7 @@ const BADGE_URL_MAP: Record<string, keyof BadgeCounts> = {
   "/cancellation-requests": "cancellations",
   "/return-requests": "returns",
   "/contact": "contacts",
+  "/service-forms": "serviceForms",
 };
 
 export function Sidebar() {
@@ -34,6 +36,7 @@ export function Sidebar() {
     cancellations: 0,
     returns: 0,
     contacts: 0,
+    serviceForms: 0,
   });
   const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -48,6 +51,7 @@ export function Sidebar() {
           cancellations: data.cancellations || 0,
           returns: data.returns || 0,
           contacts: data.contacts || 0,
+          serviceForms: data.serviceForms || 0,
         });
       }
     } catch (error) {
@@ -252,7 +256,7 @@ export function Sidebar() {
                                 <span>{item.title}</span>
 
                                 {itemBadge > 0 && (
-                                  <div className="ml-auto mr-10 flex size-[19px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                                  <div className="ml-auto flex size-[19px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
                                     {itemBadge > 99 ? "99+" : itemBadge}
                                   </div>
                                 )}

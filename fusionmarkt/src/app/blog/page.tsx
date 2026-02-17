@@ -1,11 +1,10 @@
-import BlogCard from "@/components/blog/BlogCard";
+import BlogPageClient from "@/components/blog/BlogPageClient";
 import { staticPageMetadata, generateBreadcrumbSchema, generateItemListSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
 import "@/styles/blog.css";
 
 export const metadata = staticPageMetadata.blog;
 
-// Blog post type
 interface BlogPost {
   id: string;
   slug: string;
@@ -15,64 +14,46 @@ interface BlogPost {
   featuredImage: string | null;
   publishedAt: Date | null;
   category: string | null;
+  viewCount: number;
 }
 
-// Calculate reading time from content
 function calculateReadingTime(content: string): number {
   const wordsPerMinute = 200;
   const wordCount = content.replace(/<[^>]+>/g, "").split(/\s+/).length;
   return Math.ceil(wordCount / wordsPerMinute);
 }
 
-// Strip HTML tags and clean content for excerpt
 function createExcerpt(content: string, maxLength: number = 200): string {
   const text = content
-    .replace(/<[^>]+>/g, "")           // Remove HTML tags
-    .replace(/&[a-z]+;/gi, " ")       // Remove HTML entities
-    .replace(/\\r\\n|\\n|\\r/g, " ")   // Remove escaped newlines
-    .replace(/\r\n|\n|\r/g, " ")       // Remove actual newlines
-    .replace(/\s+/g, " ")              // Normalize whitespace
+    .replace(/<[^>]+>/g, "")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\\r\\n|\\n|\\r/g, " ")
+    .replace(/\r\n|\n|\r/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
   if (text.length <= maxLength) return text;
-  // Cut at last space before maxLength to avoid mid-word break
   const truncated = text.substring(0, maxLength);
   const lastSpace = truncated.lastIndexOf(" ");
   return (lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated) + "...";
 }
 
-// Fetch blog posts from database
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    // Dynamic import to handle case where table doesn't exist yet
     const { prisma } = await import("@/lib/prisma");
+    if (typeof prisma.blogPost === "undefined") return [];
     
-    // Check if BlogPost model exists in schema
-    if (typeof prisma.blogPost === "undefined") {
-      return [];
-    }
-    
-    const posts = await prisma.blogPost.findMany({
-      where: {
-        status: "PUBLISHED",
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
+    // viewCount alanı yeni eklendi - Prisma type cache eski olabilir
+    const posts = await (prisma.blogPost.findMany as Function)({
+      where: { status: "PUBLISHED" },
+      orderBy: { publishedAt: "desc" },
       select: {
-        id: true,
-        slug: true,
-        title: true,
-        content: true,
-        excerpt: true,
-        featuredImage: true,
-        publishedAt: true,
-        category: true,
+        id: true, slug: true, title: true, content: true,
+        excerpt: true, featuredImage: true, publishedAt: true,
+        category: true, viewCount: true,
       },
-    });
-    
+    }) as BlogPost[];
     return posts;
   } catch (error) {
-    // If table doesn't exist yet, return empty array
     console.log("Blog posts table may not exist yet:", error);
     return [];
   }
@@ -81,15 +62,35 @@ async function getBlogPosts(): Promise<BlogPost[]> {
 export default async function BlogPage() {
   const posts = await getBlogPosts();
 
+  // Categories with counts
+  const categoryMap = new Map<string, number>();
+  posts.forEach((p) => {
+    if (p.category) categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1);
+  });
+  const categories = Array.from(categoryMap.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Serialize posts for client
+  const clientPosts = posts.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt || createExcerpt(p.content),
+    publishedAt: p.publishedAt?.toISOString() || new Date().toISOString(),
+    category: p.category,
+    readingTime: calculateReadingTime(p.content),
+    viewCount: p.viewCount,
+  }));
+
+  // SEO schemas
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Ana Sayfa", url: "/" },
     { name: "Blog", url: "/blog" },
   ]);
-
   const schemas: Record<string, unknown>[] = [breadcrumbSchema];
-
   if (posts.length > 0) {
-    const blogListSchema = generateItemListSchema({
+    schemas.push(generateItemListSchema({
       name: "FusionMarkt Blog Yazıları",
       url: "/blog",
       items: posts.map((post) => ({
@@ -97,8 +98,7 @@ export default async function BlogPage() {
         url: `/blog/${post.slug}`,
         image: post.featuredImage || undefined,
       })),
-    });
-    schemas.push(blogListSchema);
+    }));
   }
 
   return (
@@ -114,42 +114,8 @@ export default async function BlogPage() {
           </p>
         </header>
 
-        {/* Blog Grid */}
-        {posts.length > 0 ? (
-          <div className="blog-grid">
-            {posts.map((post) => (
-              <BlogCard
-                key={post.id}
-                slug={post.slug}
-                title={post.title}
-                excerpt={post.excerpt || createExcerpt(post.content)}
-                publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
-                category={post.category || undefined}
-                readingTime={calculateReadingTime(post.content)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="blog-empty">
-            <svg 
-              className="blog-empty__icon" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={1.5}
-                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-              />
-            </svg>
-            <h2 className="blog-empty__title">Henüz blog yazısı yok</h2>
-            <p className="blog-empty__text">
-              Yakında yeni içerikler eklenecek. Takipte kalın!
-            </p>
-          </div>
-        )}
+        {/* Blog Content + Sidebar */}
+        <BlogPageClient posts={clientPosts} categories={categories} />
       </div>
     </main>
   );

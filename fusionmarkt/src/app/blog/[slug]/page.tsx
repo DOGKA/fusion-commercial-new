@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogHeader, BlogContent, BlogShare, BlogCard } from "@/components/blog";
+import BlogViewTracker from "@/components/blog/BlogViewTracker";
 import { JsonLd } from "@/components/seo";
 import { generateBlogMetadata, generateArticleSchema, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
 import "@/styles/blog.css";
@@ -227,6 +228,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <>
+      {/* View Counter */}
+      <BlogViewTracker slug={post.slug} />
+
       {/* JSON-LD Structured Data */}
       <JsonLd data={[articleSchema, breadcrumbSchema]} />
       

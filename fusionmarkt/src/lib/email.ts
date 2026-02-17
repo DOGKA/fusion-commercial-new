@@ -27,6 +27,8 @@ import { CancellationApprovedEmail } from "@/emails/templates/CancellationApprov
 import { CancellationRejectedEmail } from "@/emails/templates/CancellationRejectedEmail";
 import { ReturnApprovedEmail } from "@/emails/templates/ReturnApprovedEmail";
 import { ReturnRejectedEmail } from "@/emails/templates/ReturnRejectedEmail";
+import { ServiceFormApprovedEmail } from "@/emails/templates/ServiceFormApprovedEmail";
+import { ServiceFormRejectedEmail } from "@/emails/templates/ServiceFormRejectedEmail";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -494,6 +496,145 @@ export async function sendContactFormNotification(params: {
   return sendEmail({
     to: CONTACT_EMAIL,
     subject: `İletişim Formu: ${params.subject || params.name}`,
+    html,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SERVICE FORM NOTIFICATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Send service form notification to admin
+ */
+export async function sendServiceFormNotification(params: {
+  name: string;
+  email: string;
+  phone: string;
+  platform: string;
+  invoiceNo: string;
+  invoiceType: string;
+  message: string;
+}) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 24px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 20px; }
+        .content { padding: 24px; }
+        .field { margin-bottom: 16px; }
+        .label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+        .value { font-size: 15px; color: #1a1a1a; }
+        .message-box { background: #f9f9f9; border-left: 4px solid #f59e0b; padding: 16px; margin-top: 16px; }
+        .footer { padding: 16px 24px; background: #f9f9f9; text-align: center; font-size: 12px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🔧 Yeni Servis Formu Talebi</h1>
+        </div>
+        <div class="content">
+          <div class="field">
+            <div class="label">Gönderen</div>
+            <div class="value"><strong>${params.name}</strong></div>
+          </div>
+          <div class="field">
+            <div class="label">E-posta</div>
+            <div class="value"><a href="mailto:${params.email}">${params.email}</a></div>
+          </div>
+          <div class="field">
+            <div class="label">Telefon</div>
+            <div class="value"><a href="tel:${params.phone}">${params.phone}</a></div>
+          </div>
+          <div class="field">
+            <div class="label">Platform</div>
+            <div class="value">${params.platform}</div>
+          </div>
+          <div class="field">
+            <div class="label">Fatura No</div>
+            <div class="value">${params.invoiceNo}</div>
+          </div>
+          <div class="field">
+            <div class="label">Fatura Tipi</div>
+            <div class="value">${params.invoiceType}</div>
+          </div>
+          <div class="message-box">
+            <div class="label">Açıklama</div>
+            <div class="value" style="white-space: pre-wrap;">${params.message}</div>
+          </div>
+        </div>
+        <div class="footer">
+          Bu mesaj FusionMarkt servis formu üzerinden gönderildi.<br>
+          Admin panelden detayları inceleyebilirsiniz.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: CONTACT_EMAIL,
+    subject: `Servis Formu Talebi: ${params.name}`,
+    html,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SERVICE FORM APPROVE / REJECT EMAILS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Send service form approved email
+ */
+export async function sendServiceFormApprovedEmail(params: {
+  to: string;
+  name?: string;
+  invoiceNo: string;
+  platform: string;
+  reason?: string;
+}) {
+  const html = await render(
+    ServiceFormApprovedEmail({
+      name: params.name,
+      invoiceNo: params.invoiceNo,
+      platform: params.platform,
+      reason: params.reason,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - Servis Talebiniz Onaylandı`,
+    html,
+  });
+}
+
+/**
+ * Send service form rejected email
+ */
+export async function sendServiceFormRejectedEmail(params: {
+  to: string;
+  name?: string;
+  invoiceNo: string;
+  platform: string;
+  reason?: string;
+}) {
+  const html = await render(
+    ServiceFormRejectedEmail({
+      name: params.name,
+      invoiceNo: params.invoiceNo,
+      platform: params.platform,
+      reason: params.reason,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - Servis Talebiniz Reddedildi`,
     html,
   });
 }

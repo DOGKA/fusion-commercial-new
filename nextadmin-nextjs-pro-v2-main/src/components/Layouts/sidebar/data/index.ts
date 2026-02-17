@@ -105,6 +105,17 @@ export const NAV_DATA: NavGroup[] = [
     ],
   },
   {
+    label: "SERVİS",
+    items: [
+      {
+        title: "Servis Formları",
+        url: "/service-forms",
+        icon: Icons.Settings,
+        items: [],
+      },
+    ],
+  },
+  {
     label: "İÇERİK",
     items: [
       {

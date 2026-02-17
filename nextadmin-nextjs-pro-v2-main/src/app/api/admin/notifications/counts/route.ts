@@ -21,6 +21,7 @@ export async function GET() {
       pendingCancellations,
       pendingReturns,
       unreadContacts,
+      pendingServiceForms,
     ] = await Promise.all([
       // New orders (PENDING or PROCESSING with PAID payment)
       prisma.order.count({
@@ -55,6 +56,11 @@ export async function GET() {
           status: "UNREAD"
         }
       }),
+
+      // Pending service form messages
+      (prisma as any).serviceFormMessage
+        ? (prisma as any).serviceFormMessage.count({ where: { status: "PENDING" } })
+        : Promise.resolve(0),
     ]);
 
     return NextResponse.json({
@@ -62,7 +68,8 @@ export async function GET() {
       cancellations: pendingCancellations,
       returns: pendingReturns,
       contacts: unreadContacts,
-      total: pendingOrders + pendingCancellations + pendingReturns + unreadContacts,
+      serviceForms: pendingServiceForms,
+      total: pendingOrders + pendingCancellations + pendingReturns + unreadContacts + pendingServiceForms,
     });
   } catch (error) {
     console.error("Badge counts API Error:", error);

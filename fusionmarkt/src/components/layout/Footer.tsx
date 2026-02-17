@@ -37,6 +37,7 @@ const footerLinks = {
       { name: "İade ve Değişim", href: "/iade-politikasi" },
       { name: "Aplikasyon Kullanım Kılavuzu", href: "https://ieetek.vercel.app/", external: true },
       { name: "Kullanım Kılavuzları", href: "/kullanim-kilavuzlari" },
+      { name: "Servis Formu", href: "/servis-formu" },
     ],
   },
   kullaniciPolitikalari: {
