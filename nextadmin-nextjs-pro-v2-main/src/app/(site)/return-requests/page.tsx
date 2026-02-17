@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { 
   Search, RefreshCw, ChevronLeft, ChevronRight,
   Eye, Check, X, Clock, User, CreditCard, Banknote, 
@@ -675,10 +676,13 @@ export default function ReturnRequestsPage() {
                           rel="noopener noreferrer"
                           className="relative group"
                         >
-                          <img
+                          <Image
                             src={img}
                             alt={`Ürün görseli ${index + 1}`}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary transition-colors"
+                            unoptimized
                           />
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center transition-opacity">
                             <Eye className="w-4 h-4 text-white" />

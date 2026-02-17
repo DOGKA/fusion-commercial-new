@@ -3,7 +3,7 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { NAV_DATA } from "./data";
 import { ChevronUp } from "./icons";
 import { MenuItem } from "./menu-item";
@@ -38,7 +38,6 @@ export function Sidebar() {
     contacts: 0,
     serviceForms: 0,
   });
-  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch badge counts
   const fetchBadgeCounts = useCallback(async () => {
@@ -67,9 +66,6 @@ export function Sidebar() {
     
     return () => {
       clearInterval(intervalId);
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
     };
   }, [fetchBadgeCounts]);
 

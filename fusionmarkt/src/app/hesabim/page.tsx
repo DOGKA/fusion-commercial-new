@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -1699,10 +1699,39 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
     }
   }, [initialExpandedOrder]);
 
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/orders");
+      if (!res.ok) {
+        throw new Error("Siparişler alınamadı");
+      }
+      const data = await res.json();
+      setOrders(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bir hata oluştu");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchOrdersSilent = useCallback(async () => {
+    try {
+      const res = await fetch("/api/orders");
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data);
+      }
+    } catch {
+      // Silently fail
+    }
+  }, []);
+
   // Siparişleri API'den çek
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   // Auto-refresh every 30 seconds (when tab is visible)
   useEffect(() => {
@@ -1710,16 +1739,14 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
 
     const startPolling = () => {
       intervalId = setInterval(() => {
-        // Only refresh if document is visible
         if (!document.hidden) {
           fetchOrdersSilent();
         }
-      }, 30000); // 30 seconds
+      }, 30000);
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        // Refresh immediately when tab becomes visible
         fetchOrdersSilent();
       }
     };
@@ -1731,51 +1758,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       clearInterval(intervalId);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
-
-  // Silent fetch (doesn't show loading state)
-  const fetchOrdersSilent = async () => {
-    try {
-      const res = await fetch("/api/orders");
-      if (res.ok) {
-        const data = await res.json();
-        setOrders(data);
-
-        if (expandedOrder) {
-          const expanded = data.find((order: Order) => order.id === expandedOrder);
-          if (expanded) {
-            fetchRequestStatus(expanded.orderNumber, true);
-          }
-        }
-      }
-    } catch {
-      // Silently fail
-    }
-  };
-
-  const fetchOrders = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/orders");
-      if (!res.ok) {
-        throw new Error("Siparişler alınamadı");
-      }
-      const data = await res.json();
-      setOrders(data);
-
-      if (expandedOrder) {
-        const expanded = data.find((order: Order) => order.id === expandedOrder);
-        if (expanded) {
-          fetchRequestStatus(expanded.orderNumber, true);
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchOrdersSilent]);
 
   // Kargo takip numarasını kopyala
   const copyTrackingNumber = (trackingNumber: string) => {
@@ -1863,7 +1846,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
         setCancelModalOrder(null);
         setRequestSuccess(null);
       }, 3000);
-    } catch (e) {
+    } catch {
       setRequestError("Bir hata oluştu. Lütfen tekrar deneyiniz.");
     } finally {
       setCancelLoading(false);
@@ -1925,7 +1908,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
         setReturnImages([]);
         setReturnImagePreviews([]);
       }, 3000);
-    } catch (e) {
+    } catch {
       setRequestError("Bir hata oluştu. Lütfen tekrar deneyiniz.");
     } finally {
       setReturnLoading(false);
@@ -2772,10 +2755,13 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                       <div className="flex flex-wrap gap-2 mb-3">
                         {returnImagePreviews.map((preview, index) => (
                           <div key={index} className="relative group">
-                            <img
+                            <Image
                               src={preview}
                               alt={`Görsel ${index + 1}`}
+                              width={80}
+                              height={80}
                               className="w-20 h-20 object-cover rounded-lg border border-border"
+                              unoptimized
                             />
                             <button
                               type="button"

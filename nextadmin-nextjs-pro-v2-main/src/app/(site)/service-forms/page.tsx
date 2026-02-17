@@ -21,6 +21,7 @@ import {
   MapPin,
   StickyNote,
 } from "lucide-react";
+import NextImage from "next/image";
 
 interface ServiceFormMessage {
   id: string;
@@ -515,7 +516,7 @@ export default function ServiceFormsPage() {
                             <span className="text-xs text-gray-500 ml-1">Video</span>
                           </div>
                         ) : (
-                          <img src={url} alt={`Dosya ${i + 1}`} className="aspect-video object-cover w-full" />
+                          <NextImage src={url} alt={`Dosya ${i + 1}`} width={320} height={180} className="aspect-video object-cover w-full" unoptimized />
                         )}
                       </a>
                     ))}

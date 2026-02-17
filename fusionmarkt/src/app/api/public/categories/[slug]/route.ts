@@ -423,14 +423,12 @@ export async function GET(
 
     // Rating hesapla ve products'a ekle
     const products = productsRaw.map(p => {
-      const reviews = p.reviews || [];
+      const { reviews: rawReviews, ...productWithoutReviews } = p;
+      const reviews = rawReviews || [];
       const ratingCount = reviews.length;
       const ratingAverage = ratingCount > 0 
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount 
         : 0;
-      
-      // reviews array'ini response'dan kaldır
-      const { reviews: _, ...productWithoutReviews } = p;
       
       return {
         ...productWithoutReviews,

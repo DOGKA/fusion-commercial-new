@@ -118,15 +118,12 @@ export async function GET(request: NextRequest) {
     };
 
     const sortedProducts = products.map((p: ProductWithVariants & { reviews?: { rating: number }[] }) => {
-      // Rating hesapla
-      const reviews = p.reviews || [];
+      const { reviews: rawReviews, ...productWithoutReviews } = p;
+      const reviews = rawReviews || [];
       const ratingCount = reviews.length;
       const ratingAverage = ratingCount > 0 
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount 
         : 0;
-      
-      // reviews array'ini response'dan kaldır (sadece count ve average gönder)
-      const { reviews: _, ...productWithoutReviews } = p;
       
       return {
         ...productWithoutReviews,

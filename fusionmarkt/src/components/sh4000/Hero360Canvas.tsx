@@ -27,7 +27,6 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
 
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
-  const [canvasReady, setCanvasReady] = useState(false);
   const posterSrc = frames[0] || '/sh4000/frame_01.webp';
 
   const imagesRef = useRef<HTMLImageElement[]>([]);
@@ -307,7 +306,6 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
         window.requestAnimationFrame(() => {
           frameBoundsRef.current = null;
           drawFrame(currentFrameRef.current);
-          setCanvasReady(true);
         });
       }, sectionRef);
     };
@@ -318,7 +316,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       if (rafId != null) window.cancelAnimationFrame(rafId);
       ctx?.revert();
     };
-  }, [imagesLoaded, scheduleUpdate, resetToStart]);
+  }, [imagesLoaded, drawFrame, scheduleUpdate, resetToStart]);
 
   useLayoutEffect(() => {
     if (!firstFrameLoaded) return;
