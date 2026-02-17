@@ -265,16 +265,6 @@ export default function ServisFormuPage() {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto text-center px-2"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20 mb-6"
-            >
-              <Wrench className="w-4 h-4 text-[var(--fusion-warning)] mr-2 flex-shrink-0" />
-              <span className="text-sm font-medium text-[var(--fusion-warning)] whitespace-nowrap">Servis Talebi</span>
-            </motion.div>
-
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Servis Formu</h1>
             <p className="text-base md:text-lg text-[var(--foreground-secondary)]">
               Ürününüzle ilgili arıza veya sorun bildirimi için aşağıdaki formu eksiksiz doldurunuz.
@@ -292,7 +282,7 @@ export default function ServisFormuPage() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="max-w-3xl mx-auto"
           >
-            <div className="glass-card p-6 md:p-10 rounded-3xl">
+            <div className="glass-card p-4 sm:p-6 md:p-10 rounded-3xl">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center">
                   <ClipboardList className="w-6 h-6 text-[var(--fusion-warning)]" />
@@ -303,16 +293,16 @@ export default function ServisFormuPage() {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {/* Row: Name + Title */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       İsim Soyisim <span className="text-[var(--fusion-primary)]">*</span>
                     </label>
                     <input
                       type="text" name="name" value={formData.name} onChange={handleChange}
-                      className={`glass-input w-full px-4 py-3 rounded-xl ${errors.name ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.name ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="Adınız Soyadınız"
                     />
                     <ErrorMsg field="name" />
@@ -321,21 +311,21 @@ export default function ServisFormuPage() {
                     <label className="block text-sm font-medium mb-2">Ünvan</label>
                     <input
                       type="text" name="title" value={formData.title} onChange={handleChange}
-                      className="glass-input w-full px-4 py-3 rounded-xl"
+                      className="glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base"
                       placeholder="Ünvan (opsiyonel)"
                     />
                   </div>
                 </div>
 
                 {/* Row: Invoice No + Platform */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Fatura No <span className="text-[var(--fusion-primary)]">*</span>
                     </label>
                     <input
                       type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange}
-                      className={`glass-input w-full px-4 py-3 rounded-xl ${errors.invoiceNo ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.invoiceNo ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="Fatura No"
                     />
                     <ErrorMsg field="invoiceNo" />
@@ -346,7 +336,7 @@ export default function ServisFormuPage() {
                     </label>
                     <select
                       name="platform" value={formData.platform} onChange={handleChange}
-                      className={`glass-input w-full px-4 py-3 rounded-xl appearance-none bg-[var(--glass-bg)] ${errors.platform ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl appearance-none bg-[var(--glass-bg)] text-sm sm:text-base ${errors.platform ? "border-[var(--fusion-error)]" : ""}`}
                     >
                       <option value="">Platform seçiniz</option>
                       {PLATFORMS.map((p) => (
@@ -358,7 +348,7 @@ export default function ServisFormuPage() {
                 </div>
 
                 {/* Row: Phone + Email */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-1 text-sm font-medium mb-2">
                       <Phone className="w-3.5 h-3.5 flex-shrink-0" />
@@ -366,7 +356,7 @@ export default function ServisFormuPage() {
                     </label>
                     <input
                       type="tel" name="phone" value={formData.phone} onChange={handleChange}
-                      className={`glass-input w-full px-4 py-3 rounded-xl ${errors.phone ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.phone ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="0501 234 56 78"
                     />
                     <ErrorMsg field="phone" />
@@ -378,7 +368,7 @@ export default function ServisFormuPage() {
                     </label>
                     <input
                       type="email" name="email" value={formData.email} onChange={handleChange}
-                      className={`glass-input w-full px-4 py-3 rounded-xl ${errors.email ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.email ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="ornek@email.com"
                     />
                     <ErrorMsg field="email" />
@@ -397,47 +387,42 @@ export default function ServisFormuPage() {
                     value={formData.purchaseDate}
                     onChange={handleChange}
                     max={new Date().toISOString().split("T")[0]}
-                    className={`glass-input w-full px-4 py-3 rounded-xl ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
                   />
                   <ErrorMsg field="purchaseDate" />
                 </div>
 
-                {/* Row: Invoice Type + Order Number */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Fatura Tipi <span className="text-[var(--fusion-primary)]">*</span>
-                    </label>
-                    <div className="flex gap-4">
-                      {["Bireysel", "Kurumsal"].map((type) => (
-                        <label
-                          key={type}
-                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
-                            formData.invoiceType === type
-                              ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10 text-[var(--fusion-primary)]"
-                              : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
-                          } ${errors.invoiceType ? "border-[var(--fusion-error)]" : ""}`}
-                        >
-                          <input
-                            type="radio" name="invoiceType" value={type}
-                            checked={formData.invoiceType === type}
-                            onChange={handleChange}
-                            className="sr-only"
-                          />
-                          <span className="text-sm font-medium">{type}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <ErrorMsg field="invoiceType" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Sipariş Numarası</label>
+                {/* Row: Invoice Type (Bireysel / Kurumsal) + Order Number — 3 columns */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Fatura Tipi <span className="text-[var(--fusion-primary)]">*</span> / Sipariş Numarası
+                  </label>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                    {["Bireysel", "Kurumsal"].map((type) => (
+                      <label
+                        key={type}
+                        className={`flex items-center justify-center px-2 sm:px-4 py-2.5 sm:py-3 rounded-xl border cursor-pointer transition-all ${
+                          formData.invoiceType === type
+                            ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10 text-[var(--fusion-primary)]"
+                            : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
+                        } ${errors.invoiceType ? "border-[var(--fusion-error)]" : ""}`}
+                      >
+                        <input
+                          type="radio" name="invoiceType" value={type}
+                          checked={formData.invoiceType === type}
+                          onChange={handleChange}
+                          className="sr-only"
+                        />
+                        <span className="text-xs sm:text-sm font-medium">{type}</span>
+                      </label>
+                    ))}
                     <input
                       type="text" name="orderNumber" value={formData.orderNumber} onChange={handleChange}
-                      className="glass-input w-full px-4 py-3 rounded-xl"
-                      placeholder="Sipariş Numarası (opsiyonel)"
+                      className="glass-input w-full px-2 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm"
+                      placeholder="Sipariş No"
                     />
                   </div>
+                  <ErrorMsg field="invoiceType" />
                 </div>
 
                 {/* Invoice PDF */}
@@ -448,7 +433,7 @@ export default function ServisFormuPage() {
                   </label>
                   <div
                     onClick={() => pdfInputRef.current?.click()}
-                    className={`glass-input rounded-xl px-4 py-4 cursor-pointer flex items-center gap-3 transition-all hover:border-[var(--glass-border-hover)] ${
+                    className={`glass-input rounded-xl px-3 sm:px-4 py-3 sm:py-4 cursor-pointer flex items-center gap-2 sm:gap-3 transition-all hover:border-[var(--glass-border-hover)] ${
                       errors.invoicePdf ? "border-[var(--fusion-error)]" : ""
                     }`}
                   >
@@ -491,7 +476,7 @@ export default function ServisFormuPage() {
                   <textarea
                     name="message" value={formData.message} onChange={handleChange}
                     rows={4}
-                    className={`glass-input w-full px-4 py-3 rounded-xl resize-none ${errors.message ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl resize-none text-sm sm:text-base ${errors.message ? "border-[var(--fusion-error)]" : ""}`}
                     placeholder="Hatayı / Arızayı anlatan açıklama"
                   />
                   <ErrorMsg field="message" />
@@ -509,7 +494,7 @@ export default function ServisFormuPage() {
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
                     onClick={() => mediaInputRef.current?.click()}
-                    className={`glass-input rounded-xl px-4 py-8 cursor-pointer text-center transition-all ${
+                    className={`glass-input rounded-xl px-3 sm:px-4 py-5 sm:py-8 cursor-pointer text-center transition-all ${
                       dragActive
                         ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/5"
                         : "hover:border-[var(--glass-border-hover)]"
@@ -569,7 +554,7 @@ export default function ServisFormuPage() {
                   <textarea
                     name="returnAddress" value={formData.returnAddress} onChange={handleChange}
                     rows={3}
-                    className={`glass-input w-full px-4 py-3 rounded-xl resize-none ${errors.returnAddress ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl resize-none text-sm sm:text-base ${errors.returnAddress ? "border-[var(--fusion-error)]" : ""}`}
                     placeholder="Cihazın tamiri/değişimi durumunda gönderilecek açık adresinizi belirtiniz."
                   />
                   <p className="text-xs text-[var(--foreground-tertiary)] mt-1">
@@ -583,12 +568,12 @@ export default function ServisFormuPage() {
                 </div>
 
                 {/* Checkboxes */}
-                <div className="space-y-4">
+                <div className="space-y-2 sm:space-y-4">
                   {/* Packaging Confirm */}
                   <label
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
                       formData.packagingConfirm
-                        ? "border-[var(--fusion-primary)]/30 bg-[var(--fusion-primary)]/5"
+                        ? "border-[var(--fusion-success)]/30 bg-[var(--fusion-success)]/5"
                         : "border-[var(--glass-border)] bg-[var(--glass-bg)]"
                     } ${errors.packagingConfirm ? "border-[var(--fusion-error)]" : ""}`}
                   >
@@ -596,16 +581,19 @@ export default function ServisFormuPage() {
                       type="checkbox"
                       checked={formData.packagingConfirm}
                       onChange={(e) => handleCheckbox("packagingConfirm", e.target.checked)}
-                      className="mt-1 w-4 h-4 rounded border-gray-300 text-[var(--fusion-primary)] focus:ring-[var(--fusion-primary)] flex-shrink-0"
+                      className="sr-only peer"
                     />
-                    <div>
-                      <p className="text-sm font-medium mb-1">
-                        Ürün Paketlemesinde Dikkat Edilmesi Gerekenler <span className="text-[var(--fusion-primary)]">*</span>
+                    <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--fusion-success)] peer-checked:border-[var(--fusion-success)] transition-colors">
+                      {formData.packagingConfirm && (
+                        <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1">
+                        Ürün Paketleme Onayı <span className="text-[var(--fusion-primary)]">*</span>
                       </p>
-                      <p className="text-xs text-[var(--foreground-tertiary)] leading-relaxed">
-                        Cihazımı servise verirken, bütün aksesuarlarının da eklendiğinden ve taşıma esnasında
-                        herhangi bir zarar gelmeyecek şekilde paketlendiğinden emin olacağım. Taşıma esnasında
-                        olası bir hasar durumundaki sorumluluğun bana ait olduğunu onaylıyorum.
+                      <p className="text-[10px] sm:text-xs text-[var(--foreground-tertiary)] leading-snug sm:leading-relaxed mt-0.5">
+                        Aksesuarların eklendiğinden ve taşıma hasarı oluşmayacak şekilde paketlendiğinden emin olacağım. Taşıma hasarı sorumluluğunun bana ait olduğunu onaylıyorum.
                       </p>
                     </div>
                   </label>
@@ -613,9 +601,9 @@ export default function ServisFormuPage() {
 
                   {/* Fault Fee Confirm */}
                   <label
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
                       formData.faultFeeConfirm
-                        ? "border-[var(--fusion-primary)]/30 bg-[var(--fusion-primary)]/5"
+                        ? "border-[var(--fusion-success)]/30 bg-[var(--fusion-success)]/5"
                         : "border-[var(--glass-border)] bg-[var(--glass-bg)]"
                     } ${errors.faultFeeConfirm ? "border-[var(--fusion-error)]" : ""}`}
                   >
@@ -623,15 +611,19 @@ export default function ServisFormuPage() {
                       type="checkbox"
                       checked={formData.faultFeeConfirm}
                       onChange={(e) => handleCheckbox("faultFeeConfirm", e.target.checked)}
-                      className="mt-1 w-4 h-4 rounded border-gray-300 text-[var(--fusion-primary)] focus:ring-[var(--fusion-primary)] flex-shrink-0"
+                      className="sr-only peer"
                     />
-                    <div>
-                      <p className="text-sm font-medium mb-1">
+                    <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--fusion-success)] peer-checked:border-[var(--fusion-success)] transition-colors">
+                      {formData.faultFeeConfirm && (
+                        <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1">
                         Arıza Tespit Onayı <span className="text-[var(--fusion-primary)]">*</span>
                       </p>
-                      <p className="text-xs text-[var(--foreground-tertiary)] leading-relaxed">
-                        Cihazımın garanti kapsamı dışında olması durumunda, KDV dahil 1.200 TL tutarındaki
-                        arıza tespit ücretini ödemeyi kabul ediyorum.
+                      <p className="text-[10px] sm:text-xs text-[var(--foreground-tertiary)] leading-snug sm:leading-relaxed mt-0.5">
+                        Garanti dışı durumda KDV dahil 1.200 TL arıza tespit ücretini ödemeyi kabul ediyorum.
                       </p>
                     </div>
                   </label>
