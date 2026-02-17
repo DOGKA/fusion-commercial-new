@@ -249,7 +249,7 @@ export default function ServisFormuPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <main className="min-h-screen bg-[var(--background)] overflow-x-hidden">
       {/* Hero */}
       <section className="relative pb-8 md:pb-12 overflow-hidden" style={{ paddingTop: "120px" }}>
         <div className="absolute inset-0 overflow-hidden">
@@ -281,7 +281,7 @@ export default function ServisFormuPage() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="max-w-3xl mx-auto"
           >
-            <div className="glass-card p-4 sm:p-6 md:p-10 rounded-3xl">
+            <div className="glass-card p-4 sm:p-6 md:p-10 rounded-3xl overflow-hidden">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center">
                   <ClipboardList className="w-6 h-6 text-[var(--fusion-warning)]" />
@@ -301,7 +301,7 @@ export default function ServisFormuPage() {
                     </label>
                     <input
                       type="text" name="name" value={formData.name} onChange={handleChange}
-                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.name ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base ${errors.name ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="Adınız Soyadınız"
                     />
                     <ErrorMsg field="name" />
@@ -310,7 +310,7 @@ export default function ServisFormuPage() {
                     <label className="block text-sm font-medium mb-2">Ünvan</label>
                     <input
                       type="text" name="title" value={formData.title} onChange={handleChange}
-                      className="glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base"
+                      className="glass-input w-full px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base"
                       placeholder="Ünvan (opsiyonel)"
                     />
                   </div>
@@ -324,7 +324,7 @@ export default function ServisFormuPage() {
                     </label>
                     <input
                       type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange}
-                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.invoiceNo ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base ${errors.invoiceNo ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="Fatura No"
                     />
                     <ErrorMsg field="invoiceNo" />
@@ -335,7 +335,7 @@ export default function ServisFormuPage() {
                     </label>
                     <select
                       name="platform" value={formData.platform} onChange={handleChange}
-                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl appearance-none bg-[var(--glass-bg)] text-sm sm:text-base ${errors.platform ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl appearance-none bg-[var(--glass-bg)] text-sm sm:text-base ${errors.platform ? "border-[var(--fusion-error)]" : ""}`}
                     >
                       <option value="">Platform seçiniz</option>
                       {PLATFORMS.map((p) => (
@@ -355,7 +355,7 @@ export default function ServisFormuPage() {
                     </label>
                     <input
                       type="tel" name="phone" value={formData.phone} onChange={handleChange}
-                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.phone ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base ${errors.phone ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="0501 234 56 78"
                     />
                     <ErrorMsg field="phone" />
@@ -367,7 +367,7 @@ export default function ServisFormuPage() {
                     </label>
                     <input
                       type="email" name="email" value={formData.email} onChange={handleChange}
-                      className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base ${errors.email ? "border-[var(--fusion-error)]" : ""}`}
+                      className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base ${errors.email ? "border-[var(--fusion-error)]" : ""}`}
                       placeholder="ornek@email.com"
                     />
                     <ErrorMsg field="email" />
@@ -375,7 +375,7 @@ export default function ServisFormuPage() {
                 </div>
 
                 {/* Row: Purchase Date */}
-                <div className="overflow-hidden">
+                <div>
                   <label className="flex items-center gap-1 text-sm font-medium mb-2">
                     <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>Satın Alım Tarihi <span className="text-[var(--fusion-primary)]">*</span></span>
@@ -386,7 +386,7 @@ export default function ServisFormuPage() {
                     value={formData.purchaseDate}
                     onChange={handleChange}
                     max={new Date().toISOString().split("T")[0]}
-                    className={`glass-input w-full max-w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base box-border ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full min-w-0 px-3 sm:px-4 py-3 sm:py-3 rounded-xl text-sm sm:text-base ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
                   />
                   <ErrorMsg field="purchaseDate" />
                 </div>
@@ -400,7 +400,7 @@ export default function ServisFormuPage() {
                     {["Bireysel", "Kurumsal"].map((type) => (
                       <label
                         key={type}
-                        className={`flex items-center justify-center px-2 sm:px-4 py-2.5 sm:py-3 rounded-xl border cursor-pointer transition-all ${
+                        className={`flex items-center justify-center px-2 sm:px-4 py-3 rounded-xl border cursor-pointer transition-all ${
                           formData.invoiceType === type
                             ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10 text-[var(--fusion-primary)]"
                             : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
@@ -417,7 +417,7 @@ export default function ServisFormuPage() {
                     ))}
                     <input
                       type="text" name="orderNumber" value={formData.orderNumber} onChange={handleChange}
-                      className="glass-input w-full px-2 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm"
+                      className="glass-input w-full px-2 sm:px-4 py-3 rounded-xl text-xs sm:text-sm"
                       placeholder="Sipariş No"
                     />
                   </div>
@@ -475,7 +475,7 @@ export default function ServisFormuPage() {
                   <textarea
                     name="message" value={formData.message} onChange={handleChange}
                     rows={4}
-                    className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl resize-none text-sm sm:text-base ${errors.message ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl resize-none text-sm sm:text-base ${errors.message ? "border-[var(--fusion-error)]" : ""}`}
                     placeholder="Hatayı / Arızayı anlatan açıklama"
                   />
                   <ErrorMsg field="message" />
@@ -553,7 +553,7 @@ export default function ServisFormuPage() {
                   <textarea
                     name="returnAddress" value={formData.returnAddress} onChange={handleChange}
                     rows={3}
-                    className={`glass-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl resize-none text-sm sm:text-base ${errors.returnAddress ? "border-[var(--fusion-error)]" : ""}`}
+                    className={`glass-input w-full px-3 sm:px-4 py-3 rounded-xl resize-none text-sm sm:text-base ${errors.returnAddress ? "border-[var(--fusion-error)]" : ""}`}
                     placeholder="Cihazın tamiri/değişimi durumunda gönderilecek açık adresinizi belirtiniz."
                   />
                   <p className="text-xs text-[var(--foreground-tertiary)] mt-1">
