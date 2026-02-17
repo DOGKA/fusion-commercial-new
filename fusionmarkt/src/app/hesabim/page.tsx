@@ -852,7 +852,7 @@ export default function HesabimPage() {
                 : '1px solid var(--glass-border)',
               borderRadius: '24px',
               padding: '40px',
-              opacity: activePanel === 'login' ? 0.4 : 1,
+              opacity: activePanel === 'login' ? 0.7 : 1,
               transition: 'all 0.3s ease',
               cursor: activePanel === 'login' ? 'pointer' : 'default',
               transform: activePanel === 'register' ? 'scale(1.02)' : 'scale(1)',
@@ -862,7 +862,7 @@ export default function HesabimPage() {
             <h2 style={{
               fontSize: '20px',
               fontWeight: '600',
-              color: 'white',
+              color: 'var(--foreground)',
               marginBottom: '32px',
               display: 'flex',
               alignItems: 'center',
@@ -899,7 +899,7 @@ export default function HesabimPage() {
                     }}>
                       <Check size={32} style={{ color: '#10B981' }} />
                     </div>
-                    <h3 style={{ color: 'white', fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+                    <h3 style={{ color: 'var(--foreground)', fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
                       Email Doğrulandı!
                     </h3>
                     <p style={{ color: 'var(--foreground-muted)', fontSize: '14px' }}>
@@ -1241,7 +1241,7 @@ export default function HesabimPage() {
               {/* Privacy Text */}
               <p style={{
                 fontSize: '12px',
-                color: 'rgba(255,255,255,0.4)',
+                color: 'var(--foreground-muted)',
                 lineHeight: '1.7',
                 marginBottom: '28px',
                 padding: '16px',
