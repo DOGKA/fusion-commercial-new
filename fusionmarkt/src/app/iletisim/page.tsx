@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { 
   Mail, 
@@ -16,6 +16,8 @@ import {
   FileText
 } from "lucide-react";
 import { getEmailError } from "@/lib/utils";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 // WhatsApp SVG Icon
 const WhatsAppIcon = () => (
@@ -48,6 +50,27 @@ export default function IletisimPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // reCAPTCHA
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) return;
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
+
+  const getRecaptchaToken = useCallback(async (): Promise<string | null> => {
+    if (!RECAPTCHA_SITE_KEY) return null;
+    try {
+      const grecaptcha = (window as unknown as Record<string, { execute: (key: string, options: { action: string }) => Promise<string> }>).grecaptcha;
+      if (!grecaptcha) return null;
+      return await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "contact_form" });
+    } catch {
+      return null;
+    }
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -82,6 +105,8 @@ export default function IletisimPage() {
     setIsSubmitting(true);
     
     try {
+      const recaptchaToken = await getRecaptchaToken();
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,6 +115,7 @@ export default function IletisimPage() {
           email: formData.email,
           phone: formData.phone,
           message: formData.message,
+          recaptchaToken,
         }),
       });
 
@@ -369,6 +395,15 @@ export default function IletisimPage() {
                           </p>
                         )}
                       </div>
+
+                      {/* reCAPTCHA notice */}
+                      {RECAPTCHA_SITE_KEY && (
+                        <p className="text-xs text-[var(--foreground-tertiary)] text-center">
+                          Bu site Google reCAPTCHA ile korunmaktadır.{" "}
+                          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Gizlilik Politikası</a>{" "}ve{" "}
+                          <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Kullanım Şartları</a>{" "}geçerlidir.
+                        </p>
+                      )}
 
                       {/* Submit Button */}
                       <button

@@ -7,6 +7,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendContactFormNotification } from "@/lib/email";
 
+// reCAPTCHA verification (optional)
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) return true;
+  try {
+    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${secret}&response=${token}`,
+    });
+    const data = await res.json();
+    return data.success && (data.score === undefined || data.score >= 0.5);
+  } catch {
+    console.error("reCAPTCHA verification failed");
+    return false;
+  }
+}
+
 // Rate limiting için basit in-memory store
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = 5; // 5 mesaj
@@ -45,7 +63,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, phone, subject, message } = body;
+    const { name, email, phone, subject, message, recaptchaToken } = body;
+
+    // reCAPTCHA verification
+    if (recaptchaToken) {
+      const isValid = await verifyRecaptcha(recaptchaToken);
+      if (!isValid) {
+        return NextResponse.json(
+          { error: "Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin." },
+          { status: 400 }
+        );
+      }
+    }
 
     // Validation
     if (!name || !name.trim()) {
