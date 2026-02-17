@@ -10,7 +10,6 @@ import {
   X,
   FileText,
   Image as ImageIcon,
-  Wrench,
   Phone,
   Calendar,
   Mail,
