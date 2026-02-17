@@ -74,8 +74,6 @@ export default function ServisFormuPage() {
   const [dragActive, setDragActive] = useState(false);
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
-  const recaptchaRef = useRef<string | null>(null);
-
   // Load reCAPTCHA script
   useEffect(() => {
     if (!RECAPTCHA_SITE_KEY) return;
@@ -91,7 +89,7 @@ export default function ServisFormuPage() {
   const getRecaptchaToken = useCallback(async (): Promise<string | null> => {
     if (!RECAPTCHA_SITE_KEY) return null;
     try {
-      const grecaptcha = (window as any).grecaptcha;
+      const grecaptcha = (window as unknown as Record<string, { execute: (key: string, options: { action: string }) => Promise<string> }>).grecaptcha;
       if (!grecaptcha) return null;
       return await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "service_form" });
     } catch {

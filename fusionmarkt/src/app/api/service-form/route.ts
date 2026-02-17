@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get("user-agent") || undefined;
 
     // Save to database
-    const prismaAny = prisma as any;
+    const prismaAny = prisma as unknown as Record<string, { create: (args: Record<string, unknown>) => Promise<{ id: string }> }>;
     if (!prismaAny.serviceFormMessage) {
       console.error("serviceFormMessage model not found in Prisma client. Run: npx prisma generate");
       return NextResponse.json(

@@ -12,7 +12,6 @@ import {
   InfoCard,
   StatusBadge,
   Button,
-  GlassPanel,
 } from "../components/shared";
 
 interface CancellationApprovedEmailProps {

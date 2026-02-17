@@ -43,7 +43,7 @@ async function getBlogPosts(): Promise<BlogPost[]> {
     if (typeof prisma.blogPost === "undefined") return [];
     
     // viewCount alanı yeni eklendi - Prisma type cache eski olabilir
-    const posts = await (prisma.blogPost.findMany as Function)({
+    const posts = await (prisma.blogPost.findMany as (args: Record<string, unknown>) => Promise<BlogPost[]>)({
       where: { status: "PUBLISHED" },
       orderBy: { publishedAt: "desc" },
       select: {
