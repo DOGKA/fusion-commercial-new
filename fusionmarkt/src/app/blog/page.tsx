@@ -42,8 +42,7 @@ async function getBlogPosts(): Promise<BlogPost[]> {
     const { prisma } = await import("@/lib/prisma");
     if (typeof prisma.blogPost === "undefined") return [];
     
-    // viewCount alanı yeni eklendi - Prisma type cache eski olabilir
-    const posts = await (prisma.blogPost.findMany as (args: Record<string, unknown>) => Promise<BlogPost[]>)({
+    const posts = await prisma.blogPost.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { publishedAt: "desc" },
       select: {
@@ -51,7 +50,7 @@ async function getBlogPosts(): Promise<BlogPost[]> {
         excerpt: true, featuredImage: true, publishedAt: true,
         category: true, viewCount: true,
       },
-    }) as BlogPost[];
+    }) as unknown as BlogPost[];
     return posts;
   } catch (error) {
     console.log("Blog posts table may not exist yet:", error);
