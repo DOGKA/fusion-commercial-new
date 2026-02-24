@@ -149,7 +149,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
                   alt={partner.name}
                   fill
                   sizes="160px"
-                  className="object-contain opacity-90 transition-all duration-300"
+                  className="object-contain opacity-90 transition-[filter,opacity] duration-300"
                   style={{
                     filter: isFlipped
                       ? `drop-shadow(0 0 10px var(--foreground-muted)) ${logoFilter}`.trim()

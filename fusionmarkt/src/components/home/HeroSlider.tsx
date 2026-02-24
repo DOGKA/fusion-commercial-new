@@ -260,7 +260,7 @@ export default function HeroSlider() {
 
   // Buton stilini belirle
   const getButtonClasses = (style?: string, isPrimary = true) => {
-    const base = "group inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-all duration-300";
+    const base = "group inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-[color,background-color,box-shadow,transform] duration-300";
     
     switch (style) {
       case "PRIMARY":
@@ -313,6 +313,7 @@ export default function HeroSlider() {
             sizes="100vw"
             className="object-cover"
             priority
+            fetchPriority="high"
           />
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && (
@@ -472,7 +473,7 @@ export default function HeroSlider() {
             className={cn(
               "pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-glass-bg backdrop-blur-md border border-glass-border",
               "flex items-center justify-center text-foreground-secondary dark:text-white/70 hover:text-foreground dark:hover:text-white",
-              "hover:bg-glass-bg-hover transition-all duration-300",
+              "hover:bg-glass-bg-hover transition-colors duration-300",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             aria-label="Onceki"
@@ -485,7 +486,7 @@ export default function HeroSlider() {
             className={cn(
               "pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-glass-bg backdrop-blur-md border border-glass-border",
               "flex items-center justify-center text-foreground-secondary dark:text-white/70 hover:text-foreground dark:hover:text-white",
-              "hover:bg-glass-bg-hover transition-all duration-300",
+              "hover:bg-glass-bg-hover transition-colors duration-300",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             aria-label="Sonraki"
@@ -509,7 +510,7 @@ export default function HeroSlider() {
               >
                 <div
                   className={cn(
-                    "h-1 rounded-full transition-all duration-500",
+                    "h-1 rounded-full transition-[width,background-color] duration-500",
                     index === currentSlide
                       ? "w-12 bg-white"
                       : "w-6 bg-white/20 group-hover:bg-white/40"
