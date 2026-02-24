@@ -430,11 +430,14 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       </div>
 
       {/* Bottom content */}
-      <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 text-center z-20 pt-6 md:pt-0">
-        <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-2 tracking-tight">SH4000</h1>
-        <p className="text-foreground-secondary mb-8">All-in-one Hibrit Enerji Depolama</p>
-        <div className="w-6 h-10 mx-auto rounded-full border border-foreground-muted/30 flex items-start justify-center p-2">
-          <div className="w-1 h-2 bg-foreground-muted/50 rounded-full animate-bounce" />
+        <div className="absolute bottom-28 md:bottom-28 left-1/2 -translate-x-1/2 text-center z-20 pt-6 md:pt-0 w-full px-4">
+        <div className="flex flex-col items-center gap-1.5 md:gap-2 animate-[fadeIn_1s_ease-out_1.5s_both]">
+          <p className="text-[9px] md:text-[11px] tracking-[0.2em] uppercase text-foreground-muted/50 font-medium">
+            Keşfetmek aşağıya kaydırın
+          </p>
+          <div className="w-[18px] h-[28px] md:w-[22px] md:h-[34px] rounded-full border-[1.5px] border-foreground-muted/25 flex items-start justify-center pt-[5px] md:pt-[6px]">
+            <div className="w-[2.5px] h-[5px] md:w-[3px] md:h-[6px] bg-foreground-muted/40 rounded-full animate-[scrollDot_2s_ease-in-out_infinite]" />
+          </div>
         </div>
       </div>
     </section>
