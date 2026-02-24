@@ -212,7 +212,7 @@ function GlassBanner({
                         setSortOpen(false);
                       }}
                       className={cn(
-                        "w-full px-4 py-3 text-left text-sm transition-all duration-150",
+                        "w-full px-4 py-3 text-left text-sm transition-colors duration-150",
                         sortBy === option.value
                           ? "bg-black/[0.05] dark:bg-white/[0.08] text-foreground font-medium"
                           : "text-foreground-secondary hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:text-foreground"
@@ -930,7 +930,7 @@ export default function CategoryPage() {
                   />
                 </div>
               ) : products.length > 0 ? (
-                [...products, ...products, ...products].map((product, idx) => (
+                [...products, ...products].map((product, idx) => (
                   <div 
                     key={`${product.id}-${idx}`} 
                     className="flex-shrink-0 w-[280px]"

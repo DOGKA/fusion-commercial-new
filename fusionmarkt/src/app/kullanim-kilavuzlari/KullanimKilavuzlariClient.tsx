@@ -94,7 +94,7 @@ export default function KullanimKilavuzlariClient() {
                   href={catalogue.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg px-4 py-2.5 text-sm border border-slate-300/50 dark:border-slate-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700 transition-all duration-300"
+                  className="flex items-center gap-2 bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg px-4 py-2.5 text-sm border border-slate-300/50 dark:border-slate-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors duration-200"
                 >
                   <span>{languageFlags[catalogue.name]}</span>
                   <span className="text-slate-900 dark:text-white">{catalogue.name}</span>
@@ -110,7 +110,7 @@ export default function KullanimKilavuzlariClient() {
             <div className="flex overflow-x-auto gap-2 scrollbar-hide">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === "all"
                     ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md"
                     : "bg-slate-300/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-400/50 dark:hover:bg-slate-600/50"
@@ -122,7 +122,7 @@ export default function KullanimKilavuzlariClient() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedCategory === category
                       ? `bg-gradient-to-r ${categoryColors[category]} text-white shadow-md`
                       : "bg-slate-300/50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-400/50 dark:hover:bg-slate-600/50"
@@ -167,7 +167,7 @@ export default function KullanimKilavuzlariClient() {
                 {categoryProducts.map((product, productIndex) => (
                   <div
                     key={product.slug}
-                    className="bg-white rounded-lg overflow-hidden border border-slate-200 hover:shadow-md transition-all"
+                    className="bg-white rounded-lg overflow-hidden border border-slate-200 hover:shadow-md transition-shadow"
                   >
                     {/* Ürün Görseli Container */}
                     <div className="aspect-square w-full overflow-hidden bg-white p-2">

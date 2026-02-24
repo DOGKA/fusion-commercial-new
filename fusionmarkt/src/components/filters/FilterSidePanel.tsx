@@ -184,7 +184,7 @@ export default function FilterSidePanel({
             {/* Filter Icon */}
             <div className="relative group">
               <div
-                className="w-12 h-12 backdrop-blur-sm border flex items-center justify-center transition-all duration-300 group-hover:scale-105"
+                className="w-12 h-12 backdrop-blur-sm border flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
                 style={{
                   background: `linear-gradient(135deg, ${themeColor}20 0%, ${themeColor}05 100%)`,
                   borderColor: `${themeColor}25`,
@@ -246,7 +246,7 @@ export default function FilterSidePanel({
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover rounded-lg transition-all duration-200"
+              className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover rounded-lg transition-colors duration-200"
               aria-label="Kapat"
             >
               <X className="w-[18px] h-[18px]" strokeWidth={1.5} />
@@ -261,7 +261,7 @@ export default function FilterSidePanel({
             <div className="px-4 pt-3 pb-3">
               <button
                 onClick={onClearAll}
-                className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-foreground-tertiary hover:text-foreground hover:bg-glass-bg-hover rounded-lg transition-all"
+                className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-foreground-tertiary hover:text-foreground hover:bg-glass-bg-hover rounded-lg transition-colors"
               >
                 <RotateCcw size={14} />
                 Tümünü Temizle
@@ -360,7 +360,7 @@ export default function FilterSidePanel({
                                   handleOptionChange(group.id, opt.value, group.type)
                                 }
                                 className={cn(
-                                  "relative w-9 h-9 rounded-full border-2 transition-all hover:scale-110",
+                                  "relative w-9 h-9 rounded-full border-2 transition-transform hover:scale-110",
                                   isSelected
                                     ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-[#0d0d0d]"
                                     : "border-border"
@@ -433,7 +433,7 @@ export default function FilterSidePanel({
                                   handleOptionChange(group.id, opt.value, group.type)
                                 }
                                 className={cn(
-                                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left",
+                                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
                                   isSelected
                                     ? "bg-glass-bg-hover"
                                     : "hover:bg-glass-bg"
@@ -499,7 +499,7 @@ export default function FilterSidePanel({
                 onApply();
                 onClose();
               }}
-              className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white font-semibold text-base transition-all duration-300 hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-2 w-full py-4 px-6 text-white font-semibold text-base transition-[background-color,transform,box-shadow] duration-300 hover:-translate-y-0.5"
               style={{
                 background: `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}cc 100%)`,
                 boxShadow: `0 8px 24px ${themeColor}25`,
@@ -517,7 +517,7 @@ export default function FilterSidePanel({
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-glass-bg border border-border hover:bg-glass-bg-hover hover:border-border-hover text-foreground-secondary hover:text-foreground font-medium text-base transition-all duration-300"
+              className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-glass-bg border border-border hover:bg-glass-bg-hover hover:border-border-hover text-foreground-secondary hover:text-foreground font-medium text-base transition-colors duration-300"
               style={{ borderRadius: "14px" }}
             >
               Kapat

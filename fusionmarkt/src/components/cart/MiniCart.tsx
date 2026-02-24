@@ -248,7 +248,7 @@ export default function MiniCart() {
             {/* Cart Icon - Glassmorphism */}
             <div className="relative group">
               <div 
-                className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 backdrop-blur-sm border border-emerald-500/25 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:border-emerald-500/40"
+                className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 backdrop-blur-sm border border-emerald-500/25 flex items-center justify-center transition-[transform,border-color] duration-300 group-hover:scale-105 group-hover:border-emerald-500/40"
                 style={{ borderRadius: '16px' }}
               >
                 <ShoppingBag className="w-[22px] h-[22px] text-emerald-400" strokeWidth={1.8} />
@@ -274,7 +274,7 @@ export default function MiniCart() {
             {/* Close Button - Minimal */}
             <button
               onClick={closeCart}
-              className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.05] rounded-lg transition-all duration-200"
+              className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.05] rounded-lg transition-colors duration-200"
               aria-label="Kapat"
             >
               <X className="w-[18px] h-[18px]" strokeWidth={1.5} />
@@ -298,7 +298,7 @@ export default function MiniCart() {
                     <button
                       type="button"
                       onClick={() => setIsSelectionMode(true)}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-all cursor-pointer"
+                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-colors cursor-pointer"
                       style={{ borderRadius: '8px' }}
                     >
                       <Check size={16} />
@@ -308,7 +308,7 @@ export default function MiniCart() {
                     <button
                       type="button"
                       onClick={clearCart}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-red-400 hover:bg-red-500/[0.06] transition-all cursor-pointer"
+                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-red-400 hover:bg-red-500/[0.06] transition-colors cursor-pointer"
                       style={{ borderRadius: '8px' }}
                     >
                       <Trash2 size={14} />
@@ -320,7 +320,7 @@ export default function MiniCart() {
                     <button
                       onClick={selectAllItems}
                       className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-all",
+                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-colors",
                         selectedItems.size === items.length 
                           ? "text-emerald-400 bg-emerald-500/10" 
                           : "text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04]"
@@ -335,7 +335,7 @@ export default function MiniCart() {
                       onClick={moveSelectedToFavorites}
                       disabled={selectedItems.size === 0}
                       className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-all",
+                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-colors",
                         selectedItems.size > 0 
                           ? "text-pink-400 hover:bg-pink-500/10" 
                           : "text-foreground-disabled cursor-not-allowed"
@@ -350,7 +350,7 @@ export default function MiniCart() {
                       onClick={deleteSelectedItems}
                       disabled={selectedItems.size === 0}
                       className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-all",
+                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-colors",
                         selectedItems.size > 0 
                           ? "text-red-400 hover:bg-red-500/10" 
                           : "text-foreground-disabled cursor-not-allowed"
@@ -366,7 +366,7 @@ export default function MiniCart() {
                         setIsSelectionMode(false);
                         setSelectedItems(new Set());
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-all"
+                      className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
                       style={{ borderRadius: '8px' }}
                     >
                       <X size={14} />
@@ -393,7 +393,7 @@ export default function MiniCart() {
               <p className="text-foreground-secondary text-lg font-medium mb-6">Sepetiniz boş</p>
               <button
                 onClick={closeCart}
-                className="flex items-center gap-2 px-5 py-2.5 text-base font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 text-base font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-colors"
                 style={{ borderRadius: '14px' }}
               >
                 <Sparkles size={18} />
@@ -406,7 +406,7 @@ export default function MiniCart() {
                 key={item.id}
                 onClick={isSelectionMode ? () => toggleItemSelection(item.id) : undefined}
                 className={cn(
-                  "group relative bg-glass-bg border transition-all duration-200",
+                  "group relative bg-glass-bg border transition-colors duration-200",
                   isSelectionMode && "cursor-pointer",
                   isSelectionMode && selectedItems.has(item.id) 
                     ? "border-emerald-500/30 bg-emerald-500/[0.06] ring-1 ring-emerald-500/20" 
@@ -425,7 +425,7 @@ export default function MiniCart() {
                         toggleItemSelection(item.id);
                       }}
                       className={cn(
-                        "minicart-checkbox absolute top-3 left-3 sm:top-3 sm:left-3 z-20 w-5 h-5 sm:w-5 sm:h-5 border sm:border-2 flex items-center justify-center transition-all cursor-pointer shadow-lg rounded sm:rounded-md",
+                        "minicart-checkbox absolute top-3 left-3 sm:top-3 sm:left-3 z-20 w-5 h-5 sm:w-5 sm:h-5 border sm:border-2 flex items-center justify-center transition-colors cursor-pointer shadow-lg rounded sm:rounded-md",
                         selectedItems.has(item.id) 
                           ? "bg-emerald-500 border-emerald-500 text-white" 
                           : "bg-glass-bg border-border text-transparent hover:border-emerald-400"
@@ -521,7 +521,7 @@ export default function MiniCart() {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
-                          className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all"
+                          className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
                           style={{ borderRadius: '8px' }}
                         >
                           <Minus className="w-3 h-3 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3" />
@@ -532,7 +532,7 @@ export default function MiniCart() {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
-                          className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all"
+                          className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
                           style={{ borderRadius: '8px' }}
                         >
                           <Plus className="w-3 h-3 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3" />
@@ -546,7 +546,7 @@ export default function MiniCart() {
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                      className="absolute top-2 right-2 p-1 text-foreground-disabled hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute top-2 right-2 p-1 text-foreground-disabled hover:text-red-400 hover:bg-red-400/10 transition-[color,background-color,opacity] opacity-0 group-hover:opacity-100"
                       style={{ borderRadius: '6px' }}
                       aria-label="Ürünü Kaldır"
                     >
@@ -616,7 +616,7 @@ export default function MiniCart() {
                   {/* Progress Bar */}
                   <div className="h-1.5 bg-glass-bg-hover overflow-hidden" style={{ borderRadius: '4px' }}>
                     <div 
-                      className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-[width] duration-500"
                       style={{ 
                         width: `${Math.min(100, (subtotal / shippingInfo.freeShippingThreshold) * 100)}%`,
                         borderRadius: '4px'
@@ -678,7 +678,7 @@ export default function MiniCart() {
                 <Link
                   href="/checkout"
                   onClick={closeCart}
-                  className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold text-base transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                  className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold text-base transition-[background-color,transform,box-shadow] duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
                   style={{ borderRadius: '16px' }}
                 >
                   Ödemeye Git
@@ -688,7 +688,7 @@ export default function MiniCart() {
                 {/* Alışverişe Devam Et - Secondary */}
                 <button
                   onClick={closeCart}
-                  className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-glass-bg border border-glass-border hover:bg-glass-bg-hover hover:border-glass-border-hover text-foreground-secondary hover:text-foreground font-medium text-base transition-all duration-300"
+                  className="flex items-center justify-center gap-2 w-full py-3 px-6 bg-glass-bg border border-glass-border hover:bg-glass-bg-hover hover:border-glass-border-hover text-foreground-secondary hover:text-foreground font-medium text-base transition-colors duration-300"
                   style={{ borderRadius: '14px' }}
                 >
                   Alışverişe Devam Et

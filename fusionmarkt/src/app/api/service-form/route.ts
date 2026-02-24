@@ -28,8 +28,7 @@ function checkRateLimit(ip: string): boolean {
 // reCAPTCHA verification (optional - skips if no secret key configured)
 async function verifyRecaptcha(token: string): Promise<boolean> {
   const secret = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secret) return true; // Skip if not configured
-
+  if (!secret) return true;
   try {
     const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
       method: "POST",

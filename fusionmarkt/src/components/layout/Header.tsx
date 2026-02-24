@@ -111,7 +111,7 @@ export default function Header() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+          "fixed top-0 left-0 right-0 z-50 transition-[background-color,padding,border-color] duration-500",
           isScrolled 
             ? "bg-background/80 backdrop-blur-2xl border-b border-border py-2" 
             : "bg-transparent py-4"
@@ -139,7 +139,7 @@ export default function Header() {
                 width="160"
                 height="32"
                 viewBox="20 220 890 150" 
-                className="transition-all duration-300 group-hover:scale-105"
+                className="transition-transform duration-300 group-hover:scale-105"
                 xmlns="http://www.w3.org/2000/svg"
                 style={{ color: logoMainColor }}
               >
@@ -163,7 +163,7 @@ export default function Header() {
                   <path d="M347.648 285.472L347.648 285.472C354.811 285.472 360.618 291.265 360.618 298.412L360.618 298.473C360.618 305.619 354.811 311.412 347.648 311.412L347.648 311.412C340.484 311.412 334.678 305.619 334.678 298.473L334.678 298.412C334.678 291.265 340.484 285.472 347.648 285.472Z" />
                 </g>
               </svg>
-              <div className="absolute inset-0 blur-xl bg-white/0 group-hover:bg-white/5 transition-all duration-500 -z-10" />
+              <div className="absolute inset-0 blur-xl bg-white/0 group-hover:bg-white/5 transition-[background-color] duration-500 -z-10" />
             </Link>
 
             {/* Center: Desktop Navigation */}
@@ -183,9 +183,9 @@ export default function Header() {
                   >
                     <button
                       className={cn(
-                        "relative px-3 py-2 text-[13px] font-medium transition-all duration-300 flex items-center gap-1.5",
+                        "relative px-3 py-2 text-[13px] font-medium transition-colors duration-300 flex items-center gap-1.5",
                         "text-foreground/70 hover:text-foreground",
-                        "before:absolute before:inset-0 before:rounded-lg before:bg-foreground/0 before:transition-all before:duration-300",
+                        "before:absolute before:inset-0 before:rounded-lg before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                         "hover:before:bg-foreground/[0.05]",
                         activeDropdown === item.name && "text-foreground before:bg-foreground/[0.05]"
                       )}
@@ -207,7 +207,7 @@ export default function Header() {
                               href={sub.href}
                               prefetch={false}
                               onClick={() => setActiveDropdown(null)}
-                              className="block px-4 py-2.5 text-[13px] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-200"
+                              className="block px-4 py-2.5 text-[13px] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors duration-200"
                             >
                               {sub.name}
                             </Link>
@@ -222,9 +222,9 @@ export default function Header() {
                     href={item.href!}
                     prefetch={false}
                     className={cn(
-                      "relative px-3 py-2 text-[13px] font-medium transition-all duration-300 flex items-center gap-1.5",
+                      "relative px-3 py-2 text-[13px] font-medium transition-colors duration-300 flex items-center gap-1.5",
                       "text-foreground/70 hover:text-foreground",
-                      "before:absolute before:inset-0 before:rounded-lg before:bg-foreground/0 before:transition-all before:duration-300",
+                      "before:absolute before:inset-0 before:rounded-lg before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                       "hover:before:bg-foreground/[0.05]",
                       item.name === "Güç Hesaplayıcı" && "text-[var(--fusion-primary)] hover:text-[var(--fusion-primary)]"
                     )}
@@ -247,15 +247,15 @@ export default function Header() {
               <Link
                 href="/favori"
                 className={cn(
-                  "hidden lg:flex relative p-2 rounded-xl text-foreground/60 hover:text-foreground transition-all duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-all before:duration-300",
+                  "hidden lg:flex relative p-2 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
                   favoritesAnimating && "animate-wiggle"
                 )}
                 aria-label="Favoriler"
               >
                 <Heart className={cn(
-                  "w-[18px] h-[18px] relative z-10 transition-all duration-300",
+                  "w-[18px] h-[18px] relative z-10 transition-colors duration-300",
                   favoritesCount > 0 && "text-pink-400 fill-pink-400"
                 )} />
                 {favoritesCount > 0 && (
@@ -269,8 +269,8 @@ export default function Header() {
               <Link
                 href="/hesabim"
                 className={cn(
-                  "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-all duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-all before:duration-300",
+                  "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]"
                 )}
                 aria-label="Hesabım"
@@ -282,8 +282,8 @@ export default function Header() {
               <button
                 onClick={openCart}
                 className={cn(
-                  "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-all duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-all before:duration-300",
+                  "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
                   isAnimating && "animate-wiggle"
                 )}
@@ -315,8 +315,8 @@ export default function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className={cn(
-                  "hidden max-sm:flex relative items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-all duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-all before:duration-300",
+                  "hidden max-sm:flex relative items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
                   isMobileMenuOpen && "before:bg-foreground/[0.08]"
                 )}
@@ -353,7 +353,7 @@ export default function Header() {
                     <button
                       onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
                       className={cn(
-                        "w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-all duration-200",
+                        "w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-colors duration-200",
                         activeDropdown === item.name 
                           ? "text-foreground bg-foreground/[0.06]" 
                           : "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
@@ -390,7 +390,7 @@ export default function Header() {
                     prefetch={false}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-all duration-200",
+                      "flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-colors duration-200",
                       item.name === "Güç Hesaplayıcı" 
                         ? "text-[var(--fusion-primary)]" 
                         : "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
@@ -417,7 +417,7 @@ export default function Header() {
                 <Link
                   href="/favori"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-all"
+                  className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-colors"
                 >
                   <Heart className="w-4 h-4" />
                   <span>Favorilerim</span>
@@ -430,7 +430,7 @@ export default function Header() {
                 <Link
                   href="/hesabim"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-all"
+                  className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-colors"
                 >
                   <User className="w-4 h-4" />
                   <span>Hesabım</span>

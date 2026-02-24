@@ -233,7 +233,9 @@ function cleanHtmlContent(html: string): string {
     // 11. Ardışık boşlukları tek boşluğa indir
     .replace(/\s{2,}/g, ' ')
     // 12. height ve width attribute'larını kaldır (görsellerin responsive olması için)
-    .replace(/\s(height|width)="[^"]*"/gi, '');
+    .replace(/\s(height|width)="[^"]*"/gi, '')
+    // 13. img tag'lere lazy loading ve async decoding ekle
+    .replace(/<img(?![^>]*loading=)/gi, '<img loading="lazy" decoding="async"');
   
   return cleaned;
 }

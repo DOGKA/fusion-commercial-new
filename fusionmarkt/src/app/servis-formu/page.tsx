@@ -275,13 +275,10 @@ export default function ServisFormuPage() {
       {/* Form */}
       <section className="py-8 md:py-12">
         <div className="container px-4 md:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="max-w-3xl mx-auto"
+          <div
+            className="max-w-3xl mx-auto animate-[fadeInUp_0.6s_ease-out_0.2s_both]"
           >
-            <div className="glass-card p-4 sm:p-6 md:p-10 rounded-3xl overflow-hidden">
+            <div className="glass-card-static p-4 sm:p-6 md:p-10 rounded-3xl overflow-hidden">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center">
                   <ClipboardList className="w-6 h-6 text-[var(--fusion-warning)]" />
@@ -652,11 +649,7 @@ export default function ServisFormuPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                      />
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Gönderiliyor...
                     </>
                   ) : (
@@ -668,7 +661,7 @@ export default function ServisFormuPage() {
                 </button>
               </form>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </main>
