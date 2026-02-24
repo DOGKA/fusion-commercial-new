@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   Send,
@@ -214,10 +213,8 @@ export default function ServisFormuPage() {
     return (
       <main className="min-h-screen bg-[var(--background)]">
         <div className="container px-4 md:px-6" style={{ paddingTop: "140px", paddingBottom: "80px" }}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-lg mx-auto text-center glass-card p-12 rounded-3xl"
+          <div
+            className="max-w-lg mx-auto text-center glass-card p-12 rounded-3xl animate-[scaleIn_0.4s_ease-out_both]"
           >
             <div className="w-20 h-20 rounded-full bg-[var(--fusion-success)]/10 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10 text-[var(--fusion-success)]" />
@@ -238,11 +235,11 @@ export default function ServisFormuPage() {
                 setInvoicePdf(null);
                 setMediaFiles([]);
               }}
-              className="px-8 py-3 rounded-xl bg-[var(--fusion-primary)] text-white font-semibold hover:bg-[var(--fusion-primary-light)] transition-all"
+              className="px-8 py-3 rounded-xl bg-[var(--fusion-primary)] text-white font-semibold hover:bg-[var(--fusion-primary-light)] transition-colors"
             >
               Yeni Talep Oluştur
             </button>
-          </motion.div>
+          </div>
         </div>
       </main>
     );
@@ -253,22 +250,19 @@ export default function ServisFormuPage() {
       {/* Hero */}
       <section className="relative pb-8 md:pb-12 overflow-hidden" style={{ paddingTop: "120px" }}>
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[var(--fusion-warning)]/10 rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] bg-[var(--fusion-primary)]/10 rounded-full blur-[120px]" />
+          <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[var(--fusion-warning)]/10 rounded-full blur-[80px]" />
+          <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] bg-[var(--fusion-primary)]/10 rounded-full blur-[60px]" />
         </div>
 
         <div className="container px-4 md:px-6 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center px-2"
+          <div
+            className="max-w-3xl mx-auto text-center px-2 animate-[fadeInUp_0.6s_ease-out_both]"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Servis Formu</h1>
             <p className="text-base md:text-lg text-[var(--foreground-secondary)]">
               Ürününüzle ilgili arıza veya sorun bildirimi için aşağıdaki formu eksiksiz doldurunuz.
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
