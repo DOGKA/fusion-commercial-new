@@ -7,56 +7,52 @@ import { Spotlight } from "@/components/ui/Spotlight";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
-// Veritabanindan gelecek slide yapisi
+type Maybe<T> = T | null | undefined;
+
 interface Slide {
   id: string;
-  badge?: string;
-  badgeIcon?: string;
+  badge?: Maybe<string>;
+  badgeIcon?: Maybe<string>;
   title: string;
-  titleHighlight?: string;
-  subtitle?: string;
-  buttonText?: string;
-  buttonLink?: string;
-  buttonStyle?: string;
-  button2Text?: string;
-  button2Link?: string;
-  button2Style?: string;
-  desktopImage?: string;
-  mobileImage?: string;
-  // Overlay - Dark Theme
-  overlayColor?: string;
-  overlayOpacity?: number;
-  // Overlay - Light Theme
-  overlayColorLight?: string;
-  overlayOpacityLight?: number | null;
-  // Content Colors - Dark Theme
-  titleColor?: string;
-  subtitleColor?: string;
-  badgeBgColor?: string;
-  badgeTextColor?: string;
-  buttonBgColor?: string;
-  buttonTextColor?: string;
-  button2BgColor?: string;
-  button2TextColor?: string;
-  // Content Colors - Light Theme
-  titleColorLight?: string;
-  subtitleColorLight?: string;
-  badgeBgColorLight?: string;
-  badgeTextColorLight?: string;
-  buttonBgColorLight?: string;
-  buttonTextColorLight?: string;
-  button2BgColorLight?: string;
-  button2TextColorLight?: string;
-  // Title Highlight Gradient - Dark Theme
-  titleHighlightFrom?: string;
-  titleHighlightTo?: string;
-  // Title Highlight Gradient - Light Theme
-  titleHighlightFromLight?: string;
-  titleHighlightToLight?: string;
-  textAlign?: string;
-  theme?: string;
+  titleHighlight?: Maybe<string>;
+  subtitle?: Maybe<string>;
+  buttonText?: Maybe<string>;
+  buttonLink?: Maybe<string>;
+  buttonStyle?: Maybe<string>;
+  button2Text?: Maybe<string>;
+  button2Link?: Maybe<string>;
+  button2Style?: Maybe<string>;
+  desktopImage?: Maybe<string>;
+  mobileImage?: Maybe<string>;
+  overlayColor?: Maybe<string>;
+  overlayOpacity?: Maybe<number>;
+  overlayColorLight?: Maybe<string>;
+  overlayOpacityLight?: Maybe<number>;
+  titleColor?: Maybe<string>;
+  subtitleColor?: Maybe<string>;
+  badgeBgColor?: Maybe<string>;
+  badgeTextColor?: Maybe<string>;
+  buttonBgColor?: Maybe<string>;
+  buttonTextColor?: Maybe<string>;
+  button2BgColor?: Maybe<string>;
+  button2TextColor?: Maybe<string>;
+  titleColorLight?: Maybe<string>;
+  subtitleColorLight?: Maybe<string>;
+  badgeBgColorLight?: Maybe<string>;
+  badgeTextColorLight?: Maybe<string>;
+  buttonBgColorLight?: Maybe<string>;
+  buttonTextColorLight?: Maybe<string>;
+  button2BgColorLight?: Maybe<string>;
+  button2TextColorLight?: Maybe<string>;
+  titleHighlightFrom?: Maybe<string>;
+  titleHighlightTo?: Maybe<string>;
+  titleHighlightFromLight?: Maybe<string>;
+  titleHighlightToLight?: Maybe<string>;
+  textAlign?: Maybe<string>;
+  theme?: Maybe<string>;
   showOnMobile: boolean;
   showOnDesktop: boolean;
+  [key: string]: unknown;
 }
 
 // Badge icon component
@@ -74,12 +70,16 @@ const BadgeIcon = ({ name, className = "w-4 h-4" }: { name?: string; className?:
   return <>{icons[name || "zap"] || icons.zap}</>;
 };
 
-export default function HeroSlider() {
-  const [slides, setSlides] = useState<Slide[]>([]);
+interface HeroSliderProps {
+  initialSlides?: Slide[];
+}
+
+export default function HeroSlider({ initialSlides }: HeroSliderProps) {
+  const [slides, setSlides] = useState<Slide[]>(initialSlides || []);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialSlides?.length);
   const [isMobile, setIsMobile] = useState(false);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -105,14 +105,22 @@ export default function HeroSlider() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // API'den slider verilerini cek
+  // API'den slider verilerini cek (SSR'dan geldiyse atla)
   useEffect(() => {
+    if (initialSlides?.length) {
+      const filteredSlides = initialSlides.filter((slide: Slide) =>
+        isMobile ? slide.showOnMobile : slide.showOnDesktop
+      );
+      setSlides(filteredSlides.length > 0 ? filteredSlides : initialSlides);
+      setLoading(false);
+      return;
+    }
+
     const fetchSliders = async () => {
       try {
         const res = await fetch("/api/public/sliders");
         if (res.ok) {
           const data = await res.json();
-          // Cihaza gore filtrele
           const filteredSlides = data.filter((slide: Slide) => 
             isMobile ? slide.showOnMobile : slide.showOnDesktop
           );
@@ -126,7 +134,7 @@ export default function HeroSlider() {
     };
 
     fetchSliders();
-  }, [isMobile]);
+  }, [isMobile, initialSlides]);
 
   const nextSlide = useCallback(() => {
     if (!isTransitioning && slides.length > 0) {
@@ -231,7 +239,7 @@ export default function HeroSlider() {
   const backgroundImage = isMobile ? slide.mobileImage : slide.desktopImage;
   
   // Theme-aware color resolution - uses light variant if available and theme is light
-  const getThemedColor = (darkValue?: string, lightValue?: string, defaultDark?: string, defaultLight?: string) => {
+  const getThemedColor = (darkValue?: Maybe<string>, lightValue?: Maybe<string>, defaultDark?: string, defaultLight?: string) => {
     if (isDarkMode) {
       return darkValue || defaultDark || undefined;
     } else {
@@ -352,7 +360,7 @@ export default function HeroSlider() {
                 }}
               >
                 <span style={{ width: '16px', height: '16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}>
-                  <BadgeIcon name={slide.badgeIcon} className="" />
+                  <BadgeIcon name={slide.badgeIcon ?? undefined} className="" />
                 </span>
                 <span 
                   className="text-xs md:text-sm font-medium whitespace-nowrap" 
@@ -431,7 +439,7 @@ export default function HeroSlider() {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle, true), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
+                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
@@ -447,7 +455,7 @@ export default function HeroSlider() {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style, false), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
+                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,

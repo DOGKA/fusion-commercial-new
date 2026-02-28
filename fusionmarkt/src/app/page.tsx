@@ -5,33 +5,56 @@ import BestsellerProducts from "@/components/home/BestsellerProducts";
 import PartnerLogos from "@/components/home/PartnerLogos";
 import HomeSeoContent from "@/components/home/HomeSeoContent";
 import { staticPageMetadata } from "@/lib/seo";
+import { prisma } from "@/lib/prisma";
+import {
+  selectSliderPublic,
+  mapSlidersToPublicDTO,
+} from "@/server/dto";
 
 export const metadata = staticPageMetadata.home;
 
-export default function Home() {
+async function getInitialSliders() {
+  try {
+    const sliders = await prisma.slider.findMany({
+      where: { isActive: true },
+      select: selectSliderPublic,
+      orderBy: { order: "asc" },
+      take: 5,
+    });
+    return mapSlidersToPublicDTO(sliders);
+  } catch {
+    return [];
+  }
+}
+
+export default async function Home() {
+  const initialSlides = await getInitialSliders();
+  const firstDesktopImage = initialSlides.find((s) => s.showOnDesktop)?.desktopImage;
+
   return (
     <main className="flex flex-col">
-      {/* SEO: Visually hidden h1 for search engines + visible intro text */}
+      {firstDesktopImage && (
+        <link
+          rel="preload"
+          as="image"
+          href={`/_next/image?url=${encodeURIComponent(firstDesktopImage)}&w=1920&q=75`}
+        />
+      )}
+
       <h1 className="sr-only">
         Taşınabilir Güç Kaynağı, Solar Panel ve Portable Power Station - FusionMarkt
       </h1>
 
-      {/* Hero Slider - 2400x800 */}
-      <HeroSlider />
+      <HeroSlider initialSlides={initialSlides} />
       
-      {/* Featured Products - Öne Çıkan Ürünler (admin panelden seçilen) */}
       <FeaturedProducts />
       
-      {/* Bestseller Products - Çok Satanlar (6 ürün) */}
       <BestsellerProducts />
       
-      {/* Category Bento Grid */}
       <CategoryBento />
       
-      {/* Partner Logos - Çözüm Ortakları */}
       <PartnerLogos />
 
-      {/* SEO Content Section - Keyword-rich text for search engines */}
       <HomeSeoContent />
     </main>
   );
