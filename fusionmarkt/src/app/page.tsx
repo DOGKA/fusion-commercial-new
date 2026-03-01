@@ -19,7 +19,6 @@ async function getInitialSliders() {
       where: { isActive: true },
       select: selectSliderPublic,
       orderBy: { order: "asc" },
-      take: 5,
     });
     return mapSlidersToPublicDTO(sliders);
   } catch {
