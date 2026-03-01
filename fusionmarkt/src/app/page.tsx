@@ -12,6 +12,7 @@ import {
 } from "@/server/dto";
 
 export const metadata = staticPageMetadata.home;
+export const revalidate = 60;
 
 async function getInitialSliders() {
   try {
