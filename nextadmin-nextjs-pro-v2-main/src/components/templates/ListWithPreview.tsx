@@ -52,6 +52,7 @@ export interface ListWithPreviewProps<T extends ListItem> {
   // Actions
   onToggleActive?: (item: T) => Promise<void>;
   onDelete?: (item: T) => Promise<void>;
+  onReorder?: (orderedIds: string[]) => Promise<void>;
   
   // Custom
   createButtonLabel?: string;
@@ -123,6 +124,12 @@ const WideIcon = () => (
   </svg>
 );
 
+const GripIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01" />
+  </svg>
+);
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -137,6 +144,7 @@ export default function ListWithPreview<T extends ListItem>({
   showWidePreview = false,
   onToggleActive,
   onDelete,
+  onReorder,
   createButtonLabel = "Yeni Ekle",
 }: ListWithPreviewProps<T>) {
   const router = useRouter();
@@ -149,6 +157,11 @@ export default function ListWithPreview<T extends ListItem>({
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Drag & drop state
+  const [dragItemId, setDragItemId] = useState<string | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
+  const [reorderSaving, setReorderSaving] = useState(false);
 
   // Debounced search
   const debouncedSearch = useDebounce(searchQuery, 250);
@@ -242,9 +255,17 @@ export default function ListWithPreview<T extends ListItem>({
       <div className="w-1/3 min-w-[320px] max-w-[400px] flex flex-col bg-white dark:bg-gray-dark rounded-fm-md shadow-fm-card overflow-hidden">
         {/* Header */}
         <div className="p-4 border-b border-stroke dark:border-dark-3">
-          <h2 className="text-lg font-semibold text-dark dark:text-white mb-3">
-            {moduleName}
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-dark dark:text-white">
+              {moduleName}
+            </h2>
+            {reorderSaving && (
+              <span className="text-xs text-primary flex items-center gap-1.5">
+                <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary" />
+                Sıra kaydediliyor...
+              </span>
+            )}
+          </div>
           
           {/* Search */}
           <div className="relative">
@@ -324,20 +345,79 @@ export default function ListWithPreview<T extends ListItem>({
             </div>
           ) : (
             <div className="divide-y divide-stroke dark:divide-dark-3">
-              {filteredItems.map((item) => {
+              {filteredItems.map((item, index) => {
                 const thumbnail = getThumbnail(item);
                 const isSelected = selectedItem?.id === item.id;
+                const isDragging = dragItemId === item.id;
+                const isDragOver = dragOverItemId === item.id;
 
                 return (
                   <div
                     key={item.id}
+                    draggable={!!onReorder && !reorderSaving}
+                    onDragStart={(e) => {
+                      if (!onReorder) return;
+                      setDragItemId(item.id);
+                      e.dataTransfer.effectAllowed = "move";
+                      if (e.currentTarget instanceof HTMLElement) {
+                        e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
+                      }
+                    }}
+                    onDragEnd={() => {
+                      setDragItemId(null);
+                      setDragOverItemId(null);
+                    }}
+                    onDragOver={(e) => {
+                      if (!onReorder || !dragItemId || dragItemId === item.id) return;
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      setDragOverItemId(item.id);
+                    }}
+                    onDragLeave={() => {
+                      if (dragOverItemId === item.id) setDragOverItemId(null);
+                    }}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      if (!onReorder || !dragItemId || dragItemId === item.id) return;
+
+                      const fromIndex = filteredItems.findIndex((i) => i.id === dragItemId);
+                      const toIndex = filteredItems.findIndex((i) => i.id === item.id);
+                      if (fromIndex === -1 || toIndex === -1) return;
+
+                      const reordered = [...filteredItems];
+                      const [moved] = reordered.splice(fromIndex, 1);
+                      reordered.splice(toIndex, 0, moved);
+
+                      setDragItemId(null);
+                      setDragOverItemId(null);
+                      setReorderSaving(true);
+                      try {
+                        await onReorder(reordered.map((i) => i.id));
+                      } finally {
+                        setReorderSaving(false);
+                      }
+                    }}
                     onClick={() => setSelectedItem(item)}
                     className={`p-3 flex items-center gap-3 cursor-pointer transition-colors ${
                       isSelected
                         ? "bg-primary/5 border-l-2 border-l-primary"
                         : "hover:bg-gray-1 dark:hover:bg-dark-2 border-l-2 border-l-transparent"
-                    }`}
+                    } ${isDragging ? "opacity-40" : ""} ${isDragOver ? "bg-primary/10 border-t-2 border-t-primary" : ""}`}
                   >
+                    {/* Drag Handle */}
+                    {onReorder && (
+                      <div className="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-4 hover:text-gray-6 dark:hover:text-gray-3">
+                        <GripIcon />
+                      </div>
+                    )}
+
+                    {/* Order Number */}
+                    {onReorder && (
+                      <span className="flex-shrink-0 w-5 h-5 rounded bg-gray-2 dark:bg-dark-2 flex items-center justify-center text-[10px] font-medium text-gray-5">
+                        {index + 1}
+                      </span>
+                    )}
+
                     {/* Thumbnail */}
                     <div className="w-12 h-12 rounded-xl bg-gray-2 dark:bg-dark-2 overflow-hidden flex-shrink-0">
                       {thumbnail ? (

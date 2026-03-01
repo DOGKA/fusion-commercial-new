@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import toast from "react-hot-toast";
 import ListWithPreview, { ListItem, FilterConfig } from "@/components/templates/ListWithPreview";
 import { PreviewFrame } from "@/components/preview";
 
@@ -194,6 +195,28 @@ export default function SlidersListPage() {
     }
   };
 
+  const handleReorder = async (orderedIds: string[]) => {
+    const prevSliders = [...sliders];
+    const reordered = orderedIds
+      .map((id) => sliders.find((s) => s.id === id))
+      .filter(Boolean) as Slider[];
+    setSliders(reordered);
+
+    try {
+      const res = await fetch("/api/admin/sliders/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds }),
+      });
+      if (!res.ok) throw new Error("Reorder failed");
+      toast.success("Sıralama kaydedildi");
+    } catch (error) {
+      console.error("Error reordering sliders:", error);
+      setSliders(prevSliders);
+      toast.error("Sıralama kaydedilemedi");
+    }
+  };
+
   const listItems = sliders.map((slider) => ({
     ...slider,
     type: slider.effect,
@@ -213,6 +236,7 @@ export default function SlidersListPage() {
       showWidePreview={false}
       onToggleActive={handleToggleActive}
       onDelete={handleDelete}
+      onReorder={handleReorder}
       createButtonLabel="Yeni Slider"
     />
   );
