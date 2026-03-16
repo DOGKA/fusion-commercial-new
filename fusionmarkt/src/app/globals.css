@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   FUSIONMARKT - Global Styles Entry Point
+   Apple-Style Glassmorphism Design System - 2025 UI/UX
+=========================================================================== */
+
+/* Design System Imports */
+@import "../styles/variables.css";
+@import "../styles/base.css";
+@import "../styles/typography.css";
+@import "../styles/glass.css";
+@import "../styles/gradients.css";
+@import "../styles/animations.css";
+@import "../styles/buttons.css";
+@import "../styles/layout.css";
+@import "../styles/effects.css";
+@import "../styles/mobile.css";
+@import "../styles/blog.css";
+
+/* Tailwind Theme Inline - Token Mapping */
+@theme inline {
+  /* ===========================================================================
+     BACKGROUND SYSTEM - Light/Dark otomatik geçiş
+  =========================================================================== */
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-hover: var(--background-hover);
+  --color-background-muted: var(--background-muted);
+  
+  /* ===========================================================================
+     FOREGROUND SYSTEM - Light/Dark otomatik geçiş
+  =========================================================================== */
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-tertiary: var(--foreground-tertiary);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-disabled: var(--foreground-disabled);
+  
+  /* ===========================================================================
+     SURFACE SYSTEM - Light/Dark otomatik geçiş
+  =========================================================================== */
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+  
+  /* ===========================================================================
+     BORDER SYSTEM - Light/Dark otomatik geçiş
+  =========================================================================== */
+  --color-border: var(--border);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-hover: var(--border-hover);
+  --color-border-focus: var(--border-focus);
+  
+  /* ===========================================================================
+     GLASS SYSTEM - Light/Dark otomatik geçiş (Glassmorphism)
+  =========================================================================== */
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-bg-hover: var(--glass-bg-hover);
+  --color-glass-bg-active: var(--glass-bg-active);
+  --color-glass-bg-solid: var(--glass-bg-solid);
+  --color-glass-border: var(--glass-border);
+  --color-glass-border-hover: var(--glass-border-hover);
+  --color-glass-border-active: var(--glass-border-active);
+  
+  /* ===========================================================================
+     BRAND COLORS
+  =========================================================================== */
+  --color-primary: var(--fusion-primary);
+  --color-primary-light: var(--fusion-primary-light);
+  --color-primary-dark: var(--fusion-primary-dark);
+  --color-secondary: var(--fusion-secondary);
+  --color-secondary-light: var(--fusion-secondary-light);
+  --color-secondary-dark: var(--fusion-secondary-dark);
+  --color-accent: var(--fusion-accent);
+  
+  /* ===========================================================================
+     SEMANTIC COLORS
+  =========================================================================== */
+  --color-success: var(--fusion-success);
+  --color-warning: var(--fusion-warning);
+  --color-error: var(--fusion-error);
+  --color-info: var(--fusion-info);
+  
+  /* ===========================================================================
+     INPUT/BUTTON SYSTEM - Light/Dark otomatik geçiş
+  =========================================================================== */
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-placeholder: var(--input-placeholder);
+  
+  /* ===========================================================================
+     FONTS
+  =========================================================================== */
+  --font-sans: var(--font-sf-pro);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ===========================================================================
+   Kampanya Sayfası - Kupon Grid
+=========================================================================== */
+.coupon-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .coupon-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* ===========================================================================
+   SH4000 - Tech Specs Grid
+=========================================================================== */
+.sh4000-tech-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .sh4000-tech-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ===========================================================================
+   Product Description Content - Theme Aware
+=========================================================================== */
+.product-description-content {
+  color: var(--foreground-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  /* Kelime kesmesini engelle */
+  word-break: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+}
+
+/* Başlıklar için de wrap */
+.product-description-content h1,
+.product-description-content h2,
+.product-description-content h3,
+.product-description-content h4,
+.product-description-content h5,
+.product-description-content h6 {
+  overflow-wrap: break-word;
+}
+
+/* Görseller */
+.product-description-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+/* Başlıklar */
+.product-description-content strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Listeler */
+.product-description-content ol,
+.product-description-content ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 12px 0;
+}
+
+.product-description-content li {
+  margin: 8px 0;
+  padding-left: 4px;
+}
+
+/* Quill UI elementlerini gizle */
+.product-description-content .ql-ui {
+  display: none !important;
+}
+
+/* data-list bullet özelliği için */
+.product-description-content li[data-list="bullet"] {
+  list-style-type: disc;
+}
+
+/* Linkler */
+.product-description-content a {
+  color: #10B981;
+}
+
+/* Paragraflar */
+.product-description-content p {
+  margin: 10px 0;
+}
+
+/* ===========================================================================
+   Scrollbar Hide Utility
+=========================================================================== */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scrollDot {
+  0% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0.3; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

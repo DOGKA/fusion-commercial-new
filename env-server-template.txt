@@ -1,0 +1,82 @@
+# =====================================================
+# FUSIONMARKT SERVER ENVIRONMENT VARIABLES
+# =====================================================
+# Bu dosyayı sunucuda .env olarak kaydedin
+# =====================================================
+
+# Mode
+NODE_ENV=production
+
+# =====================================================
+# DATABASE
+# =====================================================
+DATABASE_URL="postgresql://shopuser:!L6=+QohUFD=3W<N@127.0.0.1:5432/shopdb?schema=public"
+
+# =====================================================
+# NEXTAUTH (Her iki uygulama için de gerekli)
+# =====================================================
+# Güçlü bir secret oluşturun: openssl rand -base64 32
+NEXTAUTH_SECRET="BURAYA_GUCLU_SECRET_GIRIN"
+
+# Frontend URL (müşteri sitesi)
+NEXTAUTH_URL="https://fusionmarkt.com"
+
+# Admin URL
+ADMIN_URL="https://admin.fusionmarkt.com"
+
+# =====================================================
+# FRONTEND <-> ADMIN REVALIDATION
+# =====================================================
+# Güçlü bir secret: openssl rand -hex 32
+REVALIDATE_SECRET="BURAYA_REVALIDATE_SECRET_GIRIN"
+FRONTEND_URL="https://fusionmarkt.com"
+NEXT_PUBLIC_FRONTEND_URL="https://fusionmarkt.com"
+
+# =====================================================
+# EMAIL (Resend API - Frontend & Admin)
+# =====================================================
+# Domain: fusionmarkt.com (verified, eu-west-1)
+# Resend dashboard'dan yeni API key alın: https://resend.com/api-keys
+RESEND_API_KEY="re_XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+EMAIL_FROM="FusionMarkt <noreply@fusionmarkt.com>"
+ADMIN_EMAIL="fusionmarktofficial@gmail.com"
+
+# =====================================================
+# AWS S3 (Görsel Depolama)
+# =====================================================
+AWS_REGION="eu-central-1"
+AWS_ACCESS_KEY_ID="AKIAXXXXXXXXXXXXXXXX"
+AWS_SECRET_ACCESS_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+AWS_S3_BUCKET="fusionmarkt"
+S3_PREFIX="fusionmarkt"
+AWS_CLOUDFRONT_URL="https://d1xxxxxxxx.cloudfront.net"
+S3_PUBLIC_BASE_URL="https://d1xxxxxxxx.cloudfront.net"
+
+# =====================================================
+# SITE URL (Callback için gerekli)
+# =====================================================
+NEXT_PUBLIC_SITE_URL="https://fusionmarkt.com"
+
+# =====================================================
+# IYZICO PAYMENT (Ödeme Sistemi)
+# =====================================================
+# iyzico Merchant Panel: https://merchant.iyzipay.com
+# Callback URL ayarlayın: https://fusionmarkt.com/api/payment/callback
+# 
+# Production API:
+IYZICO_API_KEY="BURAYA_IYZICO_API_KEY"
+IYZICO_SECRET_KEY="BURAYA_IYZICO_SECRET_KEY"
+IYZICO_BASE_URL="https://api.iyzipay.com"
+
+# =====================================================
+# GOOGLE OAuth (Opsiyonel)
+# =====================================================
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# =====================================================
+# GITHUB OAuth (Opsiyonel - sadece admin için)
+# =====================================================
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+

@@ -1,0 +1,395 @@
+/**
+ * FusionMarkt Admin Studio - Design System Tokens
+ * Version: 1.0.0
+ * 
+ * Shared tokens for Banner & Slider modules
+ * These variables ensure pixel-perfect alignment across all components
+ */
+
+:root {
+  /* ============================================
+   * SPACING SCALE (4px base grid)
+   * ============================================ */
+  --fm-space-1: 4px;
+  --fm-space-2: 8px;
+  --fm-space-3: 12px;
+  --fm-space-4: 16px;
+  --fm-space-6: 24px;
+  --fm-space-8: 32px;
+  --fm-space-10: 40px;
+
+  /* ============================================
+   * LAYOUT GRID
+   * ============================================ */
+  --fm-container-max-width: 1280px;
+  --fm-grid-columns: 12;
+  --fm-grid-gutter: 16px;
+  --fm-grid-row-gap: 16px;
+
+  /* List page: left 4 cols, right 8 cols */
+  --fm-list-left-cols: 4;
+  --fm-list-right-cols: 8;
+
+  /* Editor page: left 6 cols, right 6 cols */
+  --fm-editor-left-cols: 6;
+  --fm-editor-right-cols: 6;
+
+  /* ============================================
+   * BORDER RADIUS
+   * ============================================ */
+  --fm-radius-sm: 10px;
+  --fm-radius-md: 16px;
+  --fm-radius-lg: 20px;
+
+  /* ============================================
+   * TYPOGRAPHY
+   * ============================================ */
+  --fm-font-family: inherit;
+
+  /* Font Sizes */
+  --fm-text-xs: 12px;
+  --fm-text-sm: 13px;
+  --fm-text-base: 14px;
+  --fm-text-md: 16px;
+  --fm-text-lg: 18px;
+  --fm-text-xl: 22px;
+
+  /* Font Weights */
+  --fm-font-regular: 400;
+  --fm-font-medium: 500;
+  --fm-font-semibold: 600;
+  --fm-font-bold: 700;
+
+  /* ============================================
+   * ELEVATION / SHADOWS
+   * ============================================ */
+  --fm-shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.08), 0px 2px 8px rgba(0, 0, 0, 0.04);
+  --fm-shadow-card-hover: 0px 4px 12px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.06);
+  --fm-shadow-modal: 0px 20px 40px rgba(0, 0, 0, 0.2), 0px 8px 16px rgba(0, 0, 0, 0.1);
+  --fm-shadow-dropdown: 0px 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* ============================================
+   * ALIGNMENT & COMPONENT SIZES
+   * ============================================ */
+  --fm-pixel-grid: 4px;
+  --fm-input-height: 40px;
+  --fm-button-height: 40px;
+  --fm-toggle-height: 28px;
+  --fm-icon-size: 18px;
+  --fm-thumbnail-size: 48px;
+  --fm-thumbnail-radius: 12px;
+
+  /* ============================================
+   * BADGE STYLES
+   * ============================================ */
+  --fm-badge-gap: 8px;
+  --fm-badge-padding-y: 6px;
+  --fm-badge-padding-x: 10px;
+  --fm-badge-radius: 8px;
+  --fm-badge-font-size: 13px;
+  --fm-badge-font-weight: 500;
+
+  /* ============================================
+   * PREVIEW FRAME SIZES
+   * ============================================ */
+  /* Web 16:9 Preview */
+  --fm-preview-web-width: 520px;
+  --fm-preview-web-height: 320px;
+
+  /* Mobile 9:16 Preview */
+  --fm-preview-mobile-width: 320px;
+  --fm-preview-mobile-height: 560px;
+
+  /* Wide 3:1 Preview (HOME_CATEGORY only) */
+  --fm-preview-wide-width: 520px;
+  --fm-preview-wide-height: 220px;
+
+  /* Phone Frame */
+  --fm-phone-bezel: 12px;
+  --fm-phone-notch-width: 100px;
+  --fm-phone-notch-height: 24px;
+  --fm-phone-radius: 32px;
+
+  /* ============================================
+   * GRADIENT PRESETS
+   * ============================================ */
+  --fm-gradient-green-cyan-from: #22C55E;
+  --fm-gradient-green-cyan-to: #06B6D4;
+  
+  --fm-gradient-amber-orange-from: #F59E0B;
+  --fm-gradient-amber-orange-to: #F97316;
+  
+  --fm-gradient-purple-pink-from: #A855F7;
+  --fm-gradient-purple-pink-to: #EC4899;
+  
+  --fm-gradient-blue-indigo-from: #3B82F6;
+  --fm-gradient-blue-indigo-to: #6366F1;
+  
+  --fm-gradient-red-rose-from: #EF4444;
+  --fm-gradient-red-rose-to: #F43F5E;
+  
+  --fm-gradient-teal-green-from: #14B8A6;
+  --fm-gradient-teal-green-to: #22C55E;
+  
+  --fm-gradient-sky-blue-from: #0EA5E9;
+  --fm-gradient-sky-blue-to: #3B82F6;
+  
+  --fm-gradient-violet-purple-from: #8B5CF6;
+  --fm-gradient-violet-purple-to: #A855F7;
+
+  --fm-gradient-angle: 135deg;
+
+  /* ============================================
+   * COLORS - SEMANTIC
+   * ============================================ */
+  --fm-color-success: #22C55E;
+  --fm-color-warning: #F59E0B;
+  --fm-color-error: #EF4444;
+  --fm-color-info: #3B82F6;
+
+  /* Active/Inactive states */
+  --fm-color-active: #22C55E;
+  --fm-color-inactive: #9CA3AF;
+
+  /* ============================================
+   * GLASS CARD STYLES
+   * ============================================ */
+  --fm-glass-bg: rgba(255, 255, 255, 0.1);
+  --fm-glass-border: rgba(255, 255, 255, 0.2);
+  --fm-glass-backdrop-blur: 12px;
+
+  /* Dark mode glass */
+  --fm-glass-bg-dark: rgba(0, 0, 0, 0.2);
+  --fm-glass-border-dark: rgba(255, 255, 255, 0.1);
+
+  /* ============================================
+   * TRANSITIONS
+   * ============================================ */
+  --fm-transition-fast: 150ms ease;
+  --fm-transition-normal: 250ms ease;
+  --fm-transition-slow: 350ms ease;
+
+  /* ============================================
+   * Z-INDEX SCALE
+   * ============================================ */
+  --fm-z-dropdown: 50;
+  --fm-z-sticky: 100;
+  --fm-z-modal: 1000;
+  --fm-z-toast: 1100;
+  --fm-z-tooltip: 1200;
+
+  /* ============================================
+   * DEBOUNCE TIMINGS
+   * ============================================ */
+  --fm-debounce-search: 250ms;
+  --fm-debounce-preview: 0ms;
+  --fm-debounce-heavy: 150ms;
+}
+
+/* Dark mode overrides */
+.dark {
+  --fm-glass-bg: rgba(0, 0, 0, 0.3);
+  --fm-glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+ * UTILITY CLASSES
+ * ============================================ */
+
+/* Badge base style */
+.fm-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fm-badge-gap);
+  padding: var(--fm-badge-padding-y) var(--fm-badge-padding-x);
+  border-radius: var(--fm-badge-radius);
+  font-size: var(--fm-badge-font-size);
+  font-weight: var(--fm-badge-font-weight);
+  line-height: 1;
+}
+
+/* Card shadow utilities */
+.fm-shadow-card {
+  box-shadow: var(--fm-shadow-card);
+}
+
+.fm-shadow-card-hover {
+  box-shadow: var(--fm-shadow-card-hover);
+}
+
+.fm-shadow-modal {
+  box-shadow: var(--fm-shadow-modal);
+}
+
+/* Glass card utility */
+.fm-glass-card {
+  background: var(--fm-glass-bg);
+  border: 1px solid var(--fm-glass-border);
+  backdrop-filter: blur(var(--fm-glass-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--fm-glass-backdrop-blur));
+}
+
+/* Preview container base */
+.fm-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border-radius: var(--fm-radius-md);
+  overflow: hidden;
+}
+
+.dark .fm-preview-container {
+  background: #1f2a37;
+}
+
+/* Preview frame - Web 16:9 */
+.fm-preview-web {
+  width: var(--fm-preview-web-width);
+  height: var(--fm-preview-web-height);
+}
+
+/* Preview frame - Mobile 9:16 */
+.fm-preview-mobile {
+  width: var(--fm-preview-mobile-width);
+  height: var(--fm-preview-mobile-height);
+}
+
+/* Preview frame - Wide 3:1 */
+.fm-preview-wide {
+  width: var(--fm-preview-wide-width);
+  height: var(--fm-preview-wide-height);
+}
+
+/* Phone frame wrapper */
+.fm-phone-frame {
+  position: relative;
+  background: #1a1a1a;
+  border-radius: var(--fm-phone-radius);
+  padding: var(--fm-phone-bezel);
+  box-shadow: 
+    0 0 0 2px #333,
+    0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.fm-phone-frame::before {
+  content: '';
+  position: absolute;
+  top: var(--fm-phone-bezel);
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--fm-phone-notch-width);
+  height: var(--fm-phone-notch-height);
+  background: #1a1a1a;
+  border-radius: 0 0 16px 16px;
+  z-index: 10;
+}
+
+.fm-phone-frame-content {
+  border-radius: calc(var(--fm-phone-radius) - var(--fm-phone-bezel));
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Thumbnail style */
+.fm-thumbnail {
+  width: var(--fm-thumbnail-size);
+  height: var(--fm-thumbnail-size);
+  border-radius: var(--fm-thumbnail-radius);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Input/Button heights */
+.fm-input {
+  height: var(--fm-input-height);
+}
+
+.fm-button {
+  height: var(--fm-button-height);
+}
+
+.fm-toggle {
+  height: var(--fm-toggle-height);
+}
+
+/* Icon size */
+.fm-icon {
+  width: var(--fm-icon-size);
+  height: var(--fm-icon-size);
+}
+
+/* Gradient utilities */
+.fm-gradient-green-cyan {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-green-cyan-from),
+    var(--fm-gradient-green-cyan-to)
+  );
+}
+
+.fm-gradient-amber-orange {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-amber-orange-from),
+    var(--fm-gradient-amber-orange-to)
+  );
+}
+
+.fm-gradient-purple-pink {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-purple-pink-from),
+    var(--fm-gradient-purple-pink-to)
+  );
+}
+
+.fm-gradient-blue-indigo {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-blue-indigo-from),
+    var(--fm-gradient-blue-indigo-to)
+  );
+}
+
+.fm-gradient-red-rose {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-red-rose-from),
+    var(--fm-gradient-red-rose-to)
+  );
+}
+
+.fm-gradient-teal-green {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-teal-green-from),
+    var(--fm-gradient-teal-green-to)
+  );
+}
+
+.fm-gradient-sky-blue {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-sky-blue-from),
+    var(--fm-gradient-sky-blue-to)
+  );
+}
+
+.fm-gradient-violet-purple {
+  background: linear-gradient(
+    var(--fm-gradient-angle),
+    var(--fm-gradient-violet-purple-from),
+    var(--fm-gradient-violet-purple-to)
+  );
+}
+
+/* Status colors */
+.fm-status-active {
+  color: var(--fm-color-active);
+}
+
+.fm-status-inactive {
+  color: var(--fm-color-inactive);
+}

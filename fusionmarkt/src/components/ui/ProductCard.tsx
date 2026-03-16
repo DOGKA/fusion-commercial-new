@@ -1,0 +1,723 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Star, Heart, Eye, Play, BadgeCheck } from "lucide-react";
+import { cn, formatPrice } from "@/lib/utils";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
+import AddToCartButton from "@/components/cart/AddToCartButton";
+import { useFavorites } from "@/context/FavoritesContext";
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  type: "color" | "size";
+  value: string;
+  inStock: boolean;
+  color?: string | null;
+  image?: string | null;
+}
+
+export interface ProductBadge {
+  label: string;
+  color: string;
+  bgColor: string;
+  icon?: string | null;
+}
+
+export interface Product {
+  id: string | number;
+  slug: string;
+  title: string;
+  subtitle?: string;
+  videoLabel?: string;
+  brand: string;
+  price: number;
+  originalPrice?: number | null;
+  discountPercent?: number | null;
+  stockStatus: "in_stock" | "low_stock" | "out_of_stock";
+  stockQuantity?: number;
+  ratingAverage?: number;
+  ratingCount?: number;
+  freeShipping?: boolean;
+  image?: string;
+  variants?: ProductVariant[];
+  badge?: string; // Legacy - deprecated, use badges array instead
+  badges?: ProductBadge[];
+  // Bundle/Paket ürün desteği
+  isBundle?: boolean;
+  bundleId?: string;
+  itemCount?: number;
+  savings?: number;
+  savingsPercent?: number;
+}
+
+interface ProductCardProps {
+  product: Product;
+  className?: string;
+  priority?: boolean; // For LCP optimization
+}
+
+// formatPrice is imported from @/lib/utils
+
+// iOS-style Squircle border-radius
+const SQUIRCLE = {
+  sm: '10px',   // Badges, pills
+  md: '14px',   // Action buttons
+  lg: '18px',   // Cart button
+  xl: '24px',   // Card
+};
+
+const isValidColorValue = (value?: string | null) => {
+  if (!value) return false;
+  const val = value.trim();
+
+  if (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/.test(val)) {
+    return true;
+  }
+
+  if (/^(rgb|rgba|hsl|hsla)\(/i.test(val)) return true;
+
+  const namedColors = [
+    "white", "black", "gray", "grey", "silver", "red", "blue", "green",
+    "yellow", "orange", "purple", "pink", "brown", "beige", "navy",
+    "teal", "turquoise", "cyan", "magenta", "gold", "maroon",
+  ];
+
+  return namedColors.includes(val.toLowerCase());
+};
+
+export default function ProductCard({ product, className, priority = false }: ProductCardProps) {
+  const [favoriteHover, setFavoriteHover] = useState(false);
+  const [quickViewHover, setQuickViewHover] = useState(false);
+  const { isFavorite, toggleItem } = useFavorites();
+  
+  // Variant selection state
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [variantError, setVariantError] = useState(false);
+  
+  // Check if this product is in favorites
+  const isProductFavorite = isFavorite(String(product.id));
+
+  const {
+    slug,
+    title,
+    // subtitle removed - no longer rendered in card
+    brand,
+    price,
+    originalPrice,
+    stockStatus,
+    stockQuantity,
+    ratingAverage,
+    ratingCount,
+    freeShipping,
+    image,
+    variants,
+    badge,
+    badges,
+    videoLabel,
+  } = product;
+
+  const savingAmount = originalPrice ? originalPrice - price : 0;
+  const isOutOfStock = stockStatus === "out_of_stock";
+
+  // Variants ve videoLabel birlikte olabilir
+  const hasVariants = variants && variants.length > 0;
+
+  return (
+    <div
+      className={cn("relative", className)}
+      style={{ height: '640px', display: 'flex', flexDirection: 'column' }}
+    >
+      <Link
+        href={`/urun/${slug}`}
+        className="block"
+        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      >
+        {/* IMAGE AREA - Tam genişlik, card'ın üstünde */}
+        <div 
+          className="relative w-full bg-background overflow-hidden border border-border border-b-0"
+          style={{ 
+            paddingBottom: '100%',
+            borderTopLeftRadius: SQUIRCLE.xl, 
+            borderTopRightRadius: SQUIRCLE.xl,
+            flexShrink: 0,
+          }}
+        >
+          {image ? (
+            <Image 
+              src={image} 
+              alt={title}
+              fill
+              priority={priority}
+              sizes="(max-width: 768px) 100vw, 280px"
+              className="object-cover"
+            />
+          ) : (
+            <ImagePlaceholder type="product" text="ÜRÜN GÖRSELİ" iconSize="lg" />
+          )}
+            
+            {/* Badges - Squircle */}
+            {/* 
+              Yeni sistem: Tüm rozetler (sistem + manuel) badges array'de geliyor.
+              Sistem rozetleri: İndirim yüzdesi, Düşük stok, Yeni ürün
+              Manuel rozetler: Admin tarafından atanan rozetler
+              Bundle/Paket rozeti: isBundle=true olan ürünler için
+              
+              NOT: hasDiscount ve isLowStock artık kullanılmıyor,
+              bu bilgiler badges array içinde geliyor.
+            */}
+            <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+              {/* Bundle/Paket Badge - En üstte göster */}
+              {product.isBundle && (
+                <span 
+                  className="inline-flex items-center justify-center gap-1 text-[11px] font-bold backdrop-blur-md text-center"
+                  style={{ 
+                    minWidth: 75, 
+                    height: 28, 
+                    padding: '0 12px', 
+                    borderRadius: SQUIRCLE.sm,
+                    background: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(139, 92, 246, 0.4)',
+                    boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                    <path d="M12 22V12"/>
+                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                    <path d="M12 2v10"/>
+                  </svg>
+                  PAKET
+                </span>
+              )}
+              {/* Badges array system - tüm rozetler burada */}
+              {badges && badges.length > 0 && badges.map((badgeItem, idx) => {
+                // Badge label'ın geçerli olduğunu kontrol et
+                if (!badgeItem.label || typeof badgeItem.label !== 'string' || badgeItem.label.trim() === '') {
+                  return null;
+                }
+                
+                return (
+                <span 
+                    key={idx}
+                    className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                    style={{ 
+                      minWidth: 85, 
+                      height: 28, 
+                      padding: '0 14px', 
+                      borderRadius: SQUIRCLE.sm,
+                      backgroundColor: badgeItem.bgColor || '#22C55E',
+                      color: badgeItem.color || '#FFFFFF',
+                      border: `1px solid ${(badgeItem.color || '#FFFFFF')}20`
+                    }}
+                  >
+                    {badgeItem.label}
+                </span>
+                );
+              })}
+              {/* Legacy badge support (fallback for old data without badges array) */}
+              {(!badges || badges.length === 0) && badge && typeof badge === 'string' && badge.trim() !== '' && (
+                <span 
+                  className="inline-flex items-center justify-center text-[11px] font-semibold bg-glass-bg backdrop-blur-md border border-glass-border text-foreground text-center"
+                  style={{ minWidth: 85, height: 28, padding: '0 14px', borderRadius: SQUIRCLE.sm }}
+                >
+                  {badge}
+                </span>
+              )}
+              {/* Stock Badge - Son 1 adet */}
+              {!hasVariants && stockQuantity === 1 && !isOutOfStock && (
+                <span 
+                  className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                  style={{ 
+                    minWidth: 85, 
+                    height: 28, 
+                    padding: '0 14px', 
+                    borderRadius: SQUIRCLE.sm,
+                    backgroundColor: '#F97316',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  Son 1 adet
+                </span>
+              )}
+              {/* Stock Badge - Stok Yok */}
+              {!hasVariants && isOutOfStock && (
+                <span 
+                  className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                  style={{ 
+                    minWidth: 85, 
+                    height: 28, 
+                    padding: '0 14px', 
+                    borderRadius: SQUIRCLE.sm,
+                    backgroundColor: '#6B7280',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  Stok Yok
+                </span>
+              )}
+            </div>
+
+            {/* Action Buttons - Glassmorphism Squircle - Bağımsız hover */}
+            <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+              {/* Favorilere Ekle - Hızlı İncele butonu gibi her zaman temalı */}
+              <button
+                type="button"
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  e.stopPropagation();
+                  toggleItem({
+                    productId: String(product.id),
+                    slug: slug,
+                    title: title,
+                    brand: brand,
+                    price: price,
+                    originalPrice: originalPrice,
+                    image: image,
+                  });
+                }}
+                onMouseEnter={() => setFavoriteHover(true)}
+                onMouseLeave={() => setFavoriteHover(false)}
+                title={isProductFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: SQUIRCLE.md,
+                  backgroundColor: isProductFavorite ? 'rgba(236, 72, 153, 0.15)' : 'transparent',
+                  backdropFilter: favoriteHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
+                  WebkitBackdropFilter: favoriteHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
+                  border: isProductFavorite 
+                    ? '1px solid rgba(236, 72, 153, 0.5)' 
+                    : favoriteHover 
+                      ? '1px solid rgba(236, 72, 153, 0.45)' 
+                      : '1px solid rgba(236, 72, 153, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: isProductFavorite 
+                    ? '#ec4899' 
+                    : favoriteHover 
+                      ? 'rgba(236, 72, 153, 0.95)' 
+                      : 'rgba(236, 72, 153, 0.65)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isProductFavorite ? '0 2px 12px rgba(236, 72, 153, 0.25)' : '0 2px 8px rgba(0,0,0,0.12)',
+                  transform: isProductFavorite ? 'scale(1.05)' : 'scale(1)',
+                }}
+              >
+                <Heart size={15} fill={isProductFavorite ? 'currentColor' : 'none'} />
+              </button>
+
+              {/* Hızlı İncele */}
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onMouseEnter={() => setQuickViewHover(true)}
+                onMouseLeave={() => setQuickViewHover(false)}
+                title="Hızlı İncele"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: SQUIRCLE.md,
+                  backgroundColor: 'transparent',
+                  backdropFilter: quickViewHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
+                  WebkitBackdropFilter: quickViewHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
+                  border: quickViewHover ? '1px solid rgba(16, 185, 129, 0.45)' : '1px solid rgba(16, 185, 129, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: quickViewHover ? 'rgba(52, 211, 153, 0.95)' : 'rgba(52, 211, 153, 0.65)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                }}
+              >
+                <Eye size={15} />
+              </button>
+            </div>
+
+{/* Out of Stock Overlay - REMOVED, using badge instead */}
+          </div>
+
+          {/* CONTENT AREA - Ayrı container, image'ın altında */}
+          <div 
+            className={cn(
+              "flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
+              "bg-surface/90 dark:bg-surface/90",
+              "hover:border-border-hover"
+            )}
+            style={{ 
+              borderBottomLeftRadius: SQUIRCLE.xl, 
+              borderBottomRightRadius: SQUIRCLE.xl,
+              flex: '1 1 auto',
+              minHeight: 0,
+            }}
+          >
+            {/* ÜST KISIM - Brand, Title, Subtitle */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-foreground-muted uppercase tracking-widest">
+                {brand}
+              </p>
+              <h3 
+                style={{ 
+                  fontSize: '20px', 
+                  fontWeight: 500, 
+                  color: 'var(--foreground)', 
+                  lineHeight: 1.4, 
+                  minHeight: '36px',
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                {title}
+              </h3>
+            </div>
+
+            {/* ORTA KISIM - Variants, Video Label - gap-2 (8px) */}
+            <div className="flex flex-col gap-2 mt-2">
+
+              {/* Variants - yatay scroll, taşma yok */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                minHeight: '32px', 
+                overflowX: 'auto',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch',
+                paddingBottom: '2px',
+              }}>
+                {hasVariants ? (
+                  variants!.slice(0, 5).map((v) => {
+                    const swatchColor = isValidColorValue(v.color) ? v.color! : isValidColorValue(v.value) ? v.value : undefined;
+                    const showTextOnColor = !swatchColor;
+                    const displayValue = v.value || v.name;
+                    const backgroundImage = !swatchColor && v.image ? `url(${v.image})` : undefined;
+                    const isSelected = selectedVariant?.id === v.id;
+
+                    if (v.type === "color") {
+                      const isOutOfStock = !v.inStock;
+                      return (
+                        <span
+                          key={v.id}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!isOutOfStock) {
+                              setSelectedVariant(v);
+                              setVariantError(false);
+                            }
+                          }}
+                          style={{
+                            position: 'relative',
+                            width: '28px',
+                            height: '28px',
+                            flexShrink: 0,
+                            boxSizing: 'border-box',
+                            borderRadius: SQUIRCLE.sm,
+                            border: isOutOfStock 
+                              ? '2px solid var(--border)' 
+                              : isSelected 
+                                ? '2px solid #10B981' 
+                                : variantError 
+                                  ? '2px solid #EF4444' 
+                                  : '2px solid var(--border-secondary)',
+                            backgroundColor: swatchColor || 'var(--glass-bg)',
+                            backgroundImage,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            color: 'var(--foreground)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                            opacity: isOutOfStock ? 0.4 : 1,
+                            transition: 'all 0.2s ease',
+                            boxShadow: isSelected 
+                              ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
+                              : variantError 
+                                ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
+                                : undefined,
+                            transform: isSelected ? 'scale(1.08)' : undefined,
+                          }}
+                          title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
+                        >
+                          {showTextOnColor && (
+                            <span style={{ fontSize: '10px', fontWeight: 600, textAlign: 'center', lineHeight: 1.1 }}>
+                              {displayValue}
+                            </span>
+                          )}
+                          {/* Stokta yok çizgisi */}
+                          {isOutOfStock && (
+                            <span style={{
+                              position: 'absolute',
+                              width: '120%',
+                              height: '2px',
+                              backgroundColor: 'var(--foreground-tertiary)',
+                              transform: 'rotate(-45deg)',
+                              top: '50%',
+                              left: '-10%',
+                            }} />
+                          )}
+                        </span>
+                      );
+                    }
+
+                    const isOutOfStock = !v.inStock;
+                    return (
+                      <span
+                        key={v.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!isOutOfStock) {
+                            setSelectedVariant(v);
+                            setVariantError(false);
+                          }
+                        }}
+                        style={{
+                          position: 'relative',
+                          width: '28px',
+                          height: '28px',
+                          flexShrink: 0,
+                          boxSizing: 'border-box',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '10px',
+                          fontWeight: '500',
+                          borderRadius: SQUIRCLE.sm,
+                          border: isOutOfStock 
+                            ? '2px solid var(--border)' 
+                            : isSelected 
+                              ? '2px solid #10B981' 
+                              : variantError 
+                                ? '2px solid #EF4444' 
+                                : '2px solid var(--border-secondary)',
+                          color: isOutOfStock 
+                            ? 'var(--foreground-disabled)' 
+                            : isSelected 
+                              ? '#10B981' 
+                              : 'var(--foreground-secondary)',
+                          backgroundColor: isOutOfStock 
+                            ? 'transparent' 
+                            : isSelected 
+                              ? 'rgba(16, 185, 129, 0.1)' 
+                              : 'var(--glass-bg)',
+                          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: isSelected 
+                            ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
+                            : variantError 
+                              ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
+                              : undefined,
+                          transform: isSelected ? 'scale(1.08)' : undefined,
+                        }}
+                        title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
+                      >
+                        {displayValue}
+                        {/* Stokta yok çizgisi */}
+                        {isOutOfStock && (
+                          <span style={{
+                            position: 'absolute',
+                            width: '120%',
+                            height: '2px',
+                            backgroundColor: 'var(--foreground-muted)',
+                            transform: 'rotate(-45deg)',
+                            top: '50%',
+                            left: '-10%',
+                          }} />
+                        )}
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span>&nbsp;</span>
+                )}
+              </div>
+
+            </div>
+
+            {/* Spacer - küçük */}
+            <div style={{ height: '8px' }} />
+
+            {/* ALT KISIM - Grid Cards: Ücretsiz Kargo/Videolu Ürün, Rating, Yetkili Distribütör, 12 Taksit */}
+            <div className="flex flex-col gap-1.5">
+              {/* 1. Ücretsiz Kargo + Videolu Ürün Satırı */}
+              {(freeShipping || videoLabel) && (
+                <div className="flex gap-1.5">
+                  {/* Ücretsiz Kargo */}
+                  {freeShipping && (
+                    <span 
+                      className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
+                      style={{
+                        height: 28,
+                        padding: '0 14px',
+                        border: '1px solid rgba(16, 185, 129, 0.35)',
+                        borderRadius: SQUIRCLE.sm,
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                        <path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/>
+                        <path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/>
+                        <circle cx="7" cy="18" r="2"/>
+                        <circle cx="17" cy="18" r="2"/>
+                      </svg>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>
+                        Ücretsiz Kargo
+                      </span>
+                    </span>
+                  )}
+                  {/* Videolu Ürün */}
+                  {videoLabel && (
+                    <span 
+                      className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
+                      style={{
+                        height: 28,
+                        padding: '0 14px',
+                        border: '1px solid rgba(34, 211, 238, 0.35)',
+                        borderRadius: SQUIRCLE.sm,
+                      }}
+                    >
+                      <Play size={11} style={{ color: '#22d3ee', fill: '#22d3ee' }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#22d3ee' }}>
+                        Videolu Ürün
+                      </span>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* 2. Rating - Yıldızlar */}
+              <span 
+                className="inline-flex items-center justify-center gap-1.5 bg-glass-bg w-full"
+                style={{
+                  height: 28,
+                  padding: '0 14px',
+                  border: '1px solid rgba(251, 191, 36, 0.35)',
+                  borderRadius: SQUIRCLE.sm,
+                }}
+              >
+                {/* 5 Yıldız - Sarı */}
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star 
+                      key={star} 
+                      size={11} 
+                      className={star <= Math.round(ratingAverage || 0) 
+                        ? "fill-amber-400 text-amber-400" 
+                        : "fill-transparent text-foreground-disabled"
+                      }
+                    />
+                  ))}
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
+                  {ratingAverage?.toFixed(1) || "0.0"}
+                </span>
+                <span style={{ fontSize: 9, color: 'var(--foreground-muted)' }}>
+                  ({ratingCount || 0})
+                </span>
+              </span>
+
+              {/* 3 & 4. Yetkili Distribütör + 12 Taksit - Yan yana */}
+              <div className="flex gap-1.5">
+                <span 
+                  className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
+                  style={{
+                    height: 28,
+                    padding: '0 8px',
+                    border: '1px solid rgba(251, 191, 36, 0.25)',
+                    borderRadius: SQUIRCLE.sm,
+                  }}
+                >
+                  <BadgeCheck size={11} className="text-amber-400" />
+                  <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
+                    Yetkili Distribütör
+                  </span>
+                </span>
+
+                <span 
+                  className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
+                  style={{
+                    height: 28,
+                    padding: '0 8px',
+                    border: '1px solid rgba(139, 92, 246, 0.35)',
+                    borderRadius: SQUIRCLE.sm,
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
+                    <rect width="20" height="14" x="2" y="5" rx="2"/>
+                    <line x1="2" x2="22" y1="10" y2="10"/>
+                  </svg>
+                  <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
+                    12 Taksit İmkanı
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            {/* PRICE SECTION - Her zaman altta sabitlendi */}
+            <div className="pt-2 border-t border-border/60" style={{ marginTop: 'auto' }}>
+              {/* ROW 9: Eski fiyat & Kazanç - 20px */}
+              <div className="h-[20px]">
+                {originalPrice && originalPrice > price ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-foreground-muted line-through font-medium">
+                      {formatPrice(originalPrice)} ₺
+                    </span>
+                    <span className="text-[11px] text-emerald-400 font-semibold">
+                      {formatPrice(savingAmount)} ₺ kazanç
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* ROW 10: Güncel fiyat & Sepete Ekle - 48px */}
+              <div className="h-[48px] flex items-center justify-between gap-3">
+                <span className="text-xl font-bold text-foreground">
+                  {formatPrice(price)}
+                  <span className="text-sm font-normal text-foreground-tertiary ml-1">₺</span>
+                </span>
+
+                {/* SEPETE EKLE - AddToCartButton with loading/success states */}
+                <AddToCartButton
+                  product={{
+                    productId: String(product.id),
+                    slug: slug,
+                    title: title,
+                    brand: brand,
+                    price: price,
+                    originalPrice: originalPrice,
+                    image: image,
+                    variant: selectedVariant ? {
+                      id: selectedVariant.id,
+                      name: selectedVariant.name,
+                      type: selectedVariant.type,
+                      value: selectedVariant.value,
+                    } : undefined,
+                  }}
+                  variant="icon"
+                  disabled={isOutOfStock}
+                  size="md"
+                  requiresVariant={hasVariants}
+                  onNeedsVariant={() => {
+                    setVariantError(true);
+                    // Clear error after animation
+                    setTimeout(() => setVariantError(false), 2500);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+      </Link>
+    </div>
+  );
+}

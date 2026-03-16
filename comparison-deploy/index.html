@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diger E-Ticaret Altyapilari vs FusionMarkt - Tam Karsilastirma</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #0a0e17 0%, #1a1f2e 100%);
+  color: #e8eaed;
+  line-height: 1.5;
+  padding: 30px 15px;
+}
+
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 36px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.75) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header p {
+  color: rgba(255,255,255,0.6);
+  font-size: 15px;
+}
+
+.table-wrap {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+thead {
+  background: rgba(0,0,0,0.35);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th {
+  padding: 24px 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+th:first-child {
+  text-align: left;
+  width: 40%;
+}
+
+th:nth-child(2) {
+  background: rgba(138,164,255,0.1);
+  border-left: 2px solid rgba(138,164,255,0.3);
+  color: #8aa4ff;
+  width: 30%;
+}
+
+th:nth-child(3) {
+  background: rgba(32,201,151,0.1);
+  border-left: 2px solid rgba(32,201,151,0.3);
+  color: #20c997;
+  width: 30%;
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+tbody tr.cat {
+  background: rgba(255,255,255,0.08);
+  border-top: 2px solid rgba(255,255,255,0.15);
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+tbody tr.cat td {
+  padding: 14px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+/* Highlight rows */
+tbody tr.highlight {
+  background: rgba(255,193,7,0.1);
+  border-top: 3px solid rgba(255,193,7,0.4);
+  border-bottom: 3px solid rgba(255,193,7,0.4);
+  position: relative;
+}
+
+tbody tr.highlight::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, #ffc107, #ff9800);
+  box-shadow: 0 0 20px rgba(255,193,7,0.7);
+}
+
+tbody tr.highlight:hover {
+  background: rgba(255,193,7,0.15);
+}
+
+tbody tr.highlight td:first-child {
+  font-weight: 800;
+  padding-left: 26px;
+}
+
+tbody tr.highlight td:first-child .feat-name {
+  color: #ffc107;
+  font-size: 15px;
+}
+
+/* Price display */
+.price-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-main {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.price-main.negative {
+  color: #ff5c7c;
+}
+
+.price-main.positive {
+  color: #20c997;
+}
+
+.price-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.price-sub span {
+  display: block;
+}
+
+.savings-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 12px;
+  background: rgba(32,201,151,0.15);
+  border: 1px solid rgba(32,201,151,0.4);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #20c997;
+  letter-spacing: 0.04em;
+}
+
+td {
+  padding: 18px 20px;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+td:first-child {
+  font-weight: 500;
+  padding-right: 24px;
+}
+
+td:nth-child(2) {
+  text-align: center;
+  border-left: 2px solid rgba(138,164,255,0.2);
+  background: rgba(138,164,255,0.03);
+}
+
+td:nth-child(3) {
+  text-align: center;
+  border-left: 2px solid rgba(32,201,151,0.2);
+  background: rgba(32,201,151,0.03);
+}
+
+.feat-name {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+.feat-desc {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.4;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.ico {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ico svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+}
+
+.yes {
+  background: rgba(32,201,151,0.12);
+  border-color: rgba(32,201,151,0.28);
+  color: #fff;
+}
+.yes .ico {
+  background: rgba(32,201,151,0.2);
+  color: #20c997;
+}
+
+.yes strong {
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  font-size: 13px;
+}
+
+.badge.yes.highlight-special {
+  background: rgba(32,201,151,0.22);
+  border-color: rgba(32,201,151,0.45);
+  padding: 10px 16px;
+}
+
+.badge.yes.highlight-special strong {
+  font-size: 14px;
+}
+
+.opt {
+  background: rgba(255,193,7,0.1);
+  border-color: rgba(255,193,7,0.24);
+  color: rgba(255,255,255,0.9);
+}
+.opt .ico {
+  background: rgba(255,193,7,0.15);
+  color: #ffc107;
+}
+
+.no {
+  background: rgba(255,92,124,0.08);
+  border-color: rgba(255,92,124,0.2);
+  color: rgba(255,255,255,0.75);
+}
+.no .ico {
+  background: rgba(255,92,124,0.12);
+  color: #ff5c7c;
+}
+
+.lim {
+  background: rgba(255,152,0,0.08);
+  border-color: rgba(255,152,0,0.2);
+  color: rgba(255,255,255,0.85);
+}
+.lim .ico {
+  background: rgba(255,152,0,0.12);
+  color: #ff9800;
+}
+
+.price-row td {
+  padding: 24px 16px;
+  font-size: 15px;
+}
+
+.price-amt {
+  font-size: 32px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.price-per {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  display: block;
+}
+
+.price-note {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 6px;
+  display: block;
+}
+
+.footer {
+  margin-top: 30px;
+  padding: 24px;
+  background: rgba(32,201,151,0.08);
+  border: 1px solid rgba(32,201,151,0.2);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.footer h3 {
+  font-size: 20px;
+  color: #20c997;
+  margin-bottom: 12px;
+}
+
+.footer p {
+  color: rgba(255,255,255,0.75);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.scroll-hint {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 18px;
+  background: rgba(32,201,151,0.95);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(32,201,151,0.4);
+  z-index: 999;
+  animation: pulse 2s infinite;
+  gap: 8px;
+  align-items: center;
+}
+
+.scroll-hint svg {
+  animation: slideRight 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes slideRight {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+/* Mobile optimizations - 3 sutun fit */
+@media (max-width: 768px) {
+  body {
+    padding: 15px 8px;
+  }
+  
+  .scroll-hint {
+    display: none !important;
+  }
+  
+  .header {
+    margin-bottom: 25px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .header p {
+    font-size: 12px;
+  }
+  
+  .table-wrap {
+    border-radius: 10px;
+  }
+  
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  th {
+    padding: 10px 6px;
+    font-size: 9px;
+    line-height: 1.3;
+  }
+  
+  th:first-child {
+    width: 35%;
+  }
+  
+  th:nth-child(2) {
+    width: 32.5%;
+    border-left: 2px solid rgba(138,164,255,0.25);
+  }
+  
+  th:nth-child(3) {
+    width: 32.5%;
+    border-left: 2px solid rgba(32,201,151,0.25);
+  }
+  
+  td:nth-child(2) {
+    border-left: 2px solid rgba(138,164,255,0.2);
+    background: rgba(138,164,255,0.04);
+  }
+  
+  td:nth-child(3) {
+    border-left: 2px solid rgba(32,201,151,0.2);
+    background: rgba(32,201,151,0.04);
+  }
+  
+  td {
+    padding: 10px 6px;
+    font-size: 11px;
+  }
+  
+  tbody tr.cat td {
+    padding: 10px 6px;
+    font-size: 11px;
+  }
+  
+  .feat-name {
+    font-size: 11.5px;
+    margin-bottom: 4px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.95);
+  }
+  
+  .feat-desc {
+    font-size: 9px;
+    line-height: 1.35;
+    display: block;
+    color: rgba(255,255,255,0.6);
+  }
+  
+  tbody tr.highlight td:first-child {
+    padding-left: 18px;
+  }
+  
+  tbody tr.highlight .feat-name {
+    font-size: 12.5px;
+    color: #ffc107;
+    font-weight: 900;
+  }
+  
+  .badge {
+    padding: 5px 6px;
+    font-size: 8.5px;
+    gap: 4px;
+    display: inline-flex;
+    flex-wrap: nowrap;
+  }
+  
+  .badge strong {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+  }
+  
+  tbody tr.highlight .badge.yes {
+    background: rgba(32,201,151,0.2);
+    border-color: rgba(32,201,151,0.4);
+  }
+  
+  tbody tr.highlight .badge.lim {
+    background: rgba(255,152,0,0.15);
+    border-color: rgba(255,152,0,0.3);
+  }
+  
+  tbody tr.highlight .badge.no {
+    background: rgba(255,92,124,0.15);
+    border-color: rgba(255,92,124,0.3);
+  }
+  
+  .ico {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+  
+  .ico svg {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .price-row td {
+    padding: 14px 6px;
+  }
+  
+  .price-amt {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  
+  .price-per {
+    font-size: 9px;
+  }
+  
+  .price-note {
+    font-size: 8px;
+    line-height: 1.3;
+  }
+  
+  .price-main {
+    font-size: 18px;
+  }
+  
+  .price-sub {
+    font-size: 9px;
+  }
+  
+  .savings-badge {
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+  
+  .footer {
+    padding: 16px;
+    margin-top: 20px;
+  }
+  
+  .footer h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .footer p {
+    font-size: 10.5px;
+    line-height: 1.5;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    max-width: 100%;
+  }
+  
+  th, td {
+    padding: 14px 12px;
+    font-size: 12px;
+  }
+  
+  .feat-desc {
+    font-size: 11px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>E-Ticaret Altyapi Karsilastirmasi</h1>
+    <p>Diger E-Ticaret Altyapilari vs FusionMarkt - Ozellik ve Fiyat Karsilastirmasi</p>
+  </div>
+
+  <div class="scroll-hint" id="scrollHint">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+    </svg>
+    Saga kaydirin
+  </div>
+  
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ozellik</th>
+          <th>Diger E-Ticaret Altyapilari</th>
+          <th>FusionMarkt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- FIYATLANDIRMA -->
+        <tr class="cat">
+          <td colspan="3">FIYATLANDIRMA</td>
+        </tr>
+        <!-- YILLIK -->
+        <tr>
+          <td>
+            <span class="feat-name">Yillik Fiyatlandirma</span>
+            <span class="feat-desc">Her yil odenen tutar</span>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main negative">~$2,000/yil</span>
+              <div class="price-sub">
+                <span>+ KDV / Her yil tekrar</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main positive">$2,999</span>
+              <div class="price-sub">
+                <span>Tek seferlik + Sonra $399/yil</span>
+                <span>1. yil host ucretsiz</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <!-- 2 YILLIK -->
+        <tr>
+          <td>
+            <span class="feat-name">2 Yillik Toplam Maliyet</span>
+            <span class="feat-desc">2 yillik donemde odenecek toplam tutar</span>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main negative">+$4,000</span>
+              <div class="price-sub">
+                <span>~$2,000/yil × 2 yil</span>
+                <span>+ Her yil artan fiyatlar</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main positive">$3,398</span>
+              <div class="price-sub">
+                <span>$2,999 kurulum + $399×1 yil</span>
+              </div>
+              <span class="savings-badge">%15 TASARRUF</span>
+            </div>
+          </td>
+        </tr>
+        <!-- 3 YILLIK -->
+        <tr>
+          <td>
+            <span class="feat-name">3 Yillik Toplam Maliyet</span>
+            <span class="feat-desc">3 yillik donemde odenecek toplam tutar</span>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main negative">+$6,000</span>
+              <div class="price-sub">
+                <span>~$2,000/yil × 3 yil</span>
+                <span>+ Her yil artan fiyatlar</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main positive">$3,797</span>
+              <div class="price-sub">
+                <span>$2,999 kurulum + $399×2 yil</span>
+              </div>
+              <span class="savings-badge">%37 TASARRUF</span>
+            </div>
+          </td>
+        </tr>
+        <!-- 5 YILLIK -->
+        <tr>
+          <td>
+            <span class="feat-name">5 Yillik Toplam Maliyet</span>
+            <span class="feat-desc">5 yillik donemde odenecek toplam tutar</span>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main negative">+$10,000</span>
+              <div class="price-sub">
+                <span>~$2,000/yil × 5 yil</span>
+                <span>+ Her yil artan fiyatlar</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="price-cell">
+              <span class="price-main positive">$4,595</span>
+              <div class="price-sub">
+                <span>$2,999 kurulum + $399×4 yil</span>
+              </div>
+              <span class="savings-badge">%54 TASARRUF</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- TEMEL ALTYAPI -->
+        <tr class="cat">
+          <td colspan="3">TEMEL ALTYAPI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Tema & Tasarim</span>
+            <span class="feat-desc">Web sitesi gorunumu ve UI/UX tasarimi</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Hazir Tema</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span><strong>Ozel Tema</strong></span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kod Sahipligi</span>
+            <span class="feat-desc">Frontend kodlarina tam sahiplik (tema, sayfa, UI kodu)</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>SaaS</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span><strong>Tam Sahiplik</strong></span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Alan Adi (Domain) Baglama</span>
+            <span class="feat-desc">Ozel domain yonlendirme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">SSL Sertifikasi</span>
+            <span class="feat-desc">Ucretsiz HTTPS</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ucretsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ucretsiz</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Sinirsiz Trafik & Web Alani</span>
+            <span class="feat-desc">Trafik/bant genisligi limiti yok</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Listeleme Limiti</span>
+            <span class="feat-desc">Ekleyebileceginiz urun sayisi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Mobil Uyum</span>
+            <span class="feat-desc">Responsive tasarim</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>%100</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Dijital Urun Satisi</span>
+            <span class="feat-desc">PDF, video, yazilim satma</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Blog</span>
+            <span class="feat-desc">Icerik yonetimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- ALTYAPI & PERFORMANS -->
+        <tr class="cat">
+          <td colspan="3">ALTYAPI & PERFORMANS</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Sunucu Altyapisi</span>
+            <span class="feat-desc">Hosting ve sunucu teknolojisi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>AWS</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>1000 Mbit TR</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Amazon S3 Medya Altyapisi</span>
+            <span class="feat-desc">Gorseller/dosyalar S3'ten (olceklenebilir depolama)</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Genel</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ozel S3</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Cloudflare CDN</span>
+            <span class="feat-desc">Global cache + DNS + hiz optimizasyonu</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Degisken</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam Entegre</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Cloudflare SSL/TLS (Full Strict)</span>
+            <span class="feat-desc">Uctan uca sifreleme</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Temel</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Full Strict</span></td>
+        </tr>
+
+        <!-- ODEME SISTEMI -->
+        <tr class="cat">
+          <td colspan="3">ODEME SISTEMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Sanal POS Entegrasyonu</span>
+            <span class="feat-desc">iyzico, PayTR, Param, Garanti, Yapikredi, Akbank, Is Bankasi, QNB - herhangi bir POS</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>%0 - %0.5</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tum POS'lar</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Hazir Sanal POS Orani</span>
+            <span class="feat-desc">Dusuk komisyonlu hazir POS</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>%0 (50K'ya kadar)</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kendi POS Oranlarinizi Kullanin</span>
+            <span class="feat-desc">Mevcut anlasmali POS'unuzu baglama</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tum Bankalar</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Banka POS Baglama</span>
+            <span class="feat-desc">Bankanizin sanal POS'unu direkt baglama</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yakinda</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">3D Secure</span>
+            <span class="feat-desc">Odeme guvenligi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Tek Sayfada Odeme (One Page Checkout)</span>
+            <span class="feat-desc">Donusum artirici</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Taksitli Odeme</span>
+            <span class="feat-desc">Kredi karti taksit</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- ADMIN & KAZANC -->
+        <tr class="cat">
+          <td colspan="3">ADMIN PANELI & KAZANC TAKIBI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Detayli Gelir Paneli</span>
+            <span class="feat-desc">Bugun / Hafta / Ay / Tum zamanlar ciro</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Siparis Durum Analizi</span>
+            <span class="feat-desc">Pending / Processing / Shipped / Delivered / Cancelled</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Dusuk Stok Uyarilari</span>
+            <span class="feat-desc">Otomatik stok uyari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kupon Performans Analizi</span>
+            <span class="feat-desc">En cok kullanilan, toplam indirim</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Terk Edilmis Sepet Takibi</span>
+            <span class="feat-desc">Liste + musteri detay</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Sepet Analizleri</span>
+            <span class="feat-desc">Donusum hunisi, cihaz dagilimi, terk sebepleri, yogun saatler, AOV</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Sinirli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kullanici Sayisi (Admin)</span>
+            <span class="feat-desc">Yetkilendirme yapabileceginiz personel sayisi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>15 Kullanici</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+        </tr>
+
+        <!-- SEO & TRACKING -->
+        <tr class="cat">
+          <td colspan="3">SEO & TRACKING</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Admin'den SEO Yonetimi</span>
+            <span class="feat-desc">Title / Description / Keywords panelden degistirme</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Sinirli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam Kontrol</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Meta Tag & OG Image</span>
+            <span class="feat-desc">Open Graph, Twitter Card</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Robots.txt Yonetimi</span>
+            <span class="feat-desc">Admin'den duzenleme</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Sinirli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Sitemap</span>
+            <span class="feat-desc">Otomatik sitemap.xml</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Otomatik</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Otomatik</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">JSON-LD Structured Data</span>
+            <span class="feat-desc">Schema.org isaretleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Google Analytics 4 (GA4)</span>
+            <span class="feat-desc">Ziyaretci takibi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Google Tag Manager (GTM)</span>
+            <span class="feat-desc">Event tracking, DataLayer</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Facebook Pixel</span>
+            <span class="feat-desc">Conversion tracking</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Google Search Console API</span>
+            <span class="feat-desc">Admin'de arama sorulari, CTR, gosterimler</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">GA4 Dashboard API</span>
+            <span class="feat-desc">Admin'de ziyaretci verileri (sayfa goruntulenme, ziyaretci sayisi)</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- SATIS ARTIRICI -->
+        <tr class="cat">
+          <td colspan="3">SATIS ARTIRICI OZELLIKLER</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kampanyalar</span>
+            <span class="feat-desc">Indirim kampanyalari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Bundle / Paket Urun</span>
+            <span class="feat-desc">Urun setleri</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Konfigurator / Urun Takimi</span>
+            <span class="feat-desc">Gelismis urun ozellestirici</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Cross-sell / Capraz Satis</span>
+            <span class="feat-desc">Urun sayfasi + sepet onerisi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Gelismis Capraz Satis</span>
+            <span class="feat-desc">Odeme sayfasi + odeme sonrasi cross-sell</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Upsell</span>
+            <span class="feat-desc">Yukari satis (ust segment oneri)</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Sinirli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Asorti Satis</span>
+            <span class="feat-desc">Farkli urun kombinasyonlari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Katli Indirim</span>
+            <span class="feat-desc">Cok al az ode</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Favori Listesi</span>
+            <span class="feat-desc">Kullaniciya ozel liste</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Kisisellestirme</span>
+            <span class="feat-desc">Musteri siparis sirasinda renk, tarih, gorsel, yazi, dosya ekleyebilir</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- PAZARLAMA & OTOMASYON -->
+        <tr class="cat">
+          <td colspan="3">PAZARLAMA & OTOMASYON</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">SMS Hatirlatma</span>
+            <span class="feat-desc">Kullanicilara SMS bildirimleri gonderme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Musteri Segmentleri</span>
+            <span class="feat-desc">Musteri gruplarini segmente etme, hedefli pazarlama</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- SEPET HATIRLATMA -->
+        <tr class="cat">
+          <td colspan="3">SEPET HATIRLATMA</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Otomatik Sepet Hatirlatma (E-posta)</span>
+            <span class="feat-desc">Terk edilen sepetler icin otomatik mail</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz + 3 Akim</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Gelismis Sepet Hatirlatma</span>
+            <span class="feat-desc">Belirli araliklarla birden fazla mail + kupon</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Whatsapp Sepet Hatirlatma</span>
+            <span class="feat-desc">WhatsApp uzerinden sepet hatirlatma</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Tekrar Stokta Bildirimi</span>
+            <span class="feat-desc">Stogu yenilenen urunler icin otomatik mail gonderme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- YORUM SISTEMI -->
+        <tr class="cat">
+          <td colspan="3">YORUM SISTEMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Yorumlari</span>
+            <span class="feat-desc">Yorum yazma, puan verme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Yorumlarinda Gorsel</span>
+            <span class="feat-desc">Musteri fotograf yukleyebilir</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Yorumlarina Cevap Verme</span>
+            <span class="feat-desc">Admin cevap yazabilir</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Yorum Onaylama</span>
+            <span class="feat-desc">Admin onay mekanizmasi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Yorum Hatirlatma</span>
+            <span class="feat-desc">Teslimat sonrasi otomatik mail</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Yorum Istatistikleri</span>
+            <span class="feat-desc">Ortalama puan, beklemede, onayli, gorselli yorum sayisi</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Temel</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Detayli</span></td>
+        </tr>
+
+        <!-- ROZET SISTEMI -->
+        <tr class="cat">
+          <td colspan="3">ROZET SISTEMI (BADGE)</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Otomatik Rozetler</span>
+            <span class="feat-desc">%XX Indirim / Son X Adet / Yeni Urun</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Sinirli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Manuel Rozet Olusturma</span>
+            <span class="feat-desc">Ozel rozet, oncelik, slug</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Rozet Istatistikleri</span>
+            <span class="feat-desc">Atama analizi, aktif rozet sayisi</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- SIPARIS & STOK -->
+        <tr class="cat">
+          <td colspan="3">SIPARIS & STOK YONETIMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Siparis Yonetimi</span>
+            <span class="feat-desc">Listeleme, arama, filtreleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Panelden Siparis Olusturma</span>
+            <span class="feat-desc">Manuel siparis girisi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Siparis Duzenleme</span>
+            <span class="feat-desc">Siparis bilgilerini guncelleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Stok Takibi</span>
+            <span class="feat-desc">Gercek zamanli</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Stok Lokasyonu</span>
+            <span class="feat-desc">Birden fazla depo yonetimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>10 Lokasyon</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Gelismis Iade Yonetimi</span>
+            <span class="feat-desc">Iade baslatma, POS iadesi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Otomatik Sozlesme</span>
+            <span class="feat-desc">Mesafeli satis sozlesmesi PDF</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- KARGO -->
+        <tr class="cat">
+          <td colspan="3">KARGO ALTYAPISI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Anlasmal Kargo Fiyatlari</span>
+            <span class="feat-desc">Dusuk kargo fiyatlari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>75,90 TL'den</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Anlasmaya Gore</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kargo Bakim Hediyesi</span>
+            <span class="feat-desc">Kargo bakiyesi hediye</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>36.000 TL'ye Kadar</span></td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kargo Entegrasyonlari (API)</span>
+            <span class="feat-desc">Otomatik etiket olusturma, takip numarasi, durum guncelleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Talebe Gore Ucretsiz</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Akilli Kargo Hesaplama</span>
+            <span class="feat-desc">Sepet bazli otomatik ucret</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Temel</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Gelismis</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Ucretsiz Kargo Esigi</span>
+            <span class="feat-desc">Admin'den ayarlanabilir</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Urun Bazli Kargo Sinifi</span>
+            <span class="feat-desc">Standart / Agir / Ucretsiz</span>
+          </td>
+          <td><span class="badge lim"><span class="ico">~</span>Sinirli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Tam</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kargo Takip Linkleri</span>
+            <span class="feat-desc">Yurtici, Aras, MNG, PTT, Surat, HepsiJet, Trendyol, UPS, DHL</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>9 Firma</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Bolge Bazli Teslimat</span>
+            <span class="feat-desc">Il, ilce bazli gonderim kurallari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Saat Bazli Kargo / Teslimat Saati</span>
+            <span class="feat-desc">Yemek/cicek teslimati - "Kacta yola cikti, kacta teslim edildi" gibi saat bazli kuraller</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- KULLANICI -->
+        <tr class="cat">
+          <td colspan="3">KULLANICI YONETIMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kullanici Hesaplari</span>
+            <span class="feat-desc">Kayit / giris</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Social Login</span>
+            <span class="feat-desc">Google / Facebook ile giris</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Coklu Adres</span>
+            <span class="feat-desc">Birden fazla teslimat adresi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Siparis Gecmisi</span>
+            <span class="feat-desc">Kullanici siparis listesi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- E-POSTA -->
+        <tr class="cat">
+          <td colspan="3">E-POSTA OTOMASYONLARI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Aylik E-posta Gonderim Limiti</span>
+            <span class="feat-desc">Otomatik e-posta gonderim kotasi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>1000 Ucretsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>3000 Ucretsiz</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">E-posta Turleri</span>
+            <span class="feat-desc">Siparis / Odeme / Kargo / Sepet / Yorum / Sifre / Aktivasyon</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>7 Tur</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>7 Tur</span></td>
+        </tr>
+
+        <!-- ICERIK -->
+        <tr class="cat">
+          <td colspan="3">ICERIK YONETIMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Blog Yonetimi</span>
+            <span class="feat-desc">Kategoriler + sinirsiz icerik</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Banner / Slider</span>
+            <span class="feat-desc">Yonetim + onizleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Medya Kutuphanesi</span>
+            <span class="feat-desc">Gorsel yukleme/yonetim</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>S3 Tabanli</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Iletisim Formlari</span>
+            <span class="feat-desc">Form mesajlari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">SSS + Yasal Sayfalar</span>
+            <span class="feat-desc">KVKK, sozlesmeler</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kullanim Kilavuzu & Datasheet</span>
+            <span class="feat-desc">Urun bazli PDF dokuman merkezi</span>
+          </td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Cerez Ayarlari</span>
+            <span class="feat-desc">Cookie consent yonetimi (KVKK uyumlu)</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- PAZARYERI -->
+        <tr class="cat">
+          <td colspan="3">PAZARYERI ENTEGRASYONLARI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Pazaryeri Entegrasyonlari</span>
+            <span class="feat-desc">Trendyol, Hepsiburada, Amazon, ETSY - Cift yonlu stok/siparis senkronizasyon</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>19 Yurt Ici + 7 Yurt Disi (Hediye)</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Talebe Gore Ucretsiz</span></td>
+        </tr>
+
+        <!-- E-IHRACAT -->
+        <tr class="cat">
+          <td colspan="3">E-IHRACAT & LOKALIZASYON</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">E-Ihracat</span>
+            <span class="feat-desc">Ulke bazli fiyat, doviz, dil secenegi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Coklu Dil Destegi</span>
+            <span class="feat-desc">Farkli dillerde site yayinlama</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Sinirsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Farkli Fiyat Listeleri</span>
+            <span class="feat-desc">Ulkelere gore farkli fiyat gosterme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Dinamik Fiyatlandirma</span>
+            <span class="feat-desc">Merkez Bankasi kur verileriyle otomatik fiyat guncelleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- B2B & FIZIKSEL MAGAZA -->
+        <tr class="cat">
+          <td colspan="3">B2B & KURUMSAL & FIZIKSEL MAGAZA</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">B2B / Toptan Satis</span>
+            <span class="feat-desc">Bayilere ozel fiyatlarla toplu urun satisi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Fiziksel Magaza</span>
+            <span class="feat-desc">Fiziksel magazalarla e-ticaret stogu ortak yonetimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Magazadan Teslimat Secenegi</span>
+            <span class="feat-desc">Musteri urunu magazadan teslim alabilir (click & collect)</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- ARAMA -->
+        <tr class="cat">
+          <td colspan="3">ARAMA & FILTRELEME</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Ozelllestirilmis Arama</span>
+            <span class="feat-desc">Arama sonuc optimizasyonu</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Es Anlamli Kelimeler</span>
+            <span class="feat-desc">Arama sinonimler</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+
+        <!-- ERP -->
+        <tr class="cat">
+          <td colspan="3">ERP ENTEGRASYONLARI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">ERP Entegrasyonlari</span>
+            <span class="feat-desc">Muhasebe ve ERP yazilimlari</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ucretsiz</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+
+        <!-- MOBIL UYGULAMA -->
+        <tr class="cat">
+          <td colspan="3">MOBIL UYGULAMA</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Mobil Uygulama</span>
+            <span class="feat-desc">iOS + Android native app</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Hediye</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+
+        <!-- DESTEK & GECIS -->
+        <tr class="cat">
+          <td colspan="3">DESTEK & ALTYAPI GECISI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Musteri Destegi</span>
+            <span class="feat-desc">Canli destek hatti</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>7/24 Oncelikli</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ozel Destek</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Altyapi Gecis Destegi</span>
+            <span class="feat-desc">Shopify, WooCommerce, Ticimax vb.'den ucretsiz tasima (urun/siparis/musteri verileri)</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ucretsiz</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Ucretsiz</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">E-Ticaret ve Temel SEO Egitimi</span>
+            <span class="feat-desc">Kullanici egitimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Reklam & Sosyal Medya Entegrasyon Destegi</span>
+            <span class="feat-desc">Hesap kurulum yardimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kullanici Deneyim Videosu</span>
+            <span class="feat-desc">UX analiz videosu</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>1 Adet</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+
+        <!-- URUN YONETIMI -->
+        <tr class="cat">
+          <td colspan="3">URUN YONETIMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Kategoriler</span>
+            <span class="feat-desc">Agac yapisi kategori yonetimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Markalar</span>
+            <span class="feat-desc">Marka yonetimi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Ozellikler (Attributes)</span>
+            <span class="feat-desc">Urun ozellikleri tanimlama</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Filtreler</span>
+            <span class="feat-desc">Dinamik filtreleme sistemi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Varyant Yonetimi</span>
+            <span class="feat-desc">Urun varyantlari (renk, beden vb.)</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- AI & BOT -->
+        <tr class="cat">
+          <td colspan="3">YAPAY ZEKA & CHATBOT</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">7/24 Yapay Zeka Chatbot Destegi</span>
+            <span class="feat-desc">AI bot ile otomatik musteri destek</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">AI Tabanli Icerik Uretimi</span>
+            <span class="feat-desc">Yapay zeka ile otomatik icerik uretimi, oneri sistemi</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge no"><span class="ico">&#10005;</span>Yok</span></td>
+        </tr>
+
+        <!-- CRM -->
+        <tr class="cat">
+          <td colspan="3">CRM & MUSTERI ILETISIMI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Musteri Mesajlari / Gelen Kutusu</span>
+            <span class="feat-desc">Musteri iletisim formlari ve mesajlarini admin panelden goruntuleme</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var (Iletisim Formlari)</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Musteri Yonetimi</span>
+            <span class="feat-desc">Musteri listesi, detaylar, segmentasyon</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+        </tr>
+
+        <!-- ODEME EKSTRA -->
+        <tr class="cat">
+          <td colspan="3">EKSTRA ODEME SECENEKLERI</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="feat-name">Masterpass</span>
+            <span class="feat-desc">Tek tikla odeme (kart bilgisi kayitli)</span>
+          </td>
+          <td><span class="badge yes"><span class="ico">&#10003;</span>Var</span></td>
+          <td><span class="badge opt"><span class="ico">&#8776;</span>Opsiyonel</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <h3>FusionMarkt Avantaji</h3>
+    <p>
+      <strong>5 Yillik Tasarruf:</strong> %54 daha ucuz ($4,595 vs +$10,000)<br>
+      <strong>Tek Seferlik:</strong> $2,999 + KDV (ilk kurulum) → Sonraki yillar: $399 + KDV/yil (1. yil host ucretsiz)<br>
+      <strong>Ozel Tema:</strong> Markaniza ozel sifirdan tasarim + frontend kodlama dahil<br>
+      <strong>Frontend Kod Sahipligi:</strong> Frontend kodlarina tam sahiplik - dilediginiz degisikligi yapabilirsiniz<br>
+      <strong>Altyapi:</strong> Amazon S3 + Cloudflare CDN + SSL/TLS + 1000 Mbit TR sunucu<br>
+      <strong>Sinirsiz Ozellestirme:</strong> Dilediginiz modulu ekleyebilir, istediginiz entegrasyonu yaptirabilisiniz<br>
+      <strong>Pazaryeri/ERP/Kargo API:</strong> Talebe gore ucretsiz entegrasyon
+    </p>
+  </div>
+
+</div>
+
+
+<script>
+// Hide scroll hint after user scrolls
+document.addEventListener('DOMContentLoaded', function() {
+  const tableWrap = document.querySelector('.table-wrap');
+  const scrollHint = document.getElementById('scrollHint');
+  
+  if (tableWrap && scrollHint) {
+    tableWrap.addEventListener('scroll', function() {
+      if (tableWrap.scrollLeft > 50) {
+        scrollHint.style.display = 'none';
+      }
+    });
+    
+    // Auto hide after 5 seconds
+    setTimeout(function() {
+      scrollHint.style.opacity = '0';
+      scrollHint.style.transition = 'opacity 0.5s';
+      setTimeout(function() {
+        scrollHint.style.display = 'none';
+      }, 500);
+    }, 5000);
+  }
+});
+</script>
+
+</body>
+</html>

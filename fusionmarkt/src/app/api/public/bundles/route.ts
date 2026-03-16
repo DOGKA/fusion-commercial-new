@@ -1,0 +1,193 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@repo/db";
+import { Prisma } from "@prisma/client";
+
+// Bundle listesi için Prisma include tipi
+const bundleListInclude = {
+  categories: {
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
+    where: {
+      isPrimary: true,
+    },
+    take: 1,
+  },
+  items: {
+    select: {
+      id: true,
+      quantity: true,
+      variantId: true,
+      product: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          thumbnail: true,
+          price: true,
+          stock: true,
+        },
+      },
+    },
+    orderBy: {
+      sortOrder: "asc" as const,
+    },
+  },
+  bundleBadges: {
+    include: {
+      badge: {
+        select: {
+          id: true,
+          label: true,
+          color: true,
+          bgColor: true,
+          icon: true,
+          isActive: true,
+        },
+      },
+    },
+    orderBy: {
+      position: "asc" as const,
+    },
+  },
+  // Bundle yorumları - rating hesabı için
+  reviews: {
+    where: { isApproved: true },
+    select: { rating: true },
+  },
+};
+
+// GET - Public bundle listesi (frontend için)
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const categorySlug = searchParams.get("category");
+    const categoryId = searchParams.get("categoryId");
+    const featured = searchParams.get("featured");
+    const limit = parseInt(searchParams.get("limit") || "20");
+
+    const whereClause: Prisma.BundleWhereInput = {
+      isActive: true,
+    };
+
+    if (categoryId) {
+      whereClause.categories = {
+        some: {
+          categoryId: categoryId,
+        },
+      };
+    } else if (categorySlug) {
+      whereClause.categories = {
+        some: {
+          category: {
+            slug: categorySlug,
+          },
+        },
+      };
+    }
+
+    if (featured === "true") {
+      whereClause.isFeatured = true;
+    }
+
+    const bundles = await prisma.bundle.findMany({
+      where: whereClause,
+      include: bundleListInclude,
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+
+    // Bundle'ları frontend formatına dönüştür
+    const transformedBundles = bundles.map((bundle) => {
+      // Stok hesaplama
+      const minStock = bundle.items.length > 0
+        ? Math.min(
+            ...bundle.items.map((item) =>
+              Math.floor((item.product?.stock || 0) / item.quantity)
+            )
+          )
+        : 0;
+
+      // Ürünlerin toplam değeri
+      const totalValue = bundle.items.reduce((sum, item) => {
+        return sum + (Number(item.product?.price || 0) * item.quantity);
+      }, 0);
+
+      // Ana kategori
+      const primaryCategory = bundle.categories[0]?.category || null;
+      
+      const bundlePrice = Number(bundle.price);
+
+      // Rating hesapla
+      const reviews = (bundle as { reviews?: { rating: number }[] }).reviews || [];
+      const ratingCount = reviews.length;
+      const ratingAverage = ratingCount > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount
+        : 0;
+
+      return {
+        id: bundle.id,
+        name: bundle.name,
+        slug: bundle.slug,
+        shortDescription: bundle.shortDescription,
+        price: bundlePrice,
+        comparePrice: bundle.comparePrice ? Number(bundle.comparePrice) : totalValue,
+        totalValue: totalValue,
+        thumbnail: bundle.thumbnail,
+        brand: bundle.brand,
+        isActive: bundle.isActive,
+        isFeatured: bundle.isFeatured,
+        stock: minStock,
+        itemCount: bundle.items.length,
+        // Bundle items - paket içeriği için
+        items: bundle.items.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          variantId: item.variantId || null,
+          product: item.product ? {
+            id: item.product.id,
+            name: item.product.name,
+            slug: item.product.slug,
+            thumbnail: item.product.thumbnail,
+            price: Number(item.product.price),
+          } : null,
+        })),
+        // Varyasyonlu ürün var mı kontrol
+        hasVariants: bundle.items.some((item) => !!item.variantId),
+        // ProductCardView uyumluluğu için
+        isBundle: true,
+        category: primaryCategory,
+        // Kazanç hesaplama
+        savings: totalValue - bundlePrice,
+        savingsPercent: totalValue > 0 
+          ? Math.round(((totalValue - bundlePrice) / totalValue) * 100) 
+          : 0,
+        // Rozetler - database alanlarını frontend formatına dönüştür
+        badges: (bundle as { bundleBadges?: { badge: { id: string; label: string; bgColor: string; color: string; icon: string | null; isActive: boolean } }[] }).bundleBadges?.map((bb) => ({
+          id: bb.badge.id,
+          name: bb.badge.label, // label -> name
+          color: bb.badge.bgColor, // bgColor -> color (background)
+          textColor: bb.badge.color, // color -> textColor (text)
+          icon: bb.badge.icon,
+        })).filter((b) => b.name) || [],
+        // Rating
+        ratingAverage,
+        ratingCount,
+      };
+    });
+
+    return NextResponse.json({ bundles: transformedBundles });
+  } catch (error) {
+    console.error("Error fetching bundles:", error);
+    return NextResponse.json(
+      { error: "Paket ürünler getirilemedi" },
+      { status: 500 }
+    );
+  }
+}

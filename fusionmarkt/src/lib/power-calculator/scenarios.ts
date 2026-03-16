@@ -1,0 +1,201 @@
+/**
+ * Kullanım Senaryoları
+ * Her senaryo için önceden tanımlanmış enerji ve güç değerleri
+ */
+
+import { Scenario } from './types';
+
+export const SCENARIOS: Scenario[] = [
+  {
+    id: 'custom',
+    name: 'Özel Giriş',
+    nameEn: 'Custom Entry',
+    icon: 'Pencil',
+    dailyEnergy: 0,
+    maxPower: 0,
+    description: 'Kendi değerlerinizi girin',
+    descriptionEn: 'Enter your own values',
+  },
+  {
+    id: 'student',
+    name: 'Öğrenci',
+    nameEn: 'Student',
+    icon: 'GraduationCap',
+    dailyEnergy: 500,
+    maxPower: 200,
+    description: 'Laptop, telefon, tablet şarjı',
+    descriptionEn: 'Laptop, phone, tablet charging',
+  },
+  {
+    id: 'camp-2',
+    name: 'Kamp (2 Kişi)',
+    nameEn: 'Camping (2 People)',
+    icon: 'Tent',
+    dailyEnergy: 800,
+    maxPower: 300,
+    description: 'Aydınlatma, telefon, mini buzdolabı',
+    descriptionEn: 'Lighting, phone, mini fridge',
+  },
+  {
+    id: 'caravan',
+    name: 'Karavan',
+    nameEn: 'Caravan',
+    icon: 'Caravan',
+    dailyEnergy: 1500,
+    maxPower: 700,
+    description: 'Tam donanımlı karavan kullanımı',
+    descriptionEn: 'Fully equipped caravan usage',
+  },
+  {
+    id: 'emergency-home',
+    name: 'Acil Ev Kullanımı',
+    nameEn: 'Emergency Home',
+    icon: 'Home',
+    dailyEnergy: 600,
+    maxPower: 250,
+    description: 'Elektrik kesintisi için temel ihtiyaçlar',
+    descriptionEn: 'Basic needs for power outage',
+  },
+  {
+    id: 'drone',
+    name: 'Drone Çekimi',
+    nameEn: 'Drone Filming',
+    icon: 'Camera',
+    dailyEnergy: 1200,
+    maxPower: 600,
+    description: 'Drone bataryaları, kamera ekipmanı',
+    descriptionEn: 'Drone batteries, camera equipment',
+  },
+  {
+    id: 'party',
+    name: 'Parti Devam Etsin',
+    nameEn: 'Keep the Party Going',
+    icon: 'Music',
+    dailyEnergy: 900,
+    maxPower: 300,
+    description: 'Müzik sistemi, aydınlatma',
+    descriptionEn: 'Music system, lighting',
+  },
+  {
+    id: 'outdoor-event',
+    name: 'Outdoor Etkinlik',
+    nameEn: 'Outdoor Event',
+    icon: 'TreePine',
+    dailyEnergy: 2000,
+    maxPower: 1000,
+    description: 'Büyük açık hava etkinlikleri',
+    descriptionEn: 'Large outdoor events',
+  },
+  {
+    id: 'remote-work',
+    name: 'Uzaktan Çalışma',
+    nameEn: 'Remote Work',
+    icon: 'Laptop',
+    dailyEnergy: 600,
+    maxPower: 250,
+    description: 'Laptop, monitor, internet ekipmanı',
+    descriptionEn: 'Laptop, monitor, internet equipment',
+  },
+  {
+    id: 'boat-fishing',
+    name: 'Tekne / Balıkçılık',
+    nameEn: 'Boat / Fishing',
+    icon: 'Ship',
+    dailyEnergy: 1000,
+    maxPower: 400,
+    description: 'Denizde enerji ihtiyaçları',
+    descriptionEn: 'Marine power needs',
+  },
+  {
+    id: 'field-work',
+    name: 'Arazi Çalışması',
+    nameEn: 'Field Work',
+    icon: 'Wrench',
+    dailyEnergy: 1800,
+    maxPower: 800,
+    description: 'Profesyonel saha ekipmanları',
+    descriptionEn: 'Professional field equipment',
+  },
+  {
+    id: 'small-business',
+    name: 'Küçük İşletme',
+    nameEn: 'Small Business',
+    icon: 'Store',
+    dailyEnergy: 2500,
+    maxPower: 1500,
+    description: 'Dükkan, stant, mobil ofis',
+    descriptionEn: 'Shop, booth, mobile office',
+  },
+  {
+    id: 'photography',
+    name: 'Fotoğrafçılık',
+    nameEn: 'Photography',
+    icon: 'Camera',
+    dailyEnergy: 800,
+    maxPower: 400,
+    description: 'Kamera, flash, laptop şarjı',
+    descriptionEn: 'Camera, flash, laptop charging',
+  },
+  {
+    id: 'medical',
+    name: 'Medikal Cihazlar',
+    nameEn: 'Medical Devices',
+    icon: 'Heart',
+    dailyEnergy: 400,
+    maxPower: 150,
+    description: 'CPAP, nebulizatör, oksijen',
+    descriptionEn: 'CPAP, nebulizer, oxygen',
+  },
+  {
+    id: 'music-band',
+    name: 'Müzik Grubu',
+    nameEn: 'Music Band',
+    icon: 'Music',
+    dailyEnergy: 1500,
+    maxPower: 800,
+    description: 'Amplifikatör, mikser, hoparlör',
+    descriptionEn: 'Amplifier, mixer, speakers',
+  },
+  {
+    id: 'food-truck',
+    name: 'Yemek Tırı',
+    nameEn: 'Food Truck',
+    icon: 'UtensilsCrossed',
+    dailyEnergy: 3000,
+    maxPower: 2000,
+    description: 'Buzdolabı, ızgara, aydınlatma',
+    descriptionEn: 'Fridge, grill, lighting',
+  },
+  {
+    id: 'security',
+    name: 'Güvenlik Sistemi',
+    nameEn: 'Security System',
+    icon: 'Shield',
+    dailyEnergy: 300,
+    maxPower: 100,
+    description: 'Kamera, NVR, internet',
+    descriptionEn: 'Camera, NVR, internet',
+  },
+  {
+    id: 'garden',
+    name: 'Bahçe / Hobi',
+    nameEn: 'Garden / Hobby',
+    icon: 'Flower2',
+    dailyEnergy: 500,
+    maxPower: 300,
+    description: 'Aletler, aydınlatma, pompa',
+    descriptionEn: 'Tools, lighting, pump',
+  },
+];
+
+export function getScenarioById(id: string): Scenario | undefined {
+  return SCENARIOS.find(s => s.id === id);
+}
+
+export function getScenarioName(scenario: Scenario, language: 'tr' | 'en'): string {
+  return language === 'en' ? scenario.nameEn : scenario.name;
+}
+
+export function getScenarioDescription(scenario: Scenario, language: 'tr' | 'en'): string | undefined {
+  return language === 'en' ? scenario.descriptionEn : scenario.description;
+}
