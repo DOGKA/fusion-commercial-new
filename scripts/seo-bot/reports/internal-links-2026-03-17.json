@@ -1,0 +1,892 @@
+{
+  "timestamp": "2026-03-17T09:18:50.605Z",
+  "summary": {
+    "high": 17,
+    "medium": 65,
+    "low": 16
+  },
+  "opportunities": [
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1072-cift-daldirma-kesim-seviyesi-a-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1072 Çift Daldırma Kesim Seviyesi A Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5895-su-gecirmez-lateks-nitril-kesim-seviyesi-d-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5895 Su Geçirmez Lateks/Nitril Kesim Seviyesi D Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1140-microdex-ultra-nitrile-kesilme-seviyesi-a-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1140 Microdex Ultra Nitrile Kesilme Seviyesi A İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm106-lateks-kaplamali-polipamuk-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM106 Lateks Kaplamalı Polipamuk Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm178-nitril-kaplamali-naylon-kesim-seviyesi-a-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM178 Nitril Kaplamalı Naylon Kesim Seviyesi A Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1290-dokunmatik-antistatik-a-seviye-kesilme-yirtilma-direncli-cok-amacli-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1290 Dokunmatik Antistatik A Seviye Kesilme Yırtılma Dirençli Çok Amaçlı İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5210-x-dura-metric-pu-kesilme-seviyesi-c-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5210 X-DURA METRIC PU Kesilme Seviyesi  C İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/10-cift-tg1290-dokunmatik-antistatik-a-seviye-kesilme-yirtilma-direncli-cok-amacli-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "10 ÇİFT TG1290 Dokunmatik Antistatik A Seviye Kesilme Yırtılma Dirençli Çok Amaçlı İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg6240-microdex-lxt-nitrile-kesilme-seviyesi-e-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG6240 MicroDex LXT Nitrile Kesilme Seviyesi E İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1170-x-dura-flat-nitril-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1170 X-Dura Flat Nitril Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5545-darbe-emici-nitril-kopuk-kesim-seviyesi-e-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5545 DARBE EMİCİ NİTRİL KÖPÜK Kesim Seviyesi E Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm100-pu-kaplamali-polyester-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM100 PU Kaplamalı Polyester Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm112-nitril-kaplamali-naylon-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM112 Nitril Kaplamalı Naylon Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm410-pu-kaplamali-yuksek-performans-polietilen-kesim-seviyesi-d-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM410 PU kaplamalı Yüksek Performans Polietilen Kesim Seviyesi D Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5140-microdex-ultra-nitrile-kesilme-seviyesi-c-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5140 MICRODEX ULTRA NITRILE Kesilme Seviyesi C İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "\"güneş paneli\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/guc-hesaplayici",
+      "targetType": "tool",
+      "anchorText": "güç hesaplayıcı",
+      "context": "\"güç hesaplayıcı\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/ev-icin-yedek-guc-cozumu",
+      "targetType": "landing",
+      "anchorText": "elektrik kesintisi",
+      "context": "\"elektrik kesintisi\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "\"mppt\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/blog/saf-sinus-dalga-vs-modifiye-sinus-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "saf sinüs",
+      "context": "\"saf sinüs\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200",
+      "targetType": "product",
+      "anchorText": "Taşınabilir Güneş Paneli  200W - IP67 Su Geçirmez - 3 Açılı Ayar - Katlanabilen Güneş Enerjili Şarj Cihazı | SP200",
+      "context": "\"SP200\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/td05-x-dura-grip-siyah-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "targetType": "product",
+      "anchorText": "TD05 X-DURA GRIP Siyah Nitril Tek Kullanımlık Eldiven 50'li kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/td06-x-dura-grip-mavi-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "targetType": "product",
+      "anchorText": "TD06 X-DURA GRIP Mavi Nitril Tek Kullanımlık Eldiven 50'li kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/td07-x-dura-grip-turuncu-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "targetType": "product",
+      "anchorText": "TD07 X-DURA GRIP Turuncu Nitril Tek Kullanımlık Eldiven 50'li kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800",
+      "targetType": "product",
+      "anchorText": "P800 512Wh | 1600W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/td01-karbon-notr-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "targetType": "product",
+      "anchorText": "TD01 Karbon Nötr Biyobozunur Nitril Tek Kullanımlık Eldiven 100'lü kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/1008wh-tasinabilir-guc-kaynagi-99-99-mppt-bms-coklu-koruma-kablosuz-sarj-singo1000",
+      "targetType": "product",
+      "anchorText": "Singo1000 1008Wh | 1008W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "targetType": "product",
+      "anchorText": "P3200 2048Wh | 6400W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/td04-surdurulebilir-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "targetType": "product",
+      "anchorText": "TD04 Sürdürülebilir Biyobozunur Nitril Tek Kullanımlık Eldiven 100'lü kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000",
+      "targetType": "product",
+      "anchorText": "LifePO4 5120Wh | 8000W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro",
+      "targetType": "product",
+      "anchorText": "Singo2000PRO 1920Wh | 4000W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800",
+      "targetType": "product",
+      "anchorText": "P1800 1024Wh | 3600W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "\"güneş paneli\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/guc-hesaplayici",
+      "targetType": "tool",
+      "anchorText": "güç hesaplayıcı",
+      "context": "\"güç hesaplayıcı\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/ev-icin-yedek-guc-cozumu",
+      "targetType": "landing",
+      "anchorText": "elektrik kesintisi",
+      "context": "\"elektrik kesintisi\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "\"lifepo4\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "\"mppt\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/blog/saf-sinus-dalga-vs-modifiye-sinus-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "saf sinüs",
+      "context": "\"saf sinüs\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200",
+      "targetType": "product",
+      "anchorText": "Taşınabilir Güneş Paneli  200W - IP67 Su Geçirmez - 3 Açılı Ayar - Katlanabilen Güneş Enerjili Şarj Cihazı | SP200",
+      "context": "\"SP200\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/td05-x-dura-grip-siyah-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "targetType": "product",
+      "anchorText": "TD05 X-DURA GRIP Siyah Nitril Tek Kullanımlık Eldiven 50'li kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/td06-x-dura-grip-mavi-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "targetType": "product",
+      "anchorText": "TD06 X-DURA GRIP Mavi Nitril Tek Kullanımlık Eldiven 50'li kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/td07-x-dura-grip-turuncu-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "targetType": "product",
+      "anchorText": "TD07 X-DURA GRIP Turuncu Nitril Tek Kullanımlık Eldiven 50'li kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800",
+      "targetType": "product",
+      "anchorText": "P800 512Wh | 1600W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/td01-karbon-notr-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "targetType": "product",
+      "anchorText": "TD01 Karbon Nötr Biyobozunur Nitril Tek Kullanımlık Eldiven 100'lü kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/1008wh-tasinabilir-guc-kaynagi-99-99-mppt-bms-coklu-koruma-kablosuz-sarj-singo1000",
+      "targetType": "product",
+      "anchorText": "Singo1000 1008Wh | 1008W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "targetType": "product",
+      "anchorText": "P3200 2048Wh | 6400W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/td04-surdurulebilir-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "targetType": "product",
+      "anchorText": "TD04 Sürdürülebilir Biyobozunur Nitril Tek Kullanımlık Eldiven 100'lü kutu",
+      "context": "\"kutu\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000",
+      "targetType": "product",
+      "anchorText": "LifePO4 5120Wh | 8000W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro",
+      "targetType": "product",
+      "anchorText": "Singo2000PRO 1920Wh | 4000W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/tasinabilir-gunes-paneli-100w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp100",
+      "targetType": "product",
+      "anchorText": "Taşınabilir Güneş Paneli  100W - IP67 Su Geçirmez - 3 Açılı Ayar - Katlanabilen Güneş Enerjili Şarj Cihazı | SP100",
+      "context": "\"SP100\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800",
+      "targetType": "product",
+      "anchorText": "P1800 1024Wh | 3600W Max. Taşınabilir Güç Kaynağı / Solar Jeneratör",
+      "context": "\"Jeneratör\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/p800-tasinabilir-guc-istasyonu",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1072-cift-daldirma-kesim-seviyesi-a-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1072 Çift Daldırma Kesim Seviyesi A Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5895-su-gecirmez-lateks-nitril-kesim-seviyesi-d-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5895 Su Geçirmez Lateks/Nitril Kesim Seviyesi D Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1140-microdex-ultra-nitrile-kesilme-seviyesi-a-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1140 Microdex Ultra Nitrile Kesilme Seviyesi A İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm106-lateks-kaplamali-polipamuk-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM106 Lateks Kaplamalı Polipamuk Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm178-nitril-kaplamali-naylon-kesim-seviyesi-a-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM178 Nitril Kaplamalı Naylon Kesim Seviyesi A Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1290-dokunmatik-antistatik-a-seviye-kesilme-yirtilma-direncli-cok-amacli-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1290 Dokunmatik Antistatik A Seviye Kesilme Yırtılma Dirençli Çok Amaçlı İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5210-x-dura-metric-pu-kesilme-seviyesi-c-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5210 X-DURA METRIC PU Kesilme Seviyesi  C İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/10-cift-tg1290-dokunmatik-antistatik-a-seviye-kesilme-yirtilma-direncli-cok-amacli-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "10 ÇİFT TG1290 Dokunmatik Antistatik A Seviye Kesilme Yırtılma Dirençli Çok Amaçlı İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg6240-microdex-lxt-nitrile-kesilme-seviyesi-e-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG6240 MicroDex LXT Nitrile Kesilme Seviyesi E İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg1170-x-dura-flat-nitril-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG1170 X-Dura Flat Nitril Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5545-darbe-emici-nitril-kopuk-kesim-seviyesi-e-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5545 DARBE EMİCİ NİTRİL KÖPÜK Kesim Seviyesi E Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm100-pu-kaplamali-polyester-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM100 PU Kaplamalı Polyester Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm112-nitril-kaplamali-naylon-kesim-seviyesi-1-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM112 Nitril Kaplamalı Naylon Kesim Seviyesi 1 Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tm410-pu-kaplamali-yuksek-performans-polietilen-kesim-seviyesi-d-guvenlik-eldiveni",
+      "targetType": "product",
+      "anchorText": "TM410 PU kaplamalı Yüksek Performans Polietilen Kesim Seviyesi D Güvenlik Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/urun/tg5140-microdex-ultra-nitrile-kesilme-seviyesi-c-is-eldiveni",
+      "targetType": "product",
+      "anchorText": "TG5140 MICRODEX ULTRA NITRILE Kesilme Seviyesi C İş Eldiveni",
+      "context": "\"Eldiveni\" ürün adı geçiyor ama ürün linki yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/tg1290-x-dura-ultra-pu-glove",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/137-kanton-fuari-davetimiz-kevlar-yalitkan",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/hayat-kurtaran-guc-kaynaklari",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynağı",
+      "context": "\"taşınabilir güç kaynağı\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/hayat-kurtaran-guc-kaynaklari",
+      "sourceType": "blog",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "\"güneş paneli\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/hayat-kurtaran-guc-kaynaklari",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/eviniz-icin-gunes-enerjisi-paneli-kurulum-rehberi",
+      "sourceType": "blog",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "\"güneş paneli\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/eviniz-icin-gunes-enerjisi-paneli-kurulum-rehberi",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/tasinabilir-guc-kaynaklari-her-yerde-enerji-ozgurlugu",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynağı",
+      "context": "\"taşınabilir güç kaynağı\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/tasinabilir-guc-kaynaklari-her-yerde-enerji-ozgurlugu",
+      "sourceType": "blog",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "\"güneş paneli\" geçiyor ama link yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/tasinabilir-guc-kaynaklari-her-yerde-enerji-ozgurlugu",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/kevlar-yalitkan-merdivenleri-avantajlari-ve-kullanim-alanlari",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/blog/guc-baslatma-ve-enerji-depolama-akuleri",
+      "sourceType": "blog",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "\"lifepo4\" geçiyor ama link yok",
+      "priority": "medium"
+    },
+    {
+      "sourcePage": "/blog/guc-baslatma-ve-enerji-depolama-akuleri",
+      "sourceType": "blog",
+      "targetPage": "/kategori/tasinabilir-guc-kaynaklari",
+      "targetType": "category",
+      "anchorText": "taşınabilir güç kaynakları",
+      "context": "Blog yazısında hiç kategori linki yok",
+      "priority": "high"
+    },
+    {
+      "sourcePage": "/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200",
+      "sourceType": "product",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "Ürün açıklamasında \"güneş paneli\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200",
+      "sourceType": "product",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "solar panel",
+      "context": "Ürün açıklamasında \"solar panel\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400",
+      "sourceType": "product",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "güneş paneli",
+      "context": "Ürün açıklamasında \"güneş paneli\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400",
+      "sourceType": "product",
+      "targetPage": "/kategori/gunes-panelleri",
+      "targetType": "category",
+      "anchorText": "solar panel",
+      "context": "Ürün açıklamasında \"solar panel\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800",
+      "sourceType": "product",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "Ürün açıklamasında \"lifepo4\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800",
+      "sourceType": "product",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "Ürün açıklamasında \"mppt\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/1008wh-tasinabilir-guc-kaynagi-99-99-mppt-bms-coklu-koruma-kablosuz-sarj-singo1000",
+      "sourceType": "product",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "Ürün açıklamasında \"lifepo4\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/1008wh-tasinabilir-guc-kaynagi-99-99-mppt-bms-coklu-koruma-kablosuz-sarj-singo1000",
+      "sourceType": "product",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "Ürün açıklamasında \"mppt\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "sourceType": "product",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "Ürün açıklamasında \"lifepo4\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "sourceType": "product",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "Ürün açıklamasında \"mppt\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000",
+      "sourceType": "product",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "Ürün açıklamasında \"lifepo4\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000",
+      "sourceType": "product",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "Ürün açıklamasında \"mppt\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro",
+      "sourceType": "product",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "Ürün açıklamasında \"lifepo4\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro",
+      "sourceType": "product",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "Ürün açıklamasında \"mppt\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800",
+      "sourceType": "product",
+      "targetPage": "/blog/lifepo4-batarya-nedir-avantajlari-nelerdir",
+      "targetType": "blog",
+      "anchorText": "lifepo4",
+      "context": "Ürün açıklamasında \"lifepo4\" geçiyor ama link yok",
+      "priority": "low"
+    },
+    {
+      "sourcePage": "/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800",
+      "sourceType": "product",
+      "targetPage": "/blog/mppt-vs-pwm-sarj-kontrolcusu-fark-nedir",
+      "targetType": "blog",
+      "anchorText": "mppt",
+      "context": "Ürün açıklamasında \"mppt\" geçiyor ama link yok",
+      "priority": "low"
+    }
+  ]
+}

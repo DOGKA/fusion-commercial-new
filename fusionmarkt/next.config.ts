@@ -197,10 +197,99 @@ const nextConfig: NextConfig = {
   // ═══════════════════════════════════════════════════════════════════════════
   async redirects() {
     return [
+      // AI SEO Bot tarafından eklenen redirect'ler (2026-03-17)
+      {
+        source: "/urunler",
+        destination: "/magaza",
+        permanent: true,
+      },
+
+      // www -> non-www canonical
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.fusionmarkt.com" }],
         destination: "https://fusionmarkt.com/:path*",
+        permanent: true,
+      },
+
+      // Eski kategori slug'lari -> aktif slug'lar
+      {
+        source: "/kategori/solar-panel",
+        destination: "/kategori/gunes-panelleri",
+        permanent: true,
+      },
+      {
+        source: "/kategori/is-guvenligi-eldiveni",
+        destination: "/kategori/endustriyel-eldivenler",
+        permanent: true,
+      },
+      {
+        source: "/kategori/yalitkan-merdiven",
+        destination: "/kategori/teleskopik-merdivenler",
+        permanent: true,
+      },
+
+      // 404 veren eski icerik sayfalari -> ilgili aktif sayfalar
+      {
+        source: "/ups-sistemleri",
+        destination: "/kategori/tasinabilir-guc-kaynaklari",
+        permanent: true,
+      },
+      {
+        source: "/surdurulebilir-enerji",
+        destination: "/blog",
+        permanent: true,
+      },
+      {
+        source: "/ev-yedekleme-sistemleri",
+        destination: "/kategori/tasinabilir-guc-kaynaklari",
+        permanent: true,
+      },
+      {
+        source: "/lifepo4-batarya",
+        destination: "/kategori/tasinabilir-guc-kaynaklari",
+        permanent: true,
+      },
+      {
+        source: "/gunes-paneli",
+        destination: "/kategori/gunes-panelleri",
+        permanent: true,
+      },
+      {
+        source: "/sp200-gunes-paneli",
+        destination: "/kategori/gunes-panelleri",
+        permanent: true,
+      },
+      {
+        source: "/gunes-enerjisi-sistemleri",
+        destination: "/kategori/gunes-panelleri",
+        permanent: true,
+      },
+      {
+        source: "/kamp-ekipmanlari",
+        destination: "/magaza",
+        permanent: true,
+      },
+
+      // Eski urun URL'leri -> aktif sayfalar
+      {
+        source: "/urun/5120wh-tasinabilir-elektrik-guc-kaynagi",
+        destination: "/sh4000",
+        permanent: true,
+      },
+      {
+        source: "/urun/1008wh-tasinabilir-guc-istasyonu",
+        destination: "/magaza",
+        permanent: true,
+      },
+      {
+        source: "/urun/1920wh-tasinabilir-guc-kaynagi",
+        destination: "/magaza",
+        permanent: true,
+      },
+      {
+        source: "/urun/katlanabilir-tasinabilir-gunes-panelleri-100w-sarj-paneli",
+        destination: "/kategori/gunes-panelleri",
         permanent: true,
       },
     ];

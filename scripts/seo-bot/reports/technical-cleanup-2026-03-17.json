@@ -1,0 +1,24 @@
+{
+  "mode": "apply",
+  "timestamp": "2026-03-17T08:47:46.457Z",
+  "actions": [
+    {
+      "type": "placeholder",
+      "file": "fusionmarkt/src/app/magaza/page.tsx",
+      "description": "\"SHOP_HEADER banner ekleyin\" → boş state ile fallback banner",
+      "status": "applied"
+    },
+    {
+      "type": "noindex",
+      "file": "fusionmarkt/src/app/servis-formu/layout.tsx",
+      "description": "servis-formu layout'una robots noindex ekle",
+      "status": "applied"
+    },
+    {
+      "type": "redirect",
+      "file": "fusionmarkt/next.config.ts",
+      "description": "/urunler → /magaza (301 redirect)",
+      "status": "applied"
+    }
+  ]
+}

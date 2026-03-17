@@ -1,0 +1,472 @@
+{
+  "timestamp": "2026-03-17T08:39:13.230Z",
+  "summary": {
+    "critical": 1,
+    "warnings": 22,
+    "info": 43
+  },
+  "issues": [
+    {
+      "type": "critical",
+      "category": "Placeholder İçerik",
+      "page": "/magaza",
+      "issue": "\"SHOP_HEADER banner ekleyin\" placeholder metni canlıda görünüyor",
+      "recommendation": "Placeholder'ı anlamlı fallback ile değiştirin (ör: \"Tüm Ürünleri Keşfedin\")"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/td05-x-dura-grip-siyah-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/td05-x-dura-grip-siyah-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg1072-cift-daldirma-kesim-seviyesi-a-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg1072-cift-daldirma-kesim-seviyesi-a-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg5895-su-gecirmez-lateks-nitril-kesim-seviyesi-d-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg5895-su-gecirmez-lateks-nitril-kesim-seviyesi-d-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/3-8m-askeri-ve-taktik-amacli-tam-otomatik-teleskopik-merdiven-ts1600et-tactical",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Eksik Meta Description",
+      "page": "/urun/tg1140-microdex-ultra-nitrile-kesilme-seviyesi-a-is-eldiveni",
+      "issue": "Meta description boş",
+      "recommendation": "120-160 karakter arası description ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg1140-microdex-ultra-nitrile-kesilme-seviyesi-a-is-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg1140-microdex-ultra-nitrile-kesilme-seviyesi-a-is-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tm106-lateks-kaplamali-polipamuk-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tm106-lateks-kaplamali-polipamuk-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tm178-nitril-kaplamali-naylon-kesim-seviyesi-a-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tm178-nitril-kaplamali-naylon-kesim-seviyesi-a-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/td06-x-dura-grip-mavi-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/td06-x-dura-grip-mavi-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg1290-dokunmatik-antistatik-a-seviye-kesilme-yirtilma-direncli-cok-amacli-is-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg5210-x-dura-metric-pu-kesilme-seviyesi-c-is-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg5210-x-dura-metric-pu-kesilme-seviyesi-c-is-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/10-cift-tg1290-dokunmatik-antistatik-a-seviye-kesilme-yirtilma-direncli-cok-amacli-is-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/td07-x-dura-grip-turuncu-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/td07-x-dura-grip-turuncu-nitril-tek-kullanimlik-eldiven-50-li-kutu",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg6240-microdex-lxt-nitrile-kesilme-seviyesi-e-is-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg6240-microdex-lxt-nitrile-kesilme-seviyesi-e-is-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400",
+      "issue": "URL çok uzun (105 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800",
+      "issue": "URL çok uzun (112 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg1170-x-dura-flat-nitril-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg1170-x-dura-flat-nitril-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/3-8m-askeri-ve-taktik-amacli-tam-otomatik-teleskopik-merdiven-1600et-tactical",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/td01-karbon-notr-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/td01-karbon-notr-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg5545-darbe-emici-nitril-kopuk-kesim-seviyesi-e-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg5545-darbe-emici-nitril-kopuk-kesim-seviyesi-e-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800",
+      "issue": "URL çok uzun (139 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/1008wh-tasinabilir-guc-kaynagi-99-99-mppt-bms-coklu-koruma-kablosuz-sarj-singo1000",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200",
+      "issue": "URL çok uzun (147 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tasinabilir-gunes-paneli-100w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp100",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/tasinabilir-gunes-paneli-100w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp100",
+      "issue": "URL çok uzun (105 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/td04-surdurulebilir-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/td04-surdurulebilir-biyobozunur-nitril-tek-kullanimlik-eldiven-100-lu-kutu",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000",
+      "issue": "URL çok uzun (122 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200",
+      "issue": "URL çok uzun (105 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tm100-pu-kaplamali-polyester-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tm100-pu-kaplamali-polyester-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tm112-nitril-kaplamali-naylon-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tm112-nitril-kaplamali-naylon-kesim-seviyesi-1-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Uzun URL",
+      "page": "/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro",
+      "issue": "URL çok uzun (145 karakter)",
+      "recommendation": "Daha kısa, model odaklı URL kullanın"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tm410-pu-kaplamali-yuksek-performans-polietilen-kesim-seviyesi-d-guvenlik-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tm410-pu-kaplamali-yuksek-performans-polietilen-kesim-seviyesi-d-guvenlik-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Eksik Keywords",
+      "page": "/urun/tg5140-microdex-ultra-nitrile-kesilme-seviyesi-c-is-eldiveni",
+      "issue": "Meta keywords 0 adet (min 3)",
+      "recommendation": "Hedef keyword'leri ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Zayıf Ürün Açıklaması",
+      "page": "/urun/tg5140-microdex-ultra-nitrile-kesilme-seviyesi-c-is-eldiveni",
+      "issue": "Ürün açıklaması çok kısa (min 200 kelime)",
+      "recommendation": "AI ile zengin ürün açıklaması üretin (product-seo.ts)"
+    },
+    {
+      "type": "info",
+      "category": "Blog Eksik Meta",
+      "page": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "issue": "Blog yazısının meta title'ı boş",
+      "recommendation": "SEO-optimized meta title ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Blog Eksik Meta",
+      "page": "/blog/traffi-karbon-notr-guvenlik-cozumlerinde-endustri-lideri",
+      "issue": "Blog yazısının meta description'ı boş",
+      "recommendation": "155 karakterlik meta description ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Blog Eksik Meta",
+      "page": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "issue": "Blog yazısının meta title'ı boş",
+      "recommendation": "SEO-optimized meta title ekleyin"
+    },
+    {
+      "type": "info",
+      "category": "Blog Eksik Meta",
+      "page": "/blog/p1800-tasinabilir-guc-istasyonu-gunes-enerjisi-jeneratoru",
+      "issue": "Blog yazısının meta description'ı boş",
+      "recommendation": "155 karakterlik meta description ekleyin"
+    },
+    {
+      "type": "warning",
+      "category": "Boş Kategori",
+      "page": "/kategori/genel",
+      "issue": "Kategoride hiç ürün yok",
+      "recommendation": "Ürün ekleyin veya kategoriyi gizleyin/noindex yapın"
+    },
+    {
+      "type": "warning",
+      "category": "Boş Kategori",
+      "page": "/kategori/bundle-paket-urunler",
+      "issue": "Kategoride hiç ürün yok",
+      "recommendation": "Ürün ekleyin veya kategoriyi gizleyin/noindex yapın"
+    }
+  ]
+}

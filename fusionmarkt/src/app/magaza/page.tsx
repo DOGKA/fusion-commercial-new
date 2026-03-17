@@ -996,7 +996,10 @@ function BannerImage({ banner, isDark }: { banner: Banner | null; isDark: boolea
       {/* Placeholder if no content */}
       {!hasImage && !hasContent && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={cn("text-sm", isDark ? "text-white/50" : "text-gray-500")}>SHOP_HEADER banner ekleyin</span>
+          <div className="flex flex-col items-center justify-center gap-2">
+              <span className={cn("text-lg font-semibold", isDark ? "text-white" : "text-gray-900")}>Tüm Ürünleri Keşfedin</span>
+              <span className={cn("text-sm", isDark ? "text-white/60" : "text-gray-500")}>En iyi fiyat garantisi ile güvenle alışveriş yapın</span>
+            </div>
         </div>
       )}
     </div>

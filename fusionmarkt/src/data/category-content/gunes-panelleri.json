@@ -1,0 +1,30 @@
+{
+  "slug": "gunes-panelleri",
+  "name": "Güneş Panelleri",
+  "heroDescription": "<h2>Katlanabilir Güneş Panelleri ile Taşınabilir Güç Kaynağı İhtiyacınıza Çözüm</h2>\n<p>Günümüzde taşınabilir güç kaynağı ihtiyaçları, özellikle kamp, karavan ve şantiye gibi alanlarda giderek artıyor. <strong>Katlanabilir güneş paneli</strong> seçeneklerimiz, bu ihtiyaçlara yönelik ideal çözümler sunuyor. FusionMarkt güvencesiyle, yüksek verimlilik sağlayan monokristal silikon hücrelere sahip taşınabilir güneş panellerimiz, %21~23 verimlilik oranı ile dikkat çekiyor.</p>\n\n<p>Ürün yelpazemizde yer alan 100W, 200W ve 400W çıkış gücüne sahip modeller, IP67 su geçirmezlik özelliği sayesinde her türlü hava koşulunda güvenle kullanılabilir. Bu paneller, 3 açılı ayar mekanizması ile maksimum güneş ışığı alımını sağlar ve katlanabilir yapısı sayesinde taşınabilirliği son derece kolaydır. Fiyat aralığı ise 9699 TL ile 33249 TL arasında değişmektedir, böylece her bütçeye uygun bir seçenek sunuyoruz.</p>\n\n<p>Bu taşınabilir güneş panelleri, elektrik kesintisi için güç kaynağı ya da CPAP cihazları için taşınabilir güç kaynağı olarak da kullanılabilir. Ayrıca, LiFePO4 güç istasyonu ile birlikte kullanıldığında, evde veya profesyonel alanlarda enerji ihtiyacını karşılamak için etkili bir çözüm sunar. FusionMarkt olarak, kaliteli ve güvenilir ürünlerimizle yanınızdayız.</p>",
+  "faqItems": [
+    {
+      "question": "Hangi model bana uygun?",
+      "answer": "İhtiyacınıza göre taşınabilir güneş paneli seçebilirsiniz. Küçük elektronik cihazlar için SP100, daha fazla enerji ihtiyacı için SP200 veya SP400 modelini tercih edebilirsiniz."
+    },
+    {
+      "question": "Kaç Wh kapasiteye ihtiyacım var?",
+      "answer": "Cihazlarınızın toplam enerji tüketimini hesaplayarak Wh kapasite ihtiyacınızı belirleyebilirsiniz. Örneğin, günlük 200Wh tüketim için SP200 modeli idealdir."
+    },
+    {
+      "question": "Solar panel ile şarj süresi ne kadar?",
+      "answer": "Şarj süresi, güneş ışığı yoğunluğuna ve panelin kapasitesine bağlıdır. Örneğin, SP200 modeli optimum koşullarda 200W çıkış gücü sağlar ve bir power station'ı birkaç saatte şarj edebilir."
+    },
+    {
+      "question": "Garanti ve iade koşulları nedir?",
+      "answer": "FusionMarkt'ta tüm güneş panelleri 2 yıl garanti kapsamındadır. Ürünler, teslimattan itibaren 14 gün içinde iade edilebilir."
+    },
+    {
+      "question": "Kamp/karavan/ev kullanımı için hangisi?",
+      "answer": "Kamp ve karavan kullanımı için taşınabilir ve yüksek verimli SP200 veya SP400 modelleri uygundur. Ev kullanımı için daha güçlü sistemler önerilir."
+    }
+  ],
+  "comparisonData": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\">\n    <thead>\n        <tr>\n            <th>Model</th>\n            <th>Kapasite</th>\n            <th>Çıkış Gücü</th>\n            <th>Fiyat</th>\n            <th>En Uygun Kullanım</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>Taşınabilir Güneş Paneli 200W | SP200</td>\n            <td>200W</td>\n            <td>200W</td>\n            <td>17,249 TL</td>\n            <td>Orta seviye enerji ihtiyaçları için ideal, kamp ve karavan kullanımı</td>\n        </tr>\n        <tr>\n            <td>Taşınabilir Güneş Paneli 400W | SP400</td>\n            <td>400W</td>\n            <td>400W</td>\n            <td>33,249 TL</td>\n            <td>Yüksek enerji ihtiyaçları, uzun süreli kamp ve açık hava etkinlikleri</td>\n        </tr>\n        <tr>\n            <td>Taşınabilir Güneş Paneli 100W | SP100</td>\n            <td>100W</td>\n            <td>100W</td>\n            <td>9,699 TL</td>\n            <td>Küçük cihazlar için, kısa süreli kamp ve günlük kullanım</td>\n        </tr>\n    </tbody>\n</table>\n```\n\nBu tablo, FusionMarkt'taki taşınabilir güneş panelleri arasında seçim yaparken karşılaştırma yapmanıza yardımcı olacaktır. Her ürün, farklı enerji ihtiyaçlarına uygun olarak tasarlanmıştır. İhtiyacınıza en uygun paneli seçerek, enerji verimliliğinizi artırabilirsiniz.",
+  "useCaseLinks": [],
+  "seoDescription": "Taşınabilir ve su geçirmez katlanabilir güneş panelleri ile enerji ihtiyacınızı her yerde karşılayın. 100W, 200W ve 400W seçenekleri FusionMarkt'ta!"
+}

@@ -1,0 +1,30 @@
+{
+  "slug": "bundle-paket-urunler",
+  "name": "Bundle / Paket Ürünler",
+  "heroDescription": "<p><strong>Taşınabilir güç kaynağı</strong> ve <strong>katlanabilir güneş paneli</strong> gibi yenilikçi ürünler, enerji ihtiyaçlarınızı her koşulda karşılamak için mükemmel bir çözümdür. FusionMarkt'ın <strong>Bundle / Paket Ürünler</strong> kategorisi, bu ürünleri bir araya getirerek sizlere eşsiz bir enerji deneyimi sunar.</p>\n\n<p>FusionMarkt güvencesiyle satışa sunulan bu paketler, taşınabilir güç istasyonu ve solar panel seti gibi ürünleri bir arada sunarak hem bütçe dostu hem de pratik bir çözüm sağlar. Örneğin, <strong>1024Wh taşınabilir güç kaynağı</strong> ve <strong>3200W taşınabilir güç kaynağı</strong> seçenekleri, elektrik kesintisi durumlarında veya şantiye gibi profesyonel ortamlarda güvenilir bir enerji kaynağı sağlar.</p>\n\n<p>Bu paketler, farklı kullanım senaryolarına uygun olarak tasarlanmıştır. Kamp ve doğa gezileri için ideal olan bu ürünler, karavan tatillerinde de enerji ihtiyacınızı karşılar. Ayrıca, <strong>CPAP için taşınabilir güç kaynağı</strong> arayan kullanıcılar için de uygun çözümler sunar. Paketlerin içeriğindeki <strong>LiFePO4 güç istasyonu</strong> teknolojisi, uzun ömürlü ve güvenilir bir performans sunar.</p>\n\n<p>FusionMarkt'ın paket ürünleri, kalite ve güveni bir arada sunarak enerji ihtiyaçlarınızı her yerde karşılamanızı sağlar. İster evde ister dışarıda, her türlü enerji ihtiyacınıza uygun bir çözüm bulmak artık çok daha kolay.</p>",
+  "faqItems": [
+    {
+      "question": "Hangi model bana uygun?",
+      "answer": "İhtiyacınıza uygun modeli belirlemek için kullanım amacınızı ve ihtiyacınız olan enerji kapasitesini değerlendirin. Örneğin, kamp veya karavan kullanımı için taşınabilir güç kaynakları ve katlanabilir güneş panelleri ideal olabilir."
+    },
+    {
+      "question": "Kaç Wh kapasiteye ihtiyacım var?",
+      "answer": "Kullanım süresi ve bağlayacağınız cihazların toplam enerji tüketimine göre Wh kapasitesine karar verin. Örneğin, günlük 5000 Wh enerji tüketen cihazlar için en az bu kapasiteye sahip bir güç kaynağı seçmelisiniz."
+    },
+    {
+      "question": "Solar panel ile şarj süresi ne kadar?",
+      "answer": "Şarj süresi, panelin gücü ve hava koşullarına bağlı olarak değişir. 100W bir solar panel ile ortalama bir güç kaynağını tam şarj etmek için 8-10 saat güneş ışığı yeterli olabilir."
+    },
+    {
+      "question": "Garanti ve iade koşulları nedir?",
+      "answer": "FusionMarkt ürünleri genellikle 2 yıl garanti kapsamındadır ve 14 gün içinde iade edilebilir. Detaylı garanti ve iade koşulları için ürün sayfasındaki bilgileri inceleyebilirsiniz."
+    },
+    {
+      "question": "Kamp/karavan/ev kullanımı için hangisi?",
+      "answer": "Kamp ve karavan kullanımı için hafif ve taşınabilir güç kaynakları, katlanabilir güneş panelleri önerilir. Ev kullanımı için ise daha yüksek kapasiteli güç kaynakları tercih edilebilir."
+    }
+  ],
+  "comparisonData": "<table>\n    <thead>\n        <tr>\n            <th>Model</th>\n            <th>Kapasite</th>\n            <th>Çıkış Gücü</th>\n            <th>Fiyat</th>\n            <th>En Uygun Kullanım</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>FusionMarkt PowerPack 1000</td>\n            <td>1000Wh</td>\n            <td>1000W</td>\n            <td>₺5,999</td>\n            <td>Kampçılık, Acil Durumlar</td>\n        </tr>\n        <tr>\n            <td>FusionMarkt SolarBundle 2000</td>\n            <td>2000Wh</td>\n            <td>1500W</td>\n            <td>₺10,499</td>\n            <td>Ev Kullanımı, Uzun Süreli Seyahatler</td>\n        </tr>\n        <tr>\n            <td>FusionMarkt TraffiKit</td>\n            <td>-</td>\n            <td>-</td>\n            <td>₺999</td>\n            <td>Endüstriyel İş Güvenliği</td>\n        </tr>\n        <tr>\n            <td>FusionMarkt TelescopicPro</td>\n            <td>-</td>\n            <td>-</td>\n            <td>₺1,299</td>\n            <td>Profesyonel Kullanım, İnşaat</td>\n        </tr>\n    </tbody>\n</table>",
+  "useCaseLinks": [],
+  "seoDescription": "Güçlü taşınabilir güç istasyonları ve katlanabilir güneş panelleri ile enerji ihtiyacınızı karşılayın. Güvenilir solar panel setleri FusionMarkt'ta!"
+}

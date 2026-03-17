@@ -1,0 +1,30 @@
+{
+  "slug": "tasinabilir-guc-kaynaklari",
+  "name": "Taşınabilir Güç Kaynakları",
+  "heroDescription": "<h2>Taşınabilir Güç Kaynakları</h2>\n<p>\n<strong>Taşınabilir güç kaynağı</strong> arayışınızda, FusionMarkt güvencesiyle sunulan geniş ürün yelpazemizle tanışın. İster kamp yaparken, ister karavanınızda, ister evde elektrik kesintisi anında, isterse şantiyede profesyonel işlerinizde kullanabileceğiniz <strong>taşınabilir güç istasyonları</strong> ile her an enerjiye erişim sağlayabilirsiniz.\n</p>\n<p>\nÜrünlerimiz arasında, farklı kapasite ve güç ihtiyaçlarınıza uygun seçenekler bulunuyor. Örneğin, <strong>P800</strong> modelimiz 512Wh kapasitesi ve 800W çıkış gücüyle kompakt bir çözüm sunarken, <strong>Singo1000</strong> modelimiz 1008Wh kapasitesi ve 1000W (maksimum 2000W) çıkış gücü ile daha uzun süreli enerji ihtiyaçlarınızı karşılar. Daha yüksek kapasiteli çözümler arayanlar için ise <strong>P3200</strong> modeli 2048Wh kapasite ve 3200W çıkış gücüyle güçlü bir alternatif oluşturuyor.\n</p>\n<ul>\n  <li><strong>P800 512Wh</strong> - 25499 TL</li>\n  <li><strong>Singo1000 1008Wh</strong> - 29999 TL</li>\n  <li><strong>P3200 2048Wh</strong> - 68499 TL</li>\n  <li><strong>LifePO4 5120Wh</strong> - 156999 TL</li>\n  <li><strong>Singo2000PRO 1920Wh</strong> - 58799 TL</li>\n  <li><strong>P1800 1024Wh</strong> - 40999 TL</li>\n</ul>\n<p>\nTüm ürünlerimiz, yüksek performanslı <strong>LiFePO4 batarya</strong> teknolojisi ile donatılmış olup, uzun ömürlü ve güvenilir enerji çözümleri sunar. Ayrıca, <strong>katlanabilir güneş panelleri</strong> ve <strong>solar panel setleri</strong> ile uyumluluğu sayesinde çevre dostu enerji kaynaklarından da yararlanabilirsiniz. Özellikle <strong>CPAP cihazları</strong> veya diğer hassas elektronikler için güvenilir enerji sağlamak isteyenler için ideal çözümler sunuyoruz.\n</p>\n<p>\nFusionMarkt'ın kaliteli ve güvenilir taşınabilir güç kaynakları ile enerjiniz hiç tükenmesin!\n</p>",
+  "faqItems": [
+    {
+      "question": "Hangi model bana uygun?",
+      "answer": "Taşınabilir güç kaynağı seçerken, ihtiyaç duyduğunuz toplam watt miktarını ve kullanım senaryolarınızı göz önünde bulundurmalısınız. Örneğin, kamp için daha hafif ve taşınabilir bir model olan P800 (512Wh) uygundur, ancak daha fazla güç gereksinimi olanlar için Singo2000PRO (1920Wh) veya P3200 (2048Wh) daha iyi bir seçim olabilir."
+    },
+    {
+      "question": "Kaç Wh kapasiteye ihtiyacım var?",
+      "answer": "Kapasite ihtiyacınız, kullanmayı planladığınız cihazların toplam enerji tüketimine bağlıdır. Örneğin, bir laptop ve birkaç küçük cihaz için 1000Wh yeterli olabilirken, daha fazla cihaz veya uzun süreli kullanım için 2000Wh veya üzeri kapasite gereklidir."
+    },
+    {
+      "question": "Solar panel ile şarj süresi ne kadar?",
+      "answer": "Taşınabilir güç kaynağınızın solar panel ile şarj süresi, güneş panelinin gücüne ve hava koşullarına bağlıdır. Örneğin, 100W bir solar panel ile P800 modelini tam şarj etmek yaklaşık 6-8 saat sürebilir."
+    },
+    {
+      "question": "Garanti ve iade koşulları nedir?",
+      "answer": "FusionMarkt'tan satın aldığınız taşınabilir güç kaynakları genellikle 2 yıl garanti kapsamındadır. İade koşulları ise ürünün kullanılmamış ve orijinal ambalajında olması şartıyla 14 gün içinde yapılabilir."
+    },
+    {
+      "question": "Kamp/karavan/ev kullanımı için hangisi?",
+      "answer": "Kamp ve karavan kullanımı için taşınabilir ve orta kapasiteye sahip modeller, örneğin Singo1000 (1008Wh) veya P1800 (1024Wh) idealdir. Ev kullanımı için daha yüksek kapasite ve çıkış gücü sunan P3200 (2048Wh) veya LifePO4 (5120Wh) modelleri tercih edilebilir."
+    }
+  ],
+  "comparisonData": "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\">\n    <thead>\n        <tr>\n            <th>Model</th>\n            <th>Kapasite (Wh)</th>\n            <th>Çıkış Gücü (W)</th>\n            <th>Fiyat (TL)</th>\n            <th>En Uygun Kullanım</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>P800 512Wh</td>\n            <td>512</td>\n            <td>800</td>\n            <td>25,499</td>\n            <td>Küçük elektronik cihazlar ve kamp kullanımı</td>\n        </tr>\n        <tr>\n            <td>Singo1000 1008Wh</td>\n            <td>1008</td>\n            <td>1000</td>\n            <td>29,999</td>\n            <td>Orta ölçekli cihazlar ve kısa süreli elektrik kesintileri</td>\n        </tr>\n        <tr>\n            <td>P3200 2048Wh</td>\n            <td>2048</td>\n            <td>3200</td>\n            <td>68,499</td>\n            <td>Ev ve ofis kullanımı, yüksek enerji gereksinimi</td>\n        </tr>\n        <tr>\n            <td>LifePO4 5120Wh</td>\n            <td>5120</td>\n            <td>4000</td>\n            <td>156,999</td>\n            <td>Endüstriyel uygulamalar ve uzun süreli enerji ihtiyacı</td>\n        </tr>\n        <tr>\n            <td>Singo2000PRO 1920Wh</td>\n            <td>1920</td>\n            <td>2000</td>\n            <td>58,799</td>\n            <td>Yüksek güç gerektiren cihazlar ve acil durumlar</td>\n        </tr>\n        <tr>\n            <td>P1800 1024Wh</td>\n            <td>1024</td>\n            <td>1800</td>\n            <td>40,999</td>\n            <td>Ev aletleri ve taşınabilir cihazlar</td>\n        </tr>\n    </tbody>\n</table>\n```\nBu tablo, FusionMarkt'ta bulunan taşınabilir güç kaynaklarının karşılaştırmasını içermektedir. Her modelin kapasitesi, çıkış gücü ve fiyatı belirtilmiş olup, hangi kullanım senaryoları için en uygun oldukları da açıklanmıştır. Bu bilgiler, kullanıcıların ihtiyaçlarına en uygun ürünü seçmelerine yardımcı olacaktır.",
+  "useCaseLinks": [],
+  "seoDescription": "FusionMarkt taşınabilir güç kaynakları ile enerji ihtiyacınızı her yerde karşılayın. LiFePO4 bataryalı modellerle güvenilir ve uzun ömürlü çözümler sunuyoruz."
+}
