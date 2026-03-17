@@ -2,13 +2,16 @@
  * Servis Formu Layout - SEO Metadata
  */
 
-import { staticPageMetadata, generateBreadcrumbSchema } from "@/lib/seo";
+import { generateMetadata as genMeta, generateBreadcrumbSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
 
-export const metadata = {
-  ...staticPageMetadata.serviceForm,
-  robots: { index: false, follow: true },
-};
+export const metadata = genMeta({
+  title: "Servis Formu - Teknik Destek Talebi",
+  description: "FusionMarkt servis ve teknik destek talep formu. Taşınabilir güç kaynağı, solar panel ve diğer ürünleriniz için garanti kapsamında servis başvurusu yapın.",
+  canonical: "/servis-formu",
+  keywords: ["fusionmarkt servis", "teknik destek", "garanti başvurusu", "servis talebi"],
+  noIndex: true,
+});
 
 export default function ServisFormuLayout({
   children,
