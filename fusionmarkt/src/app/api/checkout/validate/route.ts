@@ -18,14 +18,28 @@ interface ValidationError {
   expectedValue?: number;
 }
 
+interface DbProduct {
+  id: string;
+  name: string;
+  price: number;
+  comparePrice: number | null;
+  stock: number;
+  isActive: boolean;
+}
+
+interface DbVariant {
+  id: string;
+  stock: number;
+  price: number | null;
+  isActive: boolean;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, couponCode, shippingOptionId, cartTotal } = body as {
+    const { items, couponCode } = body as {
       items: CartItemInput[];
       couponCode?: string;
-      shippingOptionId?: string;
-      cartTotal?: number;
     };
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -36,7 +50,7 @@ export async function POST(request: NextRequest) {
     const correctedItems: (CartItemInput & { correctedPrice?: number; currentStock?: number; productName?: string })[] = [];
 
     const productIds = items.filter(i => !i.isBundle).map(i => i.productId);
-    const products = await (prisma.product as any).findMany({
+    const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
       select: {
         id: true,
@@ -47,16 +61,16 @@ export async function POST(request: NextRequest) {
         isActive: true,
       },
     });
-    const productMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
+    const productMap = new Map<string, DbProduct>(products.map(p => [p.id, { ...p, price: Number(p.price), comparePrice: p.comparePrice ? Number(p.comparePrice) : null }]));
 
     const variantIds = items.filter(i => i.variant?.id).map(i => i.variant!.id);
-    let variantMap = new Map<string, any>();
+    let variantMap = new Map<string, DbVariant>();
     if (variantIds.length > 0) {
-      const variants = await (prisma.productVariant as any).findMany({
+      const variants = await prisma.productVariant.findMany({
         where: { id: { in: variantIds } },
         select: { id: true, stock: true, price: true, isActive: true },
       });
-      variantMap = new Map(variants.map((v: any) => [v.id, v]));
+      variantMap = new Map(variants.map(v => [v.id, { ...v, price: v.price ? Number(v.price) : null }]));
     }
 
     let recalculatedSubtotal = 0;
@@ -106,9 +120,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const dbPrice = Number(product.price);
-      const dbComparePrice = product.comparePrice ? Number(product.comparePrice) : null;
-      const effectivePrice = dbPrice;
+      const effectivePrice = product.price;
 
       if (Math.abs(effectivePrice - item.price) > 0.01) {
         errors.push({
@@ -127,7 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (couponCode) {
-      const coupon = await (prisma.coupon as any).findUnique({ where: { code: couponCode.toUpperCase() } });
+      const coupon = await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
       if (!coupon || !coupon.isActive) {
         errors.push({ type: "COUPON_INVALID", message: "Kupon artık geçerli değil" });
       } else {

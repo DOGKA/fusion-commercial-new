@@ -56,6 +56,14 @@ interface AddressApiItem {
   invoiceType?: string;
 }
 
+interface PreflightError {
+  type: "OUT_OF_STOCK" | "PRICE_CHANGED" | "PRODUCT_INACTIVE" | "COUPON_INVALID" | "SHIPPING_CHANGED";
+  productId?: string;
+  message: string;
+  currentValue?: number;
+  expectedValue?: number;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -111,7 +119,7 @@ export default function CheckoutPage() {
   const [otpError, setOtpError] = useState("");
   
   // Preflight validation state
-  const [preflightErrors, setPreflightErrors] = useState<any[]>([]);
+  const [preflightErrors, setPreflightErrors] = useState<PreflightError[]>([]);
   const [showPreflightModal, setShowPreflightModal] = useState(false);
   const [preflightLoading, setPreflightLoading] = useState(false);
 
@@ -637,18 +645,18 @@ export default function CheckoutPage() {
       });
       const result = await res.json();
       if (!result.valid) {
-        const blocking = result.errors?.some((e: any) => e.type === "OUT_OF_STOCK" || e.type === "PRODUCT_INACTIVE");
+        const blocking = result.errors?.some((e: PreflightError) => e.type === "OUT_OF_STOCK" || e.type === "PRODUCT_INACTIVE");
         if (blocking) {
           setPreflightErrors(result.errors);
           setShowPreflightModal(true);
           return;
         }
-        if (result.errors?.some((e: any) => e.type === "PRICE_CHANGED")) {
+        if (result.errors?.some((e: PreflightError) => e.type === "PRICE_CHANGED")) {
           setPreflightErrors(result.errors);
           setShowPreflightModal(true);
           return;
         }
-        if (result.errors?.some((e: any) => e.type === "COUPON_INVALID")) {
+        if (result.errors?.some((e: PreflightError) => e.type === "COUPON_INVALID")) {
           setAppliedCoupon(null);
           sessionStorage.removeItem("appliedCoupon");
         }
@@ -1733,7 +1741,7 @@ export default function CheckoutPage() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px", maxHeight: "240px", overflowY: "auto" }}>
-              {preflightErrors.map((err: any, i: number) => (
+              {preflightErrors.map((err: PreflightError, i: number) => (
                 <div key={i} style={{
                   padding: "12px",
                   borderRadius: "10px",

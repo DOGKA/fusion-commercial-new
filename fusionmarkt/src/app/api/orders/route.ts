@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { prisma } from "@repo/db";
+import { prisma, Prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
@@ -229,10 +229,6 @@ export async function POST(request: NextRequest) {
 
     // Generate order number
     const orderNumber = generateOrderNumber();
-
-    // Determine payment status
-    const paymentStatus = "PENDING" as const;
-    const orderStatus = "PENDING" as const;
     
     // Handle billing address - use existing if ID provided, else create new only if saveToAddresses is true
     let billingAddressId: string;
@@ -391,7 +387,7 @@ export async function POST(request: NextRequest) {
     // ─────────────────────────────────────────────────────────────────────────
     // ATOMIC TRANSACTION: stock check + decrement + order create + coupon update
     // ─────────────────────────────────────────────────────────────────────────
-    const order = await prisma.$transaction(async (tx: any) => {
+    const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Stock validation & decrement (bank transfer only - card orders reserve later)
       if (isBankTransfer) {
         for (const item of items) {
@@ -535,10 +531,10 @@ export async function POST(request: NextRequest) {
       guestAccountCreated: guestAccountCreated || false,
     }, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create order error:", error);
     
-    const errorMessage = error?.message || "";
+    const errorMessage = error instanceof Error ? error.message : "";
     if (errorMessage.startsWith("STOCK_INSUFFICIENT:")) {
       const parts = errorMessage.split(":");
       return NextResponse.json(
