@@ -439,5 +439,19 @@ export const staticPageMetadata = {
     description: "FusionMarkt ücretlendirme ve fiyatlandırma politikası.",
     canonical: "/ucretlendirme-politikasi",
   }),
+
+  serviceForm: generateMetadata({
+    title: "Servis Formu - Teknik Destek Talebi",
+    description: "FusionMarkt servis ve teknik destek talep formu. Taşınabilir güç kaynağı, solar panel ve diğer ürünleriniz için garanti kapsamında servis başvurusu yapın.",
+    canonical: "/servis-formu",
+    keywords: ["fusionmarkt servis", "teknik destek", "garanti başvurusu", "servis talebi"],
+  }),
+
+  manuals: generateMetadata({
+    title: "IEETek Kullanım Kılavuzları PDF İndir",
+    description: "IEETek taşınabilir güç kaynağı ve solar panel kullanım kılavuzları. P800, P1800, P2400, P3200, SH4000 ve güneş paneli kılavuzlarını PDF olarak indirin.",
+    canonical: "/kullanim-kilavuzlari",
+    keywords: ["ieetek kullanım kılavuzu", "güç kaynağı kılavuz", "power station manual"],
+  }),
 };
 

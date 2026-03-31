@@ -131,8 +131,8 @@ export const RATE_LIMITS = {
   
   // Registration - very strict (prevent spam accounts)
   register: {
-    limit: 3,
-    windowSeconds: 300, // 3 requests per 5 minutes
+    limit: 5,
+    windowSeconds: 400, // 3 requests per 5 minutes
   },
   
   // Password reset - strict

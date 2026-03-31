@@ -60,7 +60,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { setBillingAddress } = useCheckout();
-  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings } = useCart();
+  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, isHydrated } = useCart();
   const { addItem: addFavorite } = useFavorites();
   
   // Refs to prevent re-fetching
@@ -102,6 +102,19 @@ export default function CheckoutPage() {
   const [loginError, setLoginError] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
   
+  // OTP checkout state
+  const [emailAction, setEmailAction] = useState<"login" | "otp" | "change" | null>(null);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  
+  // Preflight validation state
+  const [preflightErrors, setPreflightErrors] = useState<any[]>([]);
+  const [showPreflightModal, setShowPreflightModal] = useState(false);
+  const [preflightLoading, setPreflightLoading] = useState(false);
+
   const [showCoupon, setShowCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -462,6 +475,55 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleSendOtp = async () => {
+    setOtpSending(true);
+    setOtpError("");
+    try {
+      const res = await fetch("/api/auth/send-checkout-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (res.ok) {
+        setOtpSent(true);
+      } else {
+        const data = await res.json();
+        setOtpError(data.error || "Kod gönderilemedi");
+      }
+    } catch {
+      setOtpError("Kod gönderilemedi");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpVerifying(true);
+    setOtpError("");
+    try {
+      const res = await fetch("/api/auth/verify-checkout-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), code: otpCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpError(data.error || "Doğrulama başarısız");
+      } else if (data.verified) {
+        sessionStorage.setItem("otpVerifiedEmail", email.trim().toLowerCase());
+        setEmailRegistered(false);
+        setShowLoginForm(false);
+        setEmailAction(null);
+        setOtpSent(false);
+        setOtpCode("");
+      }
+    } catch {
+      setOtpError("Doğrulama başarısız");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
   // Phone mask
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -470,6 +532,15 @@ export default function CheckoutPage() {
     if (digits.length <= 9) return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
     return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 9)} ${digits.slice(9)}`;
   };
+
+  // Wait for cart hydration before showing empty state
+  if (!isHydrated) {
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+        <Loader2 size={24} className="animate-spin" style={{ color: "var(--foreground-muted)" }} />
+      </div>
+    );
+  }
 
   // Empty cart check
   if (items.length === 0) {
@@ -518,31 +589,77 @@ export default function CheckoutPage() {
     }
     setErrors({});
 
-    // Guest checkout: kayıtlı e-posta ile devam edilmesini engelle (kontrol sadece Devam/Enter ile)
+    // Guest checkout: kayıtlı e-posta kontrolü (OTP-verified ise atla)
     if (!isAuthenticated) {
       const trimmedEmail = email.trim();
-      try {
-        setCheckingEmail(true);
-        const data = await fetchEmailRegistered(trimmedEmail);
-        if (data?.exists) {
-          setEmailRegistered(true);
-          setRegisteredUserName(data.userName);
-          setShowLoginForm(true);
-          setErrors(prev => ({ ...prev, email: "Bu e-posta kayıtlı. Devam etmek için giriş yapın." }));
-          return;
+      const otpVerified = sessionStorage.getItem("otpVerifiedEmail") === trimmedEmail.toLowerCase();
+      if (!otpVerified) {
+        try {
+          setCheckingEmail(true);
+          const data = await fetchEmailRegistered(trimmedEmail);
+          if (data?.exists) {
+            setEmailRegistered(true);
+            setRegisteredUserName(data.userName);
+            setShowLoginForm(true);
+            setEmailAction(null);
+            return;
+          }
+          setEmailRegistered(false);
+          setRegisteredUserName(null);
+          setShowLoginForm(false);
+        } catch (err) {
+          console.error("Email check error (proceed):", err);
+        } finally {
+          setCheckingEmail(false);
         }
-        // Kayıtlı değilse state'i temizle
-        setEmailRegistered(false);
-        setRegisteredUserName(null);
-        setShowLoginForm(false);
-      } catch (err) {
-        console.error("Email check error (proceed):", err);
-      } finally {
-        setCheckingEmail(false);
       }
     }
 
-    router.push("/checkout/payment");
+    // Server-side preflight validation
+    setPreflightLoading(true);
+    try {
+      const res = await fetch("/api/checkout/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+            variant: item.variant,
+            isBundle: item.isBundle,
+            bundleId: item.bundleId,
+          })),
+          couponCode: appliedCoupon?.code,
+          shippingOptionId: selectedShippingId,
+          cartTotal: subtotal,
+        }),
+      });
+      const result = await res.json();
+      if (!result.valid) {
+        const blocking = result.errors?.some((e: any) => e.type === "OUT_OF_STOCK" || e.type === "PRODUCT_INACTIVE");
+        if (blocking) {
+          setPreflightErrors(result.errors);
+          setShowPreflightModal(true);
+          return;
+        }
+        if (result.errors?.some((e: any) => e.type === "PRICE_CHANGED")) {
+          setPreflightErrors(result.errors);
+          setShowPreflightModal(true);
+          return;
+        }
+        if (result.errors?.some((e: any) => e.type === "COUPON_INVALID")) {
+          setAppliedCoupon(null);
+          sessionStorage.removeItem("appliedCoupon");
+        }
+      }
+      router.push("/checkout/payment");
+    } catch (err) {
+      console.error("Preflight validation error:", err);
+      router.push("/checkout/payment");
+    } finally {
+      setPreflightLoading(false);
+    }
   };
 
   // Calculate shipping and discount
@@ -745,13 +862,7 @@ export default function CheckoutPage() {
                             // Explicit check (guest checkout)
                             void checkEmailRegistered(trimmed);
                           }}
-                          onBlur={() => {
-                            // Validate email on blur (only if user finished typing)
-                            if (email && email.includes("@") && !isValidEmail(email)) {
-                              const error = getEmailError(email);
-                              if (error) setErrors(prev => ({ ...prev, email: error }));
-                            }
-                          }}
+                          onBlur={() => {}}
                           placeholder="ornek@email.com"
                           style={{ 
                             ...inputStyle, 
@@ -767,89 +878,7 @@ export default function CheckoutPage() {
                         )}
                       </div>
                       
-                      {/* Email registered warning and login form */}
-                      {!isAuthenticated && emailRegistered && showLoginForm && (
-                        <div style={{ 
-                          marginTop: "12px", 
-                          padding: "16px", 
-                          backgroundColor: "rgba(251, 191, 36, 0.1)", 
-                          border: "1px solid rgba(251, 191, 36, 0.3)",
-                          borderRadius: "12px"
-                        }}>
-                          <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "12px" }}>
-                            <div style={{ 
-                              width: "32px", height: "32px", borderRadius: "8px", 
-                              backgroundColor: "rgba(251, 191, 36, 0.2)", 
-                              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 
-                            }}>
-                              <User size={16} style={{ color: "#fbbf24" }} />
-                            </div>
-                            <div>
-                              <p style={{ fontSize: "13px", fontWeight: "600", color: "#fbbf24", margin: "0 0 4px 0" }}>
-                                Bu e-posta kayıtlı!
-                              </p>
-                              <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", margin: 0 }}>
-                                {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}
-                                Devam etmek için şifrenizi girin.
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div style={{ display: "flex", gap: "8px", marginBottom: loginError ? "8px" : 0 }}>
-                            <input
-                              type="password"
-                              value={loginPassword}
-                              onChange={(e) => setLoginPassword(e.target.value)}
-                              onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()}
-                              placeholder="Şifreniz"
-                              style={{ 
-                                ...inputStyle, 
-                                flex: 1,
-                                height: "40px",
-                                backgroundColor: "var(--input-bg)",
-                                color: "var(--foreground)",
-                                borderColor: loginError ? "rgba(239,68,68,0.5)" : "var(--input-border)"
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={handleEmailLogin}
-                              disabled={loggingIn || !loginPassword}
-                              style={{
-                                height: "40px",
-                                padding: "0 16px",
-                                backgroundColor: "#10b981",
-                                color: "var(--foreground)",
-                                border: "none",
-                                borderRadius: "8px",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                                cursor: loggingIn || !loginPassword ? "not-allowed" : "pointer",
-                                opacity: loggingIn || !loginPassword ? 0.6 : 1,
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px"
-                              }}
-                            >
-                              {loggingIn ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                              Giriş Yap
-                            </button>
-                          </div>
-                          
-                          {loginError && (
-                            <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{loginError}</p>
-                          )}
-                          
-                          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
-                            <Link 
-                              href="/sifremi-unuttum" 
-                              style={{ fontSize: "12px", color: "var(--foreground-tertiary)", textDecoration: "none" }}
-                            >
-                              Şifremi unuttum
-                            </Link>
-                          </div>
-                        </div>
-                      )}
+                      
                     </div>
                   </div>
                   
@@ -885,6 +914,92 @@ export default function CheckoutPage() {
                 </>
               )}
             </div>
+
+            {/* Email registered - 3 option panel (full width) */}
+            {!isAuthenticated && emailRegistered && showLoginForm && (
+              <div style={{ marginBottom: "24px", padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", margin: "0 0 4px 0" }}>
+                  {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}Bu e-posta ile hesap mevcut.
+                </p>
+                {!emailAction && <p style={{ fontSize: "13px", color: "var(--foreground-muted)", margin: "0 0 16px 0" }}>Nasıl devam etmek istersiniz?</p>}
+
+                {!emailAction && (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+                    <button type="button" onClick={() => setEmailAction("login")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", textAlign: "center", transition: "all 0.15s ease" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={18} style={{ color: "#10b981" }} /></div>
+                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Şifre ile giriş</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>Mevcut şifrenizle devam edin</p></div>
+                    </button>
+                    <button type="button" onClick={() => { setEmailAction("otp"); handleSendOtp(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", textAlign: "center", transition: "all 0.15s ease" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><Mail size={18} style={{ color: "#6366f1" }} /></div>
+                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Kod ile devam</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>E-postanıza kod göndereceğiz</p></div>
+                    </button>
+                    <button type="button" onClick={() => { setEmailAction("change"); setEmailRegistered(false); setShowLoginForm(false); setEmail(""); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", textAlign: "center", transition: "all 0.15s ease" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(245,158,11,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><User size={18} style={{ color: "#f59e0b" }} /></div>
+                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Farklı e-posta</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>Misafir olarak yeni e-posta girin</p></div>
+                    </button>
+                  </div>
+                )}
+
+                {/* Login form */}
+                {emailAction === "login" && (
+                  <div>
+                    <p style={{ fontSize: "13px", color: "var(--foreground-muted)", margin: "0 0 12px 0" }}>Mevcut şifrenizle giriş yapın:</p>
+                    <div style={{ display: "flex", gap: "8px", marginBottom: loginError ? "8px" : 0 }}>
+                      <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()} placeholder="Şifreniz" style={{ ...inputStyle, flex: 1, height: "44px" }} />
+                      <button type="button" onClick={handleEmailLogin} disabled={loggingIn || !loginPassword} style={{ height: "44px", padding: "0 20px", backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "10px", fontSize: "13px", fontWeight: "600", cursor: loggingIn || !loginPassword ? "not-allowed" : "pointer", opacity: loggingIn || !loginPassword ? 0.6 : 1, display: "flex", alignItems: "center", gap: "6px" }}>
+                        {loggingIn ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Giriş
+                      </button>
+                    </div>
+                    {loginError && <p style={{ fontSize: "12px", color: "#ef4444", margin: "0 0 8px 0" }}>{loginError}</p>}
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px" }}>
+                      <button type="button" onClick={() => setEmailAction(null)} style={{ fontSize: "12px", color: "var(--foreground-muted)", background: "none", border: "none", cursor: "pointer" }}>← Geri</button>
+                      <Link href="/sifremi-unuttum" style={{ fontSize: "12px", color: "var(--foreground-tertiary)", textDecoration: "none" }}>Şifremi unuttum</Link>
+                    </div>
+                  </div>
+                )}
+
+                {/* OTP form */}
+                {emailAction === "otp" && (
+                  <div>
+                    {otpSending && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "20px 0" }}>
+                        <Loader2 size={16} className="animate-spin" style={{ color: "#6366f1" }} />
+                        <span style={{ fontSize: "13px", color: "var(--foreground-secondary)" }}>Kod gönderiliyor...</span>
+                      </div>
+                    )}
+                    {!otpSending && otpError && !otpSent && (
+                      <div>
+                        <p style={{ fontSize: "12px", color: "#ef4444", margin: "0 0 12px 0" }}>{otpError}</p>
+                        <div style={{ display: "flex", gap: "12px" }}>
+                          <button type="button" onClick={() => { setEmailAction(null); setOtpError(""); }} style={{ fontSize: "12px", color: "var(--foreground-muted)", background: "none", border: "none", cursor: "pointer" }}>← Geri</button>
+                          <button type="button" onClick={handleSendOtp} style={{ fontSize: "12px", color: "#6366f1", background: "none", border: "none", cursor: "pointer" }}>Tekrar dene</button>
+                        </div>
+                      </div>
+                    )}
+                    {!otpSending && otpSent && (
+                      <>
+                        <div style={{ padding: "12px 16px", backgroundColor: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: "10px", marginBottom: "14px" }}>
+                          <p style={{ fontSize: "13px", color: "#6366f1", margin: 0 }}>
+                            <strong>{email}</strong> adresine doğrulama kodu gönderildi.
+                          </p>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px", marginBottom: otpError ? "8px" : 0 }}>
+                          <input type="text" value={otpCode} onChange={(e) => { setOtpCode(e.target.value.toUpperCase()); setOtpError(""); }} onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()} placeholder="F-XXXXXX" maxLength={8} autoFocus style={{ ...inputStyle, flex: 1, height: "44px", textAlign: "center", fontWeight: "600", letterSpacing: "2px" }} />
+                          <button type="button" onClick={handleVerifyOtp} disabled={otpVerifying || otpCode.length < 4} style={{ height: "44px", padding: "0 20px", backgroundColor: "#6366f1", color: "#fff", border: "none", borderRadius: "10px", fontSize: "13px", fontWeight: "600", cursor: otpVerifying || otpCode.length < 4 ? "not-allowed" : "pointer", opacity: otpVerifying || otpCode.length < 4 ? 0.6 : 1, display: "flex", alignItems: "center", gap: "6px" }}>
+                            {otpVerifying ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Doğrula
+                          </button>
+                        </div>
+                        {otpError && <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{otpError}</p>}
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px" }}>
+                          <button type="button" onClick={() => { setEmailAction(null); setOtpSent(false); setOtpCode(""); setOtpError(""); }} style={{ fontSize: "12px", color: "var(--foreground-muted)", background: "none", border: "none", cursor: "pointer" }}>← Geri</button>
+                          <button type="button" onClick={handleSendOtp} disabled={otpSending} style={{ fontSize: "12px", color: "#6366f1", background: "none", border: "none", cursor: "pointer" }}>Kodu tekrar gönder</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Invoice Type */}
             <div style={{ marginBottom: "24px" }}>
@@ -1568,7 +1683,7 @@ export default function CheckoutPage() {
             {/* Continue Button */}
             <button
               onClick={handleProceedToPayment}
-              disabled={isSubmitting}
+              disabled={isSubmitting || preflightLoading}
               onMouseEnter={() => setHoverProceed(true)}
               onMouseLeave={() => setHoverProceed(false)}
               style={{
@@ -1578,12 +1693,12 @@ export default function CheckoutPage() {
                 backgroundColor: hoverProceed ? "#059669" : "#10b981",
                 color: "#fff",
                 border: "none",
-                cursor: isSubmitting ? "not-allowed" : "pointer",
-                opacity: isSubmitting ? 0.5 : 1,
+                cursor: isSubmitting || preflightLoading ? "not-allowed" : "pointer",
+                opacity: isSubmitting || preflightLoading ? 0.5 : 1,
                 transition: "all 0.2s ease"
               }}
             >
-              {isSubmitting ? (
+              {isSubmitting || preflightLoading ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
@@ -1602,6 +1717,61 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Preflight Validation Modal */}
+      {showPreflightModal && preflightErrors.length > 0 && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.6)" }}>
+          <div style={{ width: "100%", maxWidth: "440px", margin: "0 16px", backgroundColor: "var(--surface-overlay, var(--background-secondary))", borderRadius: "16px", padding: "28px", border: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+              <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "rgba(239,68,68,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Package size={20} style={{ color: "#ef4444" }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: "16px", fontWeight: "600", color: "var(--foreground)", margin: 0 }}>Sepetinizde Değişiklik Var</h3>
+                <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)", margin: 0 }}>Ödemeye geçmeden önce kontrol edin</p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px", maxHeight: "240px", overflowY: "auto" }}>
+              {preflightErrors.map((err: any, i: number) => (
+                <div key={i} style={{
+                  padding: "12px",
+                  borderRadius: "10px",
+                  backgroundColor: err.type === "PRICE_CHANGED" ? "rgba(251,191,36,0.1)" : "rgba(239,68,68,0.1)",
+                  border: `1px solid ${err.type === "PRICE_CHANGED" ? "rgba(251,191,36,0.2)" : "rgba(239,68,68,0.2)"}`,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: "500", color: err.type === "PRICE_CHANGED" ? "#fbbf24" : "#ef4444" }}>
+                      {err.type === "OUT_OF_STOCK" ? "Stok Yetersiz" : err.type === "PRICE_CHANGED" ? "Fiyat Değişti" : err.type === "COUPON_INVALID" ? "Kupon Geçersiz" : "Ürün Mevcut Değil"}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", margin: "4px 0 0 0" }}>{err.message}</p>
+                  {err.type === "PRICE_CHANGED" && err.currentValue && (
+                    <p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>
+                      Yeni fiyat: {formatPrice(err.currentValue)}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button
+                onClick={() => { setShowPreflightModal(false); setPreflightErrors([]); }}
+                style={{ flex: 1, height: "44px", borderRadius: "10px", border: "1px solid var(--border)", backgroundColor: "transparent", color: "var(--foreground)", fontSize: "13px", fontWeight: "500", cursor: "pointer" }}
+              >
+                Sepeti Güncelle
+              </button>
+              <button
+                onClick={() => { setShowPreflightModal(false); window.location.href = "/magaza"; }}
+                style={{ flex: 1, height: "44px", borderRadius: "10px", border: "none", backgroundColor: "#10b981", color: "#fff", fontSize: "13px", fontWeight: "500", cursor: "pointer" }}
+              >
+                Alışverişe Dön
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

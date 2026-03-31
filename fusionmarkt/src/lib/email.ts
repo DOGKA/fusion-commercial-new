@@ -29,6 +29,7 @@ import { ReturnApprovedEmail } from "@/emails/templates/ReturnApprovedEmail";
 import { ReturnRejectedEmail } from "@/emails/templates/ReturnRejectedEmail";
 import { ServiceFormApprovedEmail } from "@/emails/templates/ServiceFormApprovedEmail";
 import { ServiceFormRejectedEmail } from "@/emails/templates/ServiceFormRejectedEmail";
+import { CheckoutOtpEmail } from "@/emails/templates/CheckoutOtpEmail";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -151,6 +152,15 @@ export async function sendPasswordResetEmail(to: string, resetLink: string, name
   return sendEmail({
     to,
     subject: `FusionMarkt - Şifre Sıfırlama`,
+    html,
+  });
+}
+
+export async function sendCheckoutOtpEmail(to: string, code: string, name?: string) {
+  const html = await render(CheckoutOtpEmail({ code, name }));
+  return sendEmail({
+    to,
+    subject: `FusionMarkt - Doğrulama Kodu: ${code}`,
     html,
   });
 }

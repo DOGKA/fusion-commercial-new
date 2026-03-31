@@ -127,22 +127,15 @@ export default function HesabimPage() {
   
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState("");
+  const [passwordStep, setPasswordStep] = useState<"first" | "confirm">("first");
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [registerName, setRegisterName] = useState("");
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
   
-  // Activation code state
-  const [showActivation, setShowActivation] = useState(false);
-  const [activationEmail, setActivationEmail] = useState("");
-  const [activationCode, setActivationCode] = useState("");
-  const [activationLoading, setActivationLoading] = useState(false);
-  const [activationError, setActivationError] = useState<string | null>(null);
-  const [activationSuccess, setActivationSuccess] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState(false);
-  const [countdown, setCountdown] = useState(300); // 5 minutes in seconds
   
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [loginHover, setLoginHover] = useState(false);
@@ -177,6 +170,24 @@ export default function HesabimPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegisterError(null);
+    setPasswordMismatch(false);
+
+    if (passwordStep === "first") {
+      if (registerPassword.length < 8) {
+        setRegisterError("Parola en az 8 karakter olmalıdır");
+        return;
+      }
+      setPasswordStep("confirm");
+      setShowRegisterPassword(false);
+      return;
+    }
+
+    if (registerPassword !== registerPasswordConfirm) {
+      setPasswordMismatch(true);
+      setRegisterPasswordConfirm("");
+      return;
+    }
+
     setRegisterLoading(true);
     const result = await register({
       email: registerEmail,
@@ -187,91 +198,12 @@ export default function HesabimPage() {
     if (!result.success) {
       setRegisterError(result.error || "Kayıt başarısız");
     } else {
-      // Registration successful - send activation code
-      setActivationEmail(registerEmail);
-      try {
-        const res = await fetch("/api/auth/send-activation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: registerEmail }),
-        });
-        if (res.ok) {
-          setShowActivation(true);
-          setCountdown(300); // Reset countdown to 5 minutes
-        } else {
-          const data = await res.json();
-          setRegisterError(data.error || "Aktivasyon kodu gönderilemedi");
-        }
-      } catch {
-        setRegisterError("Aktivasyon kodu gönderilemedi");
-      }
+      await login(registerEmail, registerPassword);
     }
     setRegisterLoading(false);
   };
 
-  // Countdown timer for activation code
-  useEffect(() => {
-    if (!showActivation || countdown <= 0) return;
-    const timer = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [showActivation, countdown]);
-
-  const handleActivationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setActivationError(null);
-    setActivationLoading(true);
-    
-    try {
-      const res = await fetch("/api/auth/verify-activation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: activationEmail, code: activationCode }),
-      });
-      const data = await res.json();
-      
-      if (!res.ok) {
-        setActivationError(data.error);
-      } else {
-        setActivationSuccess(true);
-        // Auto login after successful activation
-        setTimeout(async () => {
-          await login(activationEmail, registerPassword);
-        }, 2000);
-      }
-    } catch {
-      setActivationError("Doğrulama sırasında bir hata oluştu");
-    }
-    setActivationLoading(false);
-  };
-
-  const handleResendCode = async () => {
-    setResendLoading(true);
-    setResendSuccess(false);
-    
-    try {
-      const res = await fetch("/api/auth/send-activation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: activationEmail }),
-      });
-      if (res.ok) {
-        setResendSuccess(true);
-        setCountdown(300); // Reset countdown
-        setTimeout(() => setResendSuccess(false), 3000);
-      }
-    } catch {
-      console.error("Resend failed");
-    }
-    setResendLoading(false);
-  };
-
-  const formatCountdown = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  
 
   const handleLogout = async () => {
     await logout();
@@ -868,7 +800,7 @@ export default function HesabimPage() {
               alignItems: 'center',
               gap: '12px',
             }}>
-              {showActivation ? "Email Doğrulama" : "Üye Ol"}
+              Üye Ol
               {activePanel === 'register' && (
                 <span style={{
                   width: '8px',
@@ -879,181 +811,6 @@ export default function HesabimPage() {
               )}
             </h2>
 
-            {/* Activation Code Form */}
-            {showActivation ? (
-              <div>
-                {activationSuccess ? (
-                  <div style={{
-                    textAlign: 'center',
-                    padding: '40px 20px',
-                  }}>
-                    <div style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '50%',
-                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 20px',
-                    }}>
-                      <Check size={32} style={{ color: '#10B981' }} />
-                    </div>
-                    <h3 style={{ color: 'var(--foreground)', fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                      Email Doğrulandı!
-                    </h3>
-                    <p style={{ color: 'var(--foreground-muted)', fontSize: '14px' }}>
-                      Hesabınıza yönlendiriliyorsunuz...
-                    </p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleActivationSubmit}>
-                    <p style={{
-                      color: 'var(--foreground-secondary)',
-                      fontSize: '14px',
-                      marginBottom: '20px',
-                      lineHeight: '1.6',
-                    }}>
-                      <strong style={{ color: '#10B981' }}>{activationEmail}</strong> adresine gönderilen 
-                      <strong> F-XXXXXX</strong> formatındaki kodu girin.
-                    </p>
-                    
-                    {/* Countdown Timer */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      marginBottom: '20px',
-                      padding: '12px',
-                      backgroundColor: countdown > 60 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                      borderRadius: '8px',
-                      border: `1px solid ${countdown > 60 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
-                    }}>
-                      <span style={{ color: countdown > 60 ? '#10B981' : '#F59E0B', fontSize: '13px' }}>
-                        ⏰ Kodun geçerlilik süresi: <strong>{formatCountdown(countdown)}</strong>
-                      </span>
-                    </div>
-
-                    {activationError && (
-                      <div style={{
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                        borderRadius: '12px',
-                        padding: '12px 16px',
-                        marginBottom: '20px',
-                        fontSize: '13px',
-                        color: '#EF4444',
-                      }}>
-                        {activationError}
-                      </div>
-                    )}
-
-                    {resendSuccess && (
-                      <div style={{
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        border: '1px solid rgba(16, 185, 129, 0.2)',
-                        borderRadius: '12px',
-                        padding: '12px 16px',
-                        marginBottom: '20px',
-                        fontSize: '13px',
-                        color: '#10B981',
-                      }}>
-                        ✅ Yeni kod gönderildi!
-                      </div>
-                    )}
-
-                    {/* Activation Code Input */}
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{
-                        display: 'block',
-                        fontSize: '13px',
-                        fontWeight: '500',
-                        color: 'var(--foreground-secondary)',
-                        marginBottom: '8px',
-                      }}>
-                        Aktivasyon Kodu <span style={{ color: '#EF4444' }}>*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={activationCode}
-                        onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
-                        placeholder="F-XXXXXX"
-                        required
-                        maxLength={8}
-                        style={{
-                          width: '100%',
-                          height: '52px',
-                          padding: '0 16px',
-                          backgroundColor: 'var(--input-bg)',
-                          border: '1px solid var(--input-border)',
-                          borderRadius: '12px',
-                          fontSize: '18px',
-                          fontWeight: '600',
-                          letterSpacing: '4px',
-                          textAlign: 'center',
-                          color: 'white',
-                          outline: 'none',
-                          transition: 'all 0.2s ease',
-                        }}
-                      />
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={activationLoading || countdown <= 0}
-                      style={{
-                        width: '100%',
-                        height: '48px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        backgroundColor: countdown <= 0 ? 'var(--foreground-muted)' : '#10B981',
-                        border: 'none',
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: countdown <= 0 ? 'var(--foreground-muted)' : 'white',
-                        cursor: activationLoading || countdown <= 0 ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s ease',
-                        marginBottom: '16px',
-                      }}
-                    >
-                      {activationLoading && <Loader2 size={18} className="animate-spin" />}
-                      {activationLoading ? 'Doğrulanıyor...' : countdown <= 0 ? 'Süre Doldu' : 'Doğrula'}
-                    </button>
-
-                    {/* Resend Code Button - Sadece countdown süresi dolunca aktif */}
-                    <button
-                      type="button"
-                      onClick={handleResendCode}
-                      disabled={resendLoading || countdown > 0}
-                      style={{
-                        width: '100%',
-                        height: '44px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        backgroundColor: 'transparent',
-                        border: '1px solid var(--border)',
-                        borderRadius: '12px',
-                        fontSize: '13px',
-                        color: countdown > 0 ? 'var(--foreground-muted)' : 'var(--foreground-secondary)',
-                        cursor: resendLoading || countdown > 0 ? 'not-allowed' : 'pointer',
-                        opacity: countdown > 0 ? 0.5 : 1,
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {resendLoading && <Loader2 size={14} className="animate-spin" />}
-                      {resendLoading ? 'Gönderiliyor...' : countdown > 0 ? `Tekrar gönder (${formatCountdown(countdown)})` : 'Kodu Tekrar Gönder'}
-                    </button>
-                  </form>
-                )}
-              </div>
-            ) : (
             <form onSubmit={handleRegister}>
               {/* Error Message */}
               {registerError && (
@@ -1146,33 +903,81 @@ export default function HesabimPage() {
 
               {/* Password */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  color: 'var(--foreground-secondary)',
-                  marginBottom: '8px',
-                }}>
-                  Parola <span style={{ color: '#EF4444' }}>*</span>
-                </label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: '500',
+                    color: passwordStep === 'confirm' ? '#10B981' : 'var(--foreground-secondary)',
+                  }}>
+                    {passwordStep === 'first' ? (
+                      <>Parola <span style={{ color: '#EF4444' }}>*</span></>
+                    ) : (
+                      'Lütfen şifrenizi tekrar girin'
+                    )}
+                  </label>
+                  {passwordStep === 'confirm' && (
+                    <button
+                      type="button"
+                      onClick={() => { setPasswordStep('first'); setRegisterPasswordConfirm(''); setPasswordMismatch(false); }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '12px',
+                        color: 'var(--foreground-muted)',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Şifreyi değiştir
+                    </button>
+                  )}
+                </div>
+
+                {passwordMismatch && (
+                  <div style={{
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    marginBottom: '10px',
+                    fontSize: '12px',
+                    color: '#EF4444',
+                  }}>
+                    Şifreler eşleşmiyor. Lütfen tekrar deneyin.
+                  </div>
+                )}
+
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showRegisterPassword ? "text" : "password"}
-                    value={registerPassword}
-                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    value={passwordStep === 'first' ? registerPassword : registerPasswordConfirm}
+                    onChange={(e) => {
+                      setPasswordMismatch(false);
+                      if (passwordStep === 'first') {
+                        setRegisterPassword(e.target.value);
+                      } else {
+                        setRegisterPasswordConfirm(e.target.value);
+                      }
+                    }}
                     onFocus={() => { setFocusedField('registerPassword'); activateRegister(); }}
                     onBlur={() => setFocusedField(null)}
                     required
                     disabled={activePanel === 'login' || registerLoading}
-                    placeholder="En az 6 karakter"
+                    placeholder={passwordStep === 'first' ? 'En az 8 karakter' : 'Şifrenizi tekrar girin'}
+                    autoFocus={passwordStep === 'confirm'}
                     style={{
                       width: '100%',
                       height: '48px',
                       padding: '0 48px 0 16px',
                       backgroundColor: 'var(--input-bg)',
-                      border: focusedField === 'registerPassword'
-                        ? '1px solid rgba(16, 185, 129, 0.5)'
-                        : '1px solid var(--input-border)',
+                      border: passwordMismatch
+                        ? '1px solid rgba(239, 68, 68, 0.5)'
+                        : passwordStep === 'confirm'
+                          ? '1px solid rgba(16, 185, 129, 0.4)'
+                          : focusedField === 'registerPassword'
+                            ? '1px solid rgba(16, 185, 129, 0.5)'
+                            : '1px solid var(--input-border)',
                       borderRadius: '12px',
                       fontSize: '14px',
                       color: 'var(--foreground)',
@@ -1281,11 +1086,10 @@ export default function HesabimPage() {
                 }}
               >
                 {registerLoading && <Loader2 size={18} className="animate-spin" />}
-                {registerLoading ? 'Kayıt yapılıyor...' : 'Üye Ol'}
+                {registerLoading ? 'Kayıt yapılıyor...' : passwordStep === 'first' ? 'Devam Et' : 'Üye Ol'}
               </button>
 
             </form>
-            )}
           </div>
         </div>
 

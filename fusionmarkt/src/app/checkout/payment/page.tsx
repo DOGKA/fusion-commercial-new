@@ -280,7 +280,15 @@ export default function PaymentPage() {
     return () => clearTimeout(timeoutId);
   }, [cardNumber, subtotal, shippingCost, appliedCoupon]);
 
-  // Early return - after all hooks
+  // Early return - wait for hydration, then check
+  if (!isHydrated) {
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
+        <Loader2 size={24} className="animate-spin" style={{ color: "var(--foreground-muted)" }} />
+      </div>
+    );
+  }
+
   if (items.length === 0 || !state.billingAddress?.firstName || !state.billingAddress?.email) {
     return (
       <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "120px" }}>
@@ -351,6 +359,7 @@ export default function PaymentPage() {
 
     try {
       // Sipariş verileri - ödeme sonrası oluşturulacak (kredi kartı)
+      const otpVerifiedEmail = typeof window !== "undefined" ? sessionStorage.getItem("otpVerifiedEmail") : null;
       const orderData = {
         billingAddress: state.billingAddress,
         shippingAddress: state.shippingAddress || state.billingAddress,
@@ -363,7 +372,7 @@ export default function PaymentPage() {
         couponId: appliedCoupon?.id,
         couponCode: appliedCoupon?.code,
         total,
-        // Sözleşme onayları - API'ye gönderilecek
+        otpVerified: !!otpVerifiedEmail && otpVerifiedEmail === state.billingAddress?.email?.toLowerCase().trim(),
         contracts: {
           termsAndConditions: state.contractsAccepted.termsAndConditions,
           distanceSalesContract: state.contractsAccepted.distanceSalesContract,
@@ -477,8 +486,8 @@ export default function PaymentPage() {
         // Ödeme işlemi başarılı - redirect'i engelle
         setIsProcessingPayment(true);
 
-        // Kupon bilgisini temizle
         sessionStorage.removeItem("appliedCoupon");
+        sessionStorage.removeItem("otpVerifiedEmail");
         
         // 3D Secure HTML'i sessionStorage'a kaydet
         sessionStorage.setItem("iyzico3DSHtml", paymentResult.htmlContent);
@@ -533,14 +542,13 @@ export default function PaymentPage() {
         }
       }
 
-      // Kupon bilgisini temizle
       sessionStorage.removeItem("appliedCoupon");
+      sessionStorage.removeItem("otpVerifiedEmail");
       
-      // Sepeti temizle
       clearCart();
       
-      // Yönlendirme yap
-      window.location.href = `/order-confirmation?orderNumber=${orderNumber}`;
+      const guestParam = result.guestAccountCreated ? "&guestAccount=true" : "";
+      window.location.href = `/order-confirmation?orderNumber=${orderNumber}${guestParam}`;
       
     } catch (error) {
       setErrors({ general: error instanceof Error ? error.message : "Bir hata oluştu" });

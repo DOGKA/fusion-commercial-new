@@ -85,6 +85,7 @@ function OrderConfirmationContent() {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedIban, setCopiedIban] = useState(false);
+  const guestAccountCreated = searchParams.get("guestAccount") === "true";
   
   // Password creation state
   const [password1, setPassword1] = useState("");
@@ -95,10 +96,10 @@ function OrderConfirmationContent() {
   const [passwordSaved, setPasswordSaved] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   
-  // Determine if user is guest (not logged in)
+  // Determine if user is guest (not logged in) and needs password creation
   const isGuest = sessionStatus === "unauthenticated";
-  const showPasswordForm = isGuest && !passwordSaved;
-  const showCTAButtons = !isGuest || passwordSaved;
+  const showPasswordForm = isGuest && guestAccountCreated && !passwordSaved;
+  const showCTAButtons = !isGuest || passwordSaved || !guestAccountCreated;
   
   // Password validation
   const password1Valid = password1.length >= 6;
@@ -131,7 +132,7 @@ function OrderConfirmationContent() {
   }, [orderNumber]);
 
   const copyIban = () => {
-    navigator.clipboard.writeText("TR00 0000 0000 0000 0000 0000 00");
+    navigator.clipboard.writeText("TR79 0006 2000 4080 0006 2907 16");
     setCopiedIban(true);
     setTimeout(() => setCopiedIban(false), 2000);
   };
@@ -316,15 +317,15 @@ function OrderConfirmationContent() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                     <span style={{ color: "var(--foreground-tertiary)" }}>Banka:</span>
-                    <span style={{ color: "var(--foreground)" }}>Ziraat Bankası</span>
+                    <span style={{ color: "var(--foreground)" }}>T. Garanti BBVA Bankası A.Ş.</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                     <span style={{ color: "var(--foreground-tertiary)" }}>Hesap Sahibi:</span>
-                    <span style={{ color: "var(--foreground)" }}>FusionMarkt A.Ş.</span>
+                    <span style={{ color: "var(--foreground)" }}>ASDTC Mühendislik Ticaret Ltd Şti.</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                     <span style={{ color: "var(--foreground-tertiary)" }}>IBAN:</span>
-                    <span style={{ color: "var(--foreground)", fontFamily: "monospace" }}>TR00 0000 0000 0000 0000 0000 00</span>
+                    <span style={{ color: "var(--foreground)", fontFamily: "monospace" }}>TR79 0006 2000 4080 0006 2907 16</span>
                   </div>
                 </div>
                 <button

@@ -522,7 +522,7 @@ export const BankInfo = ({ orderNumber }: BankInfoProps) => (
                     fontFamily: theme.fonts.sans,
                   }}
                 >
-                  Ziraat Bankası
+                  T. Garanti BBVA Bankası A.Ş.
                 </td>
               </tr>
               <tr>
@@ -544,7 +544,7 @@ export const BankInfo = ({ orderNumber }: BankInfoProps) => (
                     fontFamily: theme.fonts.sans,
                   }}
                 >
-                  FusionMarkt A.Ş.
+                  ASDTC Mühendislik Ticaret Ltd Şti.
                 </td>
               </tr>
               <tr>
@@ -566,7 +566,7 @@ export const BankInfo = ({ orderNumber }: BankInfoProps) => (
                     padding: `${theme.spacing[1]} 0`,
                   }}
                 >
-                  TR00 0000 0000 0000 0000 0000 00
+                  TR79 0006 2000 4080 0006 2907 16
                 </td>
               </tr>
             </tbody>

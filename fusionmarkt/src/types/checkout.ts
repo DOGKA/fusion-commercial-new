@@ -135,9 +135,9 @@ export interface BankTransferInfo {
 }
 
 export const BANK_TRANSFER_INFO: BankTransferInfo = {
-  bankName: "Ziraat Bankası",
-  accountHolder: "FusionMarkt Enerji Çözümleri Ltd. Şti.",
-  iban: "TR00 0000 0000 0000 0000 0000 00",
+  bankName: "T. Garanti BBVA Bankası A.Ş.",
+  accountHolder: "ASDTC Mühendislik Ticaret Ltd Şti.",
+  iban: "TR79 0006 2000 4080 0006 2907 16",
   description: "Açıklama kısmına sipariş numaranızı yazınız.",
 };
 

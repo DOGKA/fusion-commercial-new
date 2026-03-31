@@ -14,7 +14,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { 
   sendOrderPendingPaymentEmail,
-  sendAdminNewOrderNotification 
+  sendAdminNewOrderNotification,
 } from "@/lib/email";
 import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
 import { generateContractsHTML } from "@/lib/contracts";
@@ -133,6 +133,7 @@ export async function POST(request: NextRequest) {
       shippingCost: directShippingCost,
       discount: directDiscount,
       total: directTotal,
+      otpVerified, // OTP ile doğrulanmış e-posta
       contracts, // Sözleşme onayları
       newsletter, // Legacy newsletter field
     } = body;
@@ -183,45 +184,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if guest is using a registered email
     let userId = session?.user?.id;
+    let guestAccountCreated = false;
     
     if (!userId) {
-      // Guest checkout - check if email is already registered
       const existingUser = await prisma.user.findUnique({
         where: { email: billingAddress.email.toLowerCase().trim() },
         select: { id: true, name: true },
       });
       
       if (existingUser) {
-        // Email is registered - user must login
-        return NextResponse.json(
-          { 
-            error: "Bu e-posta adresi kayıtlı bir hesaba ait. Lütfen giriş yaparak devam edin.",
-            code: "EMAIL_REGISTERED",
-            userName: existingUser.name 
-          },
-          { status: 409 } // Conflict
-        );
+        if (otpVerified) {
+          userId = existingUser.id;
+        } else {
+          return NextResponse.json(
+            { 
+              error: "Bu e-posta adresi kayıtlı bir hesaba ait. Lütfen giriş yaparak devam edin.",
+              code: "EMAIL_REGISTERED",
+              userName: existingUser.name 
+            },
+            { status: 409 }
+          );
+        }
       }
       
-      // Create a new user account for guest
-      const tempPassword = Math.random().toString(36).slice(-12); // Temporary password
-      const hashedPassword = await bcrypt.hash(tempPassword, 12);
-      
-      const newUser = await prisma.user.create({
-        data: {
-          email: billingAddress.email.toLowerCase().trim(),
-          name: `${billingAddress.firstName} ${billingAddress.lastName}`.trim(),
-          password: hashedPassword,
-          phone: billingAddress.phone || null,
-          role: "CUSTOMER",
-        },
-      });
-      
-      userId = newUser.id;
-      
-      // TODO: Send welcome email with password reset link
+      if (!userId) {
+        const tempPassword = Math.random().toString(36).slice(-12);
+        const hashedPassword = await bcrypt.hash(tempPassword, 12);
+        
+        const newUser = await prisma.user.create({
+          data: {
+            email: billingAddress.email.toLowerCase().trim(),
+            name: `${billingAddress.firstName} ${billingAddress.lastName}`.trim(),
+            password: hashedPassword,
+            phone: billingAddress.phone || null,
+            role: "CUSTOMER",
+          },
+        });
+        
+        userId = newUser.id;
+        guestAccountCreated = true;
+      }
     }
 
     // Generate order number
@@ -383,97 +386,101 @@ export async function POST(request: NextRequest) {
       },
     ];
 
-    // Create order in database
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        userId,
-        status: orderStatus,
-        paymentStatus,
-        paymentMethod: paymentMethod === "credit_card" || paymentMethod === "card_sipay" ? "CREDIT_CARD" : "BANK_TRANSFER",
-        subtotal: orderSubtotal,
-        shippingCost: orderShipping,
-        discount: orderDiscount,
-        tax: totals?.taxIncluded || 0,
-        total: orderTotal,
-        couponId: directCouponId || couponId,
-        couponCode: couponCode || null,
-        billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
-        shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
-        customerNote: billingAddress?.orderNotes || null,
-        contractAccessToken, // Token for secure contract access
-        statusHistory: initialStatusHistory, // Sözleşme onaylarını dahil et
-        // Create order items
-        items: {
-          create: items.map((item: { 
-            productId: string; 
-            variant?: { id: string }; 
-            price: number; 
-            quantity: number;
-            isBundle?: boolean;
-            bundleId?: string;
-            bundleItemVariants?: Record<string, { variantId: string; variantName: string; variantValue: string; productName: string }>;
-          }) => {
-            // variantInfo: normal varyant + bundle içi varyantlar
-            let variantInfo = null;
-            if (item.variant || item.bundleItemVariants) {
-              variantInfo = JSON.stringify({
-                variant: item.variant || null,
-                bundleItemVariants: item.bundleItemVariants || null,
-              });
-            }
-            
-            return {
-              productId: item.productId,
-              bundleId: item.isBundle ? item.bundleId : null,
-              price: item.price,
-              quantity: item.quantity,
-              subtotal: item.price * item.quantity,
-              variantInfo,
-            };
-          }),
-        },
-      },
-    });
+    const isBankTransfer = paymentMethod !== "credit_card" && paymentMethod !== "card_sipay";
 
-    const isBankTransfer = order.paymentMethod === "BANK_TRANSFER";
-
-    // Reduce stock only for bank transfer orders (stock reserved on payment pending)
-    if (isBankTransfer) {
-      for (const item of items) {
-        try {
-          // Check if variant exists
+    // ─────────────────────────────────────────────────────────────────────────
+    // ATOMIC TRANSACTION: stock check + decrement + order create + coupon update
+    // ─────────────────────────────────────────────────────────────────────────
+    const order = await prisma.$transaction(async (tx: any) => {
+      // 1. Stock validation & decrement (bank transfer only - card orders reserve later)
+      if (isBankTransfer) {
+        for (const item of items) {
+          if (item.isBundle) continue;
           if (item.variant?.id) {
-            // Update variant stock
-            await prisma.productVariant.updateMany({
-              where: {
-                id: item.variant.id,
-                stock: { gte: item.quantity }, // Only update if stock is sufficient
-              },
-              data: {
-                stock: { decrement: item.quantity },
-              },
+            const updated = await tx.productVariant.updateMany({
+              where: { id: item.variant.id, stock: { gte: item.quantity } },
+              data: { stock: { decrement: item.quantity } },
             });
+            if (updated.count === 0) {
+              const variant = await tx.productVariant.findUnique({ where: { id: item.variant.id }, select: { stock: true } });
+              throw new Error(`STOCK_INSUFFICIENT:${item.productId}:Stok yetersiz (mevcut: ${variant?.stock ?? 0}, istenen: ${item.quantity})`);
+            }
           } else {
-            // Update main product stock
-            await prisma.product.updateMany({
-              where: {
-                id: item.productId,
-                stock: { gte: item.quantity }, // Only update if stock is sufficient
-              },
-              data: {
-                stock: { decrement: item.quantity },
-              },
+            const updated = await tx.product.updateMany({
+              where: { id: item.productId, stock: { gte: item.quantity } },
+              data: { stock: { decrement: item.quantity } },
             });
+            if (updated.count === 0) {
+              const product = await tx.product.findUnique({ where: { id: item.productId }, select: { stock: true, name: true } });
+              throw new Error(`STOCK_INSUFFICIENT:${item.productId}:"${product?.name}" stok yetersiz (mevcut: ${product?.stock ?? 0}, istenen: ${item.quantity})`);
+            }
           }
-        } catch (error) {
-          console.error(`Failed to reduce stock for product ${item.productId}:`, error);
-          // Continue with other items even if one fails
         }
       }
-    } else {
-      console.log(`⏳ Credit card order created, stock not reserved: ${order.orderNumber}`);
-    }
+
+      // 2. Coupon usage increment (race-condition safe)
+      const finalCouponId = directCouponId || couponId;
+      if (finalCouponId && couponCode) {
+        const couponRecord = await tx.coupon.findUnique({ where: { id: finalCouponId }, select: { isActive: true, usageLimit: true, usageCount: true } });
+        if (couponRecord && couponRecord.isActive && (couponRecord.usageLimit === null || couponRecord.usageCount < couponRecord.usageLimit)) {
+          await tx.coupon.update({ where: { id: finalCouponId }, data: { usageCount: { increment: 1 } } });
+        } else {
+          console.warn(`Coupon ${couponCode} invalid at order time, proceeding without discount`);
+        }
+      }
+
+      // 3. Create order with items
+      const createdOrder = await tx.order.create({
+        data: {
+          orderNumber,
+          userId,
+          status: "PENDING",
+          paymentStatus: "PENDING",
+          paymentMethod: isBankTransfer ? "BANK_TRANSFER" : "CREDIT_CARD",
+          subtotal: orderSubtotal,
+          shippingCost: orderShipping,
+          discount: orderDiscount,
+          tax: totals?.taxIncluded || 0,
+          total: orderTotal,
+          couponId: finalCouponId,
+          couponCode: couponCode || null,
+          billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
+          shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
+          customerNote: billingAddress?.orderNotes || null,
+          contractAccessToken,
+          statusHistory: initialStatusHistory,
+          items: {
+            create: items.map((item: {
+              productId: string;
+              variant?: { id: string };
+              price: number;
+              quantity: number;
+              isBundle?: boolean;
+              bundleId?: string;
+              bundleItemVariants?: Record<string, { variantId: string; variantName: string; variantValue: string; productName: string }>;
+            }) => {
+              let variantInfo = null;
+              if (item.variant || item.bundleItemVariants) {
+                variantInfo = JSON.stringify({
+                  variant: item.variant || null,
+                  bundleItemVariants: item.bundleItemVariants || null,
+                });
+              }
+              return {
+                productId: item.productId,
+                bundleId: item.isBundle ? item.bundleId : null,
+                price: item.price,
+                quantity: item.quantity,
+                subtotal: item.price * item.quantity,
+                variantInfo,
+              };
+            }),
+          },
+        },
+      });
+
+      return createdOrder;
+    });
 
     // ═══════════════════════════════════════════════════════════════════════
     // EMAIL NOTIFICATIONS
@@ -525,10 +532,21 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
       status: order.status,
       paymentStatus: order.paymentStatus,
+      guestAccountCreated: guestAccountCreated || false,
     }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Create order error:", error);
+    
+    const errorMessage = error?.message || "";
+    if (errorMessage.startsWith("STOCK_INSUFFICIENT:")) {
+      const parts = errorMessage.split(":");
+      return NextResponse.json(
+        { error: parts[2] || "Stok yetersiz", code: "STOCK_INSUFFICIENT", productId: parts[1] },
+        { status: 422 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Sipariş oluşturulamadı" },
       { status: 500 }

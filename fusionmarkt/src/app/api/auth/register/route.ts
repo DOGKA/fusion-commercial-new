@@ -64,22 +64,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Password strength validation
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Parola en az 8 karakter olmalıdır" },
-        { status: 400 }
-      );
-    }
-
-    // Check password complexity (at least one uppercase, one lowercase, one number)
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasLowercase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    
-    if (!hasUppercase || !hasLowercase || !hasNumber) {
-      return NextResponse.json(
-        { error: "Parola en az bir büyük harf, bir küçük harf ve bir rakam içermelidir" },
         { status: 400 }
       );
     }

@@ -222,15 +222,15 @@ const components = {
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
               <td style="padding: 6px 0; font-size: 13px; color: rgba(255,255,255,0.5); width: 100px;">Banka</td>
-              <td style="padding: 6px 0; font-size: 13px; color: #ffffff;">Ziraat Bankası</td>
+              <td style="padding: 6px 0; font-size: 13px; color: #ffffff;">T. Garanti BBVA Bankası A.Ş.</td>
             </tr>
             <tr>
               <td style="padding: 6px 0; font-size: 13px; color: rgba(255,255,255,0.5);">Hesap Sahibi</td>
-              <td style="padding: 6px 0; font-size: 13px; color: #ffffff;">FusionMarkt A.Ş.</td>
+              <td style="padding: 6px 0; font-size: 13px; color: #ffffff;">ASDTC Mühendislik Ticaret Ltd Şti.</td>
             </tr>
             <tr>
               <td style="padding: 6px 0; font-size: 13px; color: rgba(255,255,255,0.5);">IBAN</td>
-              <td style="padding: 6px 0; font-size: 13px; color: #ffffff; font-family: ui-monospace, monospace;">TR00 0000 0000 0000 0000 0000 00</td>
+              <td style="padding: 6px 0; font-size: 13px; color: #ffffff; font-family: ui-monospace, monospace;">TR79 0006 2000 4080 0006 2907 16</td>
             </tr>
           </table>
           <p style="margin: 16px 0 0 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.5); text-align: center;">

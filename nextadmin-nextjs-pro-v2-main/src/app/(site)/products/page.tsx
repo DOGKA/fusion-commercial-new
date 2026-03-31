@@ -51,6 +51,15 @@ export default function ProductsPage() {
   const [showBulkStockModal, setShowBulkStockModal] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
 
+  // CSV Import/Export state
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importMode, setImportMode] = useState<"create" | "update">("create");
+  const [importLoading, setImportLoading] = useState(false);
+  const [importResult, setImportResult] = useState<any>(null);
+  const [exportLoading, setExportLoading] = useState(false);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -299,6 +308,56 @@ export default function ProductsPage() {
     setFeaturedFilter("all");
   };
 
+  const handleExport = async (format: "merchant" | "ads") => {
+    setExportLoading(true);
+    setShowExportMenu(false);
+    try {
+      const res = await fetch(`/api/products/export?format=${format}`);
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = format === "ads"
+        ? `google-ads-products-${new Date().toISOString().split("T")[0]}.csv`
+        : `google-merchant-products-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export error:", error);
+      alert("Dışa aktarma sırasında hata oluştu");
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!importFile) return;
+    setImportLoading(true);
+    setImportResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", importFile);
+      formData.append("mode", importMode);
+      const res = await fetch("/api/products/import", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      setImportResult(data);
+      if (data.success) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Import error:", error);
+      setImportResult({ error: "İçe aktarma sırasında hata oluştu" });
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   const toggleFeatured = async (productId: string, currentValue: boolean) => {
     setTogglingId(productId);
     
@@ -374,15 +433,87 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold text-dark dark:text-white">Ürünler</h1>
           <p className="text-gray-500">Tüm ürünlerinizi yönetin</p>
         </div>
-        <Link
-          href="/products/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-white hover:bg-primary/90 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Yeni Ürün Ekle
-        </Link>
+        <div className="flex items-center gap-3">
+          {/* Import Button */}
+          <button
+            onClick={() => { setShowImportModal(true); setImportResult(null); setImportFile(null); }}
+            className="inline-flex items-center gap-2 rounded-lg border border-stroke px-4 py-2.5 text-dark hover:bg-gray-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            CSV İçe Aktar
+          </button>
+
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              disabled={exportLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-stroke px-4 py-2.5 text-dark hover:bg-gray-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-colors disabled:opacity-50"
+            >
+              {exportLoading ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              )}
+              CSV Dışa Aktar
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
+                <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-stroke bg-white shadow-lg dark:border-dark-3 dark:bg-gray-dark">
+                  <div className="p-2">
+                    <button
+                      onClick={() => handleExport("merchant")}
+                      className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-dark-2 transition-colors"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+                        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-dark dark:text-white text-sm">Google Merchant</p>
+                        <p className="text-xs text-gray-500">Merchant Center feed</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleExport("ads")}
+                      className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-dark-2 transition-colors"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+                        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-dark dark:text-white text-sm">Google Ads</p>
+                        <p className="text-xs text-gray-500">Dynamic remarketing feed</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <Link
+            href="/products/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-white hover:bg-primary/90 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Yeni Ürün Ekle
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
@@ -656,6 +787,163 @@ export default function ProductsPage() {
                 Güncelle
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 dark:bg-gray-dark mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-dark dark:text-white">CSV İçe Aktar</h3>
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-dark-2"
+              >
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {!importResult ? (
+              <>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-2">İçe Aktarma Modu</label>
+                  <div className="flex gap-3">
+                    <label className={`flex-1 cursor-pointer rounded-lg border-2 p-4 transition-colors ${importMode === "create" ? "border-primary bg-primary/5" : "border-stroke dark:border-dark-3"}`}>
+                      <input type="radio" name="mode" value="create" checked={importMode === "create"} onChange={() => setImportMode("create")} className="sr-only" />
+                      <p className="font-medium text-dark dark:text-white text-sm">Yeni Oluştur</p>
+                      <p className="text-xs text-gray-500 mt-1">Tüm satırlar yeni ürün olarak eklenir</p>
+                    </label>
+                    <label className={`flex-1 cursor-pointer rounded-lg border-2 p-4 transition-colors ${importMode === "update" ? "border-primary bg-primary/5" : "border-stroke dark:border-dark-3"}`}>
+                      <input type="radio" name="mode" value="update" checked={importMode === "update"} onChange={() => setImportMode("update")} className="sr-only" />
+                      <p className="font-medium text-dark dark:text-white text-sm">Güncelle / Oluştur</p>
+                      <p className="text-xs text-gray-500 mt-1">SKU eşleşirse günceller, yoksa oluşturur</p>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-2">CSV Dosyası</label>
+                  <div
+                    className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
+                      importFile ? "border-primary bg-primary/5" : "border-stroke dark:border-dark-3 hover:border-primary/50"
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                      className="absolute inset-0 cursor-pointer opacity-0"
+                    />
+                    {importFile ? (
+                      <>
+                        <svg className="w-10 h-10 text-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="font-medium text-dark dark:text-white text-sm">{importFile.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">{(importFile.size / 1024).toFixed(1)} KB</p>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="text-sm text-gray-500">CSV dosyanızı sürükleyin veya seçin</p>
+                        <p className="text-xs text-gray-400 mt-1">Google Merchant, Google Ads veya özel format</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mb-6 rounded-lg bg-blue-50 dark:bg-blue-500/10 p-4">
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-400 mb-1">Desteklenen Formatlar</p>
+                  <ul className="text-xs text-blue-600 dark:text-blue-300 space-y-1">
+                    <li>• Google Merchant Center feed (id, title, description, price...)</li>
+                    <li>• Google Ads feed (ID, Item title, Final URL, Price...)</li>
+                    <li>• Özel format (Ürün Adı, SKU, Fiyat, Stok, Kategori...)</li>
+                  </ul>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowImportModal(false)}
+                    className="rounded-lg border border-stroke px-5 py-2.5 text-dark hover:bg-gray-100 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={handleImport}
+                    disabled={!importFile || importLoading}
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {importLoading ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                    )}
+                    İçe Aktar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {importResult.error ? (
+                  <div className="rounded-lg bg-red-50 dark:bg-red-500/10 p-4 mb-6">
+                    <p className="font-medium text-red-800 dark:text-red-400">{importResult.error}</p>
+                    {importResult.message && <p className="text-sm text-red-600 dark:text-red-300 mt-1">{importResult.message}</p>}
+                  </div>
+                ) : (
+                  <div className="space-y-4 mb-6">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="rounded-lg bg-green-50 dark:bg-green-500/10 p-4 text-center">
+                        <p className="text-2xl font-bold text-green-600">{importResult.created}</p>
+                        <p className="text-xs text-green-500 mt-1">Oluşturuldu</p>
+                      </div>
+                      <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 p-4 text-center">
+                        <p className="text-2xl font-bold text-blue-600">{importResult.updated}</p>
+                        <p className="text-xs text-blue-500 mt-1">Güncellendi</p>
+                      </div>
+                      <div className="rounded-lg bg-yellow-50 dark:bg-yellow-500/10 p-4 text-center">
+                        <p className="text-2xl font-bold text-yellow-600">{importResult.skipped}</p>
+                        <p className="text-xs text-yellow-500 mt-1">Atlandı</p>
+                      </div>
+                    </div>
+
+                    {importResult.errors?.length > 0 && (
+                      <div className="rounded-lg border border-red-200 dark:border-red-500/20">
+                        <div className="px-4 py-3 border-b border-red-200 dark:border-red-500/20">
+                          <p className="text-sm font-medium text-red-600">{importResult.errors.length} hata oluştu</p>
+                        </div>
+                        <div className="max-h-40 overflow-y-auto p-4 space-y-2">
+                          {importResult.errors.map((err: any, idx: number) => (
+                            <div key={idx} className="text-xs">
+                              <span className="font-medium text-dark dark:text-white">Satır {err.row}</span>
+                              <span className="text-gray-400 mx-1">•</span>
+                              <span className="text-gray-500">{err.name}</span>
+                              <span className="text-gray-400 mx-1">→</span>
+                              <span className="text-red-500">{err.error}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowImportModal(false)}
+                    className="rounded-lg bg-primary px-5 py-2.5 text-white hover:bg-primary/90 transition-colors"
+                  >
+                    Tamam
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

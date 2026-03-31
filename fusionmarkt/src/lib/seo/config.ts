@@ -119,11 +119,14 @@ export const defaultDescriptions = {
 export const categoryDescriptions: Record<string, string> = {
   "tasinabilir-guc-kaynaklari": "Taşınabilir güç kaynağı modelleri - LiFePO4 bataryalı portable power station. Kamp, karavan, açık hava etkinlikleri ve acil durum için 256Wh-6kWh güç istasyonları. Fiyat karşılaştırması, ücretsiz kargo.",
   "power-station": "Taşınabilir güç kaynağı modelleri - LiFePO4 bataryalı power station. Kamp, karavan, acil durum ve ev kullanımı için 500W-3000W güç istasyonları. Fiyat ve özellik karşılaştırması.",
+  "gunes-panelleri": "Güneş enerjisi panelleri - Katlanır solar panel modelleri. Taşınabilir güç kaynağı ile uyumlu 100W-400W güneş paneli seçenekleri. En iyi fiyat garantisi, ücretsiz kargo.",
   "solar-panel": "Güneş enerjisi panelleri - Katlanır solar panel modelleri. Taşınabilir güç kaynağı ile uyumlu 100W-400W güneş paneli seçenekleri. En iyi fiyat garantisi, ücretsiz kargo.",
   "aksesuarlar": "Güç istasyonu aksesuarları - Kablo, adaptör, çanta ve yedek parçalar. LiFePO4 batarya, solar panel bağlantı ekipmanları. FusionMarkt güvencesiyle.",
   "bundle": "Taşınabilir güç kaynağı + solar panel paket setleri. Hazır off-grid enerji çözümleri, %20'ye varan tasarruf fırsatları.",
   "bundle-paket-urunler": "Özel paket fırsatları - Güç istasyonu + güneş paneli setleri. LiFePO4 bataryalı taşınabilir enerji paketleri ile maksimum tasarruf. Ücretsiz kargo.",
+  "teleskopik-merdivenler": "Teleskopik merdiven modelleri - Telesteps yalıtkan ve alüminyum teleskopik merdivenler. Kevlar, kombi ve uzatma merdivenleri. EN 50528 sertifikalı, 1000V yalıtımlı. Yetkili distribütör.",
   "yalitkan-merdiven": "Yalıtkan merdiven modelleri - Elektrik işleri için güvenli fiberglas merdivenler. EN 50528 sertifikalı, 1000V yalıtımlı teleskopik ve atlas merdivenler. Telesteps yetkili distribütörü.",
+  "endustriyel-eldivenler": "Endüstriyel iş eldivenleri - Kesim dayanımlı, dokunmatik ekran uyumlu Traffi güvenlik eldivenleri. CE ve EN 388 sertifikalı. Türkiye yetkili distribütörü.",
   "is-guvenligi-eldiveni": "İş güvenliği eldiveni modelleri - Kesim dayanımlı, dokunmatik ekran uyumlu Traffi güvenlik eldivenleri. CE ve EN 388 sertifikalı. Türkiye yetkili distribütörü.",
 };
 
