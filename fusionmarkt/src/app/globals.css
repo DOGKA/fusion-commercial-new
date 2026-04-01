@@ -234,3 +234,44 @@
   50% { opacity: 0.3; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+
+/* Checkout: registered email action buttons */
+.email-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.email-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 12px;
+  text-align: center;
+}
+@media (max-width: 640px) {
+  .email-action-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .email-action-btn {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    text-align: left;
+    height: auto !important;
+    min-height: 0;
+    overflow: visible;
+  }
+  .email-action-btn > div:first-child {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+  .email-action-btn p {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+}

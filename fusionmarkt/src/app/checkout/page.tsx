@@ -74,6 +74,7 @@ export default function CheckoutPage() {
   // Refs to prevent re-fetching
   const hasFetchedProfile = useRef(false);
   const hasFetchedAddresses = useRef(false);
+  const loginPanelRef = useRef<HTMLDivElement>(null);
   
   // Saved addresses
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -593,6 +594,11 @@ export default function CheckoutPage() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      const firstErrorKey = Object.keys(newErrors)[0];
+      const firstErrorEl = document.querySelector(`[data-field="${firstErrorKey}"]`) as HTMLElement;
+      if (firstErrorEl) {
+        setTimeout(() => firstErrorEl.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+      }
       return;
     }
     setErrors({});
@@ -610,6 +616,7 @@ export default function CheckoutPage() {
             setRegisteredUserName(data.userName);
             setShowLoginForm(true);
             setEmailAction(null);
+            setTimeout(() => loginPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
             return;
           }
           setEmailRegistered(false);
@@ -799,7 +806,7 @@ export default function CheckoutPage() {
                 /* Kişisel bilgiler eksikse veya düzenleme modundaysa form göster */
                 <>
                   <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-                    <div>
+                    <div data-field="firstName">
                       <label style={labelStyle}><User size={13} /> Ad *</label>
                       <input
                         type="text"
@@ -809,7 +816,7 @@ export default function CheckoutPage() {
                         style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                       />
                     </div>
-                    <div>
+                    <div data-field="lastName">
                       <label style={labelStyle}>Soyad *</label>
                       <input
                         type="text"
@@ -821,7 +828,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <div>
+                    <div data-field="phone">
                       <label style={labelStyle}><Phone size={13} /> Telefon *</label>
                       <input
                         type="tel"
@@ -831,7 +838,7 @@ export default function CheckoutPage() {
                         style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                       />
                     </div>
-                    <div>
+                    <div data-field="email">
                       <label style={labelStyle}><Mail size={13} /> E-posta *</label>
                       <div style={{ position: "relative" }}>
                         <input
@@ -925,25 +932,25 @@ export default function CheckoutPage() {
 
             {/* Email registered - 3 option panel (full width) */}
             {!isAuthenticated && emailRegistered && showLoginForm && (
-              <div style={{ marginBottom: "24px", padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+              <div ref={loginPanelRef} style={{ marginBottom: "24px", padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
                 <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", margin: "0 0 4px 0" }}>
                   {registeredUserName ? `Merhaba ${registeredUserName.split(" ")[0]}! ` : ""}Bu e-posta ile hesap mevcut.
                 </p>
                 {!emailAction && <p style={{ fontSize: "13px", color: "var(--foreground-muted)", margin: "0 0 16px 0" }}>Nasıl devam etmek istersiniz?</p>}
 
                 {!emailAction && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-                    <button type="button" onClick={() => setEmailAction("login")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", textAlign: "center", transition: "all 0.15s ease" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={18} style={{ color: "#10b981" }} /></div>
-                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Şifre ile giriş</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>Mevcut şifrenizle devam edin</p></div>
+                  <div className="email-action-grid">
+                    <button type="button" onClick={() => setEmailAction("login")} className="email-action-btn" style={{ borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", transition: "all 0.15s ease" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Check size={18} style={{ color: "#10b981" }} /></div>
+                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Şifre ile giriş</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "1px 0 0 0" }}>Mevcut şifrenizle devam edin</p></div>
                     </button>
-                    <button type="button" onClick={() => { setEmailAction("otp"); handleSendOtp(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", textAlign: "center", transition: "all 0.15s ease" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><Mail size={18} style={{ color: "#6366f1" }} /></div>
-                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Kod ile devam</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>E-postanıza kod göndereceğiz</p></div>
+                    <button type="button" onClick={() => { setEmailAction("otp"); handleSendOtp(); }} className="email-action-btn" style={{ borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", transition: "all 0.15s ease" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Mail size={18} style={{ color: "#6366f1" }} /></div>
+                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Kod ile devam</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "1px 0 0 0" }}>E-postanıza kod göndereceğiz</p></div>
                     </button>
-                    <button type="button" onClick={() => { setEmailAction("change"); setEmailRegistered(false); setShowLoginForm(false); setEmail(""); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 12px", borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", textAlign: "center", transition: "all 0.15s ease" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(245,158,11,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><User size={18} style={{ color: "#f59e0b" }} /></div>
-                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Farklı e-posta</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>Misafir olarak yeni e-posta girin</p></div>
+                    <button type="button" onClick={() => { setEmailAction("change"); setEmailRegistered(false); setShowLoginForm(false); setEmail(""); }} className="email-action-btn" style={{ borderRadius: "12px", border: "1px solid var(--border)", backgroundColor: "transparent", cursor: "pointer", transition: "all 0.15s ease" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "rgba(245,158,11,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><User size={18} style={{ color: "#f59e0b" }} /></div>
+                      <div><p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", margin: 0 }}>Farklı e-posta</p><p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: "1px 0 0 0" }}>Misafir olarak yeni e-posta girin</p></div>
                     </button>
                   </div>
                 )}
@@ -1047,7 +1054,7 @@ export default function CheckoutPage() {
             {/* Company Fields - Sadece kurumsal seçildiğinde */}
             {invoiceType === "company" && (
               <div style={{ padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px", marginBottom: "24px" }}>
-                <div style={{ marginBottom: "12px" }}>
+                <div data-field="companyName" style={{ marginBottom: "12px" }}>
                   <label style={labelStyle}><Building2 size={13} /> Şirket Adı *</label>
                   <input
                     type="text"
@@ -1058,7 +1065,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                  <div>
+                  <div data-field="taxNumber">
                     <label style={labelStyle}><FileText size={13} /> Vergi Numarası *</label>
                     <input
                       type="text"
@@ -1068,7 +1075,7 @@ export default function CheckoutPage() {
                       style={{ ...inputStyle, borderColor: errors.taxNumber ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     />
                   </div>
-                  <div>
+                  <div data-field="taxOffice">
                     <label style={labelStyle}>Vergi Dairesi *</label>
                     <input
                       type="text"
@@ -1191,7 +1198,7 @@ export default function CheckoutPage() {
                     <label style={labelStyle}>Ülke</label>
                     <input type="text" value="Türkiye" disabled style={{ ...inputStyle, opacity: 0.6, cursor: "not-allowed" }} />
                   </div>
-                  <div style={{ position: "relative" }}>
+                  <div data-field="city" style={{ position: "relative" }}>
                     <label style={labelStyle}><MapPin size={13} /> İl *</label>
                     <select
                       value={city}
@@ -1203,7 +1210,7 @@ export default function CheckoutPage() {
                     </select>
                     <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                   </div>
-                  <div style={{ position: "relative" }}>
+                  <div data-field="district" style={{ position: "relative" }}>
                     <label style={labelStyle}>İlçe *</label>
                     <select
                       value={district}
@@ -1218,7 +1225,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: "12px" }}>
+                <div data-field="addressLine1" style={{ marginBottom: "12px" }}>
                   <label style={labelStyle}><MapPin size={13} /> Adres *</label>
                   <input
                     type="text"

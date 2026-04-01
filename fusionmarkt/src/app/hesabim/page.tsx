@@ -1275,9 +1275,8 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
             })}
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-center border border-dashed border-border rounded-xl bg-foreground/[0.01]">
+          <div className="flex-1 flex items-center justify-center text-center border border-dashed border-border rounded-xl bg-foreground/[0.01] py-8">
             <div>
-              <Package size={36} className="mx-auto mb-4 text-foreground-disabled" />
               <p className="text-[15px] text-foreground-muted mb-5">Henüz siparişiniz yok</p>
               <Link href="/magaza" className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all">
                 Alışverişe Başla
@@ -3183,7 +3182,7 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
       {/* Profile Info */}
       <div className="space-y-3">
         <span className="text-[14px] font-medium text-foreground-tertiary block">Kişisel Bilgiler</span>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-hidden">
           <div className="space-y-1.5">
             <label className="text-[13px] text-foreground-muted">Ad</label>
             <input
@@ -3223,14 +3222,14 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
               className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground-muted cursor-not-allowed"
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 min-w-0">
             <label className="text-[13px] text-foreground-muted">Doğum Tarihi</label>
             <input
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
-              className="w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground outline-none focus:border-emerald-500/40 transition-all [color-scheme:dark]"
+              className="w-full max-w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground outline-none focus:border-emerald-500/40 transition-all [color-scheme:dark] box-border"
             />
           </div>
         </div>
