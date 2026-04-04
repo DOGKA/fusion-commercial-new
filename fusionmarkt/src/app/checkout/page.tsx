@@ -68,7 +68,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { setBillingAddress } = useCheckout();
-  const { items, updateQuantity, removeItem, subtotal, originalSubtotal, totalSavings, isHydrated } = useCart();
+  const { items, updateQuantity, updateItemPrice, removeItem, subtotal, originalSubtotal, totalSavings, isHydrated } = useCart();
   const { addItem: addFavorite } = useFavorites();
   
   // Refs to prevent re-fetching
@@ -121,6 +121,7 @@ export default function CheckoutPage() {
   
   // Preflight validation state
   const [preflightErrors, setPreflightErrors] = useState<PreflightError[]>([]);
+  const [preflightCorrectedItems, setPreflightCorrectedItems] = useState<Array<{ productId: string; correctedPrice?: number; variant?: { id: string } }>>([]);
   const [showPreflightModal, setShowPreflightModal] = useState(false);
   const [preflightLoading, setPreflightLoading] = useState(false);
 
@@ -652,6 +653,9 @@ export default function CheckoutPage() {
       });
       const result = await res.json();
       if (!result.valid) {
+        if (result.correctedItems) {
+          setPreflightCorrectedItems(result.correctedItems);
+        }
         const blocking = result.errors?.some((e: PreflightError) => e.type === "OUT_OF_STOCK" || e.type === "PRODUCT_INACTIVE");
         if (blocking) {
           setPreflightErrors(result.errors);
@@ -765,6 +769,19 @@ export default function CheckoutPage() {
           <div className="checkout-left-column" style={containerStyle}>
             {/* User Info - Kayıtlı bilgiler veya form */}
             <div style={{ marginBottom: "24px" }}>
+              {isAuthenticated && isPersonalInfoComplete && !editingPersonalInfo ? (
+                <>
+                  <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
+                    <p style={{ fontSize: "15px", fontWeight: "500", color: "var(--foreground)", margin: "0 0 4px 0" }}>
+                      Merhaba {firstName}! 👋
+                    </p>
+                    <p style={{ fontSize: "13px", color: "var(--foreground-secondary)", margin: 0 }}>
+                      Keyifli alışverişler dileriz.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Kişisel Bilgiler</h2>
                 {isPersonalInfoComplete && !editingPersonalInfo && (
@@ -927,6 +944,8 @@ export default function CheckoutPage() {
                     </button>
                   )}
                 </>
+              )}
+              </>
               )}
             </div>
 
@@ -1772,7 +1791,24 @@ export default function CheckoutPage() {
 
             <div style={{ display: "flex", gap: "12px" }}>
               <button
-                onClick={() => { setShowPreflightModal(false); setPreflightErrors([]); }}
+                onClick={() => {
+                  for (const ci of preflightCorrectedItems) {
+                    if (ci.correctedPrice !== undefined) {
+                      updateItemPrice(ci.productId, ci.correctedPrice, ci.variant?.id);
+                    }
+                  }
+                  const outOfStockIds = preflightErrors
+                    .filter((e: PreflightError) => e.type === "OUT_OF_STOCK" || e.type === "PRODUCT_INACTIVE")
+                    .map((e: PreflightError) => e.productId)
+                    .filter(Boolean) as string[];
+                  for (const pid of outOfStockIds) {
+                    const item = items.find(i => i.productId === pid);
+                    if (item) removeItem(item.id);
+                  }
+                  setShowPreflightModal(false);
+                  setPreflightErrors([]);
+                  setPreflightCorrectedItems([]);
+                }}
                 style={{ flex: 1, height: "44px", borderRadius: "10px", border: "1px solid var(--border)", backgroundColor: "transparent", color: "var(--foreground)", fontSize: "13px", fontWeight: "500", cursor: "pointer" }}
               >
                 Sepeti Güncelle

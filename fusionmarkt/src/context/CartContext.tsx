@@ -62,6 +62,7 @@ interface CartContextType {
   addItem: (item: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => Promise<void>;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateItemPrice: (productId: string, newPrice: number, variantId?: string) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -189,6 +190,15 @@ export function CartProvider({ children }: CartProviderProps) {
     );
   }, [removeItem]);
 
+  const updateItemPrice = useCallback((productId: string, newPrice: number, variantId?: string) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        const match = item.productId === productId && (!variantId || item.variant?.id === variantId);
+        return match ? { ...item, price: newPrice } : item;
+      })
+    );
+  }, []);
+
   // Clear cart
   const clearCart = useCallback(() => {
     setItems([]);
@@ -213,6 +223,7 @@ export function CartProvider({ children }: CartProviderProps) {
         addItem,
         removeItem,
         updateQuantity,
+        updateItemPrice,
         clearCart,
         openCart,
         closeCart,
@@ -240,6 +251,7 @@ const SSG_SAFE_CART_DEFAULTS: CartContextType = {
   addItem: async () => {},
   removeItem: () => {},
   updateQuantity: () => {},
+  updateItemPrice: () => {},
   clearCart: () => {},
   openCart: () => {},
   closeCart: () => {},

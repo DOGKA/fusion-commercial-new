@@ -120,7 +120,8 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const effectivePrice = product.price;
+      const variant = item.variant?.id ? variantMap.get(item.variant.id) : null;
+      const effectivePrice = (variant?.price != null) ? variant.price : product.price;
 
       if (Math.abs(effectivePrice - item.price) > 0.01) {
         errors.push({
