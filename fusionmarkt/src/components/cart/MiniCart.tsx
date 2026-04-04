@@ -391,14 +391,15 @@ export default function MiniCart() {
                 <ShoppingBag className="w-12 h-12 text-foreground-disabled" />
               </div>
               <p className="text-foreground-secondary text-lg font-medium mb-6">Sepetiniz boş</p>
-              <button
+              <Link
+                href="/magaza"
                 onClick={closeCart}
-                className="flex items-center gap-2 px-5 py-2.5 text-base font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 text-base font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-colors no-underline"
                 style={{ borderRadius: '14px' }}
               >
                 <Sparkles size={18} />
                 Ürünleri Keşfet
-              </button>
+              </Link>
             </div>
           ) : (
             items.map((item) => (

@@ -667,6 +667,7 @@ export default function PaymentPage() {
                     alignItems: "center",
                     justifyContent: "center",
                     height: "48px",
+                    padding: "0 16px",
                     borderRadius: "12px",
                     border: paymentMethod === "card" ? "1px solid var(--foreground-muted)" : "1px solid var(--border)",
                     backgroundColor: paymentMethod === "card" ? "var(--glass-bg-hover)" : "var(--input-bg)",

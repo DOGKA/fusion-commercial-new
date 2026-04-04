@@ -23,14 +23,6 @@ export async function PATCH(
       );
     }
 
-    // Eğer kupon mystery box'ta ise aktif/pasif değiştirilemez
-    if (existingCoupon.inMysteryBox) {
-      return NextResponse.json(
-        { error: "Kutudaki kuponların durumu değiştirilemez" },
-        { status: 400 }
-      );
-    }
-
     // Kupon güncelle
     const coupon = await prisma.coupon.update({
       where: { id },

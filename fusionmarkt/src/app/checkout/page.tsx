@@ -75,6 +75,9 @@ export default function CheckoutPage() {
   const hasFetchedProfile = useRef(false);
   const hasFetchedAddresses = useRef(false);
   const loginPanelRef = useRef<HTMLDivElement>(null);
+  const [authMissingFields, setAuthMissingFields] = useState<string[]>([]);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const authFieldsChecked = useRef(false);
   
   // Saved addresses
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -297,20 +300,30 @@ export default function CheckoutPage() {
         .then(data => {
           if (data.user) {
             const u = data.user;
-            // Ad/Soyad - setter ile kontrol
+            let fn = "", ln = "", em = "", ph = "";
             if (u.name) {
               const nameParts = u.name.split(" ");
-              setFirstName(prev => prev || nameParts[0] || "");
-              setLastName(prev => prev || nameParts.slice(1).join(" ") || "");
+              fn = nameParts[0] || "";
+              ln = nameParts.slice(1).join(" ") || "";
+              setFirstName(prev => prev || fn);
+              setLastName(prev => prev || ln);
             }
-            // Email
-            if (u.email) setEmail(prev => prev || u.email);
-            // Telefon
-            if (u.phone) setPhone(prev => prev || u.phone);
+            if (u.email) { em = u.email; setEmail(prev => prev || u.email); }
+            if (u.phone) { ph = u.phone; setPhone(prev => prev || u.phone); }
+            if (!authFieldsChecked.current) {
+              authFieldsChecked.current = true;
+              const missing: string[] = [];
+              if (!fn) missing.push("firstName");
+              if (!ln) missing.push("lastName");
+              if (!ph) missing.push("phone");
+              setAuthMissingFields(missing);
+            }
           }
+          setProfileLoaded(true);
         })
-        .catch(err => console.error("Failed to fetch user profile:", err));
+        .catch(err => { console.error("Failed to fetch user profile:", err); setProfileLoaded(true); });
     }
+    if (!isAuthenticated) setProfileLoaded(true);
   }, [isAuthenticated]);
 
   // Fetch saved addresses
@@ -749,7 +762,7 @@ export default function CheckoutPage() {
         <div className="checkout-steps" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "32px" }}>
           <div className="checkout-step checkout-step-active" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10b981", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>1</div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres & Teslimat</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres</span>
           </div>
           <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.4 }}>
@@ -759,7 +772,7 @@ export default function CheckoutPage() {
           <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.4 }}>
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--border)", color: "var(--foreground-tertiary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>3</div>
-            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Sipariş Tamamlama</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Onay</span>
           </div>
         </div>
 
@@ -769,183 +782,109 @@ export default function CheckoutPage() {
           <div className="checkout-left-column" style={containerStyle}>
             {/* User Info - Kayıtlı bilgiler veya form */}
             <div style={{ marginBottom: "24px" }}>
-              {isAuthenticated && isPersonalInfoComplete && !editingPersonalInfo ? (
-                <>
-                  <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
+              {/* Hoşgeldin mesajı - sadece login kullanıcılar */}
+              {isAuthenticated && !profileLoaded && (
+                <div style={{ padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px", minHeight: "60px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Loader2 size={16} className="animate-spin" style={{ color: "var(--foreground-muted)" }} />
+                    <span style={{ fontSize: "13px", color: "var(--foreground-muted)" }}>Bilgileriniz yükleniyor...</span>
+                  </div>
+                </div>
+              )}
+              {isAuthenticated && profileLoaded && (
+                <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px", marginBottom: authMissingFields.length > 0 ? "16px" : 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+                  <div>
                     <p style={{ fontSize: "15px", fontWeight: "500", color: "var(--foreground)", margin: "0 0 4px 0" }}>
-                      Merhaba {firstName}! 👋
+                      Merhaba {firstName || ""}! 👋
                     </p>
                     <p style={{ fontSize: "13px", color: "var(--foreground-secondary)", margin: 0 }}>
                       Keyifli alışverişler dileriz.
                     </p>
                   </div>
-                </>
-              ) : (
-                <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Kişisel Bilgiler</h2>
-                {isPersonalInfoComplete && !editingPersonalInfo && (
-                  <button 
-                    type="button"
-                    onClick={() => setEditingPersonalInfo(true)}
-                    style={{ 
-                      fontSize: "13px", 
-                      color: "var(--foreground-secondary)", 
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      display: "flex", 
-                      alignItems: "center", 
-                      gap: "4px" 
-                    }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                    Düzenle
-                  </button>
-                )}
-              </div>
-              
-              {/* Kişisel bilgiler tam ve düzenleme modunda değilse kompakt kart göster */}
-              {isPersonalInfoComplete && !editingPersonalInfo ? (
-                <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Kayıtlı Bilgiler</span>
-                  </div>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
-                    {firstName.toUpperCase()} {lastName.toUpperCase()}
-                  </p>
-                  <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", marginBottom: "4px" }}>
-                    {email}
-                  </p>
-                  <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{phone}</p>
+                  <Link href="/magaza" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-colors" style={{ borderRadius: "12px", whiteSpace: "nowrap" }}>
+                    Ürünleri Keşfet
+                  </Link>
                 </div>
-              ) : (
-                /* Kişisel bilgiler eksikse veya düzenleme modundaysa form göster */
-                <>
-                  <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-                    <div data-field="firstName">
-                      <label style={labelStyle}><User size={13} /> Ad *</label>
-                      <input
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Adınız"
-                        style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
-                      />
-                    </div>
-                    <div data-field="lastName">
-                      <label style={labelStyle}>Soyad *</label>
-                      <input
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Soyadınız"
-                        style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <div data-field="phone">
-                      <label style={labelStyle}><Phone size={13} /> Telefon *</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(formatPhone(e.target.value))}
-                        placeholder="0532 123 45 67"
-                        style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
-                      />
-                    </div>
-                    <div data-field="email">
-                      <label style={labelStyle}><Mail size={13} /> E-posta *</label>
-                      <div style={{ position: "relative" }}>
-                        <input
-                          type="text"
-                          inputMode="email"
-                          autoComplete="email"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value);
-                            // Clear email error when typing
-                            if (errors.email) {
-                              setErrors(prev => ({ ...prev, email: "" }));
-                            }
-                            // Reset login state when email changes
-                            if (emailRegistered) {
-                              setEmailRegistered(false);
-                              setShowLoginForm(false);
-                              setLoginPassword("");
-                              setLoginError("");
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key !== "Enter") return;
-                            e.preventDefault();
-                            e.stopPropagation();
-
-                            const trimmed = (e.currentTarget.value || "").trim();
-                            if (trimmed !== email) setEmail(trimmed);
-
-                            const emailError = getEmailError(trimmed);
-                            if (emailError) {
-                              setErrors(prev => ({ ...prev, email: emailError }));
-                              return;
-                            }
-
-                            // Explicit check (guest checkout)
-                            void checkEmailRegistered(trimmed);
-                          }}
-                          onBlur={() => {}}
-                          placeholder="ornek@email.com"
-                          style={{ 
-                            ...inputStyle, 
-                            borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "var(--input-border)",
-                            paddingRight: checkingEmail ? "40px" : "12px"
-                          }}
-                          disabled={isAuthenticated}
-                        />
-                        {checkingEmail && (
-                          <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}>
-                            <Loader2 size={16} className="animate-spin" style={{ color: "var(--foreground-tertiary)" }} />
-                          </div>
-                        )}
-                      </div>
-                      
-                      
-                    </div>
-                  </div>
-                  
-                  {/* Düzenleme modundaysa Kaydet butonu göster */}
-                  {editingPersonalInfo && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isPersonalInfoComplete) {
-                          setEditingPersonalInfo(false);
-                        }
-                      }}
-                      disabled={!isPersonalInfoComplete}
-                      style={{
-                        marginTop: "12px",
-                        padding: "10px 20px",
-                        backgroundColor: isPersonalInfoComplete ? "#10b981" : "var(--border)",
-                        color: isPersonalInfoComplete ? "var(--foreground)" : "var(--foreground-muted)",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                        fontWeight: "500",
-                        cursor: isPersonalInfoComplete ? "pointer" : "not-allowed",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px"
-                      }}
-                    >
-                      <Check size={14} />
-                      Bilgileri Kaydet
-                    </button>
-                  )}
-                </>
               )}
+
+              {/* Kişisel bilgiler formu - misafir kullanıcı */}
+              {!isAuthenticated && (
+              <>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)", marginBottom: "16px" }}>Kişisel Bilgiler</h2>
+              <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                <div data-field="firstName">
+                  <label style={labelStyle}><User size={13} /> Ad *</label>
+                  <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Adınız" style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }} />
+                </div>
+                <div data-field="lastName">
+                  <label style={labelStyle}>Soyad *</label>
+                  <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Soyadınız" style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }} />
+                </div>
+              </div>
+              <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div data-field="phone">
+                  <label style={labelStyle}><Phone size={13} /> Telefon *</label>
+                  <input type="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} placeholder="0532 123 45 67" style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "var(--input-border)" }} />
+                </div>
+                <div data-field="email">
+                  <label style={labelStyle}><Mail size={13} /> E-posta *</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (errors.email) setErrors(prev => ({ ...prev, email: "" }));
+                        if (emailRegistered) { setEmailRegistered(false); setShowLoginForm(false); setLoginPassword(""); setLoginError(""); }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key !== "Enter") return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const trimmed = (e.currentTarget.value || "").trim();
+                        if (trimmed !== email) setEmail(trimmed);
+                        const emailError = getEmailError(trimmed);
+                        if (emailError) { setErrors(prev => ({ ...prev, email: emailError })); return; }
+                        void checkEmailRegistered(trimmed);
+                      }}
+                      onBlur={() => {}}
+                      placeholder="ornek@email.com"
+                      style={{ ...inputStyle, borderColor: emailRegistered ? "rgba(251, 191, 36, 0.5)" : errors.email ? "rgba(239,68,68,0.5)" : "var(--input-border)", paddingRight: checkingEmail ? "40px" : "12px" }}
+                    />
+                    {checkingEmail && (
+                      <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}>
+                        <Loader2 size={16} className="animate-spin" style={{ color: "var(--foreground-tertiary)" }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               </>
+              )}
+              {/* Login kullanıcıda eksik bilgiler varsa sadece eksik alanları göster */}
+              {isAuthenticated && profileLoaded && authMissingFields.length > 0 && (
+                <div className="checkout-personal-grid" style={{ display: "grid", gridTemplateColumns: authMissingFields.length === 1 ? "1fr" : "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                  {authMissingFields.includes("firstName") && (
+                  <div data-field="firstName">
+                    <label style={labelStyle}><User size={13} /> Ad *</label>
+                    <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Adınız" style={{ ...inputStyle, borderColor: errors.firstName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }} />
+                  </div>
+                  )}
+                  {authMissingFields.includes("lastName") && (
+                  <div data-field="lastName">
+                    <label style={labelStyle}>Soyad *</label>
+                    <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Soyadınız" style={{ ...inputStyle, borderColor: errors.lastName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }} />
+                  </div>
+                  )}
+                  {authMissingFields.includes("phone") && (
+                  <div data-field="phone">
+                    <label style={labelStyle}><Phone size={13} /> Telefon *</label>
+                    <input type="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} placeholder="0532 123 45 67" style={{ ...inputStyle, borderColor: errors.phone ? "rgba(239,68,68,0.5)" : "var(--input-border)" }} />
+                  </div>
+                  )}
+                </div>
               )}
             </div>
 

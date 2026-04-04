@@ -709,7 +709,7 @@ export default function StorePage() {
             {/* Content */}
             <div className="relative z-10 px-4 py-4 lg:px-6 lg:py-5">
               {/* Desktop / Tablet: tek satır */}
-              <div className="store-toolbar-content flex items-center gap-3 lg:gap-4 flex-wrap md:flex-nowrap">
+              <div className="store-toolbar-content flex items-center gap-2 lg:gap-4 flex-nowrap">
                 
                 {/* Filter Button */}
                 <button
@@ -721,7 +721,7 @@ export default function StorePage() {
                 </button>
 
                 {/* Search */}
-                <div className="store-search-container flex-1 min-w-[200px] lg:min-w-[280px] relative">
+                <div className="store-search-container flex-1 min-w-0 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
                   <input
                     value={searchQuery}
@@ -824,24 +824,6 @@ export default function StorePage() {
                       <span className={cn("coupon-label text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>İndirim</span>
                       <div className={cn("coupon-divider w-px h-4 mx-1", isDark ? "bg-emerald-400/30" : "bg-border")} />
                       <Info className={cn("coupon-info w-4 h-4 transition-colors", isDark ? "text-emerald-400/70 group-hover:text-emerald-400" : "text-foreground-muted group-hover:text-foreground")} />
-                    </button>
-                  ) : canOpen ? (
-                    /* Kutu açılabilir - Süpriz Kutu butonu */
-                    <button
-                      onClick={openModal}
-                      className={cn(
-                        "store-coupon-button flex items-center gap-2 px-4 h-[42px] transition-all duration-200 whitespace-nowrap group",
-                        // Light theme: make label black as requested
-                        isDark ? "text-emerald-50" : "text-foreground"
-                      )}
-                    >
-                      <span className={cn("font-semibold text-sm tracking-wide", isDark ? "text-emerald-50" : "text-foreground")}>
-                        Süpriz Kutu
-                      </span>
-                      <span className={cn("font-medium text-sm", isDark ? "text-emerald-400" : "text-foreground")}>•</span>
-                      <span className={cn("text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>Aç</span>
-                      <div className={cn("w-px h-4 mx-1", isDark ? "bg-emerald-400/30" : "bg-border")} />
-                      <Info className={cn("w-4 h-4 transition-colors", isDark ? "text-emerald-400/70 group-hover:text-emerald-400" : "text-foreground-muted group-hover:text-foreground")} />
                     </button>
                   ) : null
                 )}

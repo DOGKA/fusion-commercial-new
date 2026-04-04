@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Heart, Eye, Play, BadgeCheck } from "lucide-react";
+import { Star, Heart, Play, BadgeCheck } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -90,7 +90,6 @@ const isValidColorValue = (value?: string | null) => {
 
 export default function ProductCard({ product, className, priority = false }: ProductCardProps) {
   const [favoriteHover, setFavoriteHover] = useState(false);
-  const [quickViewHover, setQuickViewHover] = useState(false);
   const { isFavorite, toggleItem } = useFavorites();
   
   // Variant selection state
@@ -313,32 +312,6 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 <Heart size={15} fill={isProductFavorite ? 'currentColor' : 'none'} />
               </button>
 
-              {/* Hızlı İncele */}
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                onMouseEnter={() => setQuickViewHover(true)}
-                onMouseLeave={() => setQuickViewHover(false)}
-                title="Hızlı İncele"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: SQUIRCLE.md,
-                  backgroundColor: 'transparent',
-                  backdropFilter: quickViewHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
-                  WebkitBackdropFilter: quickViewHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
-                  border: quickViewHover ? '1px solid rgba(16, 185, 129, 0.45)' : '1px solid rgba(16, 185, 129, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: quickViewHover ? 'rgba(52, 211, 153, 0.95)' : 'rgba(52, 211, 153, 0.65)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                }}
-              >
-                <Eye size={15} />
-              </button>
             </div>
 
 {/* Out of Stock Overlay - REMOVED, using badge instead */}

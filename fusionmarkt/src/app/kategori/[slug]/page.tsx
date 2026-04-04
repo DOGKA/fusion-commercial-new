@@ -12,7 +12,6 @@ import {
   Loader2,
   Package,
   Filter,
-  Mic,
   Store,
   X,
   SlidersHorizontal,
@@ -159,20 +158,6 @@ function GlassBanner({
 
           <div className="flex-1" />
 
-          {/* Sesli Ara - Orta/Sağ */}
-          <button
-            onClick={onVoiceClick}
-            className={cn(
-              "relative z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors",
-              isListening ? "bg-red-500/20 animate-pulse" : "hover:bg-white/5"
-            )}
-          >
-            <Mic className="w-4 h-4 text-foreground-secondary" />
-            <span className="text-foreground text-sm font-medium hidden sm:inline">
-              {isListening ? "Okuyor..." : "Sesli Oku"}
-            </span>
-          </button>
-
           {/* Sırala Dropdown - Portal */}
           <div className="relative">
             <button
@@ -300,7 +285,6 @@ export default function CategoryPage() {
   );
   const [sortOpen, setSortOpen] = useState(false);
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
-  const [isListening, setIsListening] = useState(false);
 
   // Filter State
   const [categoryFilters, setCategoryFilters] = useState<FilterGroup[]>([]);
@@ -728,42 +712,6 @@ export default function CategoryPage() {
     } : null);
   }, [filteredProducts, currentPage]);
 
-  // Text-to-Speech Handler - Sesli Oku
-  const handleReadAloud = useCallback(() => {
-    if (!("speechSynthesis" in window)) {
-      alert("Tarayıcınız sesli okumayı desteklemiyor.");
-      return;
-    }
-
-    const synth = window.speechSynthesis;
-
-    // Eğer zaten okuyorsa durdur
-    if (synth.speaking) {
-      synth.cancel();
-      setIsListening(false);
-      return;
-    }
-
-    // Kategori bilgilerini oku
-    const categoryName = category?.name || "Kategori";
-    const productCount = products.length;
-    
-    const textToRead = `${categoryName} kategorisinde ${productCount} ürün bulunmaktadır. ${
-      products.slice(0, 3).map(p => p.name).join(", ")
-    }${products.length > 3 ? " ve daha fazlası" : ""}.`;
-
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-    utterance.lang = "tr-TR";
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-
-    utterance.onstart = () => setIsListening(true);
-    utterance.onend = () => setIsListening(false);
-    utterance.onerror = () => setIsListening(false);
-
-    synth.speak(utterance);
-  }, [category, products]);
-
   // URL helpers
   const updateURL = (newPage: number, newSort: SortOption) => {
     const p = new URLSearchParams();
@@ -877,8 +825,8 @@ export default function CategoryPage() {
       <GlassBanner 
         themeColor={themeColor}
         onFilterClick={() => setFilterPanelOpen(true)}
-        onVoiceClick={handleReadAloud}
-        isListening={isListening}
+        onVoiceClick={() => {}}
+        isListening={false}
         sortBy={sortBy}
         onSortChange={handleSortChange}
         sortOpen={sortOpen}

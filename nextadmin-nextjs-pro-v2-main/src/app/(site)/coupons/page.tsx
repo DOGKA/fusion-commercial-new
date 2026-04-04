@@ -31,7 +31,6 @@ interface Stats {
   active: number;
   expired: number;
   totalUsage: number;
-  inMysteryBox: number;
 }
 
 // Toggle Switch Component
@@ -73,7 +72,6 @@ export default function CouponsPage() {
     active: 0,
     expired: 0,
     totalUsage: 0,
-    inMysteryBox: 0,
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -96,9 +94,7 @@ export default function CouponsPage() {
         !c.isActive || (c.endDate && new Date(c.endDate) < now)
       ).length;
       const totalUsage = (data.coupons || data).reduce((sum: number, c: Coupon) => sum + c.usageCount, 0);
-      const inMysteryBox = (data.coupons || data).filter((c: Coupon) => c.inMysteryBox).length;
-      
-      setStats({ total, active, expired, totalUsage, inMysteryBox });
+      setStats({ total, active, expired, totalUsage });
     } catch (error) {
       console.error("Error fetching coupons:", error);
       toast.error("Kuponlar yüklenirken hata oluştu");
@@ -137,50 +133,6 @@ export default function CouponsPage() {
     }
   };
 
-  // Toggle mystery box
-  const handleToggleMysteryBox = async (couponId: string, currentValue: boolean) => {
-    // Eğer açmak istiyorsak ve zaten 4 kupon varsa engelle
-    if (!currentValue) {
-      const mysteryBoxCount = coupons.filter(c => c.inMysteryBox).length;
-      if (mysteryBoxCount >= 4) {
-        toast.error("Kutuya en fazla 4 kupon gönderilebilir!");
-        return;
-      }
-    }
-    
-    setUpdating(couponId);
-    try {
-      const res = await fetch(`/api/admin/coupons/${couponId}/toggle-mystery-box`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inMysteryBox: !currentValue }),
-      });
-      
-      if (!res.ok) throw new Error("Güncelleme başarısız");
-      
-      const updated = await res.json();
-      setCoupons(prev => prev.map(c => 
-        c.id === couponId 
-          ? { ...c, inMysteryBox: updated.inMysteryBox, isActive: updated.isActive } 
-          : c
-      ));
-      
-      if (updated.inMysteryBox) {
-        toast.success("Kupon kutuya eklendi ve aktif edildi");
-      } else {
-        toast.success("Kupon kutudan çıkarıldı ve pasif edildi");
-      }
-      
-      // İstatistikleri güncelle
-      fetchCoupons();
-    } catch (error) {
-      console.error("Error toggling mystery box:", error);
-      toast.error("Güncelleme başarısız");
-    } finally {
-      setUpdating(null);
-    }
-  };
-
   // Kupon sil
   const handleDelete = async (couponId: string) => {
     if (!confirm("Bu kuponu silmek istediğinizden emin misiniz?")) return;
@@ -209,8 +161,6 @@ export default function CouponsPage() {
     );
   }
 
-  const mysteryBoxCount = coupons.filter(c => c.inMysteryBox).length;
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -231,7 +181,7 @@ export default function CouponsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -288,34 +238,12 @@ export default function CouponsPage() {
           </div>
         </div>
 
-        {/* Mystery Box Stats */}
-        <div className="rounded-xl border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 p-6 dark:border-yellow-500/30">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500/20">
-              <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-dark dark:text-white">{mysteryBoxCount}/4</p>
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">Kutudaki Kupon</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Coupons Table */}
       <div className="rounded-xl border border-stroke bg-white dark:border-dark-3 dark:bg-gray-dark">
         <div className="border-b border-stroke px-6 py-4 dark:border-dark-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-dark dark:text-white">Kupon Listesi</h2>
-          {mysteryBoxCount > 0 && (
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400 text-sm font-medium">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              {mysteryBoxCount} kupon kutuda
-            </span>
-          )}
         </div>
 
         {coupons.length === 0 ? (
@@ -346,14 +274,6 @@ export default function CouponsPage() {
                       Aktif
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-medium text-gray-500">
-                    <div className="flex items-center justify-center gap-1">
-                      <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      Kutu
-                    </div>
-                  </th>
                   <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">İşlemler</th>
                 </tr>
               </thead>
@@ -366,20 +286,13 @@ export default function CouponsPage() {
                   return (
                     <tr 
                       key={coupon.id} 
-                      className={`border-b border-stroke last:border-0 dark:border-dark-3 transition-colors ${
-                        coupon.inMysteryBox ? "bg-yellow-50/50 dark:bg-yellow-500/5" : ""
-                      }`}
+                      className="border-b border-stroke last:border-0 dark:border-dark-3 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-primary bg-primary/10 px-3 py-1 rounded">
                             {coupon.code}
                           </span>
-                          {coupon.inMysteryBox && (
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-yellow-500 text-white text-xs">
-                              🎁
-                            </span>
-                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -416,24 +329,9 @@ export default function CouponsPage() {
                           <Toggle
                             checked={coupon.isActive}
                             onChange={() => handleToggleActive(coupon.id, coupon.isActive)}
-                            disabled={isUpdatingThis || coupon.inMysteryBox}
-                            label={coupon.inMysteryBox ? "Kutudaki kuponlar otomatik aktif" : "Aktif/Pasif"}
+                            disabled={isUpdatingThis}
+                            label="Aktif/Pasif"
                             colorClass="bg-green-500"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-center">
-                          <Toggle
-                            checked={coupon.inMysteryBox}
-                            onChange={() => handleToggleMysteryBox(coupon.id, coupon.inMysteryBox)}
-                            disabled={isUpdatingThis || (!coupon.inMysteryBox && mysteryBoxCount >= 4)}
-                            label={
-                              mysteryBoxCount >= 4 && !coupon.inMysteryBox 
-                                ? "Kutu dolu (max 4)" 
-                                : "Kutuya gönder"
-                            }
-                            colorClass="bg-yellow-500"
                           />
                         </div>
                       </td>
@@ -468,23 +366,6 @@ export default function CouponsPage() {
         )}
       </div>
 
-      {/* Info Box */}
-      <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-500/30 dark:bg-yellow-500/10">
-        <div className="flex items-start gap-3">
-          <svg className="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="text-sm">
-            <p className="font-medium text-yellow-800 dark:text-yellow-200">Mystery Box Kuponları</p>
-            <ul className="mt-1 text-yellow-700 dark:text-yellow-300 space-y-1">
-              <li>• Kutuya en fazla <strong>4 kupon</strong> gönderilebilir.</li>
-              <li>• Kutuya gönderilen kuponlar otomatik olarak <strong>aktif</strong> olur.</li>
-              <li>• Kutudan çıkarılan kuponlar otomatik olarak <strong>pasif</strong> olur.</li>
-              <li>• Kutudaki kuponlar site ana sayfasındaki sürpriz kutularından çıkar.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
