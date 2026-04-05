@@ -1,3 +1,5 @@
+import React from "react";
+globalThis.React = React;
 import { sendOrderConfirmationEmail } from "./src/lib/email";
 
 async function main() {
