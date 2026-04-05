@@ -397,8 +397,8 @@ async function createOrderFromDraft(
             });
           }
           return {
-            productId: item.productId,
-            bundleId: item.isBundle ? item.bundleId : null,
+            productId: item.isBundle ? null : item.productId,
+            bundleId: item.isBundle ? (item.bundleId || item.productId) : null,
             price: item.price,
             quantity: item.quantity,
             subtotal: item.price * item.quantity,

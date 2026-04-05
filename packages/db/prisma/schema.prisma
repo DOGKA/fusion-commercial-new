@@ -447,7 +447,7 @@ model Order {
 model OrderItem {
   id          String   @id @default(cuid())
   orderId     String
-  productId   String
+  productId   String?
   quantity    Int
   price       Decimal  @db.Decimal(10, 2)
   subtotal    Decimal  @db.Decimal(10, 2)
@@ -456,7 +456,7 @@ model OrderItem {
   bundleId    String?
   bundle      Bundle?  @relation(fields: [bundleId], references: [id])
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product     Product  @relation(fields: [productId], references: [id])
+  product     Product? @relation(fields: [productId], references: [id])
 
   @@map("order_items")
 }
