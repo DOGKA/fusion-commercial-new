@@ -362,6 +362,61 @@ async function createOrderFromDraft(
   // Generate contract access token for secure contract viewing
   const contractAccessToken = randomBytes(32).toString("hex");
 
+  // Build order items - bundle'lar icindeki urunleri ayri ayri ekle
+  const orderItemsToCreate: Array<{
+    productId?: string;
+    bundleId?: string;
+    price: number;
+    quantity: number;
+    subtotal: number;
+    variantInfo?: string | null;
+  }> = [];
+
+  for (const item of items) {
+    if (item.isBundle) {
+      const bundleId = item.bundleId || item.productId;
+      const bundleItems = await prisma.bundleItem.findMany({
+        where: { bundleId },
+        include: { product: { select: { id: true, name: true, price: true } } },
+      });
+
+      if (bundleItems.length > 0) {
+        for (const bi of bundleItems) {
+          orderItemsToCreate.push({
+            productId: bi.productId,
+            bundleId,
+            price: Number(bi.product.price),
+            quantity: bi.quantity * item.quantity,
+            subtotal: Number(bi.product.price) * bi.quantity * item.quantity,
+            variantInfo: item.bundleItemVariants ? JSON.stringify({ bundleItemVariants: item.bundleItemVariants }) : null,
+          });
+        }
+      } else {
+        orderItemsToCreate.push({
+          bundleId,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity,
+        });
+      }
+    } else {
+      let variantInfo = null;
+      if (item.variant || item.bundleItemVariants) {
+        variantInfo = JSON.stringify({
+          variant: item.variant || null,
+          bundleItemVariants: item.bundleItemVariants || null,
+        });
+      }
+      orderItemsToCreate.push({
+        productId: item.productId,
+        price: item.price,
+        quantity: item.quantity,
+        subtotal: item.price * item.quantity,
+        variantInfo,
+      });
+    }
+  }
+
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -379,58 +434,31 @@ async function createOrderFromDraft(
       billingAddressId: billingAddressId !== "temp" ? billingAddressId : null,
       shippingAddressId: shippingAddressId !== "temp" ? shippingAddressId : null,
       customerNote: billingAddress.orderNotes || null,
-      contractAccessToken, // Token for secure contract access
+      contractAccessToken,
       paidAt: new Date(),
-      confirmedAt: new Date(), // Ödeme onaylandı
-      preparingAt: new Date(), // Hazırlanıyor durumuna geçti
+      confirmedAt: new Date(),
+      preparingAt: new Date(),
       iyzicoPaymentId: paymentResult.paymentId || null,
       iyzicoConversationId: orderNumber,
       iyzicoPaymentTransactions,
       statusHistory: initialStatusHistory,
       items: {
-        create: items.map((item) => {
-          let variantInfo = null;
-          if (item.variant || item.bundleItemVariants) {
-            variantInfo = JSON.stringify({
-              variant: item.variant || null,
-              bundleItemVariants: item.bundleItemVariants || null,
-            });
-          }
-          return {
-            ...(item.isBundle ? {} : { productId: item.productId }),
-            bundleId: item.isBundle ? (item.bundleId || item.productId) : undefined,
-            price: item.price,
-            quantity: item.quantity,
-            subtotal: item.price * item.quantity,
-            variantInfo,
-          };
-        }),
+        create: orderItemsToCreate,
       },
     },
   });
 
   // Reduce stock for paid order
-  for (const item of items) {
+  for (const oi of orderItemsToCreate) {
     try {
-      if (item.variant?.id) {
-        await prisma.productVariant.updateMany({
-          where: {
-            id: item.variant.id,
-            stock: { gte: item.quantity },
-          },
-          data: { stock: { decrement: item.quantity } },
-        });
-      } else {
+      if (oi.productId) {
         await prisma.product.updateMany({
-          where: {
-            id: item.productId,
-            stock: { gte: item.quantity },
-          },
-          data: { stock: { decrement: item.quantity } },
+          where: { id: oi.productId, stock: { gte: oi.quantity } },
+          data: { stock: { decrement: oi.quantity } },
         });
       }
     } catch (error) {
-      console.error(`Failed to reduce stock for product ${item.productId}:`, error);
+      console.error(`Failed to reduce stock for product ${oi.productId}:`, error);
     }
   }
 

@@ -346,16 +346,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       if (existing.status !== "CANCELLED" && existing.status !== "REFUNDED") {
         // Restore stock for each item
         for (const item of existing.items) {
+          if (!item.productId) continue;
           const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
           
           if (variantInfo?.id) {
-            // Restore variant stock
             await prisma.productVariant.update({
               where: { id: variantInfo.id },
               data: { stock: { increment: item.quantity } },
             });
           } else {
-            // Restore main product stock
             await prisma.product.update({
               where: { id: item.productId },
               data: { stock: { increment: item.quantity } },
@@ -593,6 +592,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       if (body.status === "CANCELLED" || body.status === "REFUNDED") {
         if (existing.status !== "CANCELLED" && existing.status !== "REFUNDED") {
           for (const item of existing.items) {
+            if (!item.productId) continue;
             const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
             
             if (variantInfo?.id) {
@@ -835,6 +835,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Restore stock before deletion if not already cancelled/refunded
     if (existing.status !== "CANCELLED" && existing.status !== "REFUNDED") {
       for (const item of existing.items) {
+        if (!item.productId) continue;
         const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
         
         if (variantInfo?.id) {

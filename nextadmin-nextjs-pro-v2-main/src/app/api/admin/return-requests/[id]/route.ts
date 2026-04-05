@@ -213,6 +213,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       
       // 1. Restore stock
       for (const item of order.items) {
+        if (!item.productId) continue;
         const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
         
         if (variantInfo?.id) {

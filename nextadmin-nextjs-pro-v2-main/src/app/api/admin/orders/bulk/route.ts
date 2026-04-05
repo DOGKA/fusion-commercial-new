@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
             if (status === "CANCELLED" || status === "REFUNDED") {
               if (order.status !== "CANCELLED" && order.status !== "REFUNDED") {
                 for (const item of order.items) {
+                  if (!item.productId) continue;
                   const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
                   
                   if (variantInfo?.id) {
@@ -194,6 +195,7 @@ export async function POST(request: NextRequest) {
             // Restore stock before deletion
             if (order.status !== "CANCELLED" && order.status !== "REFUNDED") {
               for (const item of order.items) {
+                if (!item.productId) continue;
                 const variantInfo = item.variantInfo ? JSON.parse(item.variantInfo) : null;
                 
                 if (variantInfo?.id) {
