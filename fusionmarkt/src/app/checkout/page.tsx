@@ -143,9 +143,6 @@ export default function CheckoutPage() {
   const [saveToAddresses, setSaveToAddresses] = useState(false); // Kayıtlı adreslerime ekle
   
   // Kişisel bilgileri düzenleme modu
-  // NOTE: Guest checkout'ta input'ların "tamam" olur olmaz kapanmasını engellemek için
-  // varsayılanı true yapıyoruz. Kullanıcı Kaydet/Devam ile kendisi kilitler.
-  const [editingPersonalInfo, setEditingPersonalInfo] = useState(true);
 
   // Shipping options state
   const [shippingOptions, setShippingOptions] = useState<{
@@ -300,7 +297,7 @@ export default function CheckoutPage() {
         .then(data => {
           if (data.user) {
             const u = data.user;
-            let fn = "", ln = "", em = "", ph = "";
+            let fn = "", ln = "", ph = "";
             if (u.name) {
               const nameParts = u.name.split(" ");
               fn = nameParts[0] || "";
@@ -308,7 +305,7 @@ export default function CheckoutPage() {
               setFirstName(prev => prev || fn);
               setLastName(prev => prev || ln);
             }
-            if (u.email) { em = u.email; setEmail(prev => prev || u.email); }
+            if (u.email) { setEmail(prev => prev || u.email); }
             if (u.phone) { ph = u.phone; setPhone(prev => prev || u.phone); }
             if (!authFieldsChecked.current) {
               authFieldsChecked.current = true;
@@ -752,9 +749,6 @@ export default function CheckoutPage() {
 
   const hasSavedAddresses = savedAddresses.length > 0;
   
-  // Kişisel bilgiler tam mı kontrol et
-  const isPersonalInfoComplete = firstName && lastName && phone && email && isValidEmail(email);
-
   return (
     <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "var(--background)", paddingTop: "120px", paddingBottom: "80px" }}>
       <div className="checkout-container" style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 16px" }}>

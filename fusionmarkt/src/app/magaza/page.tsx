@@ -646,7 +646,7 @@ export default function StorePage() {
   const filterPanelThemeColor = categoriesWithProducts[0]?.themeColor || "#8b5cf6";
 
   // Mystery Box context
-  const { canOpen, hasClaim, coupon, openModal, isLoading: mysteryBoxLoading } = useMysteryBox();
+  const { hasClaim, coupon, openModal, isLoading: mysteryBoxLoading } = useMysteryBox();
 
   return (
     <div className="min-h-screen bg-background relative">
