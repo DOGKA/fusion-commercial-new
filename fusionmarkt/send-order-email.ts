@@ -1,4 +1,4 @@
-import { sendOrderConfirmationEmail } from "../src/lib/email";
+import { sendOrderConfirmationEmail } from "./src/lib/email";
 
 async function main() {
   await sendOrderConfirmationEmail("gunaysolhan@gmail.com", {

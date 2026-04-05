@@ -118,3 +118,4 @@ nextadmin-nextjs-pro-v2-main/storage/
 venv/
 __pycache__/
 *.pyc
+scripts/product-table/
