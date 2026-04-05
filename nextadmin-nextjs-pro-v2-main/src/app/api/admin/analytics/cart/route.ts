@@ -70,7 +70,7 @@ export async function GET() {
     ]);
 
     // Get product details for top products
-    const productIds = topProducts.map((p) => p.productId);
+    const productIds = topProducts.map((p) => p.productId).filter((id): id is string => id !== null);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
       select: {
