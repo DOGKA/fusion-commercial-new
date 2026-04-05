@@ -97,19 +97,19 @@ async function sendReminderForOrder(orderId: string) {
   const reviewedProductIds = await prisma.review.findMany({
     where: {
       userId: order.userId,
-      productId: { in: order.items.map(item => item.productId) },
+      productId: { in: order.items.map(item => item.productId).filter((id): id is string => id !== null) },
     },
     select: { productId: true },
   });
 
   const reviewedIds = new Set(reviewedProductIds.map(r => r.productId));
   const productsToReview = order.items
-    .filter(item => !reviewedIds.has(item.productId))
+    .filter(item => item.productId && item.product && !reviewedIds.has(item.productId))
     .map(item => ({
-      id: item.product.id,
-      name: item.product.name,
-      thumbnail: item.product.thumbnail || undefined,
-      slug: item.product.slug,
+      id: item.product!.id,
+      name: item.product!.name,
+      thumbnail: item.product!.thumbnail || undefined,
+      slug: item.product!.slug,
     }));
 
   if (productsToReview.length === 0) {
@@ -185,19 +185,19 @@ async function sendPendingReminders() {
     const reviewedProductIds = await prisma.review.findMany({
       where: {
         userId: order.userId,
-        productId: { in: order.items.map(item => item.productId) },
+        productId: { in: order.items.map(item => item.productId).filter((id): id is string => id !== null) },
       },
       select: { productId: true },
     });
 
     const reviewedIds = new Set(reviewedProductIds.map(r => r.productId));
     const productsToReview = order.items
-      .filter(item => !reviewedIds.has(item.productId))
+      .filter(item => item.productId && item.product && !reviewedIds.has(item.productId))
       .map(item => ({
-        id: item.product.id,
-        name: item.product.name,
-        thumbnail: item.product.thumbnail || undefined,
-        slug: item.product.slug,
+        id: item.product!.id,
+        name: item.product!.name,
+        thumbnail: item.product!.thumbnail || undefined,
+        slug: item.product!.slug,
       }));
 
     if (productsToReview.length === 0) {

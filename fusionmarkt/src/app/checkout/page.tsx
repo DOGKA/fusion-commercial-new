@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCheckout } from "@/context/CheckoutContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
-import { formatPrice, isValidEmail, getEmailError } from "@/lib/utils";
+import { formatPrice, getEmailError } from "@/lib/utils";
 import { CITIES, getDistricts } from "@/lib/turkey-cities";
 import type { AddressFormData, InvoiceType } from "@/types/checkout";
 import KargoTimer from "@/components/product/KargoTimer";

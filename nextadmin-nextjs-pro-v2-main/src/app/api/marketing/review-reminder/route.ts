@@ -98,11 +98,11 @@ export async function GET(request: NextRequest) {
     const ordersWithReviewStatus = await Promise.all(
       orders.map(async (order) => {
         const itemsWithReviewStatus = await Promise.all(
-          order.items.map(async (item) => {
+          order.items.filter(item => item.productId !== null).map(async (item) => {
             const review = await prisma.review.findFirst({
               where: {
                 userId: order.userId,
-                productId: item.productId,
+                productId: item.productId!,
               },
               select: { id: true },
             });
