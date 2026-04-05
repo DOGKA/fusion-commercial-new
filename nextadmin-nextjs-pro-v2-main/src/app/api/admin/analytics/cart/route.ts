@@ -109,7 +109,7 @@ export async function GET() {
 
     // Format top products with conversion rates
     const topProductsFormatted = topProducts.map((item) => {
-      const product = productMap.get(item.productId);
+      const product = item.productId ? productMap.get(item.productId) : null;
       const totalSold = item._sum.quantity || 0;
       // Estimate conversion rate based on order count vs total sold
       const conversionRate = item._count > 0 ? Math.min(95, 60 + Math.random() * 30) : 0;
