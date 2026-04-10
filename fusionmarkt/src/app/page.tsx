@@ -9,11 +9,6 @@ import CategoryBento from "@/components/home/CategoryBento";
 import PartnerLogos from "@/components/home/PartnerLogos";
 import HomeSeoContent from "@/components/home/HomeSeoContent";
 import { staticPageMetadata } from "@/lib/seo";
-import { prisma } from "@/lib/prisma";
-import {
-  selectSliderPublic,
-  mapSlidersToPublicDTO,
-} from "@/server/dto";
 
 export const metadata = staticPageMetadata.home;
 export const revalidate = 60;
@@ -33,19 +28,7 @@ const mockSliders = [
 
 async function getInitialSliders() {
   // TODO: Mock test — S3'e yükleyince kaldır, DB'ye geç
-  return mockSliders as any;
-  // try {
-  //   const sliders = await prisma.slider.findMany({
-  //     where: { isActive: true },
-  //     select: selectSliderPublic,
-  //     orderBy: { order: "asc" },
-  //   });
-  //   const mapped = mapSlidersToPublicDTO(sliders);
-  //   if (mapped.length > 0) return mapped;
-  //   return mockSliders as any;
-  // } catch {
-  //   return mockSliders as any;
-  // }
+  return mockSliders;
 }
 
 export default async function Home() {

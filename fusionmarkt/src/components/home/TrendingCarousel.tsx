@@ -30,6 +30,7 @@ export default function TrendingCarousel() {
         if (res.ok) {
           const data = await res.json();
           if (data.items && data.items.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setProducts(data.items.map((item: any) => ({
               id: item.id,
               href: item.buttonLink || "#",
