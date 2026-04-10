@@ -103,6 +103,12 @@
   /* GLASS BLUR */
   --glass-blur: 20px;
   --glass-blur-heavy: 40px;
+
+  /* SLIDER SYNC (Header gradient bar) - set dynamically by HeroSlider */
+  --slider-color-from: #10b981;
+  --slider-color-to: #06b6d4;
+  --slider-color-overlay: #000000;
+  --slider-color-btn: #10b981;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

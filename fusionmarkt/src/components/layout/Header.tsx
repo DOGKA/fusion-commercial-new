@@ -111,24 +111,52 @@ export default function Header() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-[background-color,padding,border-color] duration-500",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
           isScrolled 
-            ? "bg-background backdrop-blur-2xl border-b border-border py-2" 
-            : "bg-transparent py-4"
+            ? "py-2" 
+            : "py-4"
         )}
       >
-        {/* Light theme glass needs extra contrast */}
+        {/* Desktop: glassmorphism background */}
         <div
           className={cn(
-            "absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-500",
-            isScrolled && "opacity-100",
-            "bg-gradient-to-b from-foreground/[0.06] to-transparent dark:from-transparent"
+            "absolute inset-0 pointer-events-none transition-all duration-500 hidden md:block",
+            isScrolled
+              ? "bg-background/75 dark:bg-black/60 backdrop-blur-2xl"
+              : "bg-background/40 dark:bg-black/30 backdrop-blur-xl"
           )}
+          style={{ WebkitBackdropFilter: isScrolled ? 'blur(40px) saturate(180%)' : 'blur(24px) saturate(180%)' }}
         />
-        {/* Subtle gradient line at top */}
+        {/* Desktop: top highlight */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent pointer-events-none hidden md:block" />
+        {/* Desktop: slider-synced gradient bar */}
+        <div
+          className={cn(
+            "absolute inset-x-0 bottom-0 h-[2px] pointer-events-none hidden md:block",
+            isScrolled ? "opacity-80" : "opacity-60"
+          )}
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, var(--slider-color-from, #10b981) 20%, var(--slider-color-to, #06b6d4) 50%, var(--slider-color-from, #10b981) 80%, transparent 100%)',
+            transition: 'background 1s ease, opacity 700ms ease',
+          }}
+        />
+        {/* Desktop: gradient glow behind bar */}
+        <div
+          className={cn(
+            "absolute inset-x-0 bottom-0 h-[12px] pointer-events-none blur-sm hidden md:block",
+            isScrolled ? "opacity-40" : "opacity-25"
+          )}
+          style={{
+            background: 'linear-gradient(90deg, transparent 5%, var(--slider-color-from, #10b981) 25%, var(--slider-color-to, #06b6d4) 50%, var(--slider-color-from, #10b981) 75%, transparent 95%)',
+            transition: 'background 1s ease, opacity 700ms ease',
+          }}
+        />
+        {/* Desktop: bottom border */}
         <div className={cn(
-          "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent transition-opacity duration-500",
-          isScrolled ? "opacity-100" : "opacity-0"
+          "absolute inset-x-0 bottom-0 h-px transition-opacity duration-500 pointer-events-none hidden md:block",
+          isScrolled
+            ? "opacity-100 bg-border/50 dark:bg-white/[0.06]"
+            : "opacity-40 bg-border/30 dark:bg-white/[0.04]"
         )} />
 
         <div className="container px-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>

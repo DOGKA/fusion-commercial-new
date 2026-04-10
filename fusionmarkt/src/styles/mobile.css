@@ -1789,6 +1789,13 @@
     min-height: unset !important;
     min-width: unset !important;
   }
+
+  /* Hero slider butonları ve dot'ları - chip boyutunda kalmalı */
+  .hero-slider-mobile a,
+  .hero-slider-mobile button {
+    min-height: unset !important;
+    min-width: unset !important;
+  }
   
   /* Input alanları daha büyük */
   input[type="text"],

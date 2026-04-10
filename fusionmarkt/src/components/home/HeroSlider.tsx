@@ -236,6 +236,24 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   const slide = slides[currentSlide];
   const backgroundImage = slide.desktopImage;
+
+  // Publish active slide colors as CSS variables for the Header gradient bar
+  useEffect(() => {
+    if (!mounted || slides.length === 0) return;
+    const s = slides[currentSlide];
+    const dark = resolvedTheme === "dark";
+
+    const from = (dark ? s.titleHighlightFrom : s.titleHighlightFromLight) || s.titleHighlightFrom || "#10b981";
+    const to = (dark ? s.titleHighlightTo : s.titleHighlightToLight) || s.titleHighlightTo || "#06b6d4";
+    const overlay = (dark ? s.overlayColor : s.overlayColorLight) || s.overlayColor || (dark ? "#000000" : "#ffffff");
+    const btnBg = (dark ? s.buttonBgColor : s.buttonBgColorLight) || s.buttonBgColor || "";
+
+    const root = document.documentElement;
+    root.style.setProperty("--slider-color-from", from);
+    root.style.setProperty("--slider-color-to", to);
+    root.style.setProperty("--slider-color-overlay", overlay);
+    root.style.setProperty("--slider-color-btn", btnBg || from);
+  }, [currentSlide, slides, mounted, resolvedTheme]);
   
   // Theme-aware color resolution - uses light variant if available and theme is light
   const getThemedColor = (darkValue?: Maybe<string>, lightValue?: Maybe<string>, defaultDark?: string, defaultLight?: string) => {
@@ -267,7 +285,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   // Buton stilini belirle
   const getButtonClasses = (style?: string, isPrimary = true) => {
-    const base = "group inline-flex items-center gap-1 md:gap-2 px-2.5 py-[3px] md:px-8 md:py-4 rounded-md md:rounded-full text-[10px] md:text-base font-semibold transition-[color,background-color,box-shadow,transform] duration-300";
+    const base = "group inline-flex w-fit shrink-0 items-center justify-center whitespace-nowrap gap-1 md:gap-2 px-2.5 py-1 md:px-8 md:py-4 rounded-full text-[9px] md:text-base font-semibold transition-[color,background-color,box-shadow,transform] duration-300";
     
     switch (style) {
       case "PRIMARY":
@@ -348,39 +366,57 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
         "relative z-10 h-full container flex items-center px-4 md:px-6",
         slide.textAlign === "CENTER" ? "justify-center" : slide.textAlign === "RIGHT" ? "justify-end" : ""
       )}>
-        <div className={cn("max-w-4xl pt-6 md:pt-20 flex flex-col gap-0", getAlignClass())}>
+        <div className={cn("max-w-4xl pt-16 md:pt-20 flex flex-col gap-0", getAlignClass())}>
           
-          {/* ROW 1: Eyebrow Badge */}
-          <div className="h-[24px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
-            {slide.badge && (
-              <div 
-                className="inline-flex items-center gap-1.5 px-2.5 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm border border-glass-border"
-                style={{ 
-                  backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
-                }}
-              >
-                <span style={{ width: '12px', height: '12px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }} className="md:!w-4 md:!h-4">
-                  <BadgeIcon name={slide.badgeIcon ?? undefined} className="" />
-                </span>
-                <span 
-                  className="text-[10px] md:text-sm font-medium whitespace-nowrap" 
-                  style={{ lineHeight: '14px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
+          {/* ROW 1: Mobile = subtitle in badge style, Desktop = badge */}
+          <div className="md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
+            {isMobile ? (
+              slide.subtitle && (
+                <div 
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm border border-glass-border"
+                  style={{ 
+                    backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
+                  }}
                 >
-                  {slide.badge}
-                </span>
-              </div>
+                  <span 
+                    className="text-[10px] font-medium whitespace-nowrap" 
+                    style={{ lineHeight: '14px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
+                  >
+                    {slide.subtitle}
+                  </span>
+                </div>
+              )
+            ) : (
+              slide.badge && (
+                <div 
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-sm border border-glass-border"
+                  style={{ 
+                    backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
+                  }}
+                >
+                  <span style={{ width: '16px', height: '16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}>
+                    <BadgeIcon name={slide.badgeIcon ?? undefined} className="" />
+                  </span>
+                  <span 
+                    className="text-sm font-medium whitespace-nowrap" 
+                    style={{ lineHeight: '14px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
+                  >
+                    {slide.badge}
+                  </span>
+                </div>
+              )
             )}
           </div>
 
           {/* GAP */}
-          <div className="h-2 md:h-6" />
+          <div className="h-0 md:h-6" />
 
           {/* ROW 2: Title Line 1 */}
           <div className="animate-fade-in-up opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
             <span 
               className={cn(
                 "block font-bold leading-[1.15] tracking-tight",
-                "text-base sm:text-xl md:text-4xl lg:text-5xl xl:text-6xl"
+                "text-lg sm:text-xl md:text-4xl lg:text-5xl xl:text-6xl"
               )}
               style={{ color: titleColor }}
             >
@@ -389,7 +425,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           </div>
 
           {/* GAP */}
-          <div className="h-0.5 md:h-2" />
+          <div className="h-0 md:h-2" />
 
           {/* ROW 3: Title Line 2 (Highlight - Gradient) */}
           {slide.titleHighlight && (
@@ -397,7 +433,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               <span 
                 className={cn(
                   "block font-bold leading-[1.15] tracking-tight",
-                  "text-base sm:text-xl md:text-4xl lg:text-5xl xl:text-6xl"
+                  "text-lg sm:text-xl md:text-4xl lg:text-5xl xl:text-6xl"
                 )}
                 style={{
                   backgroundImage: `linear-gradient(to right, ${titleHighlightFrom}, ${titleHighlightTo})`,
@@ -413,16 +449,13 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           )}
 
           {/* GAP */}
-          <div className="h-1.5 md:h-8" />
+          <div className="h-0 md:h-8" />
 
-          {/* ROW 4: Description */}
-          {slide.subtitle && (
+          {/* ROW 4: Description - desktop only (mobile shows subtitle in badge row above) */}
+          {!isMobile && slide.subtitle && (
             <div className="animate-fade-in-up opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
               <p 
-                className={cn(
-                  "text-[11px] md:text-lg lg:text-xl max-w-[260px] md:max-w-2xl leading-relaxed",
-                  "line-clamp-2 md:line-clamp-3"
-                )}
+                className="text-lg lg:text-xl max-w-2xl leading-relaxed line-clamp-3"
                 style={{ color: subtitleColor }}
               >
                 {slide.subtitle}
@@ -431,11 +464,11 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           )}
 
           {/* GAP */}
-          <div className="h-3 md:h-10" />
+          <div className="h-1 md:h-10" />
 
           {/* ROW 5: CTA Buttons */}
           {(slide.buttonText || slide.button2Text) && (
-            <div className="flex flex-wrap gap-2 md:gap-4 items-center animate-fade-in-up opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]">
+            <div className="flex flex-wrap gap-1.5 md:gap-4 items-center animate-fade-in-up opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]">
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
@@ -449,7 +482,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
                   onTouchEnd={(e) => e.stopPropagation()}
                 >
                   <span>{slide.buttonText}</span>
-                  <ArrowRight className="w-3 h-3 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight className="w-2.5 h-2.5 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
               )}
               {slide.button2Text && slide.button2Link && (
@@ -506,8 +539,8 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
       {/* Slide Indicators */}
       {slides.length > 1 && (
-        <div className="absolute bottom-1 md:bottom-8 left-1/2 -translate-x-1/2 z-20">
-          <div className="flex items-center gap-[3px] md:gap-1.5">
+        <div className="absolute bottom-3 md:bottom-8 left-1/2 -translate-x-1/2 z-20">
+          <div className="flex items-center gap-1.5">
             {slides.map((_, index) => (
               <button
                 key={index}
@@ -518,10 +551,10 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               >
                 <div
                   className={cn(
-                    "h-[5px] md:h-1.5 rounded-full transition-all duration-300",
+                    "h-1.5 rounded-full transition-all duration-300",
                     index === currentSlide
-                      ? "w-3.5 md:w-8 bg-white"
-                      : "w-[5px] md:w-[6px] bg-white/30"
+                      ? "w-6 md:w-8 bg-white"
+                      : "w-1.5 md:w-[6px] bg-white/30"
                   )}
                 />
               </button>
