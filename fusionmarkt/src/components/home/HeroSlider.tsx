@@ -323,7 +323,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             fetchPriority="high"
           />
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
-          {overlayColor && (
+          {overlayColor && overlayOpacity > 0 && (
             <div 
               className="absolute inset-0"
               style={{ 
