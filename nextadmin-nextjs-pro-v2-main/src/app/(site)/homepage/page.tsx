@@ -13,6 +13,8 @@ interface DbProduct {
   comparePrice: number | null;
   thumbnail: string | null;
   categoryId: string | null;
+  categoryIds?: string[];
+  productType: "product" | "bundle";
 }
 
 interface ProductCategory {
@@ -460,8 +462,25 @@ function CategoryTab() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await fetch("/api/products?limit=500");
-      if (res.ok) { const data = await res.json(); setDbProducts(data.products || []); }
+      const [prodRes, bundleRes] = await Promise.all([
+        fetch("/api/products?limit=500"),
+        fetch("/api/bundles?limit=200"),
+      ]);
+      const allProducts: DbProduct[] = [];
+      if (prodRes.ok) {
+        const data = await prodRes.json();
+        for (const p of (data.products || [])) {
+          allProducts.push({ id: p.id, name: p.name, slug: p.slug, price: p.price, comparePrice: p.comparePrice, thumbnail: p.thumbnail, categoryId: p.categoryId, productType: "product" });
+        }
+      }
+      if (bundleRes.ok) {
+        const data = await bundleRes.json();
+        for (const b of (data.bundles || [])) {
+          const catIds = (b.categories || []).map((c: { id: string }) => c.id);
+          allProducts.push({ id: b.id, name: b.name, slug: b.slug, price: b.price, comparePrice: b.comparePrice, thumbnail: b.thumbnail, categoryId: catIds[0] || null, categoryIds: catIds, productType: "bundle" });
+        }
+      }
+      setDbProducts(allProducts);
     } catch { /* ignore */ }
   }, []);
 
@@ -550,7 +569,10 @@ function CategorySectionForm({ section, saving, onSave, dbProducts, productCateg
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
   const categoryProducts = selectedCategoryId
-    ? dbProducts.filter(p => p.categoryId === selectedCategoryId)
+    ? dbProducts.filter(p =>
+        p.categoryId === selectedCategoryId ||
+        (p.categoryIds && p.categoryIds.includes(selectedCategoryId))
+      )
     : [];
 
   const alreadyAddedIds = new Set(
