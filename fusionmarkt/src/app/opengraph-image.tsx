@@ -39,7 +39,10 @@ export default async function Image() {
     });
 
     if (slider) {
-      sliderImage = slider.desktopImage;
+      const img = slider.desktopImage;
+      if (img) {
+        sliderImage = img.startsWith("http") ? img : `${siteConfig.url}${img}`;
+      }
       sliderTitle = slider.title;
       sliderSubtitle = slider.titleHighlight || slider.subtitle;
     }
