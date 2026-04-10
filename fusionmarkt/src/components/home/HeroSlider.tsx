@@ -439,7 +439,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "px-3.5 py-1.5 md:px-8 md:py-4 text-[11px] md:text-base touch-manipulation")}
+                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "!px-3 !py-1 md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-lg md:!rounded-full touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
@@ -455,7 +455,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "px-3.5 py-1.5 md:px-8 md:py-4 text-[11px] md:text-base touch-manipulation")}
+                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "!px-3 !py-1 md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-lg md:!rounded-full touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,
@@ -540,22 +540,22 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
     {/* Slide Indicators - Mobile only (below slider) */}
     {slides.length > 1 && (
-      <div className="flex md:hidden justify-center py-3 bg-background">
-        <div className="flex items-center gap-2">
+      <div className="flex md:hidden justify-center py-2.5 bg-background">
+        <div className="flex items-center gap-1.5">
           {slides.map((_, index) => (
             <button
               key={`mobile-dot-${index}`}
               onClick={() => goToSlide(index)}
               disabled={isTransitioning}
-              className="group relative"
+              className="p-0.5"
               aria-label={`Slide ${index + 1}`}
             >
               <div
                 className={cn(
-                  "h-1 rounded-full transition-[width,background-color] duration-500",
+                  "rounded-full transition-all duration-400",
                   index === currentSlide
-                    ? "w-10 bg-foreground"
-                    : "w-5 bg-foreground/20 group-hover:bg-foreground/40"
+                    ? "w-2 h-2 bg-foreground"
+                    : "w-1.5 h-1.5 bg-foreground/25"
                 )}
               />
             </button>
