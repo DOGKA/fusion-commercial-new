@@ -165,6 +165,24 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
     return () => clearInterval(interval);
   }, [isAutoPlaying, nextSlide, slides.length]);
 
+  // Publish active slide colors as CSS variables for the Header gradient bar
+  useEffect(() => {
+    if (!mounted || slides.length === 0) return;
+    const s = slides[currentSlide];
+    const dark = resolvedTheme === "dark";
+
+    const from = (dark ? s.titleHighlightFrom : s.titleHighlightFromLight) || s.titleHighlightFrom || "#10b981";
+    const to = (dark ? s.titleHighlightTo : s.titleHighlightToLight) || s.titleHighlightTo || "#06b6d4";
+    const overlay = (dark ? s.overlayColor : s.overlayColorLight) || s.overlayColor || (dark ? "#000000" : "#ffffff");
+    const btnBg = (dark ? s.buttonBgColor : s.buttonBgColorLight) || s.buttonBgColor || "";
+
+    const root = document.documentElement;
+    root.style.setProperty("--slider-color-from", from);
+    root.style.setProperty("--slider-color-to", to);
+    root.style.setProperty("--slider-color-overlay", overlay);
+    root.style.setProperty("--slider-color-btn", btnBg || from);
+  }, [currentSlide, slides, mounted, resolvedTheme]);
+
   // Touch/swipe handlers for mobile - improved for responsiveness
   const velocityRef = useRef(0);
   const lastTouchTime = useRef(0);
@@ -236,24 +254,6 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   const slide = slides[currentSlide];
   const backgroundImage = slide.desktopImage;
-
-  // Publish active slide colors as CSS variables for the Header gradient bar
-  useEffect(() => {
-    if (!mounted || slides.length === 0) return;
-    const s = slides[currentSlide];
-    const dark = resolvedTheme === "dark";
-
-    const from = (dark ? s.titleHighlightFrom : s.titleHighlightFromLight) || s.titleHighlightFrom || "#10b981";
-    const to = (dark ? s.titleHighlightTo : s.titleHighlightToLight) || s.titleHighlightTo || "#06b6d4";
-    const overlay = (dark ? s.overlayColor : s.overlayColorLight) || s.overlayColor || (dark ? "#000000" : "#ffffff");
-    const btnBg = (dark ? s.buttonBgColor : s.buttonBgColorLight) || s.buttonBgColor || "";
-
-    const root = document.documentElement;
-    root.style.setProperty("--slider-color-from", from);
-    root.style.setProperty("--slider-color-to", to);
-    root.style.setProperty("--slider-color-overlay", overlay);
-    root.style.setProperty("--slider-color-btn", btnBg || from);
-  }, [currentSlide, slides, mounted, resolvedTheme]);
   
   // Theme-aware color resolution - uses light variant if available and theme is light
   const getThemedColor = (darkValue?: Maybe<string>, lightValue?: Maybe<string>, defaultDark?: string, defaultLight?: string) => {
