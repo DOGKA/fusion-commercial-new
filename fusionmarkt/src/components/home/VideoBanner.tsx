@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface VideoBannerData {
   videoType: string;
   videoUrl: string | null;
+  title: string | null;
+  subtitle: string | null;
+  btnText: string | null;
+  btnLink: string | null;
 }
 
 function getYouTubeId(url: string): string | null {
@@ -35,6 +40,7 @@ export default function VideoBanner() {
   }
 
   const ytId = data.videoType === "youtube" ? getYouTubeId(data.videoUrl) : null;
+  const hasOverlay = data.title || data.subtitle || data.btnText;
 
   return (
     <section className="py-6 lg:py-8">
@@ -54,6 +60,20 @@ export default function VideoBanner() {
             <video autoPlay muted loop playsInline>
               <source src={data.videoUrl} type="video/mp4" />
             </video>
+          )}
+
+          {hasOverlay && (
+            <div className="video-banner-overlay">
+              <div className="video-banner-overlay-content">
+                {data.title && <h2 className="video-banner-title">{data.title}</h2>}
+                {data.subtitle && <p className="video-banner-subtitle">{data.subtitle}</p>}
+                {data.btnText && data.btnLink && (
+                  <Link href={data.btnLink} className="video-banner-btn">
+                    {data.btnText}
+                  </Link>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>

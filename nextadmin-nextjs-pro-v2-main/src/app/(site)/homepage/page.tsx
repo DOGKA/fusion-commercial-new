@@ -55,6 +55,10 @@ interface VideoBannerItem {
   name: string;
   videoType: string;
   videoUrl: string | null;
+  title: string | null;
+  subtitle: string | null;
+  btnText: string | null;
+  btnLink: string | null;
   isActive: boolean;
 }
 
@@ -409,7 +413,7 @@ function VideoBannerTab() {
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>;
 
-  const formData = item || { id: "", name: "Video Banner", videoType: "upload", videoUrl: "", isActive: true };
+  const formData = item || { id: "", name: "Video Banner", videoType: "upload", videoUrl: "", title: null, subtitle: null, btnText: null, btnLink: null, isActive: true };
 
   return (
     <div className="space-y-4">
@@ -428,6 +432,23 @@ function VideoBannerTab() {
           </FormField>
           <FormField label={formData.videoType === "youtube" ? "YouTube Linki" : "Video URL (MP4)"} hint="Otomatik oynatılır, sessiz, döngü">
             <Input value={formData.videoUrl || ""} onChange={(v) => setItem({ ...formData, videoUrl: v } as VideoBannerItem)} placeholder={formData.videoType === "youtube" ? "https://youtube.com/watch?v=..." : "https://...video.mp4"} />
+          </FormField>
+        </div>
+      </Card>
+      <Card>
+        <h4 className="text-sm font-semibold text-dark dark:text-white mb-3">Video Üzeri Metin</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Banner Başlık">
+            <Input value={formData.title || ""} onChange={(v) => setItem({ ...formData, title: v } as VideoBannerItem)} placeholder="Başlık giriniz" />
+          </FormField>
+          <FormField label="Banner Açıklama">
+            <Input value={formData.subtitle || ""} onChange={(v) => setItem({ ...formData, subtitle: v } as VideoBannerItem)} placeholder="Açıklama giriniz" />
+          </FormField>
+          <FormField label="Buton Metni">
+            <Input value={formData.btnText || ""} onChange={(v) => setItem({ ...formData, btnText: v } as VideoBannerItem)} placeholder="Daha Fazla" />
+          </FormField>
+          <FormField label="Buton Linki">
+            <Input value={formData.btnLink || ""} onChange={(v) => setItem({ ...formData, btnLink: v } as VideoBannerItem)} placeholder="https://..." />
           </FormField>
           <Toggle checked={formData.isActive} onChange={(v) => setItem({ ...formData, isActive: v } as VideoBannerItem)} label="Aktif" />
           <div className="flex justify-end items-end">

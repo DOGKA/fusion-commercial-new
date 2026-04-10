@@ -537,6 +537,7 @@
    Video Banner - Homepage
 =========================================================================== */
 .video-banner-wrapper {
+  position: relative;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
@@ -544,6 +545,54 @@
   overflow: hidden;
   border: 1px solid var(--border);
   aspect-ratio: 1440 / 470;
+}
+
+.video-banner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.25) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.video-banner-overlay-content {
+  padding: 32px 40px;
+  max-width: 600px;
+  pointer-events: auto;
+}
+
+.video-banner-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.video-banner-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.video-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: opacity 0.2s;
+}
+
+.video-banner-btn:hover {
+  opacity: 0.9;
 }
 
 .video-banner-wrapper video {
@@ -622,6 +671,25 @@
   .video-banner-wrapper {
     aspect-ratio: 358 / 295;
     border-radius: 16px;
+  }
+
+  .video-banner-overlay-content {
+    padding: 20px 24px;
+  }
+
+  .video-banner-title {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .video-banner-subtitle {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .video-banner-btn {
+    padding: 8px 18px;
+    font-size: 13px;
   }
 }
 

@@ -1620,6 +1620,10 @@ model HomepageVideoBanner {
   name      String   @default("Video Banner")
   videoType String   @default("upload")
   videoUrl  String?
+  title     String?
+  subtitle  String?
+  btnText   String?
+  btnLink   String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -50,7 +50,11 @@ async function main() {
     data: {
       name: "Ana Sayfa Video Banner",
       videoType: "upload",
-      videoUrl: "https://demo.halilgulerweb.com/wp-content/uploads/2026/02/798970133ee6459a86602b36cac04fb8.HD-720p-3.0Mbps-64523111.mp4",
+      videoUrl: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/P3200-compressed.mp4",
+      title: "Taşınabilir Güç İstasyonları",
+      subtitle: "Outdoor, kamp ve acil durumlar için yüksek kapasiteli, güvenilir taşınabilir enerji çözümleri.",
+      btnText: "Daha Fazla",
+      btnLink: "/kategori/tasinabilir-guc-istasyonlari",
       isActive: true,
     },
   });
