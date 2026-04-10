@@ -267,7 +267,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   // Buton stilini belirle
   const getButtonClasses = (style?: string, isPrimary = true) => {
-    const base = "group inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-[color,background-color,box-shadow,transform] duration-300";
+    const base = "group inline-flex items-center gap-1 md:gap-2 px-2.5 py-[3px] md:px-8 md:py-4 rounded-md md:rounded-full text-[10px] md:text-base font-semibold transition-[color,background-color,box-shadow,transform] duration-300";
     
     switch (style) {
       case "PRIMARY":
@@ -439,7 +439,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "!px-2.5 !py-[3px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
+                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
@@ -455,7 +455,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "!px-2.5 !py-[3px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
+                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,
@@ -506,7 +506,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
       {/* Slide Indicators */}
       {slides.length > 1 && (
-        <div className="absolute bottom-2 md:bottom-8 left-1/2 -translate-x-1/2 z-20">
+        <div className="absolute bottom-1 md:bottom-8 left-1/2 -translate-x-1/2 z-20">
           <div className="flex items-center gap-[3px] md:gap-1.5">
             {slides.map((_, index) => (
               <button
