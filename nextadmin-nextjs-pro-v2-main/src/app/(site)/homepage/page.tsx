@@ -2,7 +2,24 @@
 
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
-import { Loader2, Plus, Trash2, GripVertical, Save, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Plus, Trash2, GripVertical, Save, ChevronDown, ChevronUp, Search } from "lucide-react";
+import Image from "next/image";
+
+interface DbProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  comparePrice: number | null;
+  thumbnail: string | null;
+  categoryId: string | null;
+}
+
+interface ProductCategory {
+  id: string;
+  name: string;
+  _count: { products: number };
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // TYPES
@@ -431,6 +448,8 @@ function CategoryTab() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [dbProducts, setDbProducts] = useState<DbProduct[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
 
   const fetchItems = useCallback(async () => {
     try {
@@ -439,7 +458,21 @@ function CategoryTab() {
     } catch { /* ignore */ } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/products?limit=500");
+      if (res.ok) { const data = await res.json(); setDbProducts(data.products || []); }
+    } catch { /* ignore */ }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/categories?includeAll=true");
+      if (res.ok) { const data = await res.json(); setProductCategories(data.categories || []); }
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => { fetchItems(); fetchProducts(); fetchCategories(); }, [fetchItems, fetchProducts, fetchCategories]);
 
   const createItem = async () => {
     try {
@@ -496,7 +529,7 @@ function CategoryTab() {
           </div>
 
           {expandedId === item.id && (
-            <CategorySectionForm section={item} saving={saving === item.id} onSave={(data) => updateItem(item.id, data)} />
+            <CategorySectionForm section={item} saving={saving === item.id} onSave={(data) => updateItem(item.id, data)} dbProducts={dbProducts} productCategories={productCategories} />
           )}
         </Card>
       ))}
@@ -506,17 +539,48 @@ function CategoryTab() {
   );
 }
 
-function CategorySectionForm({ section, saving, onSave }: {
+function CategorySectionForm({ section, saving, onSave, dbProducts, productCategories }: {
   section: CategorySection;
   saving: boolean;
   onSave: (data: Partial<CategorySection>) => void;
+  dbProducts: DbProduct[];
+  productCategories: ProductCategory[];
 }) {
   const [form, setForm] = useState(section);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
-  const addProduct = () => {
+  const categoryProducts = selectedCategoryId
+    ? dbProducts.filter(p => p.categoryId === selectedCategoryId)
+    : [];
+
+  const alreadyAddedIds = new Set(
+    (form.products || [])
+      .map(p => p.link)
+      .filter(Boolean)
+      .map(link => {
+        const slug = link?.split("/urun/")[1];
+        return slug ? dbProducts.find(dp => dp.slug === slug)?.id : null;
+      })
+      .filter(Boolean)
+  );
+
+  const addProductFromDb = (p: DbProduct) => {
+    if ((form.products?.length || 0) >= 4) return;
+    const price = p.comparePrice && p.comparePrice < p.price
+      ? Number(p.comparePrice).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : Number(p.price).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     setForm({
       ...form,
-      products: [...(form.products || []), { title: "Yeni Ürün", badge: null, spec1: null, spec2: null, price: null, image: null, link: "#", order: (form.products?.length || 0) }],
+      products: [...(form.products || []), {
+        title: p.name,
+        badge: null,
+        spec1: null,
+        spec2: null,
+        price,
+        image: p.thumbnail || null,
+        link: `/urun/${p.slug}`,
+        order: form.products?.length || 0,
+      }],
     });
   };
 
@@ -554,21 +618,77 @@ function CategorySectionForm({ section, saving, onSave }: {
       <div className="border-t border-stroke dark:border-dark-3 pt-4">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-semibold text-dark dark:text-white">Ürünler <span className="text-xs text-gray-400 font-normal ml-2">Önerilen görsel: 280 x 280 px (max 4)</span></h4>
-          {(form.products?.length || 0) < 4 && (
-            <button onClick={addProduct} className="text-xs text-primary hover:underline flex items-center gap-1"><Plus size={14} /> Ürün Ekle</button>
-          )}
+          <span className="text-xs text-gray-400">{form.products?.length || 0} / 4</span>
         </div>
+
+        {(form.products?.length || 0) < 4 && (
+          <div className="mb-4 space-y-3">
+            <div>
+              <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Kategori Seç</label>
+              <select
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2.5 text-sm outline-none focus:border-primary dark:border-dark-3 dark:text-white dark:bg-dark-2"
+              >
+                <option value="">-- Kategori seçin --</option>
+                {productCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name} ({cat._count.products} ürün)</option>
+                ))}
+              </select>
+            </div>
+
+            {selectedCategoryId && categoryProducts.length > 0 && (
+              <div className="max-h-56 overflow-y-auto rounded-lg border border-stroke dark:border-dark-3">
+                {categoryProducts.map((p) => {
+                  const isAdded = alreadyAddedIds.has(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => !isAdded && addProductFromDb(p)}
+                      disabled={isAdded}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm border-b last:border-b-0 border-stroke dark:border-dark-3 transition-colors ${
+                        isAdded
+                          ? "opacity-40 cursor-not-allowed bg-gray-50 dark:bg-dark-3"
+                          : "hover:bg-primary/5 dark:hover:bg-primary/10 text-dark dark:text-white"
+                      }`}
+                    >
+                      {p.thumbnail && <Image src={p.thumbnail} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{p.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{Number(p.price).toLocaleString("tr-TR")} TL</p>
+                      </div>
+                      {isAdded ? (
+                        <span className="text-xs text-gray-400 flex-shrink-0">Eklendi</span>
+                      ) : (
+                        <Plus size={16} className="text-primary flex-shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {selectedCategoryId && categoryProducts.length === 0 && (
+              <p className="text-xs text-gray-400 py-3 text-center">Bu kategoride ürün bulunamadı</p>
+            )}
+          </div>
+        )}
+
         {(form.products || []).map((product, idx) => (
-          <div key={idx} className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-gray-50 dark:bg-dark-3 relative">
-            <FormField label="Ürün Adı"><Input value={product.title} onChange={(v) => updateProduct(idx, { title: v })} /></FormField>
-            <FormField label="Badge"><Input value={product.badge || ""} onChange={(v) => updateProduct(idx, { badge: v || null })} /></FormField>
-            <FormField label="Özellik 1"><Input value={product.spec1 || ""} onChange={(v) => updateProduct(idx, { spec1: v || null })} /></FormField>
-            <FormField label="Özellik 2"><Input value={product.spec2 || ""} onChange={(v) => updateProduct(idx, { spec2: v || null })} /></FormField>
-            <FormField label="Fiyat"><Input value={product.price || ""} onChange={(v) => updateProduct(idx, { price: v || null })} /></FormField>
-            <FormField label="Görsel URL" hint="280x280"><Input value={product.image || ""} onChange={(v) => updateProduct(idx, { image: v || null })} /></FormField>
-            <FormField label="Link"><Input value={product.link || ""} onChange={(v) => updateProduct(idx, { link: v || null })} /></FormField>
-            <div className="flex items-end">
-              <button onClick={() => removeProduct(idx)} className="p-2.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/10 rounded-lg"><Trash2 size={14} /></button>
+          <div key={idx} className="mb-3 p-3 rounded-lg bg-gray-50 dark:bg-dark-3 relative">
+            <div className="flex items-center gap-3 mb-3">
+              {product.image && (
+                <Image src={product.image} alt="" width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-dark dark:text-white truncate">{product.title}</p>
+                <p className="text-xs text-gray-400">{product.price ? `${product.price} TL` : "Fiyat girilmedi"}</p>
+              </div>
+              <button onClick={() => removeProduct(idx)} className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/10 rounded-lg"><Trash2 size={14} /></button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <FormField label="Badge"><Input value={product.badge || ""} onChange={(v) => updateProduct(idx, { badge: v || null })} /></FormField>
+              <FormField label="Özellik 1"><Input value={product.spec1 || ""} onChange={(v) => updateProduct(idx, { spec1: v || null })} /></FormField>
+              <FormField label="Özellik 2"><Input value={product.spec2 || ""} onChange={(v) => updateProduct(idx, { spec2: v || null })} /></FormField>
             </div>
           </div>
         ))}
