@@ -59,6 +59,17 @@ const nextConfig: NextConfig = {
         hostname: "ieetek.com",
         pathname: "/**",
       },
+      // YouTube thumbnails
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        pathname: "/**",
+      },
     ],
     // Next.js 16+ için özel kalite değerleri (next/image quality prop)
     // RelatedProductCard gibi yerlerde quality={85} kullanıyoruz.

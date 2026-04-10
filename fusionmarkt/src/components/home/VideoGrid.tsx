@@ -123,7 +123,7 @@ export default function VideoGrid() {
   return (
     <section className="video-grid-section">
       <div className="container">
-        <h2 className="video-grid-title">Gerçek Kişilerden Gerçek Hikayeler</h2>
+        <h2 className="video-grid-title">Sizlerden Gelenler</h2>
 
         <div className="video-grid-layout">
           {videos.map((video, idx) => (
