@@ -7,8 +7,8 @@ import { ImageResponse } from "next/og";
 import { prisma } from "@repo/db";
 import { siteConfig } from "@/lib/seo";
 
-// Node.js runtime kullan (Prisma için gerekli)
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export const alt = "FusionMarkt - Taşınabilir Güç Kaynakları & Enerji Çözümleri";
 export const size = {
@@ -69,6 +69,8 @@ export default async function Image() {
           <img
             src={sliderImage}
             alt=""
+            width={1200}
+            height={630}
             style={{
               position: "absolute",
               top: 0,
