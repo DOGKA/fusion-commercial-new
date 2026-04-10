@@ -368,43 +368,25 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       )}>
         <div className={cn("max-w-4xl pt-16 md:pt-20 flex flex-col gap-0", getAlignClass())}>
           
-          {/* ROW 1: Mobile = subtitle in badge style, Desktop = badge */}
-          <div className="md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
-            {isMobile ? (
-              slide.subtitle && (
-                <div 
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm border border-glass-border"
-                  style={{ 
-                    backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
-                  }}
+          {/* ROW 1: Badge */}
+          <div className="h-[24px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
+            {slide.badge && (
+              <div 
+                className="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm border border-glass-border"
+                style={{ 
+                  backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
+                }}
+              >
+                <span className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 flex items-center justify-center" style={{ color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}>
+                  <BadgeIcon name={slide.badgeIcon ?? undefined} className="" />
+                </span>
+                <span 
+                  className="text-[10px] md:text-sm font-medium whitespace-nowrap" 
+                  style={{ lineHeight: '14px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
                 >
-                  <span 
-                    className="text-[10px] font-medium whitespace-nowrap" 
-                    style={{ lineHeight: '14px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
-                  >
-                    {slide.subtitle}
-                  </span>
-                </div>
-              )
-            ) : (
-              slide.badge && (
-                <div 
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-sm border border-glass-border"
-                  style={{ 
-                    backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
-                  }}
-                >
-                  <span style={{ width: '16px', height: '16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}>
-                    <BadgeIcon name={slide.badgeIcon ?? undefined} className="" />
-                  </span>
-                  <span 
-                    className="text-sm font-medium whitespace-nowrap" 
-                    style={{ lineHeight: '14px', color: badgeTextColor || (isDarkMode ? '#FFFFFF' : '#111827') }}
-                  >
-                    {slide.badge}
-                  </span>
-                </div>
-              )
+                  {slide.badge}
+                </span>
+              </div>
             )}
           </div>
 
@@ -451,11 +433,11 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           {/* GAP */}
           <div className="h-0 md:h-8" />
 
-          {/* ROW 4: Description - desktop only (mobile shows subtitle in badge row above) */}
-          {!isMobile && slide.subtitle && (
+          {/* ROW 4: Description */}
+          {slide.subtitle && (
             <div className="animate-fade-in-up opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
               <p 
-                className="text-lg lg:text-xl max-w-2xl leading-relaxed line-clamp-3"
+                className="text-[11px] md:text-lg lg:text-xl max-w-[260px] md:max-w-2xl leading-relaxed line-clamp-2 md:line-clamp-3"
                 style={{ color: subtitleColor }}
               >
                 {slide.subtitle}
