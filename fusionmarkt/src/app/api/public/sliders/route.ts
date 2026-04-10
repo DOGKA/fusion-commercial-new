@@ -6,16 +6,8 @@ import {
   filterActiveSliders,
 } from "@/server/dto";
 
-/**
- * GET /api/public/sliders
- * Public endpoint for frontend consumption
- * Returns only active sliders with DTO mapping
- * Filters by date range and device visibility
- * 
- * Query params:
- * - device: 'mobile' | 'desktop' (optional)
- * - limit: Max results (optional)
- */
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,12 +30,7 @@ export async function GET(request: NextRequest) {
       dto = filterActiveSliders(dto, device);
     }
 
-    // Cache strategy: s-maxage=60, stale-while-revalidate=300
-    return NextResponse.json(dto, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
-      },
-    });
+    return NextResponse.json(dto);
   } catch (error: unknown) {
     console.error("❌ [PUBLIC API] Error fetching sliders:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
