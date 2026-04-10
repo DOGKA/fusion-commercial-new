@@ -13,6 +13,15 @@ interface TrendingProduct {
   image?: string | null;
 }
 
+interface TrendingApiItem {
+  id: string;
+  buttonLink: string | null;
+  title: string;
+  badge: string | null;
+  attributes: string | null;
+  image: string | null;
+}
+
 const MOCK_PRODUCTS: TrendingProduct[] = Array.from({ length: 13 }, (_, i) => ({
   href: "#",
   title: `Ürün Adı ${i + 1}`,
@@ -30,8 +39,7 @@ export default function TrendingCarousel() {
         if (res.ok) {
           const data = await res.json();
           if (data.items && data.items.length > 0) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setProducts(data.items.map((item: any) => ({
+            setProducts(data.items.map((item: TrendingApiItem) => ({
               id: item.id,
               href: item.buttonLink || "#",
               title: item.title,
