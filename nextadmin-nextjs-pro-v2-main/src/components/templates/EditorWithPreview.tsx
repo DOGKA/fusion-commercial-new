@@ -36,6 +36,7 @@ export interface EditorWithPreviewProps {
   
   // Preview
   renderPreview: (viewMode: "web" | "mobile" | "wide") => ReactNode;
+  showMobilePreview?: boolean;
   showWidePreview?: boolean;
   
   // Actions
@@ -152,6 +153,7 @@ export default function EditorWithPreview({
   renderStyleTab,
   renderSettingsTab,
   renderPreview,
+  showMobilePreview = true,
   showWidePreview = false,
   onSave,
   onDelete,
@@ -352,17 +354,19 @@ export default function EditorWithPreview({
                 <MonitorIcon />
                 Web
               </button>
-              <button
-                onClick={() => setViewMode("mobile")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors ${
-                  viewMode === "mobile"
-                    ? "bg-white dark:bg-dark-3 text-dark dark:text-white shadow-sm"
-                    : "text-gray-5 hover:text-dark dark:hover:text-white"
-                }`}
-              >
-                <PhoneIcon />
-                Mobil
-              </button>
+              {showMobilePreview && (
+                <button
+                  onClick={() => setViewMode("mobile")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors ${
+                    viewMode === "mobile"
+                      ? "bg-white dark:bg-dark-3 text-dark dark:text-white shadow-sm"
+                      : "text-gray-5 hover:text-dark dark:hover:text-white"
+                  }`}
+                >
+                  <PhoneIcon />
+                  Mobil
+                </button>
+              )}
               {showWidePreview && (
                 <button
                   onClick={() => setViewMode("wide")}

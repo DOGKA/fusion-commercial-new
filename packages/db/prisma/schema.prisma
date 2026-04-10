@@ -182,6 +182,7 @@ model Product {
   reviews              Review[]
   technicalSpecs       TechnicalSpec[]
   wishlistItems        WishlistItem[]
+  compareProducts      CompareProduct[]
 
   @@map("products")
 }
@@ -1577,4 +1578,185 @@ enum ReturnReason {
 enum BanType {
   SOFT
   HARD
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOMEPAGE CMS - Admin tarafindan yonetilen ana sayfa icerikleri
+// ═══════════════════════════════════════════════════════════════════════════
+
+model HomepageTrendingCard {
+  id         String   @id @default(cuid())
+  title      String
+  badge      String?
+  attributes String?
+  buttonText String   @default("Daha Fazla")
+  buttonLink String   @default("#")
+  image      String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("homepage_trending_cards")
+}
+
+model HomepagePromo {
+  id         String   @id @default(cuid())
+  title      String?
+  subtitle   String?
+  buttonText String?  @default("İncele")
+  buttonLink String?  @default("#")
+  image      String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("homepage_promos")
+}
+
+model HomepageVideoBanner {
+  id        String   @id @default(cuid())
+  name      String   @default("Video Banner")
+  videoType String   @default("upload")
+  videoUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("homepage_video_banners")
+}
+
+model HomepageCategorySection {
+  id            String   @id @default(cuid())
+  sectionTitle  String
+  bannerImage   String?
+  bannerEyebrow String?
+  bannerTitle   String?
+  bannerDesc    String?
+  bannerBtnText String?  @default("Daha Fazla")
+  bannerBtnLink String?  @default("#")
+  seeMoreImage  String?
+  seeMoreLink   String?  @default("#")
+  accessoryText String?  @default("Hangi Ürün Bana Uygun?")
+  accessoryLink String?  @default("#")
+  order         Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  products      HomepageCategorySectionProduct[]
+
+  @@map("homepage_category_sections")
+}
+
+model HomepageCategorySectionProduct {
+  id        String   @id @default(cuid())
+  sectionId String
+  title     String
+  badge     String?
+  spec1     String?
+  spec2     String?
+  price     String?
+  image     String?
+  link      String?  @default("#")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  section   HomepageCategorySection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@map("homepage_category_section_products")
+}
+
+model HomepageVideo {
+  id        String   @id @default(cuid())
+  title     String
+  youtubeUrl String
+  thumbnail String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("homepage_videos")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PRODUCT COMPARISON - Urun Karsilastirma Tablolari
+// ═══════════════════════════════════════════════════════════════════════════
+
+model CompareCategory {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  specGroups CompareSpecGroup[]
+  products   CompareProduct[]
+
+  @@map("compare_categories")
+}
+
+model CompareSpecGroup {
+  id         String   @id @default(cuid())
+  categoryId String
+  name       String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category CompareCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  specs    CompareSpec[]
+
+  @@map("compare_spec_groups")
+}
+
+model CompareSpec {
+  id      String  @id @default(cuid())
+  groupId String
+  label   String
+  unit    String?
+  icon    String?
+  order   Int     @default(0)
+
+  group  CompareSpecGroup     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  values CompareProductSpec[]
+
+  @@map("compare_specs")
+}
+
+model CompareProduct {
+  id           String   @id @default(cuid())
+  categoryId   String
+  productId    String?
+  name         String
+  image        String?
+  price        Decimal?
+  comparePrice Decimal?
+  buyLink      String?
+  order        Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category   CompareCategory      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  product    Product?             @relation(fields: [productId], references: [id], onDelete: SetNull)
+  specValues CompareProductSpec[]
+
+  @@map("compare_products")
+}
+
+model CompareProductSpec {
+  id               String @id @default(cuid())
+  compareProductId String
+  specId           String
+  value            String
+
+  compareProduct CompareProduct @relation(fields: [compareProductId], references: [id], onDelete: Cascade)
+  spec           CompareSpec    @relation(fields: [specId], references: [id], onDelete: Cascade)
+
+  @@unique([compareProductId, specId])
+  @@map("compare_product_specs")
 }

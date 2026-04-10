@@ -48,7 +48,6 @@ const SLIDER_FILTERS: FilterConfig[] = [
 // ============================================
 
 function SliderPreview({ slider, viewMode }: { slider: Slider; viewMode: "web" | "mobile" | "wide" }) {
-  const isMobile = viewMode === "mobile";
 
   // Get overlay style
   const getOverlayStyle = () => {
@@ -80,7 +79,7 @@ function SliderPreview({ slider, viewMode }: { slider: Slider; viewMode: "web" |
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url(${isMobile && slider.mobileImage ? slider.mobileImage : slider.desktopImage})`,
+              backgroundImage: `url(${slider.desktopImage})`,
             }}
           />
         )}
@@ -99,7 +98,7 @@ function SliderPreview({ slider, viewMode }: { slider: Slider; viewMode: "web" |
           )}
 
           {/* Title */}
-          <h2 className={`text-white font-bold mb-2 ${isMobile ? "text-lg" : "text-xl"}`}>
+          <h2 className="text-white font-bold mb-2 text-xl">
             {slider.title}
             {slider.titleHighlight && (
               <span className="bg-gradient-to-r from-fm-green to-fm-cyan bg-clip-text text-transparent">
@@ -110,7 +109,7 @@ function SliderPreview({ slider, viewMode }: { slider: Slider; viewMode: "web" |
 
           {/* Subtitle */}
           {slider.subtitle && (
-            <p className={`text-white/70 mb-4 ${isMobile ? "text-xs" : "text-sm"}`}>
+            <p className="text-white/70 mb-4 text-sm">
               {slider.subtitle}
             </p>
           )}
@@ -118,12 +117,12 @@ function SliderPreview({ slider, viewMode }: { slider: Slider; viewMode: "web" |
           {/* Buttons */}
           <div className="flex gap-2">
             {slider.buttonText && (
-              <span className={`bg-white text-dark rounded-full font-medium ${isMobile ? "text-[10px] px-3 py-1" : "text-xs px-4 py-1.5"}`}>
+              <span className="bg-white text-dark rounded-full font-medium text-xs px-4 py-1.5">
                 {slider.buttonText}
               </span>
             )}
             {slider.button2Text && (
-              <span className={`border border-white/50 text-white rounded-full font-medium ${isMobile ? "text-[10px] px-3 py-1" : "text-xs px-4 py-1.5"}`}>
+              <span className="border border-white/50 text-white rounded-full font-medium text-xs px-4 py-1.5">
                 {slider.button2Text}
               </span>
             )}

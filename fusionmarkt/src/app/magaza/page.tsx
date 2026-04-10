@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
-import { mapApiProductToCard } from "@/lib/mappers";
+import { mapApiProductToCard, mapApiProductsToCards } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import WaveMesh from "@/components/ui/WaveMesh";
 import ParticleField from "@/components/three/ParticleField";
@@ -245,6 +245,10 @@ export default function StorePage() {
   const [categoryBanners, setCategoryBanners] = useState<Record<string, Banner>>({});
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
   const [loading, setLoading] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [bestsellerProducts, setBestsellerProducts] = useState<Product[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
+  const [bestsellerLoading, setBestsellerLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -501,6 +505,36 @@ export default function StorePage() {
 
     fetchData();
   }, []);
+
+  // Fetch featured & bestseller products
+  useEffect(() => {
+    const fetchFeaturedAndBestseller = async () => {
+      try {
+        const [featuredRes, bestsellerRes] = await Promise.all([
+          fetch("/api/public/products?featured=true&limit=12"),
+          fetch("/api/public/products?bestseller=true&limit=6&inStock=true"),
+        ]);
+
+        if (featuredRes.ok) {
+          const data = await featuredRes.json();
+          setFeaturedProducts(mapApiProductsToCards(data.products || [], freeShippingThreshold));
+        }
+        if (bestsellerRes.ok) {
+          const data = await bestsellerRes.json();
+          setBestsellerProducts(mapApiProductsToCards(data.products || [], freeShippingThreshold));
+        }
+      } catch (error) {
+        console.error("Error fetching featured/bestseller:", error);
+      } finally {
+        setFeaturedLoading(false);
+        setBestsellerLoading(false);
+      }
+    };
+
+    if (freeShippingThreshold > 0) {
+      fetchFeaturedAndBestseller();
+    }
+  }, [freeShippingThreshold]);
 
   // Sort products within each category
   const sortProducts = (products: ProductWithCategory[]): ProductWithCategory[] => {
@@ -832,6 +866,28 @@ export default function StorePage() {
           </div>
         </div>
       </section>
+
+      {/* FEATURED PRODUCTS - Öne Çıkan Ürünler */}
+      {!featuredLoading && featuredProducts.length > 0 && (
+        <StoreFeaturedSection
+          title="Öne Çıkan Ürünler"
+          eyebrow="Seçili Koleksiyon"
+          products={featuredProducts}
+          isDark={isDark}
+          accentColor="#6B7280"
+        />
+      )}
+
+      {/* BESTSELLER PRODUCTS - Çok Satanlar */}
+      {!bestsellerLoading && bestsellerProducts.length > 0 && (
+        <StoreFeaturedSection
+          title="Çok Satanlar"
+          eyebrow="Trend Ürünler"
+          products={bestsellerProducts}
+          isDark={isDark}
+          accentColor="#F59E0B"
+        />
+      )}
 
       {/* CATEGORIES WITH CAROUSELS */}
       <section style={{ marginTop: "48px", paddingBottom: "80px" }}>
@@ -1235,5 +1291,136 @@ function CategoryCarousel({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   STORE FEATURED SECTION - Öne Çıkan / Çok Satanlar (isDark pattern)
+───────────────────────────────────────────────────────────────────────────── */
+function StoreFeaturedSection({
+  title,
+  eyebrow,
+  products,
+  isDark,
+  accentColor,
+}: {
+  title: string;
+  eyebrow: string;
+  products: Product[];
+  isDark: boolean;
+  accentColor: string;
+}) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  const {
+    containerRef,
+    wrapperRef,
+    containerStyle,
+    wrapperStyle,
+    handlers,
+    scrollBy,
+  } = useTransformCarousel({ friction: 0.95 });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const displayProducts = [...products, ...products, ...products];
+
+  return (
+    <section style={{ marginTop: "48px" }}>
+      <div className="container">
+        {isMobile && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-1 h-8 rounded-full"
+                style={{ backgroundColor: accentColor }}
+              />
+              <div>
+                <p
+                  style={{
+                    fontSize: "11px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.2em",
+                    color: accentColor,
+                    marginBottom: "4px",
+                  }}
+                >
+                  {eyebrow}
+                </p>
+                <h3
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: isDark ? "#FAFAFA" : "#0A0A0A",
+                  }}
+                >
+                  {title}
+                </h3>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!isMobile && (
+          <div className="flex items-end justify-between mb-3">
+            <div>
+              <p
+                style={{
+                  fontSize: "11px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.2em",
+                  color: accentColor,
+                  marginBottom: "12px",
+                }}
+              >
+                {eyebrow}
+              </p>
+              <h2
+                style={{
+                  fontSize: "32px",
+                  fontWeight: 600,
+                  color: isDark ? "#FAFAFA" : "#0A0A0A",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {title}
+              </h2>
+            </div>
+            <CarouselNavButtons
+              scrollBy={scrollBy}
+              scrollAmount={296}
+              theme="dynamic"
+              themeColor={accentColor}
+            />
+          </div>
+        )}
+
+        <div className="relative">
+          <div
+            ref={containerRef}
+            style={containerStyle}
+            className="pb-4"
+          >
+            <div
+              ref={wrapperRef}
+              style={{ ...wrapperStyle, gap: "16px" }}
+              {...handlers}
+              className="flex items-stretch"
+            >
+              {displayProducts.map((product, idx) => (
+                <div key={`${product.id}-${idx}`} className="flex-shrink-0 w-[280px]">
+                  <ProductCard product={product} priority={idx < 4} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

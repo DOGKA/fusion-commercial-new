@@ -12,8 +12,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     <NextThemesProvider
       attribute="class"
       defaultTheme="dark"
-      // User requirement: first entry should be dark (do NOT follow system theme on first load)
       enableSystem={false}
+      enableColorScheme={false}
       storageKey="fusionmarkt-theme"
       disableTransitionOnChange={false}
     >

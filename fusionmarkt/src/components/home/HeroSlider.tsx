@@ -23,7 +23,6 @@ interface Slide {
   button2Link?: Maybe<string>;
   button2Style?: Maybe<string>;
   desktopImage?: Maybe<string>;
-  mobileImage?: Maybe<string>;
   overlayColor?: Maybe<string>;
   overlayOpacity?: Maybe<number>;
   overlayColorLight?: Maybe<string>;
@@ -236,7 +235,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   }
 
   const slide = slides[currentSlide];
-  const backgroundImage = isMobile ? slide.mobileImage : slide.desktopImage;
+  const backgroundImage = slide.desktopImage;
   
   // Theme-aware color resolution - uses light variant if available and theme is light
   const getThemedColor = (darkValue?: Maybe<string>, lightValue?: Maybe<string>, defaultDark?: string, defaultLight?: string) => {
@@ -319,7 +318,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             alt={slide.title} 
             fill 
             sizes="100vw"
-            className="object-cover"
+            className="object-cover object-center"
             priority
             fetchPriority="high"
           />

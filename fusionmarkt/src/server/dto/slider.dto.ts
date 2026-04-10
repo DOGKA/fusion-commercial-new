@@ -25,7 +25,6 @@ export const SliderPublicDTOSchema = z.object({
   button2Link: z.string().nullable(),
   button2Style: z.string(), // Enum as string
   desktopImage: z.string().nullable(),
-  mobileImage: z.string().nullable(),
   backgroundVideo: z.string().nullable(),
   // Overlay - Dark Theme
   overlayColor: z.string().nullable(),
@@ -102,7 +101,6 @@ export function mapSliderToPublicDTO(slider: SliderPublic): SliderPublicDTO {
     button2Link: slider.button2Link,
     button2Style: String(slider.button2Style),
     desktopImage: slider.desktopImage,
-    mobileImage: slider.mobileImage,
     backgroundVideo: slider.backgroundVideo,
     // Overlay - Dark Theme
     overlayColor: slider.overlayColor,

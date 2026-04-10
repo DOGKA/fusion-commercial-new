@@ -190,9 +190,6 @@ export default function CookieConsent() {
               <div
                 className="relative overflow-hidden rounded-2xl border border-border bg-background-elevated backdrop-blur-2xl shadow-2xl"
               >
-                {/* Top gradient accent */}
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500" />
-
                 {/* Close button */}
                 {hasConsent && (
                   <button

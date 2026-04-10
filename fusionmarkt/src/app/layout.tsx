@@ -122,7 +122,6 @@ export default function RootLayout({
                   var theme = localStorage.getItem('fusionmarkt-theme') || 'dark';
                   document.documentElement.classList.remove('light', 'dark');
                   document.documentElement.classList.add(theme);
-                  document.documentElement.style.colorScheme = theme;
                 } catch (e) {
                   document.documentElement.classList.add('dark');
                 }

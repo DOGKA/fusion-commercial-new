@@ -36,6 +36,7 @@ export const NAV_DATA: NavGroup[] = [
           { title: "Özellikler", url: "/attributes" },
           { title: "Filtreler", url: "/filters" },
           { title: "Rozetler", url: "/badges" },
+          { title: "Karşılaştırma", url: "/compare" },
         ],
       },
       {
@@ -125,6 +126,12 @@ export const NAV_DATA: NavGroup[] = [
           { title: "Tüm Bloglar", url: "/blogs" },
           { title: "Yeni Blog", url: "/blogs/new" },
         ],
+      },
+      {
+        title: "Ana Sayfa",
+        url: "/homepage",
+        icon: Icons.HomeIcon,
+        items: [],
       },
       {
         title: "Bannerlar",

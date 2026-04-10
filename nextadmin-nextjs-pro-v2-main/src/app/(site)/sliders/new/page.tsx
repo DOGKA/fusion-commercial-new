@@ -25,7 +25,6 @@ interface SliderFormData {
   button2Text: string;
   button2Link: string;
   desktopImage: string;
-  mobileImage: string;
   // Overlay - Dark Theme
   overlayOpacity: number;
   overlayColor: string;
@@ -86,7 +85,6 @@ const initialFormData: SliderFormData = {
   button2Text: "",
   button2Link: "",
   desktopImage: "",
-  mobileImage: "",
   // Overlay - Dark Theme
   overlayOpacity: 50,
   overlayColor: "#000000",
@@ -136,7 +134,7 @@ export default function NewSliderPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
-  const [mediaTarget, setMediaTarget] = useState<"desktop" | "mobile">("desktop");
+  const [mediaTarget, setMediaTarget] = useState<"desktop">("desktop");
   const [styleThemeTab, setStyleThemeTab] = useState<"dark" | "light">("dark");
   const [previewTheme, setPreviewTheme] = useState<"dark" | "light">("dark");
 
@@ -145,17 +143,12 @@ export default function NewSliderPage() {
     setIsDirty(true);
   };
 
-  const openMediaLibrary = (target: "desktop" | "mobile") => {
-    setMediaTarget(target);
+  const openMediaLibrary = () => {
     setMediaLibraryOpen(true);
   };
 
   const handleMediaSelect = (media: any) => {
-    if (mediaTarget === "desktop") {
-      updateField("desktopImage", media.url);
-    } else {
-      updateField("mobileImage", media.url);
-    }
+    updateField("desktopImage", media.url);
     setMediaLibraryOpen(false);
   };
 
@@ -182,7 +175,6 @@ export default function NewSliderPage() {
           button2Text: formData.button2Text || null,
           button2Link: formData.button2Link || null,
           desktopImage: formData.desktopImage || null,
-          mobileImage: formData.mobileImage || null,
           // Overlay - Dark Theme
           overlayOpacity: formData.overlayOpacity,
           overlayColor: formData.overlayColor,
@@ -357,32 +349,17 @@ export default function NewSliderPage() {
             <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-2 dark:bg-dark-2">
               <Image src={formData.desktopImage} alt="" fill className="object-cover" unoptimized />
               <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <button onClick={() => openMediaLibrary("desktop")} className="px-3 py-1.5 bg-white text-dark rounded text-sm">Değiştir</button>
+                <button onClick={() => openMediaLibrary()} className="px-3 py-1.5 bg-white text-dark rounded text-sm">Değiştir</button>
                 <button onClick={() => updateField("desktopImage", "")} className="px-3 py-1.5 bg-red text-white rounded text-sm">Kaldır</button>
               </div>
             </div>
           ) : (
-            <button onClick={() => openMediaLibrary("desktop")} className="w-full aspect-video border-2 border-dashed border-stroke dark:border-dark-3 rounded-lg flex items-center justify-center text-gray-5 hover:border-primary hover:text-primary">
+            <button onClick={() => openMediaLibrary()} className="w-full aspect-video border-2 border-dashed border-stroke dark:border-dark-3 rounded-lg flex items-center justify-center text-gray-5 hover:border-primary hover:text-primary">
               + Görsel Seç
             </button>
           )}
         </FormField>
 
-        <FormField label="Mobil Görsel" hint="Önerilen: 1200x1200">
-          {formData.mobileImage ? (
-            <div className="relative aspect-square max-w-[200px] rounded-lg overflow-hidden bg-gray-2 dark:bg-dark-2">
-              <Image src={formData.mobileImage} alt="" fill className="object-cover" unoptimized />
-              <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <button onClick={() => openMediaLibrary("mobile")} className="px-3 py-1.5 bg-white text-dark rounded text-sm">Değiştir</button>
-                <button onClick={() => updateField("mobileImage", "")} className="px-3 py-1.5 bg-red text-white rounded text-sm">Kaldır</button>
-              </div>
-            </div>
-          ) : (
-            <button onClick={() => openMediaLibrary("mobile")} className="w-[200px] aspect-square border-2 border-dashed border-stroke dark:border-dark-3 rounded-lg flex items-center justify-center text-gray-5 hover:border-primary hover:text-primary">
-              + Görsel Seç
-            </button>
-          )}
-        </FormField>
       </FormSection>
     </div>
   );
@@ -725,8 +702,6 @@ export default function NewSliderPage() {
   );
 
   const renderPreview = (viewMode: "web" | "mobile" | "wide") => {
-    const isMobile = viewMode === "mobile";
-    
     // Theme-aware color helper
     const getColor = (darkColor: string, lightColor: string, defaultDark: string, defaultLight?: string) => {
       if (previewTheme === "light") {
@@ -760,7 +735,7 @@ export default function NewSliderPage() {
           {formData.desktopImage && (
             <div
               className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${isMobile && formData.mobileImage ? formData.mobileImage : formData.desktopImage})` }}
+              style={{ backgroundImage: `url(${formData.desktopImage})` }}
             />
           )}
           <div className="absolute inset-0" style={overlayStyle} />
@@ -778,7 +753,7 @@ export default function NewSliderPage() {
               </div>
             )}
             <h2 
-              className={`font-bold mb-2 ${isMobile ? "text-lg" : "text-xl"}`}
+              className="font-bold mb-2 text-xl"
               style={{ color: getColor(formData.titleColor, formData.titleColorLight, "#FFFFFF", "#111827") }}
             >
               {formData.title || "Başlık"}
@@ -797,7 +772,7 @@ export default function NewSliderPage() {
             </h2>
             {formData.subtitle && (
               <p 
-                className={`mb-4 ${isMobile ? "text-xs" : "text-sm"}`}
+                className="mb-4 text-sm"
                 style={{ color: getColor(formData.subtitleColor, formData.subtitleColorLight, "rgba(255,255,255,0.7)", "rgba(0,0,0,0.6)") }}
               >
                 {formData.subtitle}
@@ -806,7 +781,7 @@ export default function NewSliderPage() {
             <div className="flex gap-2">
               {formData.buttonText && (
                 <span 
-                  className={`rounded-full font-medium ${isMobile ? "text-[10px] px-3 py-1" : "text-xs px-4 py-1.5"}`}
+                  className="rounded-full font-medium text-xs px-4 py-1.5"
                   style={{ 
                     backgroundColor: getColor(formData.buttonBgColor, formData.buttonBgColorLight, "#FFFFFF", "#111827"),
                     color: getColor(formData.buttonTextColor, formData.buttonTextColorLight, "#000000", "#FFFFFF")
@@ -817,7 +792,7 @@ export default function NewSliderPage() {
               )}
               {formData.button2Text && (
                 <span 
-                  className={`border rounded-full font-medium ${isMobile ? "text-[10px] px-3 py-1" : "text-xs px-4 py-1.5"}`}
+                  className="border rounded-full font-medium text-xs px-4 py-1.5"
                   style={{ 
                     backgroundColor: getColor(formData.button2BgColor, formData.button2BgColorLight, "transparent", "transparent"),
                     color: getColor(formData.button2TextColor, formData.button2TextColorLight, "#FFFFFF", "#111827"),
@@ -862,6 +837,7 @@ export default function NewSliderPage() {
         renderStyleTab={renderStyleTab}
         renderSettingsTab={renderSettingsTab}
         renderPreview={renderPreview}
+        showMobilePreview={false}
         showWidePreview={false}
         onSave={handleSave}
         isSaving={isSaving}
