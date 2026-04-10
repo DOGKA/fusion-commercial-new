@@ -439,7 +439,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "!px-3 !py-1 md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-lg md:!rounded-full touch-manipulation")}
+                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "!px-2 !py-[5px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
@@ -455,7 +455,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "!px-3 !py-1 md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-lg md:!rounded-full touch-manipulation")}
+                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "!px-2 !py-[5px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,
@@ -540,22 +540,22 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
     {/* Slide Indicators - Mobile only (below slider) */}
     {slides.length > 1 && (
-      <div className="flex md:hidden justify-center py-2.5 bg-background">
-        <div className="flex items-center gap-1.5">
+      <div className="flex md:hidden justify-center py-2 bg-background">
+        <div className="flex items-center gap-[5px]">
           {slides.map((_, index) => (
             <button
               key={`mobile-dot-${index}`}
               onClick={() => goToSlide(index)}
               disabled={isTransitioning}
-              className="p-0.5"
+              className="p-0"
               aria-label={`Slide ${index + 1}`}
             >
               <div
                 className={cn(
-                  "rounded-full transition-all duration-400",
+                  "h-[5px] rounded-full transition-all duration-300",
                   index === currentSlide
-                    ? "w-2 h-2 bg-foreground"
-                    : "w-1.5 h-1.5 bg-foreground/25"
+                    ? "w-4 bg-foreground"
+                    : "w-[5px] bg-foreground/20"
                 )}
               />
             </button>
