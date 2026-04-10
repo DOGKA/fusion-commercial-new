@@ -439,7 +439,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "!px-2 !py-[5px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
+                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "!px-2.5 !py-[3px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
@@ -455,7 +455,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "!px-2 !py-[5px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
+                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "!px-2.5 !py-[3px] md:!px-8 md:!py-4 !text-[10px] md:!text-base !gap-1 md:!gap-2 !rounded-md md:!rounded-full touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,
@@ -504,24 +504,24 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
         </div>
       )}
 
-      {/* Slide Indicators - Desktop only (inside slider) */}
+      {/* Slide Indicators */}
       {slides.length > 1 && (
-        <div className="hidden md:flex absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-          <div className="flex items-center gap-2">
+        <div className="absolute bottom-2 md:bottom-8 left-1/2 -translate-x-1/2 z-20">
+          <div className="flex items-center gap-[3px] md:gap-1.5">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 disabled={isTransitioning}
-                className="group relative"
+                className="p-0"
                 aria-label={`Slide ${index + 1}`}
               >
                 <div
                   className={cn(
-                    "h-1 rounded-full transition-[width,background-color] duration-500",
+                    "h-[5px] md:h-1.5 rounded-full transition-all duration-300",
                     index === currentSlide
-                      ? "w-12 bg-white"
-                      : "w-6 bg-white/20 group-hover:bg-white/40"
+                      ? "w-3.5 md:w-8 bg-white"
+                      : "w-[5px] md:w-[6px] bg-white/30"
                   )}
                 />
               </button>
@@ -537,32 +537,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
         </div>
       </div>
     </section>
-
-    {/* Slide Indicators - Mobile only (below slider) */}
-    {slides.length > 1 && (
-      <div className="flex md:hidden justify-center py-2 bg-background">
-        <div className="flex items-center gap-[5px]">
-          {slides.map((_, index) => (
-            <button
-              key={`mobile-dot-${index}`}
-              onClick={() => goToSlide(index)}
-              disabled={isTransitioning}
-              className="p-0"
-              aria-label={`Slide ${index + 1}`}
-            >
-              <div
-                className={cn(
-                  "h-[5px] rounded-full transition-all duration-300",
-                  index === currentSlide
-                    ? "w-4 bg-foreground"
-                    : "w-[5px] bg-foreground/20"
-                )}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
-    )}
+    </>
     </>
   );
 }
