@@ -216,7 +216,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   // Loading state
   if (loading) {
     return (
-      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background flex items-center justify-center">
+      <section className="relative w-full md:h-screen md:min-h-[600px] md:max-h-[900px] overflow-hidden bg-background flex items-center justify-center hero-slider-mobile">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground"></div>
       </section>
     );
@@ -225,7 +225,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   // Slider yoksa
   if (slides.length === 0) {
     return (
-      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background flex items-center justify-center">
+      <section className="relative w-full md:h-screen md:min-h-[600px] md:max-h-[900px] overflow-hidden bg-background flex items-center justify-center hero-slider-mobile">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
         <div className="text-center text-foreground-muted">
           <p>Slider bulunamadi</p>
@@ -300,7 +300,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   return (
     <section
       ref={sliderRef}
-      className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background dark:bg-black touch-pan-y"
+      className="relative w-full md:h-screen md:min-h-[600px] md:max-h-[900px] overflow-hidden bg-background dark:bg-black touch-pan-y hero-slider-mobile"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
       onTouchStart={handleTouchStart}
@@ -347,10 +347,10 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
         "relative z-10 h-full container flex items-center px-4 md:px-6",
         slide.textAlign === "CENTER" ? "justify-center" : slide.textAlign === "RIGHT" ? "justify-end" : ""
       )}>
-        <div className={cn("max-w-4xl pt-20 md:pt-20 flex flex-col gap-0", getAlignClass())}>
+        <div className={cn("max-w-4xl pt-6 md:pt-20 flex flex-col gap-0", getAlignClass())}>
           
           {/* ROW 1: Eyebrow Badge */}
-          <div className="h-[36px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
+          <div className="h-[28px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
             {slide.badge && (
               <div 
                 className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full backdrop-blur-sm border border-glass-border"
@@ -372,14 +372,14 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           </div>
 
           {/* GAP */}
-          <div className="h-6 md:h-6" />
+          <div className="h-3 md:h-6" />
 
           {/* ROW 2: Title Line 1 */}
           <div className="animate-fade-in-up opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
             <span 
               className={cn(
                 "block font-bold leading-[1.15] tracking-tight",
-                "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+                "text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl"
               )}
               style={{ color: titleColor }}
             >
@@ -396,7 +396,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               <span 
                 className={cn(
                   "block font-bold leading-[1.15] tracking-tight",
-                  "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+                  "text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl"
                 )}
                 style={{
                   backgroundImage: `linear-gradient(to right, ${titleHighlightFrom}, ${titleHighlightTo})`,
@@ -412,14 +412,14 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           )}
 
           {/* GAP */}
-          <div className="h-3 md:h-8" />
+          <div className="h-2 md:h-8" />
 
           {/* ROW 4: Description */}
           {slide.subtitle && (
             <div className="animate-fade-in-up opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
               <p 
                 className={cn(
-                  "text-sm md:text-lg lg:text-xl max-w-xl md:max-w-2xl leading-relaxed",
+                  "text-xs md:text-lg lg:text-xl max-w-xs md:max-w-2xl leading-relaxed",
                   "line-clamp-2 md:line-clamp-3"
                 )}
                 style={{ color: subtitleColor }}
@@ -429,8 +429,8 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             </div>
           )}
 
-          {/* GAP - Mobilde büyük boşluk, desktop'ta normal */}
-          <div className="h-16 md:h-10" />
+          {/* GAP */}
+          <div className="h-4 md:h-10" />
 
           {/* ROW 5: CTA Buttons */}
           {(slide.buttonText || slide.button2Text) && (
@@ -438,7 +438,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.buttonText && slide.buttonLink && (
                 <a 
                   href={slide.buttonLink} 
-                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
+                  className={cn(getButtonClasses(slide.buttonStyle ?? undefined, true), "px-5 py-2.5 md:px-8 md:py-4 text-xs md:text-base touch-manipulation")}
                   style={{ 
                     backgroundColor: buttonBgColor || undefined,
                     color: buttonTextColor || undefined,
@@ -454,7 +454,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
               {slide.button2Text && slide.button2Link && (
                 <a 
                   href={slide.button2Link} 
-                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "px-6 py-3 md:px-8 md:py-4 text-sm md:text-base touch-manipulation")}
+                  className={cn(getButtonClasses(slide.button2Style ?? undefined, false), "px-5 py-2.5 md:px-8 md:py-4 text-xs md:text-base touch-manipulation")}
                   style={{ 
                     backgroundColor: button2BgColor || undefined,
                     color: button2TextColor || undefined,
@@ -505,7 +505,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
       {/* Slide Indicators */}
       {slides.length > 1 && (
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+        <div className="absolute bottom-4 md:bottom-10 left-1/2 -translate-x-1/2 z-20">
           <div className="flex items-center gap-2">
             {slides.map((_, index) => (
               <button
