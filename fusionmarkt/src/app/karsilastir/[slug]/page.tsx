@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, use } from "react";
 import { ChevronDown, Loader2, Battery, Shield, RefreshCw, Zap, ZapOff, Plug, Usb, Wifi, Rocket, Activity, PlugZap, Clock, Sun, SunMedium, Weight, Ruler, ShieldCheck, Lightbulb, Smartphone, Droplets, Volume2, Package } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   Battery, Shield, RefreshCw, Zap, ZapOff, Plug, Usb, Wifi, Rocket, Activity, PlugZap, Clock, Sun, SunMedium, Weight, Ruler, ShieldCheck, Lightbulb, Smartphone, Droplets, Volume2, Package,
@@ -113,7 +114,7 @@ export default function ComparePage({ params }: { params: Promise<{ slug: string
             <div key={idx} className={`compare-product-col ${idx === 2 ? "compare-hide-mobile" : ""}`}>
               {p ? (
                 <div className="compare-product-card">
-                  {getImage(p) && <div className="compare-product-img-wrapper"><img src={getImage(p)!} alt={p.name} className="compare-product-img" /></div>}
+                  {getImage(p) && <div className="compare-product-img-wrapper"><Image src={getImage(p)!} alt={p.name} width={300} height={300} className="compare-product-img" /></div>}
                   <div className="compare-product-info">
                     <h3 className="compare-product-name">{p.name}</h3>
                     <div className="compare-price-buy-block">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import { Loader2, Plus, Trash2, Save, ChevronDown, ChevronUp, Search } from "lucide-react";
+import Image from "next/image";
 
 interface Spec { id?: string; label: string; unit: string | null; order: number; }
 interface SpecGroup { id?: string; name: string; order: number; specs: Spec[]; }
@@ -266,7 +267,7 @@ function CategoryEditor({ category, dbProducts, productSearch, setProductSearch,
               {filteredProducts.slice(0, 10).map((p) => (
                 <button key={p.id} onClick={() => { onAddProduct(p); setProductSearch(""); }}
                   className="w-full flex items-center gap-3 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-dark-3 text-dark dark:text-white">
-                  {p.thumbnail && <img src={p.thumbnail} alt="" className="w-8 h-8 rounded object-cover" />}
+                  {p.thumbnail && <Image src={p.thumbnail} alt="" width={32} height={32} className="w-8 h-8 rounded object-cover" />}
                   <span className="flex-1 truncate">{p.name}</span>
                   <span className="text-xs text-gray-400">{p.price} TL</span>
                 </button>
@@ -314,7 +315,7 @@ function ProductSpecEditor({ product, specs, groups, onSave, onDelete }: {
     <div className="mb-3 p-3 rounded-lg border border-stroke dark:border-dark-3">
       <div className="flex items-center justify-between">
         <button onClick={() => setOpen(!open)} className="flex items-center gap-3 flex-1 text-left">
-          {product.image && <img src={product.image} alt="" className="w-10 h-10 rounded object-cover" />}
+          {product.image && <Image src={product.image} alt="" width={40} height={40} className="w-10 h-10 rounded object-cover" />}
           <div>
             <span className="font-medium text-dark dark:text-white text-sm">{product.name}</span>
             {product.price && <span className="text-xs text-gray-400 ml-2">{Number(product.price).toLocaleString("tr-TR")} TL</span>}

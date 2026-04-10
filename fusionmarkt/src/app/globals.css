@@ -845,6 +845,7 @@
 }
 
 .showcase-see-more-image {
+  position: relative;
   flex: 1;
   background-color: var(--background-tertiary);
   display: flex;

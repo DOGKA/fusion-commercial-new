@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 function ImagePlaceholderIcon({ size = 40 }: { size?: number }) {
   return (
@@ -120,7 +121,7 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
                 <div className="showcase-product-image">
                   {product.badge && <span className="showcase-product-badge-top">{product.badge}</span>}
                   {product.image ? (
-                    <img src={product.image} alt={product.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <Image src={product.image} alt={product.title} fill sizes="(max-width: 768px) 50vw, 200px" style={{ objectFit: "cover" }} />
                   ) : (
                     <>
                       <ImagePlaceholderIcon size={32} />
@@ -148,7 +149,7 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
             <a href={section.seeMoreLink || "#"} className="showcase-see-more-card showcase-see-more-primary" style={{ textDecoration: "none" }}>
               <div className="showcase-see-more-image">
                 {section.seeMoreImage ? (
-                  <img src={section.seeMoreImage} alt="Tümünü Gör" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Image src={section.seeMoreImage} alt="Tümünü Gör" fill sizes="200px" style={{ objectFit: "cover" }} />
                 ) : (
                   <>
                     <ImagePlaceholderIcon size={28} />

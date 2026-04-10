@@ -62,6 +62,7 @@ interface CategorySection {
   bannerBtnLink: string | null;
   seeMoreImage: string | null;
   seeMoreLink: string | null;
+  accessoryText: string | null;
   accessoryLink: string | null;
   order: number;
   isActive: boolean;

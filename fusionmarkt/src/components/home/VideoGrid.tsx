@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 function ImagePlaceholderIcon({ size = 36 }: { size?: number }) {
   return (
@@ -65,9 +66,11 @@ function VideoCard({ video }: { video: VideoData }) {
         ) : (
           <>
             {thumb && (
-              <img
+              <Image
                 src={thumb}
                 alt={video.title}
+                fill
+                sizes="(max-width: 768px) 50vw, 300px"
                 className="video-grid-thumb-img"
               />
             )}
