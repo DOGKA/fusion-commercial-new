@@ -369,8 +369,8 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
         <div className={cn("max-w-4xl pt-16 md:pt-20 flex flex-col gap-0", getAlignClass())}>
           
           {/* ROW 1: Badge */}
-          <div className="h-[24px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
-            {slide.badge && (
+          {slide.badge && (
+            <div className="h-[24px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
               <div 
                 className="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm border border-glass-border"
                 style={{ 
@@ -387,11 +387,11 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
                   {slide.badge}
                 </span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* GAP */}
-          <div className="h-0 md:h-6" />
+          {/* GAP - only if badge exists */}
+          {slide.badge && <div className="h-0 md:h-6" />}
 
           {/* ROW 2: Title Line 1 */}
           <div className="animate-fade-in-up opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
@@ -406,47 +406,47 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             </span>
           </div>
 
-          {/* GAP */}
-          <div className="h-0 md:h-2" />
-
           {/* ROW 3: Title Line 2 (Highlight - Gradient) */}
           {slide.titleHighlight && (
-            <div className="animate-fade-in-up opacity-0 [animation-delay:500ms] [animation-fill-mode:forwards]">
-              <span 
-                className={cn(
-                  "block font-bold leading-[1.15] tracking-tight",
-                  "text-lg sm:text-xl md:text-4xl lg:text-5xl xl:text-6xl"
-                )}
-                style={{
-                  backgroundImage: `linear-gradient(to right, ${titleHighlightFrom}, ${titleHighlightTo})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  color: 'transparent'
-                }}
-              >
-                {slide.titleHighlight}
-              </span>
-            </div>
+            <>
+              <div className="h-0 md:h-2" />
+              <div className="animate-fade-in-up opacity-0 [animation-delay:500ms] [animation-fill-mode:forwards]">
+                <span 
+                  className={cn(
+                    "block font-bold leading-[1.15] tracking-tight",
+                    "text-lg sm:text-xl md:text-4xl lg:text-5xl xl:text-6xl"
+                  )}
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${titleHighlightFrom}, ${titleHighlightTo})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    color: 'transparent'
+                  }}
+                >
+                  {slide.titleHighlight}
+                </span>
+              </div>
+            </>
           )}
-
-          {/* GAP */}
-          <div className="h-0 md:h-8" />
 
           {/* ROW 4: Description */}
           {slide.subtitle && (
-            <div className="animate-fade-in-up opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
-              <p 
-                className="text-[11px] md:text-lg lg:text-xl max-w-[260px] md:max-w-2xl leading-relaxed line-clamp-2 md:line-clamp-3"
-                style={{ color: subtitleColor }}
-              >
-                {slide.subtitle}
-              </p>
-            </div>
+            <>
+              <div className="h-0 md:h-8" />
+              <div className="animate-fade-in-up opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
+                <p 
+                  className="text-[11px] md:text-lg lg:text-xl max-w-[260px] md:max-w-2xl leading-relaxed line-clamp-2 md:line-clamp-3"
+                  style={{ color: subtitleColor }}
+                >
+                  {slide.subtitle}
+                </p>
+              </div>
+            </>
           )}
 
-          {/* GAP */}
-          <div className="h-1 md:h-10" />
+          {/* GAP before buttons */}
+          <div className={cn("h-1", slide.subtitle || slide.titleHighlight ? "md:h-10" : "md:h-6")} />
 
           {/* ROW 5: CTA Buttons */}
           {(slide.buttonText || slide.button2Text) && (
