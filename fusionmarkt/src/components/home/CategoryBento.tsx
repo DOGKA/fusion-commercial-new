@@ -282,8 +282,6 @@ export default function CategoryBento() {
                   className="group relative overflow-hidden cursor-pointer flex flex-col h-full w-full transition-all"
                   style={{ 
                     background: `linear-gradient(135deg, ${category.gradientFrom || "#22C55E"} 0%, ${category.gradientTo || "#06B6D4"} 100%)`,
-                    backdropFilter: "blur(30px)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
                     borderRadius: "24px",
                   }}
                 >
