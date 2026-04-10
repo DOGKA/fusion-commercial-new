@@ -538,6 +538,5 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       </div>
     </section>
     </>
-    </>
   );
 }
