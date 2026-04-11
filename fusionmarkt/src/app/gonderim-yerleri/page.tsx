@@ -157,7 +157,7 @@ export default function GonderimYerleriPage() {
                 Uluslararası gönderimler <strong>DHL Express</strong> veya <strong>FedEx</strong> ile yapılır. Ücretler, paket ağırlığı, değer ve varış yeri baz alınarak hesaplanır.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="grid lg:grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <Package className="w-5 h-5 text-[var(--fusion-primary)] mb-2" />
                   <h4 className="font-semibold mb-1">Çoklu Koli</h4>
@@ -259,7 +259,7 @@ export default function GonderimYerleriPage() {
                 <h2 className="text-xl md:text-2xl font-bold">İmza ve Teslimat Süreleri</h2>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
                   <FileCheck className="w-6 h-6 text-[var(--fusion-primary)] mb-3" />
                   <h4 className="font-semibold mb-2">İmza Zorunluluğu</h4>
@@ -388,7 +388,7 @@ export default function GonderimYerleriPage() {
                 Uluslararası siparişler genellikle ithalat vergileri ve harçlara tabidir. FusionMarkt, bazı siparişlerde bu ücretleri önceden tahsil etme seçeneği sunar.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="grid lg:grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
                   <h4 className="font-semibold mb-2">Ön Ödeme Hizmeti</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">

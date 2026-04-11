@@ -34,7 +34,7 @@ export default function ProductDetailsDiagram() {
         </div>
 
         {/* Mobile - 3 Satır layout (çizgilerle) */}
-        <div className="md:hidden space-y-10">
+        <div className="lg:hidden space-y-10">
           {/* Sol Görünüm */}
           <div className="relative mx-auto max-w-[360px]">
             {/* Sol taraf labels - sol kenara hizalı */}
@@ -211,7 +211,7 @@ export default function ProductDetailsDiagram() {
         </div>
 
         {/* 3-View Diagram (Desktop) */}
-        <div className={`relative transition-all duration-1000 hidden md:block ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`relative transition-all duration-1000 hidden lg:block ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
           
           <div className="flex items-end justify-center gap-24 lg:gap-32">
             

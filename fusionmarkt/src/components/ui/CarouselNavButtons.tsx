@@ -118,7 +118,7 @@ export default function CarouselNavButtons({
   );
 
   return (
-    <div className={cn("hidden md:flex items-center gap-3", className)}>
+    <div className={cn("hidden lg:flex items-center gap-3", className)}>
       <button
         type="button"
         onClick={() => handleClick("left")}

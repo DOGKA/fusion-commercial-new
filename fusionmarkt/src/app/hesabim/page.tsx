@@ -1197,7 +1197,7 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-6">
         {[
           { label: "Siparişler", value: stats.orders, tab: "siparisler" as DashboardTab },
           { label: "Adresler", value: stats.addresses, tab: "adresler" as DashboardTab },
@@ -2888,7 +2888,7 @@ function AddressesPane({ userName }: { userName?: string }) {
       {/* Content */}
       <div className="flex-1 pt-4 overflow-y-auto">
         {addresses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {addresses.map((addr) => (
               <div key={addr.id} className="bg-glass-bg border border-border rounded-lg p-4 flex flex-col">
                 <div className="flex items-start justify-between mb-3">
@@ -3375,7 +3375,7 @@ function FavoritesPane() {
 
             {/* Info */}
             <div className="flex-1 min-w-0 flex flex-col justify-center">
-              <p className="text-[11px] text-emerald-400/70 uppercase tracking-wider mb-0.5">{item.brand}</p>
+              <p className="text-[11px] text-emerald-400/70 tracking-wider mb-0.5">{item.brand?.toLocaleUpperCase('en-US')}</p>
               <Link href={`/urun/${item.slug}`}>
                 <span className="text-[13px] font-medium text-foreground hover:text-emerald-400 transition-colors line-clamp-1">
                   {item.title}

@@ -231,7 +231,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
         {(partner.mission || partner.vision) && (
           <section className="py-10 border-t border-border">
             <div className="container">
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid lg:grid-cols-2 gap-8">
                 {partner.mission && (
                   <div>
                     <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-disabled mb-2 block">

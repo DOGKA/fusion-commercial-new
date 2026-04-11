@@ -479,8 +479,8 @@ export default function MiniCart() {
                       className="pr-6 hover:opacity-80 transition-opacity"
                     >
                       {!!item.brand?.trim() && (
-                        <p className="text-[11px] text-foreground-muted uppercase tracking-wider font-medium">
-                          {item.brand}
+                        <p className="text-[11px] text-foreground-muted tracking-wider font-medium">
+                          {item.brand?.toLocaleUpperCase('en-US')}
                         </p>
                       )}
                       <h4 className="text-[14px] font-medium text-foreground leading-snug line-clamp-1 mt-0.5">

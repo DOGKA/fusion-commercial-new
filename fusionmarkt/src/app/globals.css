@@ -267,7 +267,7 @@
   padding: 28px 24px;
   border-radius: 16px;
   border: 1px solid var(--border);
-  background-color: var(--surface);
+  background-color: transparent;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -284,11 +284,9 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background-color: var(--foreground);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--background);
   flex-shrink: 0;
 }
 
@@ -307,21 +305,27 @@
   line-height: 1.5;
 }
 
-/* Light Theme - Koyu grid çizgileri & yumuşak ikon */
+/* Light Theme */
 :root:not(.dark) .why-fusion-card {
-  border-color: #2D2D2D;
+  border-color: #E0E0E0;
 }
 
 :root:not(.dark) .why-fusion-card:hover {
-  border-color: #0A0A0A;
+  border-color: #BDBDBD;
 }
 
 :root:not(.dark) .why-fusion-icon {
-  background-color: #7a7a7a;
-  color: #FFFFFF;
+  background-color: #F0F0F0;
+  color: #333333;
 }
 
-@media (max-width: 768px) {
+/* Dark Theme */
+:root.dark .why-fusion-icon {
+  background-color: #FFFFFF;
+  color: #0A0A0A;
+}
+
+@media (max-width: 1023px) {
   .why-fusion-card {
     width: 200px;
     padding: 20px 18px;
@@ -345,7 +349,7 @@
 /* ===========================================================================
    Hero Slider - Mobile
 =========================================================================== */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .hero-slider-mobile {
     height: auto;
     min-height: unset;
@@ -636,7 +640,7 @@
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .trending-product-card {
     width: 280px;
     height: 360px;
@@ -980,7 +984,7 @@
   height: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .showcase-banner-mockup {
     aspect-ratio: 358 / 295;
     border-radius: 16px;
@@ -1032,7 +1036,8 @@
   }
 
   .showcase-see-more-image {
-    width: 140px;
+    width: 180px;
+    height: 180px;
     flex: none;
     min-height: 0;
   }
@@ -1193,7 +1198,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .video-grid-layout {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
@@ -1413,7 +1418,7 @@
   line-height: 1.3;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .compare-selector-row,
   .compare-products-row,
   .compare-spec-cards {
@@ -1551,4 +1556,42 @@
   .checkout-left-column select option {
     font-size: 16px !important;
   }
+}
+
+/* ===========================================================================
+   Header - Slider Adaptive Colors (homepage only, above fold)
+   Only targets direct header children: nav links, icon buttons, logo SVG
+=========================================================================== */
+header.header-slider-dark > div a,
+header.header-slider-dark > div > div > nav a,
+header.header-slider-dark > div > div > nav button,
+header.header-slider-dark > div > div > .flex > a,
+header.header-slider-dark > div > div > .flex > button {
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.5s ease;
+}
+
+header.header-slider-dark > div a:hover,
+header.header-slider-dark > div > div > nav a:hover,
+header.header-slider-dark > div > div > nav button:hover,
+header.header-slider-dark > div > div > .flex > a:hover,
+header.header-slider-dark > div > div > .flex > button:hover {
+  color: #ffffff;
+}
+
+header.header-slider-light > div a,
+header.header-slider-light > div > div > nav a,
+header.header-slider-light > div > div > nav button,
+header.header-slider-light > div > div > .flex > a,
+header.header-slider-light > div > div > .flex > button {
+  color: rgba(26, 26, 26, 0.7);
+  transition: color 0.5s ease;
+}
+
+header.header-slider-light > div a:hover,
+header.header-slider-light > div > div > nav a:hover,
+header.header-slider-light > div > div > nav button:hover,
+header.header-slider-light > div > div > .flex > a:hover,
+header.header-slider-light > div > div > .flex > button:hover {
+  color: #1a1a1a;
 }

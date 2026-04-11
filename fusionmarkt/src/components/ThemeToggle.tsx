@@ -165,15 +165,15 @@ export function ThemeToggleCompact({ className }: { className?: string }) {
   );
 }
 
-// Mobile header theme toggle - icon inside the thumb
+// Header theme toggle - icon inside the thumb, slightly larger on desktop
 export function MobileThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
 
   if (!mounted) {
     return (
-      <div className={cn("inline-flex items-center", className)}>
-        <div className="w-10 h-5 rounded-full bg-emerald-500/30" />
+      <div className={cn("inline-flex items-center p-2 lg:p-2.5", className)}>
+        <div className="w-10 h-5 lg:w-[50px] lg:h-[26px] rounded-full bg-emerald-500/30" />
       </div>
     );
   }
@@ -185,27 +185,26 @@ export function MobileThemeToggle({ className }: { className?: string }) {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Açık temaya geç" : "Koyu temaya geç"}
-      className={cn("inline-flex items-center", className)}
+      className={cn("inline-flex items-center p-2 lg:p-2.5", className)}
     >
-      {/* Toggle Track - Always emerald/teal */}
       <span
-        className="relative w-10 h-5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 flex-shrink-0"
+        className="relative w-10 h-5 lg:w-[50px] lg:h-[26px] rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 flex-shrink-0"
         style={{
           boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
         }}
       >
-        {/* Toggle Thumb with icon inside */}
         <span
-          className="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow-md transition-all duration-200 ease-out flex items-center justify-center"
+          className="absolute top-[2px] w-4 h-4 lg:top-[2px] lg:w-[22px] lg:h-[22px] rounded-full bg-white shadow-md transition-all duration-200 ease-out flex items-center justify-center"
           style={{ 
-            left: isDark ? "calc(100% - 18px)" : "2px",
+            left: isDark ? "auto" : "2px",
+            right: isDark ? "2px" : "auto",
             boxShadow: "0 1px 3px rgba(0,0,0,0.3)"
           }}
         >
           {isDark ? (
-            <Moon className="w-2.5 h-2.5 text-blue-500" />
+            <Moon className="w-2.5 h-2.5 lg:w-[10px] lg:h-[10px] text-blue-500" />
           ) : (
-            <Sun className="w-2.5 h-2.5 text-amber-500" />
+            <Sun className="w-2.5 h-2.5 lg:w-[10px] lg:h-[10px] text-amber-500" />
           )}
         </span>
       </span>

@@ -68,7 +68,7 @@ export default function UcretlendirmePolitikasiPage() {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid lg:grid-cols-2 gap-4">
                   <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded-lg bg-[var(--fusion-primary)]/10 flex items-center justify-center">
@@ -156,7 +156,7 @@ export default function UcretlendirmePolitikasiPage() {
                 Bir ürünü bize iade ederseniz, varış ülkesindeki ihracatçı siz olursunuz. Bu mülkiyet ve her türlü kayıp riski, ürünü (satın alınan herhangi bir ürün ve beraberindeki ücretsiz ürünler) teslim almamızın ardından bize geçer.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h3 className="font-semibold mb-2">Harç ve Vergi İadesi</h3>
                   <p className="text-sm text-[var(--foreground-secondary)]">

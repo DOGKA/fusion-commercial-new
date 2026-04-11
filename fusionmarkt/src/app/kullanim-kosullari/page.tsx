@@ -199,7 +199,7 @@ export default function KullanimKosullariPage() {
                 Gönderdiğiniz tüm içerikler, tamamen FusionMarkt'un takdirine bağlı olarak kullanılabilir. FusionMarkt, web sitesinde yer alan ve kendi takdirine bağlı olarak içerik yönergelerini veya bu Kullanım Şartlarının başka herhangi bir hükmünü ihlal ettiğini düşündüğü herhangi bir içeriği değiştirme, daraltma, yayınlamama, kaldırma veya silme hakkını saklı tutar.
               </p>
               
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="grid lg:grid-cols-2 gap-4 mb-4">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h4 className="font-semibold mb-2 text-sm">Yayınlama Süresi</h4>
                   <p className="text-xs text-[var(--foreground-secondary)]">

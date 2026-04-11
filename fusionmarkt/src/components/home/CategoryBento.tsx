@@ -257,7 +257,7 @@ export default function CategoryBento() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="category-bento-grid grid gap-4 auto-rows-[240px] lg:auto-rows-[260px] grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+          className="category-bento-grid grid gap-4 auto-rows-[240px] lg:auto-rows-[260px] grid-cols-1 lg:grid-cols-4"
         >
           {categories.map((category: BannerCard) => {
             const Icon = iconMap[category.icon || "package"] || IconPackage;

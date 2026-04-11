@@ -373,24 +373,24 @@ export default function PowerCalculator() {
                       : isCompleted 
                         ? 'text-emerald-400 hover:text-emerald-300' 
                         : isClickable
-                          ? 'text-foreground-muted hover:text-foreground'
-                          : 'text-foreground-muted/50 cursor-not-allowed'
+                          ? 'text-foreground hover:text-foreground'
+                          : 'text-foreground/50 cursor-not-allowed'
                   }`}
                 >
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                    isCompleted ? 'bg-emerald-500 text-white' : isActive ? 'text-emerald-400' : ''
+                    isCompleted ? 'bg-emerald-500 text-white' : isActive ? 'text-emerald-400' : 'text-foreground'
                   }`}>
                     {isCompleted ? <Check size={14} /> : <Icon size={16} />}
                   </div>
-                  <span className={`text-sm font-medium hidden md:block ${
-                    isActive || isCompleted ? 'text-emerald-400' : ''
+                  <span className={`text-sm font-medium hidden lg:block ${
+                    isActive || isCompleted ? 'text-emerald-400' : 'text-foreground'
                   }`}>
                     {step.label}
                   </span>
                 </button>
                 {idx < steps.length - 1 && (
                   <div className={`w-8 h-px hidden sm:block ${
-                    idx < currentStepIndex ? 'bg-emerald-500' : 'bg-glass-bg-hover'
+                    idx < currentStepIndex ? 'bg-emerald-500' : 'bg-foreground/20'
                   }`} />
                 )}
               </React.Fragment>
@@ -414,7 +414,7 @@ export default function PowerCalculator() {
             </div>
             
             {/* Senaryolar - Mobil 2, Web 4 sütun */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-6">
               {SCENARIOS.map((scenario) => {
                 const Icon = SCENARIO_ICONS[scenario.icon] || Zap;
                 const isSelected = selectedScenario === scenario.id;
@@ -677,7 +677,7 @@ export default function PowerCalculator() {
             </div>
 
             {/* Şarj Modu - Modern Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
               {[
                 { id: 'hybrid', label: 'Hibrit', icon: BatteryCharging, desc: 'AC + Solar', badge: 'Önerilen' },
                 { id: 'solar-only', label: 'Solar', icon: Sun, desc: 'Sadece Güneş' },
@@ -728,7 +728,7 @@ export default function PowerCalculator() {
                   Güneş Paneli Ayarları
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid lg:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs text-foreground-muted mb-2">Bulunduğunuz İl</label>
                     <select
@@ -794,7 +794,7 @@ export default function PowerCalculator() {
         {currentStep === 'results' && (
           <div className="animate-fade-in">
             {/* Tercihler - Compact */}
-            <div className="grid md:grid-cols-2 gap-4 mb-8">
+            <div className="grid lg:grid-cols-2 gap-4 mb-8">
               {/* Taşınabilirlik */}
               <div className="p-4 rounded-xl bg-surface-secondary border border-border">
                 <div className="flex items-center gap-2 text-xs font-medium text-foreground-muted mb-3">

@@ -124,7 +124,7 @@ export default function PinnedStory() {
       style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px' }}
     >
       {/* ==================== DESKTOP LAYOUT ==================== */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-row items-center gap-10 lg:gap-16">
             
@@ -198,7 +198,7 @@ export default function PinnedStory() {
       </div>
 
       {/* ==================== MOBILE LAYOUT ==================== */}
-      <div className="block md:hidden">
+      <div className="block lg:hidden">
         <div className="px-5">
           {/* Görsel */}
           <div className="flex items-center justify-center mb-6">

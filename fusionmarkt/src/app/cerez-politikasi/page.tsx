@@ -81,7 +81,7 @@ export default function CerezPolitikasiPage() {
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
               <h2 className="text-xl md:text-2xl font-bold mb-6">Platformumuzdaki Çerez Türleri</h2>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid lg:grid-cols-2 gap-6">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[var(--fusion-primary)]" />

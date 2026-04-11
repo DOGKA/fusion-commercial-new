@@ -98,7 +98,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   // Mobil kontrolu
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -176,11 +176,23 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
     const overlay = (dark ? s.overlayColor : s.overlayColorLight) || s.overlayColor || (dark ? "#000000" : "#ffffff");
     const btnBg = (dark ? s.buttonBgColor : s.buttonBgColorLight) || s.buttonBgColor || "";
 
+    const titleHex = ((dark ? s.titleColor : s.titleColorLight) || s.titleColor || "#FFFFFF").replace("#", "");
+    const tR = parseInt(titleHex.substring(0, 2), 16) || 0;
+    const tG = parseInt(titleHex.substring(2, 4), 16) || 0;
+    const tB = parseInt(titleHex.substring(4, 6), 16) || 0;
+    const titleLuminance = (0.299 * tR + 0.587 * tG + 0.114 * tB) / 255;
+    const slideTheme = titleLuminance > 0.5 ? "dark" : "light";
+
     const root = document.documentElement;
     root.style.setProperty("--slider-color-from", from);
     root.style.setProperty("--slider-color-to", to);
     root.style.setProperty("--slider-color-overlay", overlay);
     root.style.setProperty("--slider-color-btn", btnBg || from);
+    root.setAttribute("data-slider-theme", slideTheme);
+
+    return () => {
+      root.removeAttribute("data-slider-theme");
+    };
   }, [currentSlide, slides, mounted, resolvedTheme]);
 
   // Touch/swipe handlers for mobile - improved for responsiveness
@@ -489,7 +501,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
       {/* Navigation Arrows - Hidden on mobile, visible on md+ */}
       {slides.length > 1 && (
-        <div className="hidden md:flex absolute left-4 right-4 lg:left-8 lg:right-8 top-1/2 -translate-y-1/2 justify-between pointer-events-none z-20">
+        <div className="hidden lg:flex absolute left-4 right-4 lg:left-8 lg:right-8 top-1/2 -translate-y-1/2 justify-between pointer-events-none z-20">
           <button
             onClick={prevSlide}
             disabled={isTransitioning}
@@ -546,7 +558,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       )}
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-10 right-10 z-20 animate-bounce hidden md:block">
+      <div className="absolute bottom-10 right-10 z-20 animate-bounce hidden lg:block">
         <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-2">
           <div className="w-1 h-2 bg-white/40 rounded-full" />
         </div>

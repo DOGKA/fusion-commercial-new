@@ -241,7 +241,7 @@ export default function GizlilikPolitikasiPage() {
               <h2 className="text-xl md:text-2xl font-bold mb-6">Kişisel Verilerin Toplanması (CCPA ve KVKK Uyumlu)</h2>
               
               {/* Desktop Tablo - md ve üstü */}
-              <div className="hidden md:block overflow-x-auto">
+              <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[var(--glass-border)]">
@@ -286,7 +286,7 @@ export default function GizlilikPolitikasiPage() {
               </div>
 
               {/* Mobile Kartlar - md altı */}
-              <div className="md:hidden space-y-3">
+              <div className="lg:hidden space-y-3">
                 {[
                   { kategori: "Tanımlayıcılar", bilgi: "Ad, adres, e-posta, IP adresi, hesap adı", amac: "Hesap Kaydı, Satın Almalar, Reklamcılık" },
                   { kategori: "İletişim Bilgileri", bilgi: "Adres, telefon, e-posta", amac: "Hesap Kaydı, Satın Almalar, Pazarlama" },

@@ -1,18 +1,15 @@
 "use client";
 
-import { useEffect, useState, useRef, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState, useRef, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import {
-  ChevronDown,
   ChevronRight,
   Loader2,
   Search,
   X,
   Info,
-  SlidersHorizontal,
 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
@@ -191,15 +188,6 @@ interface ApiBundle {
   badges?: ApiBundleBadge[];
 }
 
-type SortOption = "newest" | "price_asc" | "price_desc" | "name_asc";
-
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "newest", label: "En Yeniler" },
-  { value: "price_asc", label: "Fiyat: Düşükten Yükseğe" },
-  { value: "price_desc", label: "Fiyat: Yüksekten Düşüğe" },
-  { value: "name_asc", label: "İsim: A-Z" },
-];
-
 // Kategori slug -> placement mapping
 const CATEGORY_PLACEMENT_MAP: Record<string, string> = {
   "endustriyel-eldivenler": "SHOP_CATEGORY_ENDUSTRIYEL_ELDIVENLER",
@@ -251,34 +239,19 @@ export default function StorePage() {
   const [bestsellerLoading, setBestsellerLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [sortOpen, setSortOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(2000);
   
   // Filter state
   const [storeFilters, setStoreFilters] = useState<FilterGroup[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
-  
-  // Sort dropdown ref for portal positioning
-  const sortButtonRef = useRef<HTMLButtonElement>(null);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
 
   // Load store filters on mount
   useEffect(() => {
     setStoreFilters(getAllFilters());
   }, []);
-
-  // Update dropdown position when sortOpen changes
-  useEffect(() => {
-    if (sortOpen && sortButtonRef.current) {
-      const rect = sortButtonRef.current.getBoundingClientRect();
-      setDropdownPos({
-        top: rect.bottom + 8,
-        right: window.innerWidth - rect.right,
-      });
-    }
-  }, [sortOpen]);
 
   // Fetch banners (header + category banners)
   useEffect(() => {
@@ -536,21 +509,7 @@ export default function StorePage() {
     }
   }, [freeShippingThreshold]);
 
-  // Sort products within each category
-  const sortProducts = (products: ProductWithCategory[]): ProductWithCategory[] => {
-    const sorted = [...products];
-    switch (sortBy) {
-      case "price_asc":
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case "price_desc":
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-      case "name_asc":
-        return sorted.sort((a, b) => (a.title || "").localeCompare(b.title || "", "tr"));
-      case "newest":
-      default:
-        return sorted;
-    }
-  };
+  const sortProducts = (products: ProductWithCategory[]): ProductWithCategory[] => products;
 
   // Filter handlers
   const handleFilterChange = (filterId: string, values: string[]) => {
@@ -650,14 +609,6 @@ export default function StorePage() {
     .map((cat) => {
       let products = cat.products;
 
-      // Arama filtresi
-      if (searchQuery) {
-        products = products.filter((p) => {
-          const title = p.title || "";
-          return title.toLowerCase().includes(searchQuery.toLowerCase());
-        });
-      }
-
       // Diğer filtreler (fiyat, stok, rozet)
       products = applyFiltersToProducts(products);
 
@@ -671,12 +622,80 @@ export default function StorePage() {
     })
     .filter((cat) => cat.products.length > 0);
 
+  // Build flat searchable product list from all categories
+  const allSearchableProducts = useMemo(() => {
+    const seen = new Set<string>();
+    const results: { id: string; title: string; slug: string; brand: string; categoryName: string; description: string }[] = [];
+    
+    categoriesWithProducts.forEach((cat) => {
+      cat.products.forEach((p) => {
+        const key = String(p.id);
+        if (!seen.has(key)) {
+          seen.add(key);
+          results.push({
+            id: key,
+            title: p.title || "",
+            slug: p.slug,
+            brand: p.brand || "",
+            categoryName: cat.name || "",
+            description: p.shortDescription || "",
+          });
+        }
+      });
+    });
+    
+    return results;
+  }, [categoriesWithProducts]);
+
+  // Relevance-scored search: title-startsWith > title-includes > content-includes
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q.length < 1) return [];
+
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
+    const limit = isMobile ? 3 : 5;
+
+    const scored: { product: typeof allSearchableProducts[number]; score: number }[] = [];
+
+    for (const p of allSearchableProducts) {
+      const titleLower = p.title.toLowerCase();
+      let score = 0;
+
+      if (titleLower.startsWith(q)) {
+        score = 3;
+      } else if (titleLower.includes(q)) {
+        score = 2;
+      } else if (
+        p.brand.toLowerCase().includes(q) ||
+        p.categoryName.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q)
+      ) {
+        score = 1;
+      }
+
+      if (score > 0) scored.push({ product: p, score });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, limit).map((s) => s.product);
+  }, [searchQuery, allSearchableProducts]);
+
+  // Close search dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Total products count (available for future use)
   const _totalProducts = filteredCategories.reduce((sum, cat) => sum + cat.products.length, 0);
   void _totalProducts;
 
   // Filtre paneli için aktif kategori tema rengi
-  // İlk kategorinin (en çok ürünü olan) rengini kullan, yoksa default
   const filterPanelThemeColor = categoriesWithProducts[0]?.themeColor || "#8b5cf6";
 
   // Mystery Box context
@@ -726,110 +745,87 @@ export default function StorePage() {
         <div className="relative">
           {/* Main Toolbar Container - Glassmorphism with Wave Mesh */}
           <div 
-            className="relative rounded-[20px] border border-border bg-background/95 dark:bg-background/80 backdrop-blur-xl shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden isolate"
-            style={{
-              // iOS-like Squircle smoothing fix
-              clipPath: "inset(0px round 20px)" 
-            }}
+            className="relative rounded-[20px] border border-border bg-transparent dark:bg-background/80 backdrop-blur-xl shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] isolate"
           >
             {/* Wave Mesh Background Animation */}
-            <div className="absolute inset-0 -z-10">
+            <div className="absolute inset-0 -z-10 rounded-[20px] overflow-hidden">
               <WaveMesh color={isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"} opacity={1} />
             </div>
             
             {/* Very subtle vignette for depth */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.05)_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.2)_100%)] pointer-events-none" />
+            <div className="absolute inset-0 rounded-[20px] overflow-hidden bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.05)_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.2)_100%)] pointer-events-none" />
 
             {/* Content */}
             <div className="relative z-10 px-4 py-4 lg:px-6 lg:py-5">
-              {/* Desktop / Tablet: tek satır */}
-              <div className="store-toolbar-content flex items-center gap-2 lg:gap-4 flex-nowrap">
+              <div className="store-toolbar-content flex items-start gap-2 lg:gap-4 flex-nowrap">
                 
-                {/* Filter Button */}
-                <button
-                  onClick={() => setFiltersOpen(true)}
-                  className="store-filter-button flex items-center gap-2.5 px-4 lg:px-5 h-[42px] rounded-xl bg-glass-bg hover:bg-glass-bg-hover border border-glass-border hover:border-glass-border-hover text-foreground-secondary hover:text-foreground transition-all duration-200 whitespace-nowrap"
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span className="text-sm font-medium">Filtre</span>
-                </button>
-
                 {/* Search */}
-                <div className="store-search-container flex-1 min-w-0 relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Ürün ara..."
-                    className="w-full h-[42px] pl-11 pr-12 rounded-xl bg-glass-bg hover:bg-glass-bg-hover focus:bg-glass-bg-active border border-glass-border focus:border-glass-border-active text-sm text-foreground placeholder:text-foreground-muted outline-none transition-all duration-200"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-glass-bg-hover rounded-lg transition-colors"
-                    >
-                      <X className="w-4 h-4 text-foreground-tertiary" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Sort Dropdown */}
-                <div className="relative">
-                  <button
-                    ref={sortButtonRef}
-                    onClick={() => setSortOpen(!sortOpen)}
-                    className="store-sort-button flex items-center gap-2 px-4 h-[42px] rounded-xl bg-glass-bg hover:bg-glass-bg-hover border border-glass-border hover:border-glass-border-hover text-foreground-secondary hover:text-foreground transition-all duration-200 whitespace-nowrap"
+                <div ref={searchContainerRef} className="store-search-container flex-1 min-w-0 flex flex-col">
+                  <div
+                    className={cn(
+                      "relative rounded-xl overflow-hidden transition-all duration-200",
+                      isDark
+                        ? "bg-black/70 backdrop-blur-md"
+                        : "bg-white/95 backdrop-blur-sm"
+                    )}
                   >
-                    <span className="text-sm font-medium">
-                      {SORT_OPTIONS.find((o) => o.value === sortBy)?.label}
-                    </span>
-                    <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", sortOpen && "rotate-180")} />
-                  </button>
-
-                  {/* Portal Dropdown */}
-                  {sortOpen && typeof window !== "undefined" && createPortal(
-                    <>
-                      {/* Backdrop */}
-                      <div 
-                        className="fixed inset-0 z-[9998]" 
-                        onClick={() => setSortOpen(false)} 
-                      />
-                      {/* Dropdown Menu */}
-                      <div 
-                        className="fixed z-[9999] w-56 rounded-2xl border shadow-2xl overflow-hidden"
-                        style={{ 
-                          top: dropdownPos.top,
-                          right: dropdownPos.right,
-                          background: isDark ? 'rgba(18, 18, 18, 0.85)' : 'rgba(255, 255, 255, 0.95)',
-                          backdropFilter: 'blur(20px)',
-                          WebkitBackdropFilter: 'blur(20px)',
-                          borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.15)',
-                        }}
+                    <Search
+                      className={cn(
+                        "absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors",
+                        isDark ? "text-white/45" : "text-gray-400"
+                      )}
+                    />
+                    <input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setSearchFocused(true)}
+                      placeholder="Ürün ara..."
+                      className={cn(
+                        "w-full h-[42px] pl-11 pr-12 bg-transparent border-none outline-none transition-all duration-200 text-sm",
+                        isDark
+                          ? "text-white placeholder:text-white/45"
+                          : "text-gray-900 placeholder:text-gray-400"
+                      )}
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => { setSearchQuery(""); setSearchFocused(false); }}
+                        className={cn(
+                          "absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors",
+                          isDark
+                            ? "text-white/45 hover:text-white/70"
+                            : "text-gray-400 hover:text-gray-600"
+                        )}
                       >
-                        {SORT_OPTIONS.map((option) => (
-                          <button
-                            key={option.value}
-                            onClick={() => {
-                              setSortBy(option.value);
-                              setSortOpen(false);
-                            }}
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {searchFocused && searchQuery.trim().length >= 1 && (
+                    <div className="mt-1 overflow-y-auto max-h-[calc(3*2.25rem)] md:max-h-[calc(5*2.25rem)]">
+                      {searchResults.length > 0 ? (
+                        searchResults.map((product) => (
+                          <Link
+                            key={product.id}
+                            href={`/urun/${product.slug}`}
+                            onClick={() => { setSearchFocused(false); setSearchQuery(""); }}
                             className={cn(
-                              "w-full px-4 py-3 text-left text-sm transition-all duration-150",
-                              sortBy === option.value
-                                ? isDark 
-                                  ? "bg-white/[0.08] text-white font-medium"
-                                  : "bg-black/[0.05] text-black font-medium"
-                                : isDark
-                                  ? "text-white/70 hover:bg-white/[0.04] hover:text-white"
-                                  : "text-black/70 hover:bg-black/[0.03] hover:text-black"
+                              "block px-3 py-1.5 text-sm truncate transition-colors duration-100",
+                              isDark
+                                ? "text-white/90 hover:text-white hover:bg-white/5"
+                                : "text-black/85 hover:text-black hover:bg-black/3"
                             )}
                           >
-                            {option.label}
-                          </button>
-                        ))}
-                      </div>
-                    </>,
-                    document.body
+                            {product.title}
+                          </Link>
+                        ))
+                      ) : (
+                        <p className={cn("px-3 py-2 text-sm", isDark ? "text-white/50" : "text-black/40")}>
+                          Sonuç bulunamadı
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -1344,13 +1340,12 @@ function StoreFeaturedSection({
                 <p
                   style={{
                     fontSize: "11px",
-                    textTransform: "uppercase",
                     letterSpacing: "0.2em",
                     color: accentColor,
                     marginBottom: "4px",
                   }}
                 >
-                  {eyebrow}
+                  {eyebrow.toLocaleUpperCase('en-US')}
                 </p>
                 <h3
                   style={{
@@ -1372,13 +1367,12 @@ function StoreFeaturedSection({
               <p
                 style={{
                   fontSize: "11px",
-                  textTransform: "uppercase",
                   letterSpacing: "0.2em",
                   color: accentColor,
                   marginBottom: "12px",
                 }}
               >
-                {eyebrow}
+                {eyebrow.toLocaleUpperCase('en-US')}
               </p>
               <h2
                 style={{

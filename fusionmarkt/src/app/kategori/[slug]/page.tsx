@@ -290,8 +290,7 @@ export default function CategoryPage() {
   const [categoryFilters, setCategoryFilters] = useState<FilterGroup[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
-  const [allProducts, setAllProducts] = useState<any[]>([]); // Tüm ürünler (filtreleme için)
-  const debugLastSigRef = useRef<string>("");
+  const [allProducts, setAllProducts] = useState<any[]>([]);
 
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(false);
@@ -312,7 +311,7 @@ export default function CategoryPage() {
 
   // Check mobile
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -398,35 +397,6 @@ export default function CategoryPage() {
   // CLIENT-SIDE FİLTRELEME MANTIĞI - TEKNİK ÖZELLİKLERDEN VERİ ÇEKİYOR
   // ═══════════════════════════════════════════════════════════════════════════
   const filteredProducts = useMemo(() => {
-    // #region agent log
-    try {
-      const sig = JSON.stringify({ slug, selectedFilters, rangeValues, allProductsCount: allProducts.length });
-      const hasTarget =
-        (selectedFilters?.wireless_charging?.length || 0) > 0 ||
-        (selectedFilters?.builtin_flashlight?.length || 0) > 0;
-      if (hasTarget && sig !== debugLastSigRef.current && allProducts.length > 0) {
-        debugLastSigRef.current = sig;
-        const pick = (wanted: string) =>
-          allProducts.find((p: any) => String(p?.slug || "").toLowerCase().includes(wanted)) || null;
-        const sample = (p: any) => {
-          if (!p) return null;
-          const fvs = p.productFeatureValues || [];
-          const get = (fs: string) => {
-            const fv = fvs.find((v: any) => v?.feature?.slug === fs);
-            const val = fv?.valueText ?? fv?.valueNumber ?? null;
-            return val === null || val === undefined ? null : String(val);
-          };
-          return {
-            slug: p.slug,
-            values: { "kablosuz-sarj": get("kablosuz-sarj"), "dahili-fener": get("dahili-fener") },
-            featureSlugsSample: fvs.slice(0, 12).map((v: any) => v?.feature?.slug).filter(Boolean),
-          };
-        };
-        fetch('http://127.0.0.1:7242/ingest/f558d7b2-c895-4f67-8759-9969d3f62ea1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'fusionmarkt/src/app/kategori/[slug]/page.tsx:filteredProducts(useMemo)',message:'Filter memo recompute (target boolean filters)',data:{slug,selectedFilters,rangeValues,allProductsCount:allProducts.length,samples:{singo1000:sample(pick('singo1000')),singo2000pro:sample(pick('singo2000pro')),p1800:sample(pick('p1800')),p800:sample(pick('p800')),p3200:sample(pick('p3200'))}},timestamp:Date.now()})}).catch(()=>{});
-      }
-    } catch {}
-    // #endregion agent log
-
     if (Object.keys(selectedFilters).length === 0) {
       return allProducts;
     }
@@ -692,7 +662,7 @@ export default function CategoryPage() {
 
       return true;
     });
-  }, [allProducts, selectedFilters, rangeValues, slug]);
+  }, [allProducts, selectedFilters]);
 
   // Filtrelenmiş ürünleri sayfalama için ayarla
   useEffect(() => {
@@ -751,7 +721,7 @@ export default function CategoryPage() {
     setSelectedFilters({});
     setRangeValues({});
     setCurrentPage(1);
-    setFilterPanelOpen(false); // Paneli kapat
+    setFilterPanelOpen(false);
     // URL'den filtre parametrelerini kaldır
     const p = new URLSearchParams();
     if (sortBy !== "newest") p.set("sort", sortBy);
@@ -759,9 +729,8 @@ export default function CategoryPage() {
   };
 
   const handleApplyFilters = () => {
-    // Filtreleri uygula - sayfa 1'e dön
     setCurrentPage(1);
-    setFilterPanelOpen(false); // Paneli kapat
+    setFilterPanelOpen(false);
     
     // URL'ye filtre parametrelerini ekle
     const p = new URLSearchParams();
@@ -856,7 +825,7 @@ export default function CategoryPage() {
       {/* ============================================ */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* MOBILE: 360° Carousel with CSS Transform - always render refs */}
-        <div className="md:hidden relative">
+        <div className="lg:hidden relative">
           {/* Container - viewport */}
           <div
             ref={mobileContainerRef}
@@ -921,7 +890,7 @@ export default function CategoryPage() {
 
         {/* DESKTOP */}
         {loading ? (
-          <div className="hidden md:flex items-center justify-center py-20">
+          <div className="hidden lg:flex items-center justify-center py-20">
             <div
               className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
               style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}
@@ -930,7 +899,7 @@ export default function CategoryPage() {
         ) : products.length > 0 ? (
           <>
             {/* DESKTOP: Grid - 4 ürün per satır */}
-            <div className="hidden md:grid grid-cols-4 gap-5 justify-items-center">
+            <div className="hidden lg:grid grid-cols-4 gap-5 justify-items-center">
               {products.map((product, idx) => (
                 <div key={product.id} className="w-[280px]">
                   {isBundleCategory || product.isBundle ? (
@@ -963,7 +932,7 @@ export default function CategoryPage() {
             </div>
           </>
         ) : (
-          <div className="hidden md:flex flex-col items-center justify-center py-16 sm:py-20 text-center">
+          <div className="hidden lg:flex flex-col items-center justify-center py-16 sm:py-20 text-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-foreground/5 flex items-center justify-center mb-4 sm:mb-6">
               <Package className="w-8 h-8 sm:w-10 sm:h-10 text-foreground-muted" />
             </div>
@@ -980,7 +949,7 @@ export default function CategoryPage() {
       {/* PAGINATION - Hidden on mobile (dots used instead) */}
       {/* ============================================ */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="relative z-10 hidden md:flex items-center justify-center gap-1 sm:gap-2 py-6 sm:py-8 px-4">
+        <div className="relative z-10 hidden lg:flex items-center justify-center gap-1 sm:gap-2 py-6 sm:py-8 px-4">
           <button
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}

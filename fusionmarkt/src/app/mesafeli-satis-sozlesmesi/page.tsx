@@ -351,7 +351,7 @@ export default function MesafeliSatisSozlesmesiPage() {
                 <h2 className="text-xl md:text-2xl font-bold">Garanti ve Sorumluluk</h2>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="grid lg:grid-cols-2 gap-4 mb-4">
                 <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
                   <h4 className="font-bold text-2xl mb-1">2 Yıl</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">Garanti süresi, ürünün teslimat tarihinden itibaren geçerlidir.</p>
@@ -418,7 +418,7 @@ export default function MesafeliSatisSozlesmesiPage() {
                 İşbu Sözleşme'nin uygulanmasından ve yorumlanmasından doğabilecek her türlü uyuşmazlıkların çözümünde Türk Hukuku uygulanacaktır.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h4 className="font-semibold mb-2">Tüketici Hakem Heyetleri</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">6502 sayılı Kanun kapsamında başvuru yapılabilir.</p>
@@ -479,7 +479,7 @@ export default function MesafeliSatisSozlesmesiPage() {
                 Bu sözleşme, ALICI tarafından elektronik ortamda onaylandığı tarihte yürürlüğe girer.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <p className="text-xs text-[var(--foreground-tertiary)] mb-1">SATICI</p>
                   <p className="font-semibold">ASDTC MÜHENDİSLİK TİCARET A.Ş. | FUSIONMARKT LLC</p>

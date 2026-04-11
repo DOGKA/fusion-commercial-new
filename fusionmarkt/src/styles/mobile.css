@@ -2,11 +2,10 @@
    FUSIONMARKT - Mobile Responsive Overrides
    
    ⚠️ ÖNEMLI: Bu dosya SADECE mobil cihazları etkiler
-   Desktop görünümü (>1024px) asla etkilenmez!
+   Desktop görünümü (>=1024px) asla etkilenmez!
    
    Breakpoints:
-   - Tablet: max-width 1023px
-   - Mobile: max-width 767px
+   - Mobile: max-width 1023px (Tailwind lg breakpoint ile senkron)
    - Small Mobile: max-width 479px
 =========================================================================== */
 
@@ -16,7 +15,7 @@
   font-size: 13px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .shipping-option-title,
   .shipping-option-price {
     font-size: 11px !important;
@@ -25,30 +24,12 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    SINGLE PRODUCT VIEW - Ürün Detay Sayfası
-   Desktop: 3 kolon (80px + 600px + 600px)
-   Tablet: 2 kolon (thumbnails gizli)
-   Mobile: Tek kolon (dikey stack)
+   Desktop (>=1024px): 3 kolon (80px + 600px + 600px)
+   Mobile (<1024px): Tek kolon (dikey stack)
 ───────────────────────────────────────────────────────────────────────── */
 
-/* Tablet - Thumbnails alt tarafa, ana görsel + bilgi yan yana */
-@media (max-width: 1279px) {
-  .product-hero-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 20px !important;
-  }
-  
-  .product-thumbnails-column {
-    display: none !important;
-  }
-  
-  .product-main-image-column,
-  .product-info-column {
-    width: 100% !important;
-  }
-}
-
 /* Mobile - Her şey tek kolonda */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .product-hero-grid {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
@@ -360,7 +341,7 @@
    Mobile: Büyük görsel üstte, içerik altta - dikey card layout
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* RelatedProductCard - Mobil layout - Yeni 2-row yapısı */
   .related-product-card {
     display: flex !important;
@@ -493,7 +474,7 @@
    Mobile: 2 satır, daha kompakt layout
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Ana toolbar container - 2 satırlı layout, kompakt */
   .store-toolbar-content {
     display: grid !important;
@@ -707,15 +688,8 @@
   --related-price-size: 20px;
 }
 
-/* TABLET: 28px */
-@media screen and (max-width: 1024px) {
-  :root {
-    --related-price-size: 28px;
-  }
-}
-
-/* MOBİL: 32px - EN BÜYÜK */
-@media screen and (max-width: 767px) {
+/* MOBİL (<1024px): 32px */
+@media screen and (max-width: 1023px) {
   :root {
     --related-price-size: 32px;
   }
@@ -850,7 +824,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   /* Checkout right column - body override */
   .checkout-right-column {
     font-size: 13px !important;
@@ -882,9 +856,9 @@
 }
 
 /* =======================================================================
-   MOBİL (max-width: 767px) - TAM OPTİMİZASYON
+   MOBİL (max-width: 1023px) - TAM OPTİMİZASYON
 ======================================================================= */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .checkout-page {
     padding-top: 80px !important;
     padding-bottom: 40px !important;
@@ -1196,7 +1170,7 @@
    Mobile: Tek kolon dikey
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .auth-forms-grid {
     grid-template-columns: 1fr !important;
     gap: 24px !important;
@@ -1213,7 +1187,7 @@
    Mobile: Stacked layout with scrollable timeline
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* ===========================================================================
      SİPARİŞ KARTI - Order Card Mobile Layout
   =========================================================================== */
@@ -1506,7 +1480,7 @@
   color: #ef4444 !important;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .account-page-container {
     padding: 0 16px !important;
   }
@@ -1612,7 +1586,7 @@
    Mobile: Basitleştirilmiş card layout
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .favorites-item-row {
     /* Mobile'da satır yerine blok layout */
     display: flex !important;
@@ -1657,7 +1631,7 @@
    Bazı grid'ler mobil breakpoint'siz
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .power-calculator-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
@@ -1672,7 +1646,7 @@
    Tüm sayfalarda ortak mobil düzenlemeler
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Container padding */
   .container {
     padding-left: 16px !important;
@@ -1709,7 +1683,7 @@
    Mobil için font boyutu ayarları
 ───────────────────────────────────────────────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   h1, .text-4xl, .text-5xl {
     font-size: clamp(24px, 6vw, 36px) !important;
     line-height: 1.2 !important;
@@ -1754,7 +1728,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .hide-on-mobile {
     display: none !important;
   }
@@ -1900,7 +1874,7 @@
 ───────────────────────────────────────────────────────────────────────── */
 
 /* Hero Section Mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Hero padding - 120px sabit (inline style ile aynı) */
   main > section:first-child {
     padding-top: 120px !important;
@@ -1931,7 +1905,7 @@
 }
 
 /* Content Section Mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Section padding */
   main > section:nth-child(2) {
     padding-top: 2rem !important;
@@ -2016,8 +1990,8 @@
   }
 }
 
-/* Tablet (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
+/* Tablet & Mobile (<1024px) */
+@media (max-width: 1023px) {
   main > section:first-child {
     padding-top: 120px !important;
     padding-bottom: 4rem !important;
@@ -2056,7 +2030,7 @@
 }
 
 /* İade Süreci Timeline Mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Timeline step numaraları */
   .glass-card > div > .flex.gap-4 > div:first-child {
     width: 2.25rem !important;
@@ -2082,7 +2056,7 @@
 }
 
 /* Politika Sayfaları - Özel Düzenlemeler */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Alert/Warning box'lar */
   [class*="bg-"][class*="/10"][class*="border"] {
     padding: 0.875rem !important;
@@ -2124,7 +2098,7 @@
 }
 
 /* Tablo Responsive - Gizlilik Politikası */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Tablo container scroll */
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
@@ -2140,7 +2114,7 @@
 }
 
 /* Gradient Banner Mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   [class*="bg-gradient-to-r"][class*="rounded-2xl"] {
     padding: 1.25rem !important;
   }
@@ -2151,7 +2125,7 @@
 }
 
 /* WhatsApp Butonu Mobile */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   a[href*="wa.me"] {
     width: 100% !important;
     justify-content: center !important;
@@ -2165,7 +2139,7 @@
   }
 }
 
-@media (min-width: 640px) and (max-width: 767px) {
+@media (min-width: 640px) and (max-width: 1023px) {
   .grid.sm\:grid-cols-3 {
     grid-template-columns: repeat(3, 1fr) !important;
   }
@@ -2184,7 +2158,7 @@
 }
 
 /* Touch-friendly tap targets */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Linkler için minimum dokunma alanı */
   .glass-card a,
   .glass-card button {
@@ -2200,7 +2174,7 @@
 }
 
 /* Son Güncelleme Tarihi */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   main > section:last-child > div > div:last-child {
     margin-top: 2rem !important;
   }
@@ -2239,7 +2213,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Mobile carousel dots styling */
   .carousel-dots {
     display: flex !important;
@@ -2289,7 +2263,7 @@
    RelatedProductCard ile aynı mobil layout
 =========================================================================== */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* RelatedBundleCard - Mobil dikey layout */
   .related-bundle-card {
     display: flex !important;
@@ -2413,7 +2387,7 @@
 }
 
 /* Mobil görünümü - Admin panel önizleme ile aynı: tek kolon, 160px yükseklik */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .category-bento-section {
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
@@ -2515,7 +2489,7 @@
    Sadece mobilde, sadece light temada "Ödemeye Geç" ve "Siparişi Onayla"
    butonlarının icon ve text rengi beyaz olacak
 =========================================================================== */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   /* Light theme only - checkout proceed buttons text white */
   html:not(.dark) .checkout-right-column button[style*="10b981"],
   html:not(.dark) .checkout-right-column button[style*="059669"],

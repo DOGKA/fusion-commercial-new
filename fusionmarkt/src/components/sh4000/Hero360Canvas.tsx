@@ -59,7 +59,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
     const dpr = window.devicePixelRatio || 1;
     const width = container.clientWidth;
     const height = container.clientHeight;
-    const isMobile = width < 768;
+    const isMobile = width < 1024;
 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
@@ -271,7 +271,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
 
     const startAnimation = () => {
       if (!sectionRef.current) return;
-      const isMobile = window.innerWidth < 768;
+      const isMobile = window.innerWidth < 1024;
       ctx = gsap.context(() => {
         const trigger = ScrollTrigger.create({
           id: 'hero-pin',
@@ -363,7 +363,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
           ref={(el) => {
             mobileFeatureRefs.current[index] = el;
           }}
-          className="absolute inset-0 md:hidden pointer-events-none z-20 opacity-0"
+          className="absolute inset-0 lg:hidden pointer-events-none z-20 opacity-0"
         >
           <div className="absolute top-[24%] left-1/2 -translate-x-1/2 text-center">
             <p className="text-[20vw] font-black text-foreground leading-none tracking-tighter select-none whitespace-nowrap">
@@ -385,7 +385,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
           ref={(el) => {
             desktopFeatureRefs.current[index] = el;
           }}
-          className={`absolute inset-0 hidden md:flex items-center justify-end pointer-events-none z-0 ${
+          className={`absolute inset-0 hidden lg:flex items-center justify-end pointer-events-none z-0 ${
             index === 0 ? 'translate-x-[4vw] opacity-100' : 'translate-x-[25vw] opacity-0'
           }`}
         >
@@ -404,7 +404,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       <div ref={canvasContainerRef} className="absolute inset-0 flex items-center justify-center z-10">
         {/* Poster - Mobile (canvas ölçeğine uygun boyut) */}
         <div
-          className={`absolute md:hidden w-[52%] h-[50%] flex items-center justify-center translate-y-10 transition-opacity duration-300 ${
+          className={`absolute lg:hidden w-[52%] h-[50%] flex items-center justify-center translate-y-10 transition-opacity duration-300 ${
             firstFrameLoaded ? "opacity-0" : "opacity-100"
           }`}
         >
@@ -423,7 +423,7 @@ export default function Hero360Canvas({ frames }: Hero360CanvasProps) {
       </div>
 
       {/* Top badge */}
-      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20 hidden md:block">
+      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20 hidden lg:block">
         <span className="glass-badge glass-badge-accent text-xs font-semibold tracking-wider">
           INITIAL ENTROPY ENERGY
         </span>

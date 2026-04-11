@@ -106,7 +106,7 @@ export default function UseGallery() {
         {/* Mobile - auto horizontal loop */}
         <div
           ref={trackRef}
-          className="use-gallery-mobile flex flex-nowrap items-center gap-6 md:hidden"
+          className="use-gallery-mobile flex flex-nowrap items-center gap-6 lg:hidden"
           style={{ willChange: 'transform' }}
         >
           {[...galleryImages, ...galleryImages].map((src, index) => (
@@ -126,7 +126,7 @@ export default function UseGallery() {
         </div>
 
         {/* Desktop - static centered */}
-        <div className="use-gallery-desktop hidden md:flex items-center justify-center gap-8">
+        <div className="use-gallery-desktop hidden lg:flex items-center justify-center gap-8">
           {galleryImages.map((src, index) => (
             <div
               key={src}

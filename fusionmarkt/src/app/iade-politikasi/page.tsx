@@ -398,7 +398,7 @@ export default function IadePolitikasiPage() {
                 Ürünlerinizi iade etmeden önce aşağıdaki hazırlıkları yapmanız gerekmektedir:
               </p>
               
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
                   <h4 className="font-semibold mb-2">Ayarları Sıfırlayın</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">

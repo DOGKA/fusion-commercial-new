@@ -93,10 +93,8 @@ export default function FilterSidePanel({
     const current = selectedFilters[filterId] || [];
 
     if (filterType === "RADIO") {
-      // Radio: sadece bir seçenek
       onFilterChange(filterId, current.includes(optionValue) ? [] : [optionValue]);
     } else {
-      // Checkbox: toggle
       if (current.includes(optionValue)) {
         onFilterChange(
           filterId,
@@ -273,7 +271,7 @@ export default function FilterSidePanel({
         {/* ═══════════════════════════════════════════════════════════════════
             FILTER GROUPS
         ═══════════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" style={{ WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'] }}>
           {filters.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-16 text-center">
               <div

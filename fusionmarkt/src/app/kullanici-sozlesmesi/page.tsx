@@ -294,7 +294,7 @@ export default function KullaniciSozlesmesiPage() {
                 <h2 className="text-xl md:text-2xl font-bold">Uluslararası Nakliye ve İhracat</h2>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Globe className="w-5 h-5 text-[var(--fusion-primary)]" />

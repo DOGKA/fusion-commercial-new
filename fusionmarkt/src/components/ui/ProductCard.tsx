@@ -333,8 +333,8 @@ export default function ProductCard({ product, className, priority = false }: Pr
           >
             {/* ÜST KISIM - Brand, Title, Subtitle */}
             <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-foreground-muted uppercase tracking-widest">
-                {brand}
+              <p className="text-[10px] text-foreground-muted tracking-widest">
+                {brand?.toLocaleUpperCase('en-US')}
               </p>
               <h3 
                 style={{ 

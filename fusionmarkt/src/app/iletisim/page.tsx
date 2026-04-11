@@ -234,7 +234,7 @@ export default function IletisimPage() {
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-8 md:py-12">
         <div className="container px-4 md:px-6">
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {contactCards.map((card, index) => {
               const CardWrapper = card.href ? motion.a : motion.div;
               const linkProps = card.href ? {
