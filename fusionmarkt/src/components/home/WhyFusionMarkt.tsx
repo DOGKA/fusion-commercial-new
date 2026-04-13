@@ -2,38 +2,38 @@
 
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
-import { Truck, ShieldCheck, Lock, Headphones, CreditCard, Globe } from "lucide-react";
+import { Truck, ShieldCheck, RotateCcw, MessageCircle, CreditCard, PackageCheck } from "lucide-react";
 
 const BENEFITS = [
   {
     icon: Truck,
-    title: "Hızlı ve Ücretsiz Kargo",
-    subtitle: "Tüm siparişler 1 iş gününde gönderilir.",
+    title: "Aynı Gün Kargoda",
+    subtitle: "14:00'e kadar verilen siparişler aynı gün yola çıkar.",
   },
   {
     icon: ShieldCheck,
-    title: "Garanti Koruması",
-    subtitle: "Tüm ürünler garanti hizmeti kapsamındadır.",
+    title: "Test Edilmiş Ürünler",
+    subtitle: "Her ürün satışa sunulmadan önce ekibimiz tarafından kontrol edilir.",
   },
   {
-    icon: Lock,
-    title: "Güvenli Ödeme",
-    subtitle: "Banka veya kredi kartı ile güvenle ödeme yapın.",
+    icon: RotateCcw,
+    title: "Kolay İade",
+    subtitle: "15 gün içinde koşulsuz iade. Soru sormayız.",
   },
   {
-    icon: Headphones,
-    title: "Birçok Kanaldan Destek",
-    subtitle: "E-posta veya telefon ile bize ulaşın.",
+    icon: MessageCircle,
+    title: "Gerçek Kişilerle Konuşun",
+    subtitle: "Bot değil, ürünleri tanıyan gerçek ekibimiz yanıt verir.",
   },
   {
     icon: CreditCard,
-    title: "Uygun Taksit Seçenekleri",
-    subtitle: "Vade farksız taksit ile dilediğiniz gibi alışveriş yapın.",
+    title: "Taksitle Alın",
+    subtitle: "12 aya varan taksit seçenekleri.",
   },
   {
-    icon: Globe,
-    title: "FusionMarkt Ailesi",
-    subtitle: "Üye olun, yeniliklerden ve kampanyalardan haberdar olun.",
+    icon: PackageCheck,
+    title: "Seçilmiş Ürünler",
+    subtitle: "Yüzlerce marka arasından yalnızca kaliteli olanları sunuyoruz.",
   },
 ];
 
@@ -51,7 +51,7 @@ export default function WhyFusionMarkt() {
     <section className="why-fusion-section">
       <div className="container">
         <div className="why-fusion-header">
-          <h2 className="why-fusion-title">Neden FusionMarkt?</h2>
+          <h2 className="why-fusion-title">FusionMarkt ile hayatınızı kolaylaştırın</h2>
           <div className="why-fusion-nav">
             <CarouselNavButtons
               scrollBy={scrollBy}

@@ -155,23 +155,40 @@ export async function GET(
       );
     }
 
+    // Ücretsiz kargo eşiğini al
+    let freeShippingThreshold = 2000;
+    try {
+      const shippingSettings = await prisma.shippingSettings.findFirst({ where: { id: "default" } });
+      if (shippingSettings?.freeShippingLimit) {
+        freeShippingThreshold = Number(shippingSettings.freeShippingLimit);
+      }
+    } catch { /* fallback to default */ }
+
     // İlişkili ürünleri türlerine göre ayır
     const productWithRelations = product as unknown as ProductWithRelations;
     const frequentlyBought = productWithRelations.relatedFrom
       ?.filter((r: RelatedProductRelation) => r.relationType === 'FREQUENTLY_BOUGHT')
-      .map((r: RelatedProductRelation) => ({
-        ...r.relatedProduct,
-        price: r.relatedProduct.price ? Number(r.relatedProduct.price) : 0,
-        comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
-      })) || [];
+      .map((r: RelatedProductRelation) => {
+        const price = r.relatedProduct.price ? Number(r.relatedProduct.price) : 0;
+        return {
+          ...r.relatedProduct,
+          price,
+          comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
+          freeShipping: (r.relatedProduct as Record<string, unknown>).freeShipping === true || price >= freeShippingThreshold,
+        };
+      }) || [];
 
     const alsoViewed = productWithRelations.relatedFrom
       ?.filter((r: RelatedProductRelation) => r.relationType === 'ALSO_VIEWED')
-      .map((r: RelatedProductRelation) => ({
-        ...r.relatedProduct,
-        price: r.relatedProduct.price ? Number(r.relatedProduct.price) : 0,
-        comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
-      })) || [];
+      .map((r: RelatedProductRelation) => {
+        const price = r.relatedProduct.price ? Number(r.relatedProduct.price) : 0;
+        return {
+          ...r.relatedProduct,
+          price,
+          comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
+          freeShipping: (r.relatedProduct as Record<string, unknown>).freeShipping === true || price >= freeShippingThreshold,
+        };
+      }) || [];
 
     // Varyantları sırala (08, 09, 10, 11 veya S, M, L, XL)
     const sortedVariants = [...(product.variants || [])].sort((a, b) => {

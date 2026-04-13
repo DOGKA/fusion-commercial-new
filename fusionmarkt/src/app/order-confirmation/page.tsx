@@ -230,7 +230,7 @@ function OrderConfirmationContent() {
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(16,185,129,0.2)", border: "2px solid #10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Check size={16} color="#10b981" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres & Teslimat</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres</span>
           </div>
           <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step checkout-step-completed" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.6 }}>
@@ -244,7 +244,7 @@ function OrderConfirmationContent() {
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Check size={16} className="text-white" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Sipariş Tamamlama</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Onay</span>
           </div>
         </div>
 
@@ -653,6 +653,7 @@ function OrderConfirmationContent() {
                 </Link>
                 <Link
                   href="/magaza"
+                  className="checkout-proceed-btn"
                   style={{
                     flex: 1,
                     display: "flex",

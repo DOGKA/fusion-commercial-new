@@ -602,7 +602,7 @@ export default function PaymentPage() {
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--glass-bg)", border: "2px solid var(--foreground)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Check size={16} className="text-foreground" strokeWidth={3} />
             </div>
-            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres & Teslimat</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>Adres</span>
           </Link>
           <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step checkout-step-active" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -612,7 +612,7 @@ export default function PaymentPage() {
           <ChevronRight size={16} className="checkout-step-arrow text-foreground-muted" />
           <div className="checkout-step" style={{ display: "flex", alignItems: "center", gap: "8px", opacity: 0.4 }}>
             <div className="checkout-step-number" style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "var(--border)", color: "var(--foreground-tertiary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>3</div>
-            <span className="checkout-step-label checkout-step-label-long" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Sipariş Tamamlama</span>
+            <span className="checkout-step-label" style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground-tertiary)" }}>Onay</span>
           </div>
         </div>
 
@@ -926,28 +926,57 @@ export default function PaymentPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</h4>
                     {item.variant && <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{item.variant.value}</p>}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
-                      <div className="checkout-quantity-controls" style={{ display: "flex", alignItems: "center", gap: "4px", backgroundColor: "var(--glass-bg)", borderRadius: "8px", padding: "2px" }}>
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
-                          <Minus size={12} />
+                    
+                    <div className="flex flex-col gap-1.5 mt-2">
+                      <div className="flex items-baseline gap-1.5 flex-wrap">
+                        <span className="text-[15px] font-semibold text-foreground">
+                          {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
+                        </span>
+                        <span className="text-[11px] text-foreground-muted"></span>
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)}  kazanç</span>
+                        )}
+                      </div>
+                      
+                      {item.originalPrice && item.originalPrice > item.price && (
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                          <span className="text-[10px] text-foreground-tertiary">İndirimli Fiyat:</span>
+                          <span className="text-[11px] text-foreground font-medium">{formatPrice(item.price * item.quantity)} </span>
+                        </div>
+                      )}
+                      
+                      <div
+                        className="checkout-quantity-controls flex items-center self-start bg-glass-bg border border-border p-0.5"
+                        style={{ borderRadius: '10px' }}
+                      >
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="w-6 h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
+                          style={{ borderRadius: '8px' }}
+                          type="button"
+                        >
+                          <Minus className="w-3 h-3" />
                         </button>
-                        <span style={{ width: "24px", textAlign: "center", fontSize: "13px", fontWeight: "500", color: "var(--foreground)" }}>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "6px", cursor: "pointer" }}>
-                          <Plus size={12} />
+                        <span className="w-6 text-center text-[12px] font-semibold text-foreground-secondary">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="w-6 h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
+                          style={{ borderRadius: '8px' }}
+                          type="button"
+                        >
+                          <Plus className="w-3 h-3" />
                         </button>
                       </div>
-                      {/* Always show original price in white - discount shown in totals */}
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--foreground)" }}>
-                        {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
-                      </span>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
-                      <Heart size={14} />
+                      <Heart size={18} />
                     </button>
                     <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">
-                      <Trash2 size={14} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
@@ -1151,6 +1180,7 @@ export default function PaymentPage() {
             {/* Action Buttons */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <button
+                className="checkout-proceed-btn"
                 onClick={handleCompleteOrder}
                 disabled={isSubmitting}
                 onMouseEnter={() => setHoverConfirm(true)}

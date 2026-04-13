@@ -795,7 +795,7 @@ export default function CheckoutPage() {
                       Keyifli alışverişler dileriz.
                     </p>
                   </div>
-                  <Link href="/magaza" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-colors" style={{ borderRadius: "12px", whiteSpace: "nowrap" }}>
+                  <Link href="/magaza" className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-foreground bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-500/30 rounded-full transition-all whitespace-nowrap">
                     Ürünleri Keşfet
                   </Link>
                 </div>
@@ -1281,52 +1281,58 @@ export default function CheckoutPage() {
                     
                     {/* Price, Discount, Quantity - Stacked layout */}
                     <div className="flex flex-col gap-1.5 mt-2">
-                      {/* Row 1: Original price */}
-                      <div className="flex items-baseline gap-1">
+                      {/* Row 1: Original price + savings */}
+                      <div className="flex items-baseline gap-1.5 flex-wrap">
                         <span className="text-[15px] font-semibold text-foreground">
                           {formatPrice((item.originalPrice ?? item.price) * item.quantity)}
                         </span>
-                        <span className="text-[11px] text-white/40">₺</span>
+                        <span className="text-[11px] text-foreground-muted"></span>
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)}  kazanç</span>
+                        )}
                       </div>
                       
-                      {/* Row 2: Discounted price + savings - only if there's a discount */}
+                      {/* Row 2: Discounted price - only if there's a discount */}
                       {item.originalPrice && item.originalPrice > item.price && (
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                          <span className="text-[10px] text-white/50">İndirimli Fiyat:</span>
-                          <span className="text-[11px] text-foreground font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
-                          <span className="text-[10px] text-white/30">•</span>
-                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
+                          <span className="text-[10px] text-foreground-tertiary">İndirimli Fiyat:</span>
+                          <span className="text-[11px] text-foreground font-medium">{formatPrice(item.price * item.quantity)} </span>
                         </div>
                       )}
                       
-                      {/* Row 3: Quantity Controls - smaller on mobile */}
-                      <div className="checkout-quantity-controls flex items-center self-start bg-glass-bg border border-border rounded p-px md:rounded-md md:p-0.5">
+                      {/* Row 3: Quantity Controls */}
+                      <div
+                        className="checkout-quantity-controls flex items-center self-start bg-glass-bg border border-border p-0.5"
+                        style={{ borderRadius: '10px' }}
+                      >
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all rounded-sm md:rounded"
+                          className="w-6 h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
+                          style={{ borderRadius: '8px' }}
                           type="button"
                         >
-                          <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                          <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-5 md:w-6 text-center text-[10px] md:text-[12px] font-medium text-foreground">
+                        <span className="w-6 text-center text-[12px] font-semibold text-foreground-secondary">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-all rounded-sm md:rounded"
+                          className="w-6 h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
+                          style={{ borderRadius: '8px' }}
                           type="button"
                         >
-                          <Plus className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                          <Plus className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
-                      <Heart size={14} />
+                      <Heart size={18} />
                     </button>
                     <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">
-                      <Trash2 size={14} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
@@ -1649,6 +1655,7 @@ export default function CheckoutPage() {
 
             {/* Continue Button */}
             <button
+              className="checkout-proceed-btn"
               onClick={handleProceedToPayment}
               disabled={isSubmitting || preflightLoading}
               onMouseEnter={() => setHoverProceed(true)}

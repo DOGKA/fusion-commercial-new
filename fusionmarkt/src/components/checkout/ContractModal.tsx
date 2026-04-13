@@ -2,6 +2,7 @@
 
 import { X, FileText, Check, Printer, Info } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import type { AddressFormData } from "@/types/checkout";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -53,127 +54,139 @@ function formatDate(date: Date): string {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SHARED STYLES
+// SHARED STYLES (theme-aware)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const styles = {
-  // Section styles
-  sectionTitle: (isMobile: boolean) => ({
-    fontSize: isMobile ? "14px" : "16px",
-    fontWeight: "700" as const,
-    color: "#10b981",
-    marginBottom: isMobile ? "12px" : "16px",
-    paddingBottom: "8px",
-    borderBottom: "2px solid rgba(16, 185, 129, 0.3)",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.5px",
-  }),
-  subTitle: (isMobile: boolean) => ({
-    fontSize: isMobile ? "12px" : "14px",
-    fontWeight: "600" as const,
-    color: "#60a5fa",
-    marginBottom: isMobile ? "8px" : "12px",
-    marginTop: isMobile ? "16px" : "20px",
-  }),
-  paragraph: (isMobile: boolean) => ({
-    fontSize: isMobile ? "11px" : "13px",
-    lineHeight: "1.7",
-    color: "rgba(255, 255, 255, 0.85)",
-    marginBottom: isMobile ? "10px" : "14px",
-  }),
-  list: (isMobile: boolean) => ({
-    fontSize: isMobile ? "11px" : "13px",
-    lineHeight: "1.7",
-    color: "rgba(255, 255, 255, 0.8)",
-    marginBottom: isMobile ? "10px" : "14px",
-    paddingLeft: isMobile ? "16px" : "20px",
-    listStyleType: "disc" as const,
-  }),
-  listItem: {
-    marginBottom: "6px",
-  },
-  infoBox: (isMobile: boolean) => ({
-    padding: isMobile ? "12px" : "16px",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: "8px",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-    marginBottom: isMobile ? "12px" : "16px",
-  }),
-  infoRow: (isMobile: boolean) => ({
-    display: "flex" as const,
-    flexDirection: isMobile ? "column" as const : "row" as const,
-    marginBottom: "8px",
-    fontSize: isMobile ? "11px" : "13px",
-  }),
-  infoLabel: (isMobile: boolean) => ({
-    color: "rgba(255, 255, 255, 0.5)",
-    minWidth: isMobile ? "auto" : "140px",
-    marginBottom: isMobile ? "2px" : "0",
-  }),
-  infoValue: {
-    color: "rgba(255, 255, 255, 0.9)",
-    fontWeight: "500" as const,
-  },
-  divider: {
-    height: "1px",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    margin: "20px 0",
-  },
-  // Table styles
-  table: {
-    width: "100%",
-    borderCollapse: "collapse" as const,
-    marginBottom: "16px",
-  },
-  tableHeader: (isMobile: boolean) => ({
-    backgroundColor: "rgba(16, 185, 129, 0.15)",
-    fontSize: isMobile ? "10px" : "12px",
-    fontWeight: "600" as const,
-    color: "#10b981",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.5px",
-  }),
-  tableHeaderCell: (isMobile: boolean, align: "left" | "center" | "right" = "left") => ({
-    padding: isMobile ? "10px 8px" : "12px 16px",
-    textAlign: align,
-    borderBottom: "2px solid rgba(16, 185, 129, 0.3)",
-  }),
-  tableRow: {
-    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-  },
-  tableCell: (isMobile: boolean, align: "left" | "center" | "right" = "left") => ({
-    padding: isMobile ? "10px 8px" : "12px 16px",
-    textAlign: align,
-    fontSize: isMobile ? "11px" : "13px",
-    color: "rgba(255, 255, 255, 0.9)",
-    verticalAlign: "top" as const,
-  }),
-  // Summary box
-  summaryBox: (isMobile: boolean) => ({
-    padding: isMobile ? "14px" : "20px",
-    backgroundColor: "rgba(16, 185, 129, 0.08)",
-    borderRadius: "10px",
-    border: "1px solid rgba(16, 185, 129, 0.2)",
-    marginTop: "16px",
-  }),
-  summaryRow: (isMobile: boolean) => ({
-    display: "flex" as const,
-    justifyContent: "space-between" as const,
-    marginBottom: "8px",
-    fontSize: isMobile ? "11px" : "13px",
-    color: "rgba(255, 255, 255, 0.7)",
-  }),
-  summaryTotal: (isMobile: boolean) => ({
-    display: "flex" as const,
-    justifyContent: "space-between" as const,
-    paddingTop: "12px",
-    marginTop: "12px",
-    borderTop: "2px solid rgba(16, 185, 129, 0.3)",
-    fontSize: isMobile ? "14px" : "16px",
-    fontWeight: "700" as const,
-    color: "#10b981",
-  }),
-};
+function getStyles(isDark: boolean) {
+  const text = isDark ? "rgba(255, 255, 255, 0.85)" : "rgba(0, 0, 0, 0.8)";
+  const textSecondary = isDark ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.7)";
+  const textMuted = isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.45)";
+  const textStrong = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.85)";
+  const textDimmed = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.5)";
+  const border = isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)";
+  const borderLight = isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)";
+  const dividerColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.08)";
+  const boxBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)";
+
+  return {
+    sectionTitle: (isMobile: boolean) => ({
+      fontSize: isMobile ? "14px" : "16px",
+      fontWeight: "700" as const,
+      color: "#10b981",
+      marginBottom: isMobile ? "12px" : "16px",
+      paddingBottom: "8px",
+      borderBottom: "2px solid rgba(16, 185, 129, 0.3)",
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.5px",
+    }),
+    subTitle: (isMobile: boolean) => ({
+      fontSize: isMobile ? "12px" : "14px",
+      fontWeight: "600" as const,
+      color: "#60a5fa",
+      marginBottom: isMobile ? "8px" : "12px",
+      marginTop: isMobile ? "16px" : "20px",
+    }),
+    paragraph: (isMobile: boolean) => ({
+      fontSize: isMobile ? "11px" : "13px",
+      lineHeight: "1.7",
+      color: text,
+      marginBottom: isMobile ? "10px" : "14px",
+    }),
+    list: (isMobile: boolean) => ({
+      fontSize: isMobile ? "11px" : "13px",
+      lineHeight: "1.7",
+      color: textSecondary,
+      marginBottom: isMobile ? "10px" : "14px",
+      paddingLeft: isMobile ? "16px" : "20px",
+      listStyleType: "disc" as const,
+    }),
+    listItem: {
+      marginBottom: "6px",
+    },
+    infoBox: (isMobile: boolean) => ({
+      padding: isMobile ? "12px" : "16px",
+      backgroundColor: boxBg,
+      borderRadius: "8px",
+      border: `1px solid ${border}`,
+      marginBottom: isMobile ? "12px" : "16px",
+    }),
+    infoRow: (isMobile: boolean) => ({
+      display: "flex" as const,
+      flexDirection: isMobile ? "column" as const : "row" as const,
+      marginBottom: "8px",
+      fontSize: isMobile ? "11px" : "13px",
+    }),
+    infoLabel: (isMobile: boolean) => ({
+      color: textMuted,
+      minWidth: isMobile ? "auto" : "140px",
+      marginBottom: isMobile ? "2px" : "0",
+    }),
+    infoValue: {
+      color: textStrong,
+      fontWeight: "500" as const,
+    },
+    divider: {
+      height: "1px",
+      backgroundColor: dividerColor,
+      margin: "20px 0",
+    },
+    table: {
+      width: "100%",
+      borderCollapse: "collapse" as const,
+      marginBottom: "16px",
+    },
+    tableHeader: (isMobile: boolean) => ({
+      backgroundColor: "rgba(16, 185, 129, 0.15)",
+      fontSize: isMobile ? "10px" : "12px",
+      fontWeight: "600" as const,
+      color: "#10b981",
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.5px",
+    }),
+    tableHeaderCell: (isMobile: boolean, align: "left" | "center" | "right" = "left") => ({
+      padding: isMobile ? "10px 8px" : "12px 16px",
+      textAlign: align,
+      borderBottom: "2px solid rgba(16, 185, 129, 0.3)",
+    }),
+    tableRow: {
+      borderBottom: `1px solid ${borderLight}`,
+    },
+    tableCell: (isMobile: boolean, align: "left" | "center" | "right" = "left") => ({
+      padding: isMobile ? "10px 8px" : "12px 16px",
+      textAlign: align,
+      fontSize: isMobile ? "11px" : "13px",
+      color: textStrong,
+      verticalAlign: "top" as const,
+    }),
+    summaryBox: (isMobile: boolean) => ({
+      padding: isMobile ? "14px" : "20px",
+      backgroundColor: "rgba(16, 185, 129, 0.08)",
+      borderRadius: "10px",
+      border: "1px solid rgba(16, 185, 129, 0.2)",
+      marginTop: "16px",
+    }),
+    summaryRow: (isMobile: boolean) => ({
+      display: "flex" as const,
+      justifyContent: "space-between" as const,
+      marginBottom: "8px",
+      fontSize: isMobile ? "11px" : "13px",
+      color: isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.6)",
+    }),
+    summaryTotal: (isMobile: boolean) => ({
+      display: "flex" as const,
+      justifyContent: "space-between" as const,
+      paddingTop: "12px",
+      marginTop: "12px",
+      borderTop: "2px solid rgba(16, 185, 129, 0.3)",
+      fontSize: isMobile ? "14px" : "16px",
+      fontWeight: "700" as const,
+      color: "#10b981",
+    }),
+    textMuted,
+    textDimmed,
+    textStrong,
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DISTANCE SALES CONTRACT COMPONENT
@@ -185,7 +198,8 @@ function DistanceSalesContract({
   totals, 
   orderRefNumber, 
   contractDate,
-  isMobile 
+  isMobile,
+  isDark,
 }: {
   buyer: { fullName: string; tcKimlikNo?: string; address: string; phone: string; email: string };
   items: { title: string; variant?: { value?: string }; price: number; quantity: number }[];
@@ -193,7 +207,9 @@ function DistanceSalesContract({
   orderRefNumber: string;
   contractDate: string;
   isMobile: boolean;
+  isDark: boolean;
 }) {
+  const styles = getStyles(isDark);
   return (
     <div>
       {/* Header */}
@@ -212,7 +228,7 @@ function DistanceSalesContract({
           gap: isMobile ? "16px" : "30px",
           flexWrap: "wrap",
           fontSize: isMobile ? "10px" : "12px",
-          color: "rgba(255,255,255,0.5)"
+          color: styles.textMuted
         }}>
           <span>Ref: <strong style={{ color: "#60a5fa" }}>{orderRefNumber}</strong></span>
           <span>Tarih: <strong style={{ color: "#60a5fa" }}>{contractDate}</strong></span>
@@ -280,7 +296,7 @@ function DistanceSalesContract({
         ürünlerin teslimi ve tarafların 27.11.2014 tarihli Resmi Gazete&apos;de yayınlanan Mesafeli Satışlar Yönetmeliği 
         ve 6502 sayılı Tüketicinin Korunması Hakkında Kanun kapsamındaki diğer hak ve yükümlülükleri kapsamaktadır.
       </p>
-      <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: "rgba(255,255,255,0.6)" }}>
+      <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: styles.textDimmed }}>
         Not: Montaj hizmeti işbu Sözleşme&apos;nin konu ve kapsamı dışında tutulmuş olup, talep edilmesi halinde ayrı bir sözleşme ile düzenlenecektir.
       </p>
 
@@ -302,7 +318,7 @@ function DistanceSalesContract({
               <td style={styles.tableCell(isMobile, "left")}>
                 <div style={{ fontWeight: "500" }}>{item.title}</div>
                 {item.variant?.value && (
-                  <div style={{ fontSize: isMobile ? "10px" : "11px", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>
+                  <div style={{ fontSize: isMobile ? "10px" : "11px", color: styles.textMuted, marginTop: "4px" }}>
                     Varyant: {item.variant.value}
                   </div>
                 )}
@@ -355,7 +371,7 @@ function DistanceSalesContract({
         <li style={styles.listItem}>Kabul Edilen Kartlar: Visa, Amex, MasterCard kredi kartları</li>
         <li style={styles.listItem}>Ön Provizyon: Siparişler banka onayı sonrası işleme alınır</li>
       </ul>
-      <p style={{ ...styles.paragraph(isMobile), fontSize: isMobile ? "10px" : "12px", color: "rgba(255,255,255,0.6)" }}>
+      <p style={{ ...styles.paragraph(isMobile), fontSize: isMobile ? "10px" : "12px", color: styles.textDimmed }}>
         Promosyonlar ve indirimler, ürünün sipariş tarihinde geçerli ise uygulanacaktır. SATICI, bankaların kesintileri veya ücretlerinden sorumlu değildir.
       </p>
 
@@ -371,7 +387,7 @@ function DistanceSalesContract({
         <li style={styles.listItem}><strong>Aynı Gün Teslimat:</strong> Ürünler siparişin verildiği gün teslim edilir.</li>
         <li style={styles.listItem}><strong>Randevulu Teslimat:</strong> ALICI&apos;nın belirlediği tarihte teslim edilir.</li>
       </ul>
-      <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: "rgba(255,255,255,0.6)" }}>
+      <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: styles.textDimmed }}>
         Not: ALICI&apos;nın teslimat sırasında adreste bulunmaması halinde dahi SATICI edimini eksiksiz olarak yerine getirmiş sayılacaktır.
       </p>
 
@@ -438,7 +454,7 @@ function DistanceSalesContract({
         <li style={styles.listItem}><strong>Tüketici Hakem Heyetleri:</strong> 6502 sayılı Kanun kapsamında başvuru yapılabilir.</li>
         <li style={styles.listItem}><strong>Tüketici Mahkemeleri:</strong> Hakem heyeti sınırlarını aşan uyuşmazlıklar için yetkilidir.</li>
       </ul>
-      <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: "rgba(255,255,255,0.6)" }}>
+      <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: styles.textDimmed }}>
         Dil: ALICI ve SATICI arasında farklı dillerde yapılan sözleşmelerde çelişki olması halinde Türkçe versiyon geçerli olacaktır.
       </p>
 
@@ -468,13 +484,13 @@ function DistanceSalesContract({
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
           <div>
-            <div style={{ fontSize: isMobile ? "10px" : "11px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>SATICI</div>
+            <div style={{ fontSize: isMobile ? "10px" : "11px", color: styles.textMuted, marginBottom: "4px" }}>SATICI</div>
             <div style={{ fontSize: isMobile ? "12px" : "14px", fontWeight: "600", color: "#10b981" }}>
               ASDTC MÜHENDİSLİK TİCARET A.Ş. / FUSIONMARKT LLC
             </div>
           </div>
           <div>
-            <div style={{ fontSize: isMobile ? "10px" : "11px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>ALICI</div>
+            <div style={{ fontSize: isMobile ? "10px" : "11px", color: styles.textMuted, marginBottom: "4px" }}>ALICI</div>
             <div style={{ fontSize: isMobile ? "12px" : "14px", fontWeight: "600", color: "#60a5fa" }}>
               {buyer.fullName}
             </div>
@@ -493,13 +509,16 @@ function TermsAndConditions({
   buyer, 
   orderRefNumber, 
   contractDate,
-  isMobile 
+  isMobile,
+  isDark,
 }: {
   buyer: { fullName: string; email: string };
   orderRefNumber: string;
   contractDate: string;
   isMobile: boolean;
+  isDark: boolean;
 }) {
+  const styles = getStyles(isDark);
   return (
     <div>
       {/* Header */}
@@ -518,7 +537,7 @@ function TermsAndConditions({
           gap: isMobile ? "16px" : "30px",
           flexWrap: "wrap",
           fontSize: isMobile ? "10px" : "12px",
-          color: "rgba(255,255,255,0.5)"
+          color: styles.textMuted
         }}>
           <span>Ref: <strong style={{ color: "#60a5fa" }}>{orderRefNumber}</strong></span>
           <span>Tarih: <strong style={{ color: "#60a5fa" }}>{contractDate}</strong></span>
@@ -647,7 +666,7 @@ function TermsAndConditions({
         backgroundColor: "rgba(16, 185, 129, 0.1)", 
         border: "1px solid rgba(16, 185, 129, 0.3)" 
       }}>
-        <div style={{ fontSize: isMobile ? "10px" : "12px", color: "rgba(255,255,255,0.5)", marginBottom: "8px" }}>
+        <div style={{ fontSize: isMobile ? "10px" : "12px", color: styles.textMuted, marginBottom: "8px" }}>
           Son Güncelleme: 25 Aralık 2024
         </div>
         <div style={{ fontSize: isMobile ? "12px" : "14px", fontWeight: "600", color: "#10b981" }}>
@@ -674,6 +693,8 @@ export default function ContractModal({
 }: ContractModalProps) {
   const [isMobile, setIsMobile] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -711,6 +732,20 @@ export default function ContractModal({
     phone: billingAddress?.phone || "Belirtilmedi",
     email: billingAddress?.email || "Belirtilmedi",
   };
+
+  const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
+  const mutedText = isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.45)";
+  const secondaryText = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.5)";
+  const secondaryTextStrong = isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.6)";
+  const headerText = isDark ? "#fff" : "#111";
+  const panelBg = isDark ? "#0f0f0f" : "#ffffff";
+  const headerBtnBorder = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
+  const headerBtnColor = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.5)";
+  const footerBg = isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.03)";
+  const closeBtnBorder = isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.15)";
+  const closeBtnText = isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.6)";
+  const infoBannerBg = isDark ? "rgba(59, 130, 246, 0.08)" : "rgba(59, 130, 246, 0.05)";
+  const infoBannerText = isDark ? "#93c5fd" : "#2563eb";
 
   const handlePrint = () => {
     if (contentRef.current) {
@@ -758,7 +793,7 @@ export default function ContractModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.85)",
+        backgroundColor: isDark ? "rgba(0, 0, 0, 0.85)" : "rgba(0, 0, 0, 0.5)",
         backdropFilter: "blur(8px)",
         padding: isMobile ? "0" : "20px",
       }}
@@ -766,14 +801,16 @@ export default function ContractModal({
     >
       <div
         style={{
-          backgroundColor: "#0f0f0f",
+          backgroundColor: panelBg,
           borderRadius: isMobile ? "0" : "16px",
           width: isMobile ? "100%" : "min(900px, 95vw)",
           height: isMobile ? "100%" : "min(90vh, 900px)",
           display: "flex",
           flexDirection: "column",
-          border: isMobile ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          border: isMobile ? "none" : `1px solid ${borderColor}`,
+          boxShadow: isDark 
+            ? "0 25px 50px -12px rgba(0, 0, 0, 0.5)" 
+            : "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
           overflow: "hidden",
         }}
       >
@@ -781,7 +818,7 @@ export default function ContractModal({
         <div
           style={{
             padding: isMobile ? "16px" : "20px 24px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            borderBottom: `1px solid ${borderColor}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -809,7 +846,7 @@ export default function ContractModal({
                 style={{
                   fontSize: isMobile ? "15px" : "18px",
                   fontWeight: "600",
-                  color: "#fff",
+                  color: headerText,
                   margin: 0,
                   whiteSpace: "nowrap",
                   overflow: "hidden",
@@ -821,7 +858,7 @@ export default function ContractModal({
               <p
                 style={{
                   fontSize: isMobile ? "11px" : "13px",
-                  color: "rgba(255, 255, 255, 0.5)",
+                  color: mutedText,
                   margin: 0,
                 }}
               >
@@ -836,9 +873,9 @@ export default function ContractModal({
                 width: isMobile ? "36px" : "40px",
                 height: isMobile ? "36px" : "40px",
                 borderRadius: "10px",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
+                border: `1px solid ${headerBtnBorder}`,
                 backgroundColor: "transparent",
-                color: "rgba(255, 255, 255, 0.6)",
+                color: headerBtnColor,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -855,9 +892,9 @@ export default function ContractModal({
                 width: isMobile ? "36px" : "40px",
                 height: isMobile ? "36px" : "40px",
                 borderRadius: "10px",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
+                border: `1px solid ${headerBtnBorder}`,
                 backgroundColor: "transparent",
-                color: "rgba(255, 255, 255, 0.6)",
+                color: headerBtnColor,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -874,8 +911,8 @@ export default function ContractModal({
         <div
           style={{
             padding: isMobile ? "10px 16px" : "12px 24px",
-            backgroundColor: "rgba(59, 130, 246, 0.08)",
-            borderBottom: "1px solid rgba(59, 130, 246, 0.2)",
+            backgroundColor: infoBannerBg,
+            borderBottom: `1px solid ${isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.15)"}`,
             display: "flex",
             alignItems: "flex-start",
             gap: "10px",
@@ -883,7 +920,7 @@ export default function ContractModal({
           }}
         >
           <Info size={16} color="#3b82f6" style={{ flexShrink: 0, marginTop: "2px" }} />
-          <span style={{ fontSize: isMobile ? "11px" : "13px", color: "#93c5fd", lineHeight: 1.4 }}>
+          <span style={{ fontSize: isMobile ? "11px" : "13px", color: infoBannerText, lineHeight: 1.4 }}>
             Aşağıdaki sözleşme kişisel bilgileriniz ile doldurulmuştur. Onaylamadan önce lütfen dikkatle okuyunuz.
           </span>
         </div>
@@ -906,6 +943,7 @@ export default function ContractModal({
               orderRefNumber={orderRefNumber}
               contractDate={contractDate}
               isMobile={isMobile}
+              isDark={isDark}
             />
           ) : (
             <TermsAndConditions
@@ -913,6 +951,7 @@ export default function ContractModal({
               orderRefNumber={orderRefNumber}
               contractDate={contractDate}
               isMobile={isMobile}
+              isDark={isDark}
             />
           )}
         </div>
@@ -921,12 +960,12 @@ export default function ContractModal({
         <div
           style={{
             padding: isMobile ? "16px" : "20px 24px",
-            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            borderTop: `1px solid ${borderColor}`,
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
             gap: "12px",
             flexShrink: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            backgroundColor: footerBg,
           }}
         >
           <button
@@ -956,9 +995,9 @@ export default function ContractModal({
             style={{
               padding: isMobile ? "14px" : "16px 24px",
               borderRadius: "12px",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
+              border: `1px solid ${closeBtnBorder}`,
               backgroundColor: "transparent",
-              color: "rgba(255, 255, 255, 0.7)",
+              color: closeBtnText,
               fontSize: isMobile ? "14px" : "15px",
               fontWeight: "500",
               cursor: "pointer",

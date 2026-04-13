@@ -48,11 +48,15 @@ interface SectionData {
   products: SectionProduct[];
 }
 
+function formatPrice(price: string): string {
+  return price.replace(/\.00$/, "");
+}
+
 const MOCK_PRODUCTS: SectionProduct[] = [
-  { title: "Ürün Adı 1", badge: "Yeni", spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000.00", image: null, link: "#" },
-  { title: "Ürün Adı 2", badge: null, spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000.00", image: null, link: "#" },
-  { title: "Ürün Adı 3", badge: null, spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000.00", image: null, link: "#" },
-  { title: "Ürün Adı 4", badge: null, spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000.00", image: null, link: "#" },
+  { title: "Ürün Adı 1", badge: "Yeni", spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000", image: null, link: "#" },
+  { title: "Ürün Adı 2", badge: null, spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000", image: null, link: "#" },
+  { title: "Ürün Adı 3", badge: null, spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000", image: null, link: "#" },
+  { title: "Ürün Adı 4", badge: null, spec1: "Özellik 1", spec2: "Özellik 2", price: "0,000", image: null, link: "#" },
 ];
 
 const MOCK_SECTION: SectionData = {
@@ -137,7 +141,7 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
                   </div>
                   {product.price && (
                     <div className="showcase-product-price">
-                      {product.price}<span className="currency">₺</span>
+                      {formatPrice(product.price)}<span className="currency">₺</span>
                     </div>
                   )}
                 </div>

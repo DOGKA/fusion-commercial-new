@@ -887,14 +887,14 @@
 }
 
 .showcase-product-price {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--foreground);
   margin-top: 4px;
 }
 
 .showcase-product-price .currency {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--foreground-tertiary);
   margin-left: 2px;
@@ -1594,4 +1594,16 @@ header.header-slider-light > div > div > nav button:hover,
 header.header-slider-light > div > div > .flex > a:hover,
 header.header-slider-light > div > div > .flex > button:hover {
   color: #1a1a1a;
+}
+
+/* Product Nav - Desktop hover */
+.product-desktop-nav-btn:hover {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #10B981 !important;
+  background-color: rgba(16, 185, 129, 0.06) !important;
+}
+
+.product-mobile-nav-chip:active {
+  opacity: 0.7;
+  transform: scale(0.97);
 }

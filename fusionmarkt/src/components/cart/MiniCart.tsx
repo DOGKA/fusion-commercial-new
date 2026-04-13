@@ -394,10 +394,9 @@ export default function MiniCart() {
               <Link
                 href="/magaza"
                 onClick={closeCart}
-                className="flex items-center gap-2 px-5 py-2.5 text-base font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-colors no-underline"
-                style={{ borderRadius: '14px' }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-foreground bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-500/30 rounded-full transition-all no-underline"
               >
-                <Sparkles size={18} />
+                <Sparkles size={12} />
                 Ürünleri Keşfet
               </Link>
             </div>
@@ -596,11 +595,10 @@ export default function MiniCart() {
                   <div className="w-10 h-10 bg-emerald-500/20 flex items-center justify-center" style={{ borderRadius: '10px' }}>
                     <Gift className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <div className="flex-1 space-y-0">
-                    <p className="text-[13px] font-semibold text-emerald-400 m-0 leading-tight">Ücretsiz Kargo Kazandınız! 🎉</p>
-                    <p className="text-[11px] text-emerald-400/60 m-0 leading-tight">Siparişiniz ücretsiz kargo ile gönderilecek</p>
+                  <div className="flex-1" style={{ lineHeight: 1.2 }}>
+                    <p className="text-[13px] font-semibold text-emerald-400" style={{ margin: 0, padding: 0 }}>Ücretsiz Kargo Kazandınız! 🎉</p>
+                    <p className="text-[11px] text-emerald-400/60" style={{ margin: '2px 0 0 0', padding: 0 }}>Siparişiniz ücretsiz kargo ile gönderilecek</p>
                   </div>
-                  <Truck className="w-5 h-5 text-emerald-400/60" />
                 </div>
               ) : (
                 // Ücretsiz kargoya ne kadar kaldı

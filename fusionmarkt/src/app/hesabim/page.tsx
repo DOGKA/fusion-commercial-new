@@ -271,13 +271,6 @@ export default function HesabimPage() {
                 {/* User Info */}
                 <div className="p-6 border-b border-border">
                   <div className="flex flex-col items-center text-center">
-                    <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 flex items-center justify-center overflow-hidden mb-4 border-2 border-emerald-500/20">
-                      {avatarUrl && (avatarUrl.startsWith("/") || avatarUrl.startsWith("http") || avatarUrl.startsWith("data:")) ? (
-                        <Image src={avatarUrl} alt={user.name || "Profil"} fill sizes="96px" className="object-cover" />
-                      ) : (
-                        <User size={32} className="text-emerald-400" />
-                      )}
-                    </div>
                     <span className="text-[19px] font-semibold text-foreground truncate w-full block">{user.name || "Kullanıcı"}</span>
                     <p className="text-[15px] text-foreground-muted truncate w-full mt-0.5">{user.email}</p>
                   </div>
@@ -1177,14 +1170,6 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
       {/* Welcome - with profile picture on mobile */}
       <div className="pb-5 border-b border-border">
         <div className="flex items-center gap-4">
-          {/* Profile Picture - Only visible on mobile (lg:hidden) */}
-          <div className="lg:hidden relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 flex items-center justify-center overflow-hidden border-2 border-emerald-500/20 flex-shrink-0">
-            {isValidAvatar ? (
-              <Image src={avatarUrl} alt={user.name || "Profil"} fill sizes="96px" className="object-cover" />
-            ) : (
-              <User size={28} className="text-emerald-400" />
-            )}
-          </div>
           <div>
             <span className="text-[18px] font-medium text-foreground block mb-1">
               Merhaba, {user.name || "Kullanıcı"} 👋
@@ -1255,9 +1240,9 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
                     <Package size={18} className={config.color} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="order-number-text text-[13px] font-mono text-foreground">#{order.orderNumber}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${config.bgColor} ${config.color}`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-[13px] font-mono text-foreground truncate">#{order.orderNumber}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded flex-shrink-0 ${config.bgColor} ${config.color}`}>
                         {config.label}
                       </span>
                     </div>
@@ -1278,9 +1263,9 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
           <div className="flex-1 flex items-center justify-center text-center border border-dashed border-border rounded-xl bg-foreground/[0.01] py-8">
             <div>
               <p className="text-[15px] text-foreground-muted mb-5">Henüz siparişiniz yok</p>
-              <Link href="/magaza" className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all">
+              <Link href="/magaza" className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all">
                 Alışverişe Başla
-                <ChevronRight size={14} />
+                <ChevronRight size={12} />
               </Link>
             </div>
           </div>
@@ -1791,7 +1776,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
     return (
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between pb-4 border-b border-border">
-          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
+          <span className="text-[15px] font-medium text-foreground">Siparişlerim</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -1808,18 +1793,18 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
     return (
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between pb-4 border-b border-border">
-          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
+          <span className="text-[15px] font-medium text-foreground">Siparişlerim</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <div className="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
             <AlertCircle size={24} className="text-red-400" />
           </div>
-          <p className="text-[16px] text-foreground-tertiary mb-1">{error}</p>
+          <p className="text-[13px] text-foreground-tertiary mb-1">{error}</p>
           <button
             onClick={fetchOrders}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all mt-4"
+            className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all mt-4"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={12} />
             Tekrar Dene
           </button>
         </div>
@@ -1832,20 +1817,20 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
     return (
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between pb-4 border-b border-border">
-          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
+          <span className="text-[15px] font-medium text-foreground">Siparişlerim</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center pt-8">
           <div className="w-14 h-14 rounded-xl bg-glass-bg flex items-center justify-center mb-4">
             <Package size={24} className="text-foreground-disabled" />
           </div>
-          <p className="text-[16px] text-foreground-tertiary mb-1">Henüz siparişiniz yok</p>
-          <p className="text-[15px] text-foreground-muted mb-5">İlk siparişinizi vermek için mağazayı ziyaret edin</p>
+          <p className="text-[13px] text-foreground-tertiary mb-1">Henüz siparişiniz yok</p>
+          <p className="text-[12px] text-foreground-muted mb-5">İlk siparişinizi vermek için mağazayı ziyaret edin</p>
           <Link 
             href="/magaza"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+            className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
           >
             Mağazaya Git
-            <ChevronRight size={14} />
+            <ChevronRight size={12} />
           </Link>
         </div>
       </div>
@@ -1858,14 +1843,14 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <span className="text-[17px] font-medium text-foreground">Siparişlerim</span>
+          <span className="text-[15px] font-medium text-foreground">Siparişlerim</span>
           <span className="text-[12px] px-2 py-0.5 rounded-full bg-glass-bg-hover text-foreground-tertiary">
             {filteredOrders.length}/{orders.length} sipariş
           </span>
         </div>
         <button
           onClick={fetchOrders}
-          className="p-2 rounded-lg hover:bg-glass-bg-hover transition-colors"
+          className="account-icon-btn p-2 rounded-lg hover:bg-glass-bg-hover transition-colors"
           title="Yenile"
         >
           <RefreshCw size={16} className="text-foreground-muted" />
@@ -1887,7 +1872,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-glass-bg-hover transition-colors"
+              className="account-icon-btn absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-glass-bg-hover transition-colors"
             >
               <XCircle size={14} className="text-foreground-muted" />
             </button>
@@ -1963,10 +1948,14 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                     <span>{formatDate(order.createdAt)}</span>
                     <span>•</span>
                     <span>{order.items.length} ürün</span>
-                    <span>•</span>
-                    <span className={paymentConfig?.color || 'text-foreground-muted'}>
-                      {paymentConfig?.label || order.paymentStatus}
-                    </span>
+                    {order.status !== "PENDING" && (
+                      <>
+                        <span>•</span>
+                        <span className={paymentConfig?.color || 'text-foreground-muted'}>
+                          {paymentConfig?.label || order.paymentStatus}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -2074,7 +2063,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/urun/${item.product.slug}`}
-                            className="text-[13px] text-foreground hover:text-emerald-400 transition-colors line-clamp-1"
+                            className="text-[13px] text-foreground hover:text-emerald-400 transition-colors line-clamp-2"
                           >
                             {item.product.name}
                           </Link>
@@ -2137,7 +2126,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                         </div>
                         <button
                           onClick={() => copyTrackingNumber(order.trackingNumber!)}
-                          className="p-2 rounded-lg bg-glass-bg-hover hover:bg-glass-bg-hover transition-colors"
+                          className="account-icon-btn p-2 rounded-lg bg-glass-bg-hover hover:bg-glass-bg-hover transition-colors"
                           title="Takip numarasını kopyala"
                         >
                           {copiedTracking === order.trackingNumber ? (
@@ -2153,9 +2142,9 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                           href={getTrackingUrl(order.carrierName, order.trackingNumber)!}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg text-[13px] font-medium hover:bg-purple-500/30 transition-all"
+                          className="account-btn w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-full text-[11px] font-medium hover:bg-purple-500/30 transition-all"
                         >
-                          <ExternalLink size={14} />
+                          <ExternalLink size={12} />
                           Kargoyu Takip Et
                         </a>
                       ) : (
@@ -2356,9 +2345,9 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                                 fetchRequestStatus(order.orderNumber);
                                 setCancelModalOrder(order);
                               }}
-                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[13px] font-medium hover:bg-red-500/20 hover:border-red-500/30 transition-all"
+                              className="account-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-full text-[11px] font-medium hover:bg-red-500/20 hover:border-red-500/30 transition-all"
                             >
-                              <XCircle size={14} />
+                              <XCircle size={12} />
                               Siparişi İptal Et
                             </button>
                           )}
@@ -2370,9 +2359,9 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                                 fetchRequestStatus(order.orderNumber);
                                 setReturnModalOrder(order);
                               }}
-                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-lg text-[13px] font-medium hover:bg-purple-500/20 hover:border-purple-500/30 transition-all"
+                              className="account-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-full text-[11px] font-medium hover:bg-purple-500/20 hover:border-purple-500/30 transition-all"
                             >
-                              <RefreshCw size={14} />
+                              <RefreshCw size={12} />
                               İade Talebi Oluştur
                             </button>
                           )}
@@ -2403,7 +2392,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
               <h3 className="text-[16px] font-semibold text-foreground">Sipariş İptali</h3>
               <button
                 onClick={closeModals}
-                className="p-1.5 rounded-lg hover:bg-glass-bg-hover transition-colors"
+                className="account-icon-btn p-1.5 rounded-lg hover:bg-glass-bg-hover transition-colors"
               >
                 <X size={18} className="text-foreground-muted" />
               </button>
@@ -2449,14 +2438,14 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
               <div className="flex gap-3 p-4 border-t border-border">
                 <button
                   onClick={closeModals}
-                  className="flex-1 px-4 py-2.5 bg-glass-bg border border-border text-foreground rounded-lg text-[14px] font-medium hover:bg-glass-bg-hover transition-all"
+                  className="account-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-glass-bg border border-border text-foreground rounded-full text-[11px] font-medium hover:bg-glass-bg-hover transition-all"
                 >
                   Vazgeç
                 </button>
                 <button
                   onClick={handleCancelRequest}
                   disabled={cancelLoading}
-                  className="flex-1 px-4 py-2.5 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-[14px] font-medium hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="account-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-500/20 border border-red-500/30 text-red-400 rounded-full text-[11px] font-medium hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {cancelLoading ? (
                     <>
@@ -2489,7 +2478,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
               <h3 className="text-[16px] font-semibold text-foreground">İade Talebi</h3>
               <button
                 onClick={closeModals}
-                className="p-1.5 rounded-lg hover:bg-glass-bg-hover transition-colors"
+                className="account-icon-btn p-1.5 rounded-lg hover:bg-glass-bg-hover transition-colors"
               >
                 <X size={18} className="text-foreground-muted" />
               </button>
@@ -2569,7 +2558,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                             <button
                               type="button"
                               onClick={() => removeReturnImage(index)}
-                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="account-icon-btn absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <X size={12} />
                             </button>
@@ -2613,14 +2602,14 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
               <div className="flex gap-3 p-4 border-t border-border">
                 <button
                   onClick={closeModals}
-                  className="flex-1 px-4 py-2.5 bg-glass-bg border border-border text-foreground rounded-lg text-[14px] font-medium hover:bg-glass-bg-hover transition-all"
+                  className="account-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-glass-bg border border-border text-foreground rounded-full text-[11px] font-medium hover:bg-glass-bg-hover transition-all"
                 >
                   Vazgeç
                 </button>
                 <button
                   onClick={handleReturnRequest}
                   disabled={returnLoading || !returnReason}
-                  className="flex-1 px-4 py-2.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 rounded-lg text-[14px] font-medium hover:bg-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="account-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 rounded-full text-[11px] font-medium hover:bg-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {returnLoading ? (
                     <>
@@ -2782,13 +2771,13 @@ function AddressesPane({ userName }: { userName?: string }) {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-border">
-        <span className="text-[17px] font-medium text-foreground">Adreslerim</span>
+        <span className="text-[15px] font-medium text-foreground">Adreslerim</span>
         {showForm && (
           <button 
             onClick={handleCancelEdit}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[15px] font-medium hover:bg-glass-bg-hover transition-all"
+            className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-glass-bg border border-border-hover text-foreground rounded-full text-[11px] font-medium hover:bg-glass-bg-hover transition-all"
           >
-            <X size={14} />
+            <X size={12} />
             İptal
           </button>
         )}
@@ -2863,22 +2852,22 @@ function AddressesPane({ userName }: { userName?: string }) {
               className="w-full mt-1 px-3 py-2 bg-glass-bg border border-border rounded-lg text-[12px] text-foreground placeholder:text-foreground-disabled outline-none focus:border-emerald-500/40 resize-none"
             />
           </div>
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.isDefault}
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-                className="w-4 h-4 rounded border-border bg-glass-bg text-emerald-500 focus:ring-emerald-500/20"
+                className="w-3 h-3 rounded border-border bg-glass-bg text-emerald-500 focus:ring-emerald-500/20"
               />
               <span className="text-[11px] text-foreground-tertiary">Varsayılan adres</span>
             </label>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50"
+              className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50"
             >
-              {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {loading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
               {loading ? "Kaydediliyor..." : editingId ? "Güncelle" : "Kaydet"}
             </button>
           </div>
@@ -2905,29 +2894,29 @@ function AddressesPane({ userName }: { userName?: string }) {
                   <p className="text-[12px] text-foreground-tertiary">{addr.district}, {addr.city}</p>
                   <p className="text-[12px] text-foreground-tertiary">{addr.phone}</p>
                 </div>
-                <div className="flex flex-col gap-2 pt-3 border-t border-border">
+                <div className="flex flex-col gap-1.5 pt-3 border-t border-border">
                   {!addr.isDefault && (
                     <button
                       onClick={() => handleSetDefault(addr.id)}
-                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[13px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+                      className="account-btn w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
                     >
-                      <Star size={14} />
+                      <Star size={12} />
                       Varsayılan Yap
                     </button>
                   )}
-                  <div className="flex items-center gap-2">
+                  <div className="account-addr-actions grid grid-cols-2 gap-1.5">
                     <button
                       onClick={() => handleEdit(addr)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[13px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+                      className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
                     >
-                      <Edit2 size={14} />
+                      <Edit2 size={12} />
                       Düzenle
                     </button>
                     <button
                       onClick={() => handleDelete(addr.id)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[13px] font-medium hover:bg-glass-bg-hover transition-all"
+                      className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-glass-bg border border-border-hover text-foreground rounded-full text-[11px] font-medium hover:bg-glass-bg-hover transition-all"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                       Sil
                     </button>
                   </div>
@@ -2940,14 +2929,14 @@ function AddressesPane({ userName }: { userName?: string }) {
             <div className="w-12 h-12 rounded-lg bg-glass-bg flex items-center justify-center mb-3">
               <MapPin size={20} className="text-foreground-disabled" />
             </div>
-            <p className="text-[16px] text-foreground-tertiary mb-1">Kayıtlı adresiniz yok</p>
+            <p className="text-[13px] text-foreground-tertiary mb-1">Kayıtlı adresiniz yok</p>
             <p className="text-[15px] text-foreground-muted mb-5">Hızlı ödeme için adres ekleyin</p>
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
+              className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
             >
               Adres Ekle
-              <ChevronRight size={14} />
+              <ChevronRight size={12} />
             </button>
           </div>
         ) : null}
@@ -3138,47 +3127,6 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
 
   return (
     <div className="account-details-form space-y-5">
-      {/* Profile Photo Section */}
-      <div className="flex items-center gap-4 pb-4 border-b border-border">
-        <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 border-2 border-emerald-500/20 flex items-center justify-center overflow-hidden">
-          {avatarLoading ? (
-            <Loader2 size={24} className="animate-spin text-emerald-400/50" />
-          ) : isValidImageUrl ? (
-            <Image src={avatarUrl} alt="Avatar" fill sizes="96px" className="object-cover" />
-          ) : (
-            <User size={32} className="text-emerald-400" />
-          )}
-        </div>
-        <div className="space-y-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleAvatarUpload}
-            className="hidden"
-          />
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[17px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
-            >
-              <Camera size={16} />
-              Yükle
-            </button>
-            {isValidImageUrl && (
-              <button
-                onClick={handleAvatarDelete}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[17px] font-medium hover:bg-glass-bg-hover transition-all"
-              >
-                <Trash2 size={16} />
-                Kaldır
-              </button>
-            )}
-          </div>
-          <p className="text-[12px] text-foreground-muted">JPEG, PNG, WebP • Max 5MB</p>
-        </div>
-      </div>
-
       {/* Profile Info */}
       <div className="space-y-3">
         <span className="text-[14px] font-medium text-foreground-tertiary block">Kişisel Bilgiler</span>
@@ -3240,13 +3188,13 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
             handleSaveProfile();
           }}
           disabled={saving || saved}
-          className={`account-save-btn inline-flex items-center gap-2 px-5 py-3 rounded-lg text-[16px] font-medium transition-all disabled:opacity-50 ${
+          className={`account-btn account-save-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all disabled:opacity-50 ${
             saved 
               ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-400" 
               : "bg-emerald-500/10 border border-emerald-500/20 text-foreground hover:bg-emerald-500/25 hover:border-emerald-500/30"
           }`}
         >
-          {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} className="text-emerald-400" /> : <Save size={16} />}
+          {saving ? <Loader2 size={12} className="animate-spin" /> : saved ? <Check size={12} className="text-emerald-400" /> : <Save size={12} />}
           {saving ? "Kaydediliyor..." : saved ? "Kaydedildi" : "Kaydet"}
         </button>
       </div>
@@ -3261,9 +3209,9 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
           <button
             onClick={handleSendPasswordResetLink}
             disabled={passwordLoading}
-            className="account-password-btn inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-lg text-[14px] sm:text-[15px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50 w-full sm:w-auto"
+            className="account-btn account-password-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all disabled:opacity-50 w-full sm:w-auto"
           >
-            {passwordLoading ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
+            {passwordLoading ? <Loader2 size={12} className="animate-spin" /> : <Lock size={12} />}
             {passwordLoading ? "Gönderiliyor..." : "Şifre Sıfırlama Linki Gönder"}
           </button>
         </div>
@@ -3287,9 +3235,9 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
       <div className="account-logout-section pt-4">
         <button
           onClick={onLogout}
-          className="account-logout-btn w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[15px] font-medium hover:bg-red-500/20 hover:border-red-500/30 transition-all"
+          className="account-btn account-logout-btn w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-full text-[11px] font-medium hover:bg-red-500/20 hover:border-red-500/30 transition-all"
         >
-          <LogOut size={18} />
+          <LogOut size={12} />
           <span>Çıkış Yap</span>
         </button>
       </div>
@@ -3313,17 +3261,17 @@ function FavoritesPane() {
       <div className="h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-border">
-          <span className="text-[20px] font-medium text-foreground">Favorilerim</span>
+          <span className="text-[15px] font-medium text-foreground">Favorilerim</span>
         </div>
         
         {/* Empty State - Only CTA */}
         <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
           <Link 
             href="/magaza"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 rounded-xl text-[17px] font-medium transition-all shadow-lg shadow-pink-500/25 text-white"
+            className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-foreground rounded-full text-[11px] font-medium hover:bg-emerald-500/25 hover:border-emerald-500/30 transition-all"
           >
             Ürünleri Keşfet
-            <ChevronRight size={18} className="text-white" />
+            <ChevronRight size={12} />
           </Link>
         </div>
       </div>
@@ -3334,14 +3282,14 @@ function FavoritesPane() {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-border">
-        <span className="text-[20px] font-medium text-foreground">Favorilerim</span>
+        <span className="text-[15px] font-medium text-foreground">Favorilerim</span>
         <div className="flex items-center gap-3">
           <span className="text-[15px] text-foreground-muted">{items.length} ürün</span>
           <button
             onClick={clearFavorites}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-glass-bg border border-border-hover text-foreground rounded-lg text-[17px] font-medium hover:bg-glass-bg-hover transition-all"
+            className="account-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-glass-bg border border-border-hover text-foreground rounded-full text-[11px] font-medium hover:bg-glass-bg-hover transition-all"
           >
-            <Trash2 size={14} />
+            <Trash2 size={12} />
             Temizle
           </button>
         </div>
@@ -3397,7 +3345,7 @@ function FavoritesPane() {
             {/* Remove Button */}
             <button
               onClick={() => removeItem(item.productId, item.variant?.id)}
-              className="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 bg-glass-bg border border-border-hover text-foreground rounded-lg hover:bg-glass-bg-hover transition-all self-center"
+              className="account-icon-btn flex-shrink-0 inline-flex items-center justify-center w-8 h-8 bg-glass-bg border border-border-hover text-foreground rounded-lg hover:bg-glass-bg-hover transition-all self-center"
             >
               <X size={12} />
             </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useRef, useMemo, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -253,6 +253,12 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   // Adet seçimi
   const [quantity, setQuantity] = useState(1);
   
+  // Sibling products (prev/next in same category)
+  const [siblingProducts, setSiblingProducts] = useState<{
+    prev: { slug: string; name: string; thumbnail?: string } | null;
+    next: { slug: string; name: string; thumbnail?: string } | null;
+  }>({ prev: null, next: null });
+
   // Favorites
   const { isFavorite, toggleItem } = useFavorites();
 
@@ -260,6 +266,11 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
   const isDark = mounted && resolvedTheme === "dark";
+
+  const cleanedDescriptionHtml = useMemo(
+    () => productData?.description ? cleanHtmlContent(productData.description) : '',
+    [productData?.description]
+  );
 
   // Açıklama yüksekliğini kontrol et - kısa içeriklerde buton gösterme
   useEffect(() => {
@@ -306,6 +317,23 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
 
     fetchProduct();
   }, [slug]);
+
+  // Fetch sibling products (prev/next in same category)
+  useEffect(() => {
+    if (!slug || !productData?.category) return;
+    const fetchSiblings = async () => {
+      try {
+        const res = await fetch(`/api/public/products/${slug}/siblings`);
+        if (res.ok) {
+          const data = await res.json();
+          setSiblingProducts(data);
+        }
+      } catch (error) {
+        console.error("Error fetching siblings:", error);
+      }
+    };
+    fetchSiblings();
+  }, [slug, productData?.category]);
 
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -553,6 +581,47 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', paddingTop: '120px' }}>
       <div className="product-page-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
         
+        {/* MOBILE NAV BAR - Kategori chip + Prev/Next (mobilde görselin üstünde) */}
+        {product.category && (
+          <div className="product-mobile-nav" style={{ display: 'none' }}>
+            <a 
+              href={`/kategori/${product.category.slug || product.category.name?.toLowerCase().replace(/\s+/g, '-')}`}
+              className="product-mobile-nav-chip flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-[var(--glass-bg)] text-[11px] text-foreground-secondary whitespace-nowrap leading-none"
+            >
+              <span className="flex items-center justify-center" style={{ color: "#10B981" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </span>
+              <span className="whitespace-nowrap">{product.category.name}</span>
+            </a>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {siblingProducts.prev && (
+                <a
+                  href={`/urun/${siblingProducts.prev.slug}`}
+                  className="product-mobile-nav-btn flex-shrink-0 flex items-center justify-center px-2 py-2 rounded-lg border border-border bg-[var(--glass-bg)] leading-none"
+                  aria-label="Önceki ürün"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </a>
+              )}
+              {siblingProducts.next && (
+                <a
+                  href={`/urun/${siblingProducts.next.slug}`}
+                  className="product-mobile-nav-btn flex-shrink-0 flex items-center justify-center px-2 py-2 rounded-lg border border-border bg-[var(--glass-bg)] leading-none"
+                  aria-label="Sonraki ürün"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* HERO - 3 Kolon */}
         <div 
           className="product-hero-grid"
@@ -822,41 +891,99 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
           }}>
             {/* Üst Kısım - Flex Grow */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {/* Kategori Etiketi - Tıklanabilir Link */}
+            {/* Kategori + Prev/Next Nav (Desktop) */}
             {product.category && (
-              <div style={{ marginBottom: '8px' }}>
+              <div className="product-desktop-nav" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px' }}>
                 <a 
                   href={`/kategori/${product.category.slug || product.category.name?.toLowerCase().replace(/\s+/g, '-')}`}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
-                    padding: '5px 10px',
+                    padding: '6px 12px',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     border: '1px solid rgba(16, 185, 129, 0.25)',
                     borderRadius: '8px',
-                    fontSize: '9px',
+                    fontSize: '11px',
                     fontWeight: '500',
                     color: '#10B981',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     textDecoration: 'none',
                     transition: 'all 0.2s ease',
+                    flexShrink: 0,
                   }}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m12 19-7-7 7-7" />
-                    <path d="M19 12H5" />
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6" />
                   </svg>
                   {product.category.name}
                 </a>
+                {(siblingProducts.prev || siblingProducts.next) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {siblingProducts.prev && (
+                      <a
+                        href={`/urun/${siblingProducts.prev.slug}`}
+                        className="product-desktop-nav-btn"
+                        title={siblingProducts.prev.name}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '5px 12px',
+                          backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                          border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          fontWeight: '500',
+                          color: 'var(--foreground-muted)',
+                          textDecoration: 'none',
+                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m15 18-6-6 6-6" />
+                        </svg>
+                        Önceki Ürün
+                      </a>
+                    )}
+                    {siblingProducts.next && (
+                      <a
+                        href={`/urun/${siblingProducts.next.slug}`}
+                        className="product-desktop-nav-btn"
+                        title={siblingProducts.next.name}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '5px 12px',
+                          backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                          border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          fontWeight: '500',
+                          color: 'var(--foreground-muted)',
+                          textDecoration: 'none',
+                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Sonraki Ürün
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
             {/* Brand */}
             {product.brand && (
-              <p style={{ fontSize: '10px', color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
-                {product.brand}
+              <p style={{ fontSize: '10px', color: 'var(--foreground-muted)', letterSpacing: '0.1em', marginBottom: '6px' }}>
+                {product.brand.toLocaleUpperCase('en-US')}
               </p>
             )}
 
@@ -1245,13 +1372,13 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                               borderRadius: '16px',
                               backgroundColor: isProductFavorite 
                                 ? 'rgba(236, 72, 153, 0.15)' 
-                                : (isDark ? '#000000' : '#ffffff'),
+                                : (isDark ? 'rgba(255,255,255,0.06)' : '#ffffff'),
                               border: isProductFavorite 
                                 ? '1px solid rgba(236, 72, 153, 0.5)' 
-                                : (isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--border)'),
+                                : (isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid var(--border)'),
                               color: isProductFavorite 
                                 ? '#ec4899' 
-                                : (isDark ? '#ffffff' : '#3a3a3a'),
+                                : (isDark ? 'rgba(255,255,255,0.7)' : '#3a3a3a'),
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -1847,7 +1974,7 @@ export default function SingleProductView({ slug }: SingleProductViewProps) {
                         <div 
                           className="product-description-content"
                           style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
-                          dangerouslySetInnerHTML={{ __html: cleanHtmlContent(product.description) }} 
+                          dangerouslySetInnerHTML={{ __html: cleanedDescriptionHtml }} 
                         />
                       </div>
                       {/* Gradient Overlay - sadece uzun içeriklerde ve kapalıyken göster */}
