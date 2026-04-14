@@ -95,6 +95,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const sliderRef = useRef<HTMLElement>(null);
+  const isAutoPlayingRef = useRef(true);
 
   // Mobil kontrolu
   useEffect(() => {
@@ -183,15 +184,18 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
     const titleLuminance = (0.299 * tR + 0.587 * tG + 0.114 * tB) / 255;
     const slideTheme = titleLuminance > 0.5 ? "dark" : "light";
 
-    const root = document.documentElement;
-    root.style.setProperty("--slider-color-from", from);
-    root.style.setProperty("--slider-color-to", to);
-    root.style.setProperty("--slider-color-overlay", overlay);
-    root.style.setProperty("--slider-color-btn", btnBg || from);
-    root.setAttribute("data-slider-theme", slideTheme);
+    const rafId = requestAnimationFrame(() => {
+      const root = document.documentElement;
+      root.style.setProperty("--slider-color-from", from);
+      root.style.setProperty("--slider-color-to", to);
+      root.style.setProperty("--slider-color-overlay", overlay);
+      root.style.setProperty("--slider-color-btn", btnBg || from);
+      root.setAttribute("data-slider-theme", slideTheme);
+    });
 
     return () => {
-      root.removeAttribute("data-slider-theme");
+      cancelAnimationFrame(rafId);
+      document.documentElement.removeAttribute("data-slider-theme");
     };
   }, [currentSlide, slides, mounted, resolvedTheme]);
 
@@ -205,6 +209,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
     lastTouchX.current = e.touches[0].clientX;
     lastTouchTime.current = Date.now();
     velocityRef.current = 0;
+    isAutoPlayingRef.current = false;
     setIsAutoPlaying(false);
   };
 
@@ -239,8 +244,10 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       }
     }
     
-    // Reset and resume autoplay after a delay
-    setTimeout(() => setIsAutoPlaying(true), 3000);
+    setTimeout(() => {
+      isAutoPlayingRef.current = true;
+      setIsAutoPlaying(true);
+    }, 3000);
   };
 
   // Loading state

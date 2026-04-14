@@ -33,9 +33,13 @@ async function getInitialSliders() {
 
 export default async function Home() {
   const initialSlides = await getInitialSliders();
+  const firstSlideImage = initialSlides[0]?.desktopImage;
 
   return (
     <main className="flex flex-col">
+      {firstSlideImage && (
+        <link rel="preload" as="image" href={firstSlideImage} fetchPriority="high" />
+      )}
       <h1 className="sr-only">
         Taşınabilir Güç Kaynağı, Solar Panel ve Portable Power Station - FusionMarkt
       </h1>

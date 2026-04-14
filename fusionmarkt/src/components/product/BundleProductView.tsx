@@ -146,6 +146,7 @@ interface Review {
 
 interface BundleProductViewProps {
   slug?: string;
+  initialData?: (ProductData & { items?: BundleItem[] }) | null;
 }
 
 interface BundleItem {
@@ -234,8 +235,8 @@ function cleanHtmlContent(html: string): string {
     .replace(/\s{2,}/g, ' ')
     // 12. height ve width attribute'larını kaldır (görsellerin responsive olması için)
     .replace(/\s(height|width)="[^"]*"/gi, '')
-    // 13. img tag'lere lazy loading ve async decoding ekle
-    .replace(/<img(?![^>]*loading=)/gi, '<img loading="lazy" decoding="async"');
+    // 13. img tag'lere lazy loading, async decoding ve CLS-önleyici aspect-ratio ekle
+    .replace(/<img(?![^>]*loading=)/gi, '<img loading="lazy" decoding="async" style="aspect-ratio:16/9;width:100%;height:auto"');
   
   return cleaned;
 }
@@ -261,7 +262,7 @@ const SQUIRCLE = {
   md: '14px',
 };
 
-export default function BundleProductView({ slug }: BundleProductViewProps) {
+export default function BundleProductView({ slug, initialData }: BundleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("Açıklama");
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
@@ -269,8 +270,8 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   const descriptionRef = useRef<HTMLDivElement>(null);
   
   // countdown artık KargoTimer component'inden geliyor
-  const [productData, setProductData] = useState<ProductData | null>(null);
-  const [loading, setLoading] = useState(!!slug);
+  const [productData, setProductData] = useState<ProductData | null>(initialData || null);
+  const [loading, setLoading] = useState(!!slug && !initialData);
   
   // Varyant seçimi
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -307,7 +308,7 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   }, [productData?.description, activeTab]);
 
   // Bundle state'leri
-  const [bundleItems, setBundleItems] = useState<BundleItem[]>([]);
+  const [bundleItems, setBundleItems] = useState<BundleItem[]>(initialData?.items || []);
   const [relatedBundles, setRelatedBundles] = useState<RelatedBundle[]>([]);
   
   // Seçilen varyasyonlar: { productId: variantId }
@@ -687,11 +688,28 @@ export default function BundleProductView({ slug }: BundleProductViewProps) {
   };
 
 
-  // Loading state
+  // Loading state - skeleton that mirrors the actual hero layout to prevent CLS
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', paddingTop: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="bg-background">
-        <div style={{ fontSize: '14px' }} className="text-foreground-muted">Yükleniyor...</div>
+      <div style={{ minHeight: '100vh', paddingTop: '120px' }} className="bg-background">
+        <div className="product-page-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          <div className="product-hero-grid" style={{ display: 'grid', gridTemplateColumns: '80px 600px 600px', gap: '16px', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {[0,1,2,3].map(i => (
+                <div key={i} style={{ width: '72px', height: '72px', borderRadius: '10px', backgroundColor: 'var(--border)', opacity: 0.3, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              ))}
+            </div>
+            <div className="product-main-image-column" style={{ width: '600px', height: '600px', borderRadius: '14px', backgroundColor: 'var(--border)', opacity: 0.2, animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div className="product-info-column" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
+              <div style={{ width: '60%', height: '14px', borderRadius: '6px', backgroundColor: 'var(--border)', opacity: 0.3 }} />
+              <div style={{ width: '80%', height: '28px', borderRadius: '8px', backgroundColor: 'var(--border)', opacity: 0.25 }} />
+              <div style={{ width: '40%', height: '36px', borderRadius: '8px', backgroundColor: 'var(--border)', opacity: 0.2 }} />
+              <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--border)', opacity: 0.3 }} />
+              <div style={{ width: '70%', height: '14px', borderRadius: '6px', backgroundColor: 'var(--border)', opacity: 0.2 }} />
+              <div style={{ width: '50%', height: '14px', borderRadius: '6px', backgroundColor: 'var(--border)', opacity: 0.2 }} />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

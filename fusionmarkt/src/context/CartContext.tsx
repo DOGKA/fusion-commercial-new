@@ -122,11 +122,7 @@ export function CartProvider({ children }: CartProviderProps) {
 
   // Add item with animation trigger (supports both products and bundles)
   const addItem = useCallback(async (newItem: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => {
-    // Trigger animation
     setIsAnimating(true);
-    
-    // Simulate async operation (API call in real scenario)
-    await new Promise((resolve) => setTimeout(resolve, 800));
     
     setItems((prevItems) => {
       // Check if item already exists

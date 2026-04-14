@@ -68,7 +68,29 @@ export default function BlogContent({ content, title }: BlogContentProps) {
       .replace(/^(<p>\s*<br\s*\/?>\s*<\/p>\s*)+/gi, "");
 
     // Sanitize HTML
-    return sanitizeHtml(processedContent);
+    let sanitized = sanitizeHtml(processedContent);
+
+    // Optimize S3 images: route through Next.js image optimizer for compression + format conversion
+    let blogImgIndex = 0;
+    sanitized = sanitized.replace(
+      /<img([^>]*)src="(https:\/\/fusionmarkt\.s3\.eu-central-1\.amazonaws\.com\/[^"]+)"([^>]*)>/gi,
+      (_match, before, url, after) => {
+        const optimizedSrc = `/_next/image?url=${encodeURIComponent(url)}&w=1200&q=75`;
+        blogImgIndex++;
+        if (blogImgIndex === 1) {
+          return `<img${before}src="${optimizedSrc}" loading="eager" fetchpriority="high" decoding="async"${after}>`;
+        }
+        return `<img${before}src="${optimizedSrc}" loading="lazy" decoding="async"${after}>`;
+      }
+    );
+
+    // Add lazy loading to any remaining images without loading attr
+    sanitized = sanitized.replace(
+      /<img(?![^>]*loading=)([^>]*)>/gi,
+      '<img loading="lazy" decoding="async"$1>'
+    );
+
+    return sanitized;
   }, [content, title]);
 
   if (!sanitizedContent) {

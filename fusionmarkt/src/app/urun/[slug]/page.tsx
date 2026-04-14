@@ -77,7 +77,7 @@ async function getBundle(slug: string) {
         items: {
           include: {
             product: {
-              select: { id: true, price: true, stock: true },
+              select: { id: true, name: true, slug: true, thumbnail: true, price: true, comparePrice: true, stock: true, brand: true, shortDescription: true },
             },
           },
         },
@@ -112,6 +112,85 @@ async function getBundle(slug: string) {
     console.error("Error fetching bundle for SEO:", error);
     return null;
   }
+}
+
+// Prisma product → JSON-safe client data (Decimal → number, Date → string)
+function serializeProductForClient(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>) {
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: Number(product.price) || 0,
+    comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
+    images: (product.images as string[]) || [],
+    thumbnail: product.thumbnail || undefined,
+    brand: product.brand || undefined,
+    description: product.description || undefined,
+    shortDescription: product.shortDescription || undefined,
+    stock: product.stock || 0,
+    freeShipping: product.freeShipping || false,
+    sku: product.sku || undefined,
+    videoUrl: product.videoUrl || undefined,
+    category: product.category ? {
+      id: product.category.id,
+      name: product.category.name,
+      slug: product.category.slug,
+    } : undefined,
+    variants: (product.variants || []).map(v => ({
+      id: v.id,
+      name: v.name || '',
+      type: v.type || '',
+      value: v.value || '',
+      colorCode: v.colorCode || null,
+      image: v.image || null,
+      price: v.price ? Number(v.price) : null,
+      salePrice: v.salePrice ? Number(v.salePrice) : null,
+      stock: v.stock || 0,
+      sku: v.sku || null,
+      isActive: v.isActive,
+    })),
+  };
+}
+
+// Prisma bundle → JSON-safe client data
+function serializeBundleForClient(bundle: NonNullable<Awaited<ReturnType<typeof getBundle>>>) {
+  return {
+    id: bundle.id,
+    name: bundle.name,
+    slug: bundle.slug,
+    price: Number(bundle.price) || 0,
+    comparePrice: bundle.comparePrice ? Number(bundle.comparePrice) : null,
+    images: (bundle.images as string[]) || [],
+    thumbnail: bundle.thumbnail || undefined,
+    brand: bundle.brand || undefined,
+    description: bundle.description || undefined,
+    shortDescription: bundle.shortDescription || undefined,
+    stock: bundle.stock || 0,
+    sku: bundle.sku || undefined,
+    videoUrl: bundle.videoUrl || undefined,
+    category: bundle.category ? {
+      id: bundle.category.id,
+      name: bundle.category.name,
+      slug: bundle.category.slug,
+    } : undefined,
+    items: (bundle.items || []).map((item: { id: string; quantity: number; variantId?: string | null; product: { id: string; name: string; slug: string; thumbnail: string | null; price: unknown; comparePrice?: unknown; stock: number; brand?: string | null; shortDescription?: string | null } | null }) => ({
+      id: item.id,
+      quantity: item.quantity,
+      variantId: item.variantId || null,
+      variant: null as null,
+      product: item.product ? {
+        id: item.product.id,
+        name: item.product.name,
+        slug: item.product.slug,
+        thumbnail: item.product.thumbnail,
+        price: Number(item.product.price) || 0,
+        comparePrice: item.product.comparePrice ? Number(item.product.comparePrice) : null,
+        stock: item.product.stock,
+        brand: item.product.brand || undefined,
+        shortDescription: item.product.shortDescription || undefined,
+      } : null,
+    })),
+  };
 }
 
 // Dinamik metadata oluşturucu
@@ -259,7 +338,7 @@ export default async function ProductPage({ params }: Props) {
         <JsonLd data={[productSchema, breadcrumbSchema]} />
         
         {/* Product View Component */}
-        <SingleProductView slug={slug} />
+        <SingleProductView slug={slug} initialData={serializeProductForClient(product)} />
       </>
     );
   }
@@ -317,7 +396,7 @@ export default async function ProductPage({ params }: Props) {
         <JsonLd data={[productSchema, breadcrumbSchema]} />
         
         {/* Bundle View Component */}
-        <BundleProductView slug={slug} />
+        <BundleProductView slug={slug} initialData={serializeBundleForClient(bundle)} />
       </>
     );
   }
