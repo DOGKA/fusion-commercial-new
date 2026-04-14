@@ -1816,6 +1816,15 @@
     min-height: unset !important;
     min-width: unset !important;
   }
+
+  /* Checkout payment page - radio/checkbox kendi boyutlarını kullanır */
+  .checkout-page input[type="radio"],
+  .checkout-page input[type="checkbox"] {
+    min-height: unset !important;
+    min-width: unset !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
   
   /* Input alanları daha büyük */
   input[type="text"],
