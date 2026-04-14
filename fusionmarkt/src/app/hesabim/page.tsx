@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { 
-  Eye, EyeOff, Shield, Check, LogOut, User, Package, 
+  Eye, EyeOff, Shield, Check, LogOut, Package, 
   MapPin, Heart, Settings, ChevronRight, Loader2, 
   LayoutDashboard, Camera, Lock,
   X, Trash2, Save, Edit2, Star,
@@ -1161,9 +1161,6 @@ function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { 
     CANCELLED: { label: "İptal", color: "text-red-400", bgColor: "bg-red-500/10" },
     REFUNDED: { label: "İade", color: "text-gray-400", bgColor: "bg-gray-500/10" },
   };
-
-  // Check if valid avatar URL
-  const isValidAvatar = avatarUrl && (avatarUrl.startsWith("/") || avatarUrl.startsWith("http") || avatarUrl.startsWith("data:"));
 
   return (
     <div className="h-full flex flex-col">
@@ -2968,8 +2965,6 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarLoading, setAvatarLoading] = useState(false);
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -3037,93 +3032,6 @@ function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout
     }
     setPasswordLoading(false);
   };
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      showNotification("error", "Sadece JPEG, PNG ve WebP formatları desteklenir");
-      return;
-    }
-    
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      showNotification("error", "Dosya boyutu 5MB'dan küçük olmalıdır");
-      return;
-    }
-    
-    // Preview immediately
-    const reader = new FileReader();
-    reader.onload = (e) => setAvatarUrl(e.target?.result as string);
-    reader.readAsDataURL(file);
-    
-    setAvatarLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("avatar", file);
-      
-      const res = await fetch("/api/user/avatar", {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        // Add cache buster to force browser refresh
-        const cacheBustedUrl = `${data.avatarUrl}?t=${Date.now()}`;
-        setAvatarUrl(cacheBustedUrl);
-        // Refresh session with new avatar
-        await updateSession({
-          user: {
-            ...user,
-            image: data.avatarUrl,
-          }
-        });
-        showNotification("success", "Profil fotoğrafı yüklendi");
-      } else {
-        const errorData = await res.json();
-        showNotification("error", errorData.error || "Yükleme başarısız");
-        // Revert preview
-        setAvatarUrl(user.image || null);
-      }
-    } catch (e) {
-      console.error(e);
-      showNotification("error", "Yükleme sırasında bir hata oluştu");
-      setAvatarUrl(user.image || null);
-    }
-    setAvatarLoading(false);
-  };
-
-  const handleAvatarDelete = async () => {
-    setAvatarLoading(true);
-    try {
-      const res = await fetch("/api/user/avatar", { method: "DELETE" });
-      if (res.ok) {
-        setAvatarUrl(null);
-        // Refresh session with null avatar
-        await updateSession({
-          user: {
-            ...user,
-            image: null,
-          }
-        });
-        showNotification("success", "Profil fotoğrafı kaldırıldı");
-      } else {
-        const errorData = await res.json();
-        showNotification("error", errorData.error || "Silme başarısız");
-      }
-    } catch (e) {
-      console.error(e);
-      showNotification("error", "Silme sırasında bir hata oluştu");
-    }
-    setAvatarLoading(false);
-  };
-
-  const isValidImageUrl = avatarUrl && (avatarUrl.startsWith("/") || avatarUrl.startsWith("http") || avatarUrl.startsWith("data:"));
 
   return (
     <div className="account-details-form space-y-5">

@@ -735,8 +735,6 @@ export default function ContractModal({
 
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const mutedText = isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.45)";
-  const secondaryText = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.5)";
-  const secondaryTextStrong = isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.6)";
   const headerText = isDark ? "#fff" : "#111";
   const panelBg = isDark ? "#0f0f0f" : "#ffffff";
   const headerBtnBorder = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
