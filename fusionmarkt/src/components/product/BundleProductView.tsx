@@ -235,8 +235,8 @@ function cleanHtmlContent(html: string): string {
     .replace(/\s{2,}/g, ' ')
     // 12. height ve width attribute'larını kaldır (görsellerin responsive olması için)
     .replace(/\s(height|width)="[^"]*"/gi, '')
-    // 13. img tag'lere lazy loading, async decoding ve CLS-önleyici aspect-ratio ekle
-    .replace(/<img(?![^>]*loading=)/gi, '<img loading="lazy" decoding="async" style="aspect-ratio:16/9;width:100%;height:auto"');
+    // 13. img tag'lere lazy loading ve async decoding ekle (aspect-ratio yok: detay görselleri uzun infografik olabilir)
+    .replace(/<img(?![^>]*loading=)/gi, '<img loading="lazy" decoding="async" style="width:100%;height:auto"');
   
   return cleaned;
 }
