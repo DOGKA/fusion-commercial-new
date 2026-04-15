@@ -357,8 +357,8 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             fill 
             sizes="100vw"
             className="object-cover object-center"
-            priority
-            fetchPriority="high"
+            priority={currentSlide === 0}
+            fetchPriority={currentSlide === 0 ? "high" : "auto"}
           />
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && overlayOpacity > 0 && (

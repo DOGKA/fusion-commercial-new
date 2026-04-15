@@ -1596,6 +1596,18 @@ header.header-slider-light > div > div > .flex > button:hover {
   color: #1a1a1a;
 }
 
+/* Dropdown menu is independent from slider — uses its own theme colors */
+header.header-slider-dark .header-dropdown a,
+header.header-slider-light .header-dropdown a {
+  color: var(--foreground-tertiary);
+  transition: color 0.2s ease;
+}
+
+header.header-slider-dark .header-dropdown a:hover,
+header.header-slider-light .header-dropdown a:hover {
+  color: var(--foreground);
+}
+
 /* Product Nav - Desktop hover */
 .product-desktop-nav-btn:hover {
   border-color: rgba(16, 185, 129, 0.3) !important;

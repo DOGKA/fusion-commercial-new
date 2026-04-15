@@ -220,7 +220,7 @@ export default function Header() {
                     {/* Dropdown */}
                     {activeDropdown === item.name && (
                       <div className="absolute top-full left-0 pt-2">
-                        <div className="bg-surface/95 backdrop-blur-xl border border-border rounded-xl py-2 min-w-[220px] shadow-2xl">
+                        <div className="header-dropdown bg-surface/95 backdrop-blur-xl border border-border rounded-xl py-2 min-w-[220px] shadow-2xl">
                           {item.submenu.map((sub) => (
                             <Link
                               key={sub.name}
