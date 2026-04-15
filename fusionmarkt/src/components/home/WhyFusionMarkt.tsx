@@ -12,8 +12,8 @@ const BENEFITS = [
   },
   {
     icon: ShieldCheck,
-    title: "Test Edilmiş Ürünler",
-    subtitle: "Her ürün satışa sunulmadan önce ekibimiz tarafından kontrol edilir.",
+    title: "VDE Kontrollü Sevkiyat",
+    subtitle: "Orijinal fabrika kutusunda sevk edilir. Ürünler kutulanmadan önce VDE gerekliliği doğrultusunda teknik ekip tarafından kontrol edilir.",
   },
   {
     icon: RotateCcw,
