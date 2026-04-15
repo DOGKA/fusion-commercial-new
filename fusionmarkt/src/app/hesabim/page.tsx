@@ -88,31 +88,6 @@ export default function HesabimPage() {
     setTimeout(() => setNotification(null), 3000);
   };
   
-  // Compute avatar URL from user data with cache buster
-  // Cache buster ref - sadece bir kez oluşturulur
-  const cacheBusterRef = useRef<string | null>(null);
-  
-  // Sync avatar to state when user image changes
-  const prevUserImageRef = useRef(user?.image);
-  useEffect(() => {
-    if (user?.image !== prevUserImageRef.current) {
-      prevUserImageRef.current = user?.image;
-      // Yeni cache buster oluştur
-      cacheBusterRef.current = Math.random().toString(36).substring(2, 9);
-      
-      queueMicrotask(() => {
-        if (!user?.image) {
-          setAvatarUrl(null);
-        } else if (user.image.startsWith("data:")) {
-          setAvatarUrl(user.image);
-        } else {
-          const separator = user.image.includes("?") ? "&" : "?";
-          setAvatarUrl(`${user.image}${separator}t=${cacheBusterRef.current}`);
-        }
-      });
-    }
-  }, [user?.image]);
-  
   // Login/Register state
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [loginEmail, setLoginEmail] = useState("");
