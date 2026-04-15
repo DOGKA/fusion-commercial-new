@@ -79,9 +79,6 @@ export default function HesabimPage() {
   // Shared order expansion state (for navigating from Dashboard to specific order)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   
-  // Avatar state (shared between sidebar and account pane)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  
   // Notification state
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
   
@@ -318,10 +315,10 @@ export default function HesabimPage() {
                 className="account-content-card bg-background border border-border rounded-2xl p-6"
                 style={{ height: `${CONTAINER_HEIGHT}px` }}
               >
-                {activeTab === "pano" && <DashboardPane user={user} setActiveTab={setActiveTab} setExpandedOrderId={setExpandedOrderId} avatarUrl={avatarUrl} />}
+                {activeTab === "pano" && <DashboardPane user={user} setActiveTab={setActiveTab} setExpandedOrderId={setExpandedOrderId} />}
                 {activeTab === "siparisler" && <OrdersPane initialExpandedOrder={expandedOrderId} onExpandChange={setExpandedOrderId} />}
                 {activeTab === "adresler" && <AddressesPane userName={user.name || undefined} />}
-                {activeTab === "hesap" && <AccountPane user={user} avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl} showNotification={showNotification} onLogout={handleLogout} />}
+                {activeTab === "hesap" && <AccountPane user={user} showNotification={showNotification} onLogout={handleLogout} />}
                 {activeTab === "favoriler" && <FavoritesPane />}
                 
                 {/* Global Notification */}
@@ -1108,7 +1105,7 @@ export default function HesabimPage() {
 // DASHBOARD PANES - Minimal TSParticle Style
 // ═══════════════════════════════════════════════════════════════════════════
 
-function DashboardPane({ user, setActiveTab, setExpandedOrderId, avatarUrl }: { user: UserType; setActiveTab: (tab: DashboardTab) => void; setExpandedOrderId: (id: string | null) => void; avatarUrl?: string | null }) {
+function DashboardPane({ user, setActiveTab, setExpandedOrderId }: { user: UserType; setActiveTab: (tab: DashboardTab) => void; setExpandedOrderId: (id: string | null) => void }) {
   const { itemCount: favoriteCount } = useFavorites();
   const { itemCount: cartCount } = useCart();
   const [orderCount, setOrderCount] = useState(0);
@@ -2944,13 +2941,11 @@ function AddressesPane({ userName }: { userName?: string }) {
 
 interface AccountPaneProps {
   user: UserType;
-  avatarUrl: string | null;
-  setAvatarUrl: (url: string | null) => void;
   showNotification: (type: "success" | "error", message: string) => void;
   onLogout: () => void;
 }
 
-function AccountPane({ user, avatarUrl, setAvatarUrl, showNotification, onLogout }: AccountPaneProps) {
+function AccountPane({ user, showNotification, onLogout }: AccountPaneProps) {
   const { update: updateSession } = useSession();
   // Ad ve Soyad'ı ayır
   const nameParts = (user.name || "").split(" ");
