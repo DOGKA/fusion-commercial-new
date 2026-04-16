@@ -235,85 +235,82 @@ export default function SystemDiagram() {
 
             {/* ==================== ENERJİ AKIŞ ÇİZGİLERİ ==================== */}
 
-            {/* 1. Güneş → SH4000 (batarya şarjı - kesinti ve restore modlarında aktif) */}
-            <g className={isNormal ? 'opacity-15' : 'opacity-100'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M180 135 L265 135 L265 295 L350 295" fill="none" stroke={solarColor} strokeWidth="3" opacity="0.6" />
-              {!isNormal && (
+            {/* 1. Güneş → SH4000 (kesinti ve restore modlarında aktif) */}
+            {!isNormal && (
+              <g className="opacity-100">
+                <path d="M180 135 L265 135 L265 295 L350 295" fill="none" stroke={solarColor} strokeWidth="3" opacity="0.6" />
                 <circle r="7" fill={solarColor} filter="url(#glow)">
                   <animateMotion dur="2s" repeatCount="indefinite" path="M180 135 L265 135 L265 295 L350 295" />
                 </circle>
-              )}
-            </g>
+              </g>
+            )}
 
-            {/* 2. Şebeke → SH4000 (batarya şarjı) */}
-            {/* Normal: düşük opaklık (opsiyonel) | Kesinti: kapalı | Restore: AKTIF ve belirgin */}
-            <g className={isRestore ? 'opacity-100' : 'opacity-10'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M860 345 L650 345" fill="none" stroke={isRestore ? restoreColor : lineColor} strokeWidth={isRestore ? 3.5 : 2.5} strokeDasharray={isRestore ? undefined : '8 4'} />
-              {isRestore && (
-                <circle r={8} fill={restoreColor} filter="url(#glow)">
+            {/* 2. Şebeke → SH4000 (sadece restore modunda aktif) */}
+            {isRestore && (
+              <g className="opacity-100">
+                <path d="M860 345 L650 345" fill="none" stroke={restoreColor} strokeWidth="3.5" />
+                <circle r="8" fill={restoreColor} filter="url(#glow)">
                   <animateMotion dur="2s" repeatCount="indefinite" path="M860 345 L650 345" />
                 </circle>
-              )}
-              {isRestore && (
                 <text x="755" y="338" textAnchor="middle" fill={restoreColor} style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.1em' }} opacity="0.8">ŞARJ</text>
-              )}
-            </g>
+              </g>
+            )}
 
             {/* 3. BY-PASS: Şebeke → doğrudan Normal Yük (normal + restore) */}
-            <g className={bypassActive ? 'opacity-100' : 'opacity-0'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M860 400 L860 490 L420 490 L420 510" fill="none" stroke={bypassColor} strokeWidth="3.5" opacity="0.7" />
-              {bypassActive && (
+            {bypassActive && (
+              <g className="opacity-100">
+                <path d="M860 400 L860 490 L420 490 L420 510" fill="none" stroke={bypassColor} strokeWidth="3.5" opacity="0.7" />
                 <circle r="8" fill={bypassColor} filter="url(#glow)">
                   <animateMotion dur="2.5s" repeatCount="indefinite" path="M860 400 L860 490 L420 490 L420 510" />
                 </circle>
-              )}
-              <text x="640" y="483" textAnchor="middle" fill={bypassColor} style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.1em' }} opacity="0.8">BY-PASS</text>
-            </g>
+                <text x="640" y="483" textAnchor="middle" fill={bypassColor} style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.1em' }} opacity="0.8">BY-PASS</text>
+              </g>
+            )}
 
             {/* 4. BY-PASS: Şebeke → doğrudan Araç Şarjı (normal + restore, dallanma) */}
-            <g className={bypassActive ? 'opacity-100' : 'opacity-0'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M700 490 L700 530" fill="none" stroke={bypassColor} strokeWidth="3.5" opacity="0.7" />
-              {bypassActive && (
+            {bypassActive && (
+              <g className="opacity-100">
+                <path d="M700 490 L700 530" fill="none" stroke={bypassColor} strokeWidth="3.5" opacity="0.7" />
                 <circle r="6" fill={bypassColor} filter="url(#glow)">
                   <animateMotion dur="0.8s" repeatCount="indefinite" path="M700 490 L700 530" />
                 </circle>
-              )}
-            </g>
+              </g>
+            )}
 
-            {/* 5. SH4000 → Normal Yük (inverter - sadece kesinti modunda aktif) */}
-            <g className={batteryFeeding ? 'opacity-100' : 'opacity-15'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M420 470 L420 510" fill="none" stroke={batteryFeeding ? emergencyColor : lineColor} strokeWidth="3" />
-              {batteryFeeding && (
+            {/* 5. SH4000 → Normal Yük (inverter - sadece kesinti modunda) */}
+            {batteryFeeding && (
+              <g className="opacity-100">
+                <path d="M420 470 L420 510" fill="none" stroke={emergencyColor} strokeWidth="3" />
                 <circle r="7" fill={emergencyColor} filter="url(#glow)">
                   <animateMotion dur="1.2s" repeatCount="indefinite" path="M420 470 L420 510" />
                 </circle>
-              )}
-            </g>
+              </g>
+            )}
 
-            {/* 6. SH4000 → Araç Şarjı (inverter - sadece kesinti modunda aktif) */}
-            <g className={batteryFeeding ? 'opacity-70' : 'opacity-15'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M580 470 L580 540 L632 540" fill="none" stroke={batteryFeeding ? emergencyColor : lineColor} strokeWidth="3" />
-              {batteryFeeding && (
+            {/* 6. SH4000 → Araç Şarjı (inverter - sadece kesinti modunda) */}
+            {batteryFeeding && (
+              <g className="opacity-70">
+                <path d="M580 470 L580 540 L632 540" fill="none" stroke={emergencyColor} strokeWidth="3" />
                 <circle r="7" fill={emergencyColor} filter="url(#glow)">
                   <animateMotion dur="1.8s" repeatCount="indefinite" path="M580 470 L580 540 L632 540" />
                 </circle>
-              )}
-            </g>
+              </g>
+            )}
 
             {/* 7. SH4000 → Monitör (her zaman aktif, kesikli) */}
             <g className="opacity-70">
               <path d="M650 200 L750 200 L750 125 L820 125" fill="none" stroke={lineColor} strokeWidth="2.5" strokeDasharray="10 5" />
             </g>
 
-            {/* 8. SH4000 → Acil Yük (sadece kesinti modunda aktif) */}
-            <g className={batteryFeeding ? 'opacity-100' : 'opacity-15'} style={{ transition: 'opacity 0.5s' }}>
-              <path d="M350 400 L265 400 L265 460 L180 460" fill="none" stroke={batteryFeeding ? emergencyColor : lineColor} strokeWidth="3" />
-              {batteryFeeding && (
+            {/* 8. SH4000 → Acil Yük (sadece kesinti modunda) */}
+            {batteryFeeding && (
+              <g className="opacity-100">
+                <path d="M350 400 L265 400 L265 460 L180 460" fill="none" stroke={emergencyColor} strokeWidth="3" />
                 <circle r="7" fill={emergencyColor} filter="url(#glow)">
                   <animateMotion dur="1.2s" repeatCount="indefinite" path="M350 400 L265 400 L265 460 L180 460" />
                 </circle>
-              )}
-            </g>
+              </g>
+            )}
 
           </svg>
 
