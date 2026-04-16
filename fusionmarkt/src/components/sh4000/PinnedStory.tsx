@@ -38,7 +38,7 @@ const scenes: Scene[] = [
     imageLabel: 'PV Panel Bağlantısı',
     imageSrc: '/sh4000/pv-800x800.webp',
     badge: 'ÇİFT MPPT GİRİŞ',
-    title: '3600W',
+    title: '3000W',
     highlight: '%99.9',
     description: 'HV ve LV çift MPPT girişi ile hem çatı panellerinden hem taşınabilir panellerden maksimum verim.',
     specs: [
