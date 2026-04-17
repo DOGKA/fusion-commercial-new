@@ -7,7 +7,6 @@ import { useCookieConsent } from "@/context/CookieConsentContext";
 
 interface TrackingSettings {
   googleAnalyticsId: string | null;
-  googleTagManagerId: string | null;
   facebookPixelId: string | null;
 }
 
@@ -15,9 +14,8 @@ function GoogleAnalyticsInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [settings, setSettings] = useState<TrackingSettings | null>(null);
-  const { canUseAnalytics, canUseMarketing } = useCookieConsent();
+  const { canUseMarketing } = useCookieConsent();
 
-  // Settings'i API'den çek
   useEffect(() => {
     async function fetchSettings() {
       try {
@@ -26,7 +24,6 @@ function GoogleAnalyticsInner() {
           const data = await res.json();
           setSettings({
             googleAnalyticsId: data.googleAnalyticsId,
-            googleTagManagerId: data.googleTagManagerId,
             facebookPixelId: data.facebookPixelId,
           });
         }
@@ -37,31 +34,26 @@ function GoogleAnalyticsInner() {
     fetchSettings();
   }, []);
 
-  // Sayfa değişikliklerinde pageview gönder
   useEffect(() => {
-    if (!settings?.googleAnalyticsId || !canUseAnalytics) return;
+    if (!settings?.googleAnalyticsId) return;
 
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
-    // GA4 pageview
     if (typeof window !== "undefined" && window.gtag) {
       window.gtag("config", settings.googleAnalyticsId, {
         page_path: url,
       });
     }
-  }, [pathname, searchParams, settings?.googleAnalyticsId, canUseAnalytics]);
+  }, [pathname, searchParams, settings?.googleAnalyticsId]);
 
-  // Settings yüklenmediyse veya ID yoksa hiçbir şey render etme
   if (!settings) return null;
 
-  const { googleAnalyticsId, googleTagManagerId, facebookPixelId } = settings;
-  const hasAnalyticsConsent = canUseAnalytics;
-  const hasMarketingConsent = canUseMarketing;
+  const { googleAnalyticsId, facebookPixelId } = settings;
 
   return (
     <>
-      {/* Google Analytics 4 */}
-      {googleAnalyticsId && hasAnalyticsConsent && (
+      {/* GA4 — Consent Mode v2 defaults are set in layout.tsx, safe to load always */}
+      {googleAnalyticsId && (
         <>
           <Script
             strategy="afterInteractive"
@@ -73,17 +65,7 @@ function GoogleAnalyticsInner() {
             dangerouslySetInnerHTML={{
               __html: `
                 window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                
-                gtag('consent', 'default', {
-                  'ad_storage': '${hasMarketingConsent ? "granted" : "denied"}',
-                  'analytics_storage': 'granted',
-                  'functionality_storage': 'granted',
-                  'personalization_storage': '${hasMarketingConsent ? "granted" : "denied"}',
-                  'security_storage': 'granted'
-                });
-                
+                if(!window.gtag){function gtag(){dataLayer.push(arguments);} window.gtag = gtag;}
                 gtag('config', '${googleAnalyticsId}', {
                   page_path: window.location.pathname,
                   anonymize_ip: true
@@ -94,36 +76,8 @@ function GoogleAnalyticsInner() {
         </>
       )}
 
-      {/* Google Tag Manager */}
-      {googleTagManagerId && hasAnalyticsConsent && (
-        <>
-          <Script
-            id="gtm-script"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','${googleTagManagerId}');
-              `,
-            }}
-          />
-          {/* GTM noscript - body içine eklenir */}
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        </>
-      )}
-
-      {/* Facebook Pixel */}
-      {facebookPixelId && hasMarketingConsent && (
+      {/* Facebook Pixel — marketing consent required */}
+      {facebookPixelId && canUseMarketing && (
         <Script
           id="facebook-pixel"
           strategy="afterInteractive"
@@ -147,7 +101,6 @@ function GoogleAnalyticsInner() {
   );
 }
 
-// Suspense wrapper for useSearchParams
 export default function GoogleAnalytics() {
   return (
     <Suspense fallback={null}>

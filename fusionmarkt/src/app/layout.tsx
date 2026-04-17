@@ -105,15 +105,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Global JSON-LD schemas
   const organizationSchema = generateOrganizationSchema();
   const webSiteSchema = generateWebSiteSchema();
+
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
   return (
     <html lang="tr" suppressHydrationWarning data-scroll-behavior="smooth" className="dark">
       <head>
-        {/* Blocking script to prevent flash of wrong theme (FOWT) */}
-        {/* Sets theme BEFORE React hydrates - runs synchronously */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -129,15 +129,78 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* External help/manual resource */}
+
+        {/* Consent Mode v2 defaults — MUST be before any Google tags */}
+        {(gtmId || googleAdsId) && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('consent', 'default', {
+                  'ad_storage': 'denied',
+                  'ad_user_data': 'denied',
+                  'ad_personalization': 'denied',
+                  'analytics_storage': 'denied',
+                  'functionality_storage': 'denied',
+                  'personalization_storage': 'denied',
+                  'security_storage': 'granted',
+                  'wait_for_update': 500
+                });
+              `,
+            }}
+          />
+        )}
+
+        {/* GTM — loads in initial HTML so bots can verify */}
+        {gtmId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','${gtmId}');`,
+            }}
+          />
+        )}
+
+        {/* Google Ads direct tag — belt-and-suspenders for Ads verification */}
+        {googleAdsId && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  if(!window.gtag){function gtag(){dataLayer.push(arguments);} window.gtag = gtag;}
+                  gtag('config', '${googleAdsId}');
+                `,
+              }}
+            />
+          </>
+        )}
+
         <link rel="help" href={siteConfig.resources.appManual.url} title={siteConfig.resources.appManual.name} />
-        {/* Global JSON-LD Structured Data */}
         <JsonLd data={[organizationSchema, webSiteSchema]} />
       </head>
       <body className={`${inter.variable} antialiased bg-background text-foreground`}>
+        {/* GTM noscript fallback */}
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
+
         <ThemeProvider>
           <CookieConsentProvider>
-            {/* Google Analytics, GTM, FB Pixel - API'den dinamik + Consent Mode v2 */}
             <GoogleAnalytics />
             
             <AuthProvider>
