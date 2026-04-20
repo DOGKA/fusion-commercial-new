@@ -49,7 +49,7 @@ interface SectionData {
 }
 
 function formatPrice(price: string): string {
-  return price.replace(/\.00$/, "");
+  return price.replace(/[.,]00$/, "");
 }
 
 const MOCK_PRODUCTS: SectionProduct[] = [
@@ -141,7 +141,7 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
                   </div>
                   {product.price && (
                     <div className="showcase-product-price">
-                      {formatPrice(product.price)}<span className="currency">₺</span>
+                      {formatPrice(product.price)} <span className="currency">₺</span>
                     </div>
                   )}
                 </div>
