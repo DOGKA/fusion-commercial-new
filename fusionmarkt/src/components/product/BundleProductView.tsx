@@ -1971,7 +1971,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                       {/* Puan */}
                       <div style={{ marginBottom: '16px' }}>
                         <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>Puanınız *</label>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexWrap: 'nowrap' }}>
                         {[1, 2, 3, 4, 5].map((star) => {
                           const isActive = (reviewHoverRating || reviewRating) >= star;
                           
@@ -1979,6 +1979,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             <button
                               key={star}
                               type="button"
+                              className="product-review-star-btn"
                               onMouseEnter={() => setReviewHoverRating(star)}
                               onMouseLeave={() => setReviewHoverRating(0)}
                               onClick={() => setReviewRating(star)}
@@ -1986,14 +1987,14 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                                 background: 'none', 
                                 border: 'none', 
                                 cursor: 'pointer', 
-                                padding: '6px',
+                                padding: '4px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                               }}
                             >
                               <Star 
-                                size={32} 
+                                size={24} 
                                 fill={isActive ? '#FBBF24' : 'transparent'} 
                                 stroke="#FBBF24" 
                                 strokeWidth={2}
@@ -2002,7 +2003,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                           );
                         })}
                         {reviewRating > 0 && (
-                          <span style={{ marginLeft: '8px', fontSize: '14px', color: '#FBBF24', fontWeight: '600' }}>
+                          <span style={{ marginLeft: '6px', fontSize: '13px', color: '#FBBF24', fontWeight: '600' }}>
                             {reviewRating} / 5
                           </span>
                         )}
@@ -2030,9 +2031,10 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             <input 
                               type="radio" 
                               name="namePreference" 
+                              className="product-review-radio"
                               checked={nameDisplayPreference === 'masked'} 
                               onChange={() => setNameDisplayPreference('masked')}
-                              style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
+                              style={{ accentColor: '#10B981', width: '14px', height: '14px' }}
                             />
                             <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
                               Yorumum <strong style={{ color: '#10B981' }}>{maskName(userName)}</strong> olarak gözüksün
@@ -2056,9 +2058,10 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             <input 
                               type="radio" 
                               name="namePreference" 
+                              className="product-review-radio"
                               checked={nameDisplayPreference === 'full'} 
                               onChange={() => setNameDisplayPreference('full')}
-                              style={{ accentColor: '#3B82F6', width: '16px', height: '16px' }}
+                              style={{ accentColor: '#3B82F6', width: '14px', height: '14px' }}
                             />
                             <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
                               Yorumum <strong style={{ color: '#3B82F6' }}>{userName}</strong> olarak gözüksün

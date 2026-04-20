@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 import Header from "@/components/layout/Header";
@@ -153,9 +154,11 @@ export default function RootLayout({
           />
         )}
 
-        {/* GTM — loads in initial HTML so bots can verify */}
+        {/* GTM — beforeInteractive ensures it's in initial HTML for bot verification */}
         {gtmId && (
-          <script
+          <Script
+            id="gtm-init"
+            strategy="beforeInteractive"
             dangerouslySetInnerHTML={{
               __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -169,9 +172,13 @@ export default function RootLayout({
         {/* Google Ads direct tag — belt-and-suspenders for Ads verification */}
         {googleAdsId && (
           <>
-            {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`} />
-            <script
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}
+              strategy="beforeInteractive"
+            />
+            <Script
+              id="google-ads-config"
+              strategy="beforeInteractive"
               dangerouslySetInnerHTML={{
                 __html: `
                   window.dataLayer = window.dataLayer || [];

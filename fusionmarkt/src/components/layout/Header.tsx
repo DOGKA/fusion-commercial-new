@@ -418,7 +418,7 @@ export default function Header() {
                     {item.name}
                     {item.name === "Güç Hesaplayıcı" && (
                       <span className="px-2 py-0.5 text-[10px] font-bold bg-[var(--fusion-primary)]/20 text-[var(--fusion-primary)] rounded">
-                        YENİ
+                        Simulator
                       </span>
                     )}
                     {item.name === "SH4000" && (

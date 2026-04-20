@@ -1662,21 +1662,6 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   POWER CALCULATOR - Güç Hesaplayıcı
-   Bazı grid'ler mobil breakpoint'siz
-───────────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 1023px) {
-  .power-calculator-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-  
-  .power-calculator-results {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
    GLOBAL MOBILE ADJUSTMENTS
    Tüm sayfalarda ortak mobil düzenlemeler
 ───────────────────────────────────────────────────────────────────────── */
@@ -1723,18 +1708,30 @@
     font-size: clamp(24px, 6vw, 36px) !important;
     line-height: 1.2 !important;
   }
-  
+
   h2, .text-3xl {
     font-size: clamp(20px, 5vw, 28px) !important;
   }
-  
+
   h3, .text-2xl {
     font-size: clamp(18px, 4vw, 24px) !important;
   }
-  
+
   /* Paragraf boyutu - daha iyi okunabilirlik */
   body {
     font-size: 15px !important;
+  }
+
+  /* Power Calculator - Tailwind font-size sınıflarının geçerli olabilmesi için
+     global h1/h2/h3 override'larını kaldır (Tailwind Preflight'ın font-size:inherit'ine dön) */
+  .power-calculator-page h1,
+  .power-calculator-page h2,
+  .power-calculator-page h3,
+  .power-calculator-page h4,
+  .power-calculator-page h5,
+  .power-calculator-page h6 {
+    font-size: inherit !important;
+    line-height: inherit !important;
   }
 }
 
@@ -1826,7 +1823,31 @@
     width: 16px !important;
     height: 16px !important;
   }
-  
+
+  /* Product detail review form - radio ve star butonları kendi boyutlarını kullanır */
+  .product-review-radio {
+    min-height: unset !important;
+    min-width: unset !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .product-review-star-btn {
+    min-height: unset !important;
+    min-width: unset !important;
+  }
+
+  /* Power Calculator - buton, link, badge ve ikonlar kendi Tailwind boyutlarını kullanır */
+  .power-calculator-page button,
+  .power-calculator-page a,
+  .power-calculator-page [role="button"],
+  .power-calculator-page span,
+  .power-calculator-page input[type="checkbox"],
+  .power-calculator-page input[type="radio"] {
+    min-height: unset !important;
+    min-width: unset !important;
+  }
+
   /* Input alanları daha büyük */
   input[type="text"],
   input[type="email"],
@@ -2113,8 +2134,8 @@
 
 /* Politika Sayfaları - Özel Düzenlemeler */
 @media (max-width: 1023px) {
-  /* Alert/Warning box'lar */
-  [class*="bg-"][class*="/10"][class*="border"] {
+  /* Alert/Warning box'lar - küçük badge/chip'leri muaf tut */
+  [class*="bg-"][class*="/10"][class*="border"]:not(.pc-result-badge):not([class*="rounded-full"]):not([class*="inline-flex"]) {
     padding: 0.875rem !important;
   }
   

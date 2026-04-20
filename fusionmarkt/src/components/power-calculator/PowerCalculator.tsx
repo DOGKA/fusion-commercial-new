@@ -31,8 +31,7 @@ import {
   BatteryCharging,
   Leaf,
   Power,
-  ShoppingCart,
-  ExternalLink,
+  ShoppingBag,
   Check,
   Pencil,
   GraduationCap,
@@ -352,7 +351,7 @@ export default function PowerCalculator() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="power-calculator-page max-w-5xl mx-auto px-4 py-8">
       {/* Step Indicator - Simple Minimal */}
       <div className="flex items-center justify-center mb-10">
         <div className="inline-flex items-center gap-2">
@@ -377,12 +376,12 @@ export default function PowerCalculator() {
                           : 'text-foreground/50 cursor-not-allowed'
                   }`}
                 >
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                    isCompleted ? 'bg-emerald-500 text-white' : isActive ? 'text-emerald-400' : 'text-foreground'
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                    isActive || isCompleted ? 'text-emerald-400' : 'text-foreground'
                   }`}>
-                    {isCompleted ? <Check size={14} /> : <Icon size={16} />}
+                    <Icon size={16} />
                   </div>
-                  <span className={`text-sm font-medium hidden lg:block ${
+                  <span className={`text-sm font-medium hidden lg:block transition-colors ${
                     isActive || isCompleted ? 'text-emerald-400' : 'text-foreground'
                   }`}>
                     {step.label}
@@ -413,8 +412,8 @@ export default function PowerCalculator() {
               </p>
             </div>
             
-            {/* Senaryolar - Mobil 2, Web 4 sütun */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-6">
+            {/* Senaryolar - Yatay liste: Mobil 1, Web 2 sütun */}
+            <div className="pc-scenario-grid gap-2 md:gap-3 mb-6">
               {SCENARIOS.map((scenario) => {
                 const Icon = SCENARIO_ICONS[scenario.icon] || Zap;
                 const isSelected = selectedScenario === scenario.id;
@@ -422,40 +421,41 @@ export default function PowerCalculator() {
                   <button
                     key={scenario.id}
                     onClick={() => handleScenarioSelect(scenario.id)}
-                    className={`group relative flex flex-col items-center gap-1 md:gap-2 p-2 md:p-3 rounded-lg md:rounded-xl border backdrop-blur-sm transition-all duration-300 ${
+                    className={`group relative flex items-center gap-3 p-3 md:p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 text-left ${
                       isSelected
-                        ? 'border-fusion-primary bg-fusion-primary/15 shadow-[0_0_20px_rgba(0,255,170,0.15)]'
+                        ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)]'
                         : 'border-border bg-surface-secondary hover:bg-background-hover hover:border-border-hover'
                     }`}
                   >
-                    {/* Icon */}
-                    <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg flex items-center justify-center transition-all ${
-                      isSelected 
-                        ? 'bg-fusion-primary text-white' 
-                        : 'bg-glass-bg text-foreground-secondary group-hover:bg-foreground/20 dark:group-hover:bg-white/20'
+                    <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 transition-all ${
+                      isSelected
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500/20'
                     }`}>
-                      <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                      <Icon className="w-5 h-5" />
                     </div>
-                    
-                    {/* Name */}
-                    <span className={`text-[10px] md:text-xs font-medium text-center leading-tight ${
-                      isSelected ? 'text-foreground' : 'text-foreground-secondary'
-                    }`}>
-                      {scenario.name}
-                    </span>
-                    
-                    {/* Values */}
-                    {scenario.dailyEnergy > 0 && (
-                      <div className="text-center">
-                        <span className={`text-[9px] md:text-[10px] font-semibold ${isSelected ? 'text-fusion-primary' : 'text-foreground-muted'}`}>
-                          {scenario.dailyEnergy}Wh
-                        </span>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-foreground truncate">
+                        {scenario.name}
                       </div>
+                      {scenario.description && (
+                        <div className="text-xs text-foreground-muted truncate">
+                          {scenario.description}
+                        </div>
+                      )}
+                    </div>
+
+                    {scenario.dailyEnergy > 0 && (
+                      <span className={`shrink-0 text-xs font-semibold px-2 py-1 rounded-md ${
+                        isSelected ? 'bg-emerald-500/20 text-emerald-500' : 'bg-background-secondary text-foreground-muted'
+                      }`}>
+                        {scenario.dailyEnergy}Wh
+                      </span>
                     )}
 
-                    {/* Check Mark */}
                     {isSelected && (
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-fusion-primary rounded-full flex items-center justify-center">
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
                         <Check className="w-2.5 h-2.5 text-white" />
                       </div>
                     )}
@@ -476,19 +476,19 @@ export default function PowerCalculator() {
               </button>
 
               {showDevicePanel && (
-                <div className="mt-4 p-4 glass-light rounded-xl">
+                <div className="mt-4 p-3 sm:p-4 glass-light rounded-xl">
                   {/* Hazır Cihazlar */}
-                  <p className="text-xs text-foreground-muted mb-3">Hızlı Ekle:</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <p className="text-[11px] sm:text-xs text-foreground-muted mb-2 sm:mb-3">Hızlı Ekle:</p>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
                     {PRESET_DEVICES.slice(0, 12).map((preset) => {
                       const Icon = DEVICE_ICONS[preset.id] || Zap;
                       return (
                         <button
                           key={preset.id}
                           onClick={() => handlePresetDeviceAdd(preset)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-glass-bg hover:bg-glass-bg-hover border border-glass-border rounded-full text-xs transition-colors"
+                          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-glass-bg hover:bg-glass-bg-hover border border-glass-border rounded-full text-[11px] sm:text-xs transition-colors"
                         >
-                          <Icon size={14} />
+                          <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           <span>{preset.name}</span>
                           <span className="text-foreground-muted">{preset.power}W</span>
                         </button>
@@ -498,11 +498,11 @@ export default function PowerCalculator() {
 
                   {/* Eklenen Cihazlar */}
                   {devices.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4 pt-3 border-t border-glass-border">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 pt-3 border-t border-glass-border">
                       {devices.map((device) => (
                         <div
                           key={device.id}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-fusion-primary/10 border border-fusion-primary/30 rounded-full text-xs"
+                          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-fusion-primary/10 border border-fusion-primary/30 rounded-full text-[11px] sm:text-xs"
                         >
                           <span>{device.name}: {device.dailyEnergy} Wh</span>
                           <button onClick={() => handleRemoveDevice(device.id)} className="text-foreground-muted hover:text-foreground">
@@ -514,9 +514,9 @@ export default function PowerCalculator() {
                   )}
 
                   {/* Manuel Cihaz Ekleme */}
-                  <div className="grid grid-cols-4 gap-3 pt-3 border-t border-glass-border">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 pt-3 border-t border-glass-border">
                     <div>
-                      <label className="block text-xs text-foreground-muted mb-1">Güç (W)</label>
+                      <label className="block text-[11px] sm:text-xs text-foreground-muted mb-1">Güç (W)</label>
                       <input
                         type="number"
                         value={devicePower}
@@ -525,7 +525,7 @@ export default function PowerCalculator() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-foreground-muted mb-1">Adet</label>
+                      <label className="block text-[11px] sm:text-xs text-foreground-muted mb-1">Adet</label>
                       <input
                         type="number"
                         value={deviceQty}
@@ -534,7 +534,7 @@ export default function PowerCalculator() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-foreground-muted mb-1">Saat/Gün</label>
+                      <label className="block text-[11px] sm:text-xs text-foreground-muted mb-1">Saat/Gün</label>
                       <input
                         type="number"
                         step="0.1"
@@ -543,8 +543,8 @@ export default function PowerCalculator() {
                         className="glass-input w-full text-sm"
                       />
                     </div>
-                    <div className="flex items-end">
-                      <button onClick={handleAddDevice} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors w-full">
+                    <div className="col-span-3 sm:col-span-1 sm:flex sm:items-end">
+                      <button onClick={handleAddDevice} className="px-4 py-2.5 sm:py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors w-full">
                         Ekle
                       </button>
                     </div>
@@ -552,14 +552,14 @@ export default function PowerCalculator() {
 
                   {/* Toplam */}
                   {(dailyEnergy > 0 || maxPower > 0) && (
-                    <div className="grid grid-cols-2 gap-4 mt-4 pt-3 border-t border-glass-border">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4 pt-3 border-t border-glass-border">
                       <div className="text-center">
-                        <div className="text-lg font-bold text-fusion-primary">{dailyEnergy.toLocaleString()} Wh</div>
-                        <div className="text-xs text-foreground-muted">Günlük Tüketim</div>
+                        <div className="text-base sm:text-lg font-bold text-fusion-primary">{dailyEnergy.toLocaleString()} Wh</div>
+                        <div className="text-[11px] sm:text-xs text-foreground-muted">Günlük Tüketim</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-lg font-bold text-fusion-secondary">{maxPower.toLocaleString()} W</div>
-                        <div className="text-xs text-foreground-muted">Maks. Güç</div>
+                        <div className="text-base sm:text-lg font-bold text-fusion-secondary">{maxPower.toLocaleString()} W</div>
+                        <div className="text-[11px] sm:text-xs text-foreground-muted">Maks. Güç</div>
                       </div>
                     </div>
                   )}
@@ -679,7 +679,7 @@ export default function PowerCalculator() {
             {/* Şarj Modu - Modern Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
               {[
-                { id: 'hybrid', label: 'Hibrit', icon: BatteryCharging, desc: 'AC + Solar', badge: 'Önerilen' },
+                { id: 'hybrid', label: 'Hibrit', icon: BatteryCharging, desc: 'Şebeke Prizi ve Güneş Enerjisi', badge: 'Önerilen' },
                 { id: 'solar-only', label: 'Solar', icon: Sun, desc: 'Sadece Güneş' },
                 { id: 'grid-only', label: 'Şebeke', icon: Plug, desc: 'Sadece Priz' },
                 { id: 'no-charge', label: 'Şarj Yok', icon: Power, desc: 'Kullanım' },
@@ -733,7 +733,16 @@ export default function PowerCalculator() {
                     <label className="block text-xs text-foreground-muted mb-2">Bulunduğunuz İl</label>
                     <select
                       value={selectedCity}
-                      onChange={(e) => setSelectedCity(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSelectedCity(value);
+                        if (value) {
+                          setTimeout(() => {
+                            setCurrentStep('results');
+                            handleCalculate();
+                          }, 300);
+                        }
+                      }}
                       className="w-full px-4 py-3 rounded-xl bg-surface-secondary border border-border text-foreground outline-none focus:border-fusion-primary transition-colors"
                     >
                       <option value="">— İl Seçin —</option>
@@ -794,14 +803,14 @@ export default function PowerCalculator() {
         {currentStep === 'results' && (
           <div className="animate-fade-in">
             {/* Tercihler - Compact */}
-            <div className="grid lg:grid-cols-2 gap-4 mb-8">
+            <div className="grid lg:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
               {/* Taşınabilirlik */}
-              <div className="p-4 rounded-xl bg-surface-secondary border border-border">
-                <div className="flex items-center gap-2 text-xs font-medium text-foreground-muted mb-3">
+              <div className="p-3 sm:p-4 rounded-xl bg-surface-secondary border border-border">
+                <div className="flex items-center gap-2 text-[11px] sm:text-xs font-medium text-foreground-muted mb-2.5 sm:mb-3">
                   <Leaf size={14} className="text-emerald-400" />
                   Taşınabilirlik
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                   {[
                     { id: 'auto', label: 'Otomatik' },
                     { id: 'compact', label: 'Kompakt' },
@@ -812,7 +821,7 @@ export default function PowerCalculator() {
                       <button
                         key={opt.id}
                         onClick={() => setPortability(opt.id as PortabilityPriority)}
-                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium transition-all ${
                           isSelected
                             ? 'bg-emerald-500 text-white'
                             : 'bg-surface-secondary text-foreground-muted hover:bg-background-hover hover:text-foreground'
@@ -827,12 +836,12 @@ export default function PowerCalculator() {
 
               {/* Şarj Hızı */}
               {(chargeMode === 'hybrid' || chargeMode === 'solar-only') && (
-                <div className="p-4 rounded-xl bg-surface-secondary border border-border">
-                  <div className="flex items-center gap-2 text-xs font-medium text-foreground-muted mb-3">
+                <div className="p-3 sm:p-4 rounded-xl bg-surface-secondary border border-border">
+                  <div className="flex items-center gap-2 text-[11px] sm:text-xs font-medium text-foreground-muted mb-2.5 sm:mb-3">
                     <Zap size={14} className="text-amber-400" />
                     Şarj Hızı
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                     {[
                       { id: 'economic', label: 'Ekonomik' },
                       { id: 'balanced', label: 'Dengeli' },
@@ -843,7 +852,7 @@ export default function PowerCalculator() {
                         <button
                           key={opt.id}
                           onClick={() => setChargeSpeed(opt.id as ChargeSpeedPreference)}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                          className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium transition-all ${
                             isSelected
                               ? 'bg-amber-500 text-white'
                               : 'bg-surface-secondary text-foreground-muted hover:bg-background-hover hover:text-foreground'
@@ -861,211 +870,185 @@ export default function PowerCalculator() {
             {/* Sonuçlar */}
             {result && (
               <>
-                <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
-                  <Check size={24} className="text-emerald-500" />
+                <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2">
+                  <Check className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
                   Önerilen Ürünler
                 </h2>
 
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
-              {/* Güç Kaynağı */}
-              <div className="flex flex-col">
-                {/* Başlık */}
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Battery className="text-fusion-primary w-4 h-4" />
-                  <span className="text-xs md:text-sm font-semibold text-foreground">Güç İstasyonu</span>
-                </div>
-
-                {result.powerStation.station && (
-                  <div className="border border-border rounded-xl overflow-hidden flex flex-col">
-                    {/* ÜST: Görsel 1:1, kartın üst kenarına yapışık, padding yok */}
-                    <div className="relative aspect-square bg-neutral-900">
+            <div className="pc-results-grid grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+              {/* Önerilen Ürünler - Sonuç Kartları (2-col on lg+) */}
+              {/* Güç İstasyonu - Yatay Kart */}
+              {result.powerStation.station && (
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <Battery className="text-fusion-primary w-4 h-4" />
+                      <span className="text-sm font-semibold text-foreground">Güç İstasyonu</span>
+                    </div>
+                    <span className="pc-result-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap leading-none">
+                      <Check className="w-3 h-3" />
+                      %{result.powerStation.sufficiency} Yeterli
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center gap-3 sm:gap-4 md:gap-3 lg:gap-5 p-3 sm:p-4 md:p-3 lg:p-5 rounded-2xl bg-surface-overlay border border-border transition-all">
+                    <div className="relative aspect-square w-[108px] sm:w-[170px] md:w-[140px] lg:w-[190px] rounded-xl overflow-hidden bg-background-secondary shrink-0">
                       <Image
                         src={dbProducts[result.powerStation.station.id]?.image || result.powerStation.station.image || `/images/products/${result.powerStation.station.slug}.webp`}
                         alt={result.powerStation.station.name}
                         fill
-                        sizes="50vw"
+                        sizes="(max-width: 640px) 108px, (max-width: 768px) 170px, (max-width: 1024px) 140px, 190px"
                         className="object-cover"
                         unoptimized
                       />
-                      <div className="absolute top-1.5 right-1.5 bg-emerald-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
-                        %{result.powerStation.sufficiency}
-                      </div>
                     </div>
 
-                    {/* ALT: içerik */}
-                    <div className="p-2 flex flex-col gap-2 bg-surface-secondary">
-                      {/* Ürün Adı */}
-                      <div>
-                      <h4 className="text-[11px] md:text-sm font-bold text-foreground leading-tight truncate">
+                    <div className="flex-1 min-w-0 flex flex-col py-0.5 sm:py-1">
+                      <h3 className="text-sm sm:text-base lg:text-lg font-bold text-foreground leading-tight line-clamp-1">
                         {result.powerStation.station.name}
-                      </h4>
-                        <p className="text-[9px] text-foreground-secondary">
-                          LiFePO4 Batarya
-                        </p>
-                      </div>
+                      </h3>
 
-                      {/* Stats: 2x2 grid, her hücre ayrı */}
-                      <div className="grid grid-cols-2 gap-1 text-[9px] md:text-[10px]">
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Kapasite</span>
-                          <span className="text-foreground font-bold">{result.powerStation.capacity} Wh</span>
+                      <div className="flex-1 flex flex-col justify-center gap-1.5 sm:gap-1.5 lg:gap-2 my-1.5 sm:my-2 lg:my-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Kapasite</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.capacity} Wh</span>
                         </div>
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Çıkış</span>
-                          <span className="text-foreground font-bold">{result.powerStation.outputPower} W</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Çıkış</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.outputPower} W</span>
                         </div>
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Tepe</span>
-                          <span className="text-foreground font-bold">{result.powerStation.station.surgePower} W</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Tepe</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.station.surgePower} W</span>
                         </div>
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Süre</span>
-                          <span className="text-foreground font-bold">{result.powerStation.runtimeHours ? formatHours(result.powerStation.runtimeHours, 'tr') : '-'}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Süre</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.runtimeHours ? formatHours(result.powerStation.runtimeHours, 'tr') : '-'}</span>
                         </div>
                       </div>
 
-                      {/* CTA: eşit genişlikte icon-only butonlar */}
-                      <div className="grid grid-cols-2 gap-1">
-                        <a
-                          href={result.powerStation.station.productUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="İncele"
-                          className="flex items-center justify-center h-9 rounded-lg bg-glass-bg border border-border text-foreground-secondary hover:bg-glass-bg-hover transition-colors"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                        <button
-                          onClick={async () => {
-                            if (result.powerStation.station) {
-                              const stationId = result.powerStation.station.id;
-                              const dbProduct = dbProducts[stationId];
-                              await addItem({
-                                productId: dbProduct?.id || stationId,
-                                slug: dbProduct?.slug || result.powerStation.station.slug || '',
-                                title: dbProduct?.name || result.powerStation.station.name,
-                                brand: dbProduct?.brand || 'IEETek',
-                                price: dbProduct?.price || 0,
-                                image: dbProduct?.image || result.powerStation.station.image,
-                              });
-                              openCart();
-                              setStationAdded(true);
-                              if (stationAddedTimeoutRef.current) window.clearTimeout(stationAddedTimeoutRef.current);
-                              stationAddedTimeoutRef.current = window.setTimeout(() => setStationAdded(false), 1200);
-                            }
-                          }}
-                          aria-label="Sepete Ekle"
-                          className="flex items-center justify-center h-9 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-                        >
-                          {stationAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-                        </button>
-                      </div>
+                      <button
+                        onClick={async () => {
+                          if (result.powerStation.station) {
+                            const stationId = result.powerStation.station.id;
+                            const dbProduct = dbProducts[stationId];
+                            await addItem({
+                              productId: dbProduct?.id || stationId,
+                              slug: dbProduct?.slug || result.powerStation.station.slug || '',
+                              title: dbProduct?.name || result.powerStation.station.name,
+                              brand: dbProduct?.brand || 'IEETek',
+                              price: dbProduct?.price || 0,
+                              image: dbProduct?.image || result.powerStation.station.image,
+                            });
+                            openCart();
+                            setStationAdded(true);
+                            if (stationAddedTimeoutRef.current) window.clearTimeout(stationAddedTimeoutRef.current);
+                            stationAddedTimeoutRef.current = window.setTimeout(() => setStationAdded(false), 1200);
+                          }
+                        }}
+                        className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
+                          stationAdded
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white'
+                        }`}
+                      >
+                        {stationAdded ? <Check size={16} /> : <ShoppingBag size={16} />}
+                        {stationAdded ? 'Eklendi' : 'Sepete Ekle'}
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Solar Panel */}
-              <div className="flex flex-col">
-                {/* Başlık */}
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Sun className="text-yellow-500 w-4 h-4" />
-                  <span className="text-xs md:text-sm font-semibold text-foreground">Solar Panel</span>
+              {/* Solar Panel - Yatay Kart */}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Sun className="text-yellow-500 w-4 h-4" />
+                    <span className="text-sm font-semibold text-foreground">Solar Panel</span>
+                  </div>
+                  {result.solarPanel && result.solarPanel.panel && (
+                    <span className="pc-result-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[11px] font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap leading-none">
+                      <Sun className="w-3 h-3" />
+                      %{Math.round((result.solarPanel.coverageRatio || 0) * 100)} Karşılama
+                    </span>
+                  )}
                 </div>
 
-                {result.solarPanel ? (
-                  <div className="border border-border rounded-xl overflow-hidden flex flex-col">
-                    {/* ÜST: Görsel 1:1 */}
-                    <div className="relative aspect-square bg-gradient-to-br from-amber-900/50 to-orange-900/50">
+                {result.solarPanel && result.solarPanel.panel ? (
+                  <div className="flex flex-row items-center gap-3 sm:gap-4 md:gap-3 lg:gap-5 p-3 sm:p-4 md:p-3 lg:p-5 rounded-2xl bg-surface-overlay border border-border transition-all">
+                    <div className="relative aspect-square w-[108px] sm:w-[170px] md:w-[140px] lg:w-[190px] rounded-xl overflow-hidden bg-background-secondary shrink-0">
                       <Image
-                        src={(result.solarPanel.panel?.id && dbProducts[result.solarPanel.panel.id]?.image) || result.solarPanel.panel?.image || `/images/products/${result.solarPanel.panel?.slug || 'placeholder'}.webp`}
-                        alt={result.solarPanel.panel?.name || 'Solar Panel'}
+                        src={(result.solarPanel.panel.id && dbProducts[result.solarPanel.panel.id]?.image) || result.solarPanel.panel.image || `/images/products/${result.solarPanel.panel.slug || 'placeholder'}.webp`}
+                        alt={result.solarPanel.panel.name}
                         fill
-                        sizes="50vw"
+                        sizes="(max-width: 640px) 108px, (max-width: 768px) 170px, (max-width: 1024px) 140px, 190px"
                         className="object-cover"
                         unoptimized
                       />
-                      <div className="absolute top-1.5 right-1.5 bg-amber-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
-                        %{Math.round((result.solarPanel.coverageRatio || 0) * 100)}
-                      </div>
                     </div>
 
-                    {/* ALT: içerik */}
-                    <div className="p-2 flex flex-col gap-2 bg-surface-secondary">
-                      {/* Ürün Adı */}
-                      <div>
-                        <h4 className="text-[11px] md:text-sm font-bold text-foreground leading-tight truncate">
-                          {result.solarPanel.panel?.name || 'Solar Panel'}
-                        </h4>
-                        <p className="text-[9px] text-foreground-secondary">
-                          {result.solarPanel.panelCount}×{result.solarPanel.singlePanelWattage}W
-                        </p>
-                      </div>
+                    <div className="flex-1 min-w-0 flex flex-col py-0.5 sm:py-1">
+                      <h3 className="text-sm sm:text-base lg:text-lg font-bold text-foreground leading-tight line-clamp-1">
+                        {result.solarPanel.panel.name}
+                      </h3>
 
-                      {/* Stats: 2x2 grid */}
-                      <div className="grid grid-cols-2 gap-1 text-[9px] md:text-[10px]">
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Güç</span>
-                          <span className="text-foreground font-bold">{result.solarPanel.totalWattage} W</span>
+                      <div className="flex-1 flex flex-col justify-center gap-1.5 sm:gap-1.5 lg:gap-2 my-1.5 sm:my-2 lg:my-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Güç</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.totalWattage} W</span>
                         </div>
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Üretim</span>
-                          <span className="text-foreground font-bold">{result.solarPanel.dailyProduction} Wh</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Üretim</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.dailyProduction} Wh</span>
                         </div>
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Şarj</span>
-                          <span className="text-foreground font-bold">{result.solarPanel.chargeHours ? formatHours(result.solarPanel.chargeHours, 'tr') : '-'}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Şarj</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.chargeHours ? formatHours(result.solarPanel.chargeHours, 'tr') : '-'}</span>
                         </div>
-                        <div className="bg-surface-secondary rounded px-1.5 py-1 flex flex-col">
-                          <span className="text-foreground-muted">Ağırlık</span>
-                          <span className="text-foreground font-bold">{result.solarPanel.panel?.weight ? `${result.solarPanel.panel.weight * result.solarPanel.panelCount} kg` : '-'}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Panel</span>
+                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.panelCount}×{result.solarPanel.singlePanelWattage}W</span>
                         </div>
                       </div>
 
-                      {/* CTA: eşit genişlikte icon-only butonlar */}
-                      <div className="grid grid-cols-2 gap-1">
-                        <a
-                          href={result.solarPanel.panel?.productUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="İncele"
-                          className="flex items-center justify-center h-9 rounded-lg bg-glass-bg border border-border text-foreground-secondary hover:bg-glass-bg-hover transition-colors"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                        <button
-                          onClick={async () => {
-                            if (result.solarPanel?.panel) {
-                              const panelId = result.solarPanel.panel.id;
-                              const dbProduct = dbProducts[panelId];
-                              await addItem({
-                                productId: dbProduct?.id || panelId,
-                                slug: dbProduct?.slug || result.solarPanel.panel.slug || '',
-                                title: dbProduct?.name || result.solarPanel.panel.name,
-                                brand: dbProduct?.brand || 'IEETek',
-                                price: dbProduct?.price || 0,
-                                image: dbProduct?.image || result.solarPanel.panel.image,
-                                quantity: result.solarPanel.panelCount,
-                              });
-                              openCart();
-                              setPanelAdded(true);
-                              if (panelAddedTimeoutRef.current) window.clearTimeout(panelAddedTimeoutRef.current);
-                              panelAddedTimeoutRef.current = window.setTimeout(() => setPanelAdded(false), 1200);
-                            }
-                          }}
-                          aria-label="Sepete Ekle"
-                          className="flex items-center justify-center h-9 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-                        >
-                          {panelAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-                        </button>
-                      </div>
+                      <button
+                        onClick={async () => {
+                          if (result.solarPanel?.panel) {
+                            const panelId = result.solarPanel.panel.id;
+                            const dbProduct = dbProducts[panelId];
+                            await addItem({
+                              productId: dbProduct?.id || panelId,
+                              slug: dbProduct?.slug || result.solarPanel.panel.slug || '',
+                              title: dbProduct?.name || result.solarPanel.panel.name,
+                              brand: dbProduct?.brand || 'IEETek',
+                              price: dbProduct?.price || 0,
+                              image: dbProduct?.image || result.solarPanel.panel.image,
+                              quantity: result.solarPanel.panelCount,
+                            });
+                            openCart();
+                            setPanelAdded(true);
+                            if (panelAddedTimeoutRef.current) window.clearTimeout(panelAddedTimeoutRef.current);
+                            panelAddedTimeoutRef.current = window.setTimeout(() => setPanelAdded(false), 1200);
+                          }
+                        }}
+                        className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
+                          panelAdded
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white'
+                        }`}
+                      >
+                        {panelAdded ? <Check size={16} /> : <ShoppingBag size={16} />}
+                        {panelAdded ? 'Eklendi' : 'Sepete Ekle'}
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="border border-border rounded-xl p-4 text-center flex-1 flex flex-col items-center justify-center bg-surface-secondary">
-                    <Sun className="w-6 h-6 mb-1 opacity-30" />
-                    <p className="text-[10px] text-foreground-muted">
-                      {chargeMode === 'grid-only' || chargeMode === 'no-charge' ? 'Solar yok' : 'Bulunamadı'}
+                  <div className="flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-surface-overlay border border-border">
+                    <div className="w-[60px] h-[60px] rounded-xl bg-background-secondary flex items-center justify-center shrink-0">
+                      <Sun className="w-6 h-6 opacity-30" />
+                    </div>
+                    <p className="text-xs text-foreground-muted">
+                      {chargeMode === 'grid-only' || chargeMode === 'no-charge' ? 'Bu şarj modu için solar panel önerilmiyor.' : 'Uygun solar panel bulunamadı.'}
                     </p>
                   </div>
                 )}
@@ -1082,10 +1065,9 @@ export default function PowerCalculator() {
         {currentStep !== 'scenario' ? (
           <button
             onClick={goPrev}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
           >
-            <ChevronLeft size={18} />
-            <span className="hidden sm:inline">Geri</span>
+            Geri
           </button>
         ) : (
           <div />
@@ -1095,23 +1077,21 @@ export default function PowerCalculator() {
           <button
             onClick={goNext}
             disabled={!canGoNext}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 ${
               canGoNext
                 ? 'bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground'
                 : 'bg-glass-bg text-foreground-muted cursor-not-allowed border border-transparent'
             }`}
           >
-            <span className="hidden sm:inline">{currentStep === 'preferences' ? 'Sonuçları Gör' : 'Devam Et'}</span>
-            <ChevronRight size={18} />
+            İleri
           </button>
         )}
 
         {currentStep === 'results' && (
           <button
             onClick={handleReset}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
           >
-            <RotateCcw size={18} />
             Yeniden Başla
           </button>
         )}
