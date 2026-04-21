@@ -319,9 +319,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               categories={sidebarData.categories}
               allPosts={sidebarData.sidebarPosts}
               activeCategory={null}
-              categoryHrefFor={(cat) =>
-                cat ? `/blog?cat=${encodeURIComponent(cat)}` : "/blog"
-              }
+              useCategoryLinks
               emphasizedCategory={post.category}
               excludeSlug={post.slug}
             />

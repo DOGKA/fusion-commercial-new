@@ -17,8 +17,12 @@ interface BlogSidebarProps {
   activeCategory?: string | null;
   /** Liste sayfası: yazıları süzmek için */
   onCategoryChange?: (category: string | null) => void;
-  /** Yazı detayı: kategori satırları bu href ile `/blog?cat=` gibi yönlendirilir */
-  categoryHrefFor?: (category: string | null) => string;
+  /** Yazı detayı: kategori satırları link olarak render edilir (`/blog?cat=...`) */
+  useCategoryLinks?: boolean;
+  /** Link modunda taban rota (vars. `/blog`) */
+  baseHref?: string;
+  /** Link modunda kategori query anahtarı (vars. `cat`) */
+  categoryParam?: string;
   /** Detay sayfasında yazının kategorisini görsel olarak vurgular (filtre değil) */
   emphasizedCategory?: string | null;
   /** Popüler listesinden çıkar (detay sayfasında mevcut yazı tekrar gösterilmesin) */
@@ -30,12 +34,16 @@ export default function BlogSidebar({
   allPosts,
   activeCategory = null,
   onCategoryChange,
-  categoryHrefFor,
+  useCategoryLinks = false,
+  baseHref = "/blog",
+  categoryParam = "cat",
   emphasizedCategory,
   excludeSlug,
 }: BlogSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const useCategoryLinks = Boolean(categoryHrefFor);
+
+  const hrefFor = (cat: string | null) =>
+    cat ? `${baseHref}?${categoryParam}=${encodeURIComponent(cat)}` : baseHref;
 
   const popularPosts = useMemo(() => {
     const filtered = activeCategory
@@ -76,9 +84,9 @@ export default function BlogSidebar({
         </h3>
         <ul className="blog-sidebar__list">
           <li>
-            {useCategoryLinks && categoryHrefFor ? (
+            {useCategoryLinks ? (
               <Link
-                href={categoryHrefFor(null)}
+                href={hrefFor(null)}
                 className={`blog-sidebar__link ${categoryRowActive(null) ? "blog-sidebar__link--active" : ""}`}
                 onClick={() => setIsOpen(false)}
               >
@@ -98,9 +106,9 @@ export default function BlogSidebar({
           </li>
           {categories.map((cat) => (
             <li key={cat.name}>
-              {useCategoryLinks && categoryHrefFor ? (
+              {useCategoryLinks ? (
                 <Link
-                  href={categoryHrefFor(cat.name)}
+                  href={hrefFor(cat.name)}
                   className={`blog-sidebar__link ${categoryRowActive(cat.name) ? "blog-sidebar__link--active" : ""}`}
                   onClick={() => setIsOpen(false)}
                 >
