@@ -120,7 +120,7 @@ const blogs: BlogInput[] = [
 
 <h2>Power Station + Taşınabilir Solar — Nerede Daha Uygun?</h2>
 
-<p>Bu çözüm, <a href="/urun/p1800">P1800</a> veya <a href="/urun/p3200">P3200</a> gibi bir taşınabilir güç kaynağının, <a href="/urun/sp200">SP200</a> veya <a href="/urun/sp400">SP400</a> gibi katlanabilir bir solar panelle eşleştirilmesiyle oluşturulur. Kurulum karavan çatısı, kablo tesisatı veya akü bölmesi gerektirmez. Güç kaynağı iç mekânda sabit bir köşeye yerleştirilir (yatak altı, oturma köşesi altı, ön kabin bölmesi); solar panel gerektiğinde dışarı çıkarılıp güneşe yönlendirilir.</p>
+<p>Bu çözüm, <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a> veya <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200</a> gibi bir taşınabilir güç kaynağının, <a href="/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200">SP200</a> veya <a href="/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400">SP400</a> gibi katlanabilir bir solar panelle eşleştirilmesiyle oluşturulur. Kurulum karavan çatısı, kablo tesisatı veya akü bölmesi gerektirmez. Güç kaynağı iç mekânda sabit bir köşeye yerleştirilir (yatak altı, oturma köşesi altı, ön kabin bölmesi); solar panel gerektiğinde dışarı çıkarılıp güneşe yönlendirilir.</p>
 
 <p>Saha gözlemlerimize göre bu yaklaşımın en güçlü olduğu kullanım profilleri şunlardır:</p>
 
@@ -131,7 +131,7 @@ const blogs: BlogInput[] = [
   <li><strong>Çok amaçlı kullanım beklentisi:</strong> Karavan + kamp çadırı + evde kesinti yedeklemesi gibi birden fazla senaryoda kullanmak isteyenler için esneklik kritik avantajdır.</li>
 </ul>
 
-<p>Uyumluluk açısından güncel önerilerimiz: orta ölçekli bir karavan için <a href="/urun/p1800">P1800 + SP200</a> kombinasyonu tipik hafta sonu ihtiyacını karşılar. Klima kullanımı, buzdolabı sürekliliği ve daha uzun konaklama gerekiyorsa <a href="/urun/p3200">P3200 + 2× SP400</a> seçimi tercih edilmektedir.</p>
+<p>Uyumluluk açısından güncel önerilerimiz: orta ölçekli bir karavan için <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800 + SP200</a> kombinasyonu tipik hafta sonu ihtiyacını karşılar. Klima kullanımı, buzdolabı sürekliliği ve daha uzun konaklama gerekiyorsa <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200 + 2× SP400</a> seçimi tercih edilmektedir.</p>
 
 <h2>Sabit Solar Paket — Nerede Daha Uygun?</h2>
 
@@ -177,7 +177,7 @@ const blogs: BlogInput[] = [
 <h2>Önerdiğimiz Karar Haritası</h2>
 
 <h3>Çekme Karavan, Yılda 30–40 Gün Kullanım</h3>
-<p><strong>Power Station çözümü.</strong> Başlangıç maliyeti düşük, esnekliği yüksek. <a href="/urun/p1800">P1800</a> + <a href="/urun/sp200">SP200</a> kombinasyonu bu profilin büyük çoğunluğunu karşılar.</p>
+<p><strong>Power Station çözümü.</strong> Başlangıç maliyeti düşük, esnekliği yüksek. <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a> + <a href="/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200">SP200</a> kombinasyonu bu profilin büyük çoğunluğunu karşılar.</p>
 
 <h3>Orta Motor Karavan, Sezonluk Uzun Seyahat (60+ Gün)</h3>
 <p><strong>P3200 + 2× SP400 veya sabit paket.</strong> Kullanıcının teknik yaklaşım tercihine bağlıdır. Modüler ve servis kolaylığı önceliği ise P3200 kombinasyonu, karavanın uzun vadeli donanımı gibi düşünülüyorsa sabit paket tercih edilebilir.</p>
@@ -310,7 +310,7 @@ const blogs: BlogInput[] = [
 
 <h3>Sürekli Çalışma Süresi</h3>
 
-<p>Bu konu jeneratörün lehine olan tek net üstünlüktür. Yakıt sürekli beslendiği müddetçe jeneratör günlerce çalışabilir. Power station ise kapasite ile sınırlıdır. Ancak solar panel ile birleştirildiğinde power station da günün büyük bölümünde kendini yenileyerek off-grid sürdürülebilir bir sistem haline gelir. <a href="/urun/p3200">P3200 + 1000W solar</a> kombinasyonu, güneşli günlerde tüketim-üretim dengesi sağlar ve teorik olarak sınırsız off-grid çalışma sunar.</p>
+<p>Bu konu jeneratörün lehine olan tek net üstünlüktür. Yakıt sürekli beslendiği müddetçe jeneratör günlerce çalışabilir. Power station ise kapasite ile sınırlıdır. Ancak solar panel ile birleştirildiğinde power station da günün büyük bölümünde kendini yenileyerek off-grid sürdürülebilir bir sistem haline gelir. <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200 + 1000W solar</a> kombinasyonu, güneşli günlerde tüketim-üretim dengesi sağlar ve teorik olarak sınırsız off-grid çalışma sunar.</p>
 
 <h2>Hangi Senaryoda Hangisi?</h2>
 
@@ -327,7 +327,7 @@ const blogs: BlogInput[] = [
 <p><strong>Kombinasyon.</strong> Kısa vadeli konfor için power station, uzun vadeli süreklilik için jeneratör. En iyi afet hazırlığı, bu iki çözümün birlikte bulunmasıdır: power station evde kesintisiz çalışır, jeneratör ise günde birkaç saat power station'ı ve yedekli cihazları besler.</p>
 
 <h3>Şantiye ve Endüstriyel Saha</h3>
-<p><strong>Jeneratör veya büyük power station.</strong> 24 saat yüksek güç gerektiren şantiye/endüstriyel senaryolarda dizel jeneratör standart çözümdür. Ancak çevresel regülasyonların sıkılaştığı ve gürültü kısıtlamasının olduğu sahalarda <a href="/sh4000">SH4000</a> sınıfı sistemler bir alternatif haline gelir.</p>
+<p><strong>Jeneratör veya büyük power station.</strong> 24 saat yüksek güç gerektiren şantiye/endüstriyel senaryolarda dizel jeneratör standart çözümdür. Ancak çevresel regülasyonların sıkılaştığı ve gürültü kısıtlamasının olduğu sahalarda <a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a> sınıfı sistemler bir alternatif haline gelir.</p>
 
 <h3>Off-Grid Yaşam, Yazlık, Bağ Evi</h3>
 <p><strong>Power station + solar panel kombinasyonu.</strong> Sürdürülebilirlik ve operasyonel yüksüzlük açısından kalıcı çözümdür.</p>
@@ -348,7 +348,7 @@ const blogs: BlogInput[] = [
 <p>Çoğu ev ve kamp senaryosunda evet. Endüstriyel, şantiye, 24 saat yüksek yük gerektiren uygulamalarda jeneratör teknolojisi hâlâ gerekli olabilir. Power station ve jeneratör birbirini dışlayan değil, farklı kullanım profillerine hitap eden teknolojilerdir.</p>
 
 <h3>Afet çantamda hangisi olmalı?</h3>
-<p>Afet çantası için power station net olarak uygundur. Kapalı alanda güvenle kullanılır, yakıt depolama gerektirmez, yıllarca raflarda bekleyip ilk kullanımda hazır olur. <a href="/urun/p800">P800</a> sınıfı bir ürün afet hazırlığı için ideal bir başlangıç noktasıdır.</p>
+<p>Afet çantası için power station net olarak uygundur. Kapalı alanda güvenle kullanılır, yakıt depolama gerektirmez, yıllarca raflarda bekleyip ilk kullanımda hazır olur. <a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800</a> sınıfı bir ürün afet hazırlığı için ideal bir başlangıç noktasıdır.</p>
 
 <h3>Hybrid (power station + jeneratör) bir sistem kurulabilir mi?</h3>
 <p>Evet. Power station'ın AC girişine jeneratör çıkışı bağlanabilir; bu durumda jeneratör kesintili olarak bataryayı doldurur, ev/kamp ise power station üzerinden kesintisiz beslenir. Hem gürültü hem de yakıt tüketimi azaltılmış olur.</p>

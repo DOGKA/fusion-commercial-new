@@ -106,7 +106,7 @@ const blogs: BlogInput[] = [
 
 <p>Buzdolabının etiketinde "150W" yazıyor diye "P800 benim buzdolabımı 3 saat çalıştırır" diye düşünmeyin. Buzdolabı <strong>döngüsel</strong> çalışır. Kompresör açıldığında 2–3 dakika 150W çeker, sonra susar. Saat bazında ortalama tüketim Türkiye'de A++ bir ev buzdolabında <strong>50–70W</strong> civarındadır.</p>
 
-<p>Ayrıca hesaba katılması gereken kritik bir teknik detay var: buzdolabı kompresörü ilk açılışta <strong>başlangıç akımı (in-rush current)</strong> nedeniyle nominal gücünün 3–5 katı kadar anlık güç çeker. Bu sıçrama saniyenin altında bir süre devam etse bile 800W sürekli çıkışlı bir invertörde "Overload" korumasını tetikleyebilir. Ev tipi buzdolabı yedeklemesinde P1800 ve üstü modelleri önermemizin teknik gerekçesi budur — <a href="/urun/p1800">P1800'ün 3600W pik gücü</a> bu anlık yük sıçramasını güvenle karşılar.</p>
+<p>Ayrıca hesaba katılması gereken kritik bir teknik detay var: buzdolabı kompresörü ilk açılışta <strong>başlangıç akımı (in-rush current)</strong> nedeniyle nominal gücünün 3–5 katı kadar anlık güç çeker. Bu sıçrama saniyenin altında bir süre devam etse bile 800W sürekli çıkışlı bir invertörde "Overload" korumasını tetikleyebilir. Ev tipi buzdolabı yedeklemesinde P1800 ve üstü modelleri önermemizin teknik gerekçesi budur — <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800'ün 3600W pik gücü</a> bu anlık yük sıçramasını güvenle karşılar.</p>
 
 <p><strong>Gerçek çalışma süresi:</strong> Normal kullanım döngüsünde (kapak sıkça açılmıyorsa, termostat ayarı orta seviyedeyse) P1800, ev tipi A++ sınıfı bir buzdolabını yaklaşık <strong>15 saat</strong> boyunca çalıştırır.</p>
 
@@ -140,15 +140,15 @@ const blogs: BlogInput[] = [
 
 <p><strong>Toplam ihtiyaç: yaklaşık 1.218 Wh</strong></p>
 
-<p>Bu hesap kapasite seçimini netleştirir. <a href="/urun/p1800">P1800 (1024Wh)</a> bu yükü sınırda karşılar; konforu korumak için ya son saatlerde birkaç cihazı devre dışı bırakmak ya da TV süresini kısaltmak gerekebilir. <a href="/urun/p3200">P3200 (2048Wh)</a>, aynı senaryoda <strong>iki katı</strong> enerji sunduğu için 12 saatlik bir kesintiyi dahi kısıntısız kaldırır. Kapasite seçiminde belirleyici kriter, hanenin beklenen kesinti sıklığı ve süresidir.</p>
+<p>Bu hesap kapasite seçimini netleştirir. <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800 (1024Wh)</a> bu yükü sınırda karşılar; konforu korumak için ya son saatlerde birkaç cihazı devre dışı bırakmak ya da TV süresini kısaltmak gerekebilir. <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200 (2048Wh)</a>, aynı senaryoda <strong>iki katı</strong> enerji sunduğu için 12 saatlik bir kesintiyi dahi kısıntısız kaldırır. Kapasite seçiminde belirleyici kriter, hanenin beklenen kesinti sıklığı ve süresidir.</p>
 
 <h2>Hangi Model Sizin Evinize Uygun?</h2>
 
 <ul>
-  <li><strong>Stüdyo / bekar / sadece internet:</strong> <a href="/urun/p800">P800 (512Wh)</a> — modem, laptop, birkaç ışık, telefon. 8–10 saatlik kesintide bile rahat. ~6.5 kg, tek elle taşınır.</li>
-  <li><strong>2+1 / 3+1 aile, doğalgaz kombili:</strong> <a href="/urun/p1800">P1800 (1024Wh)</a> — modem + buzdolabı + aydınlatma + kombi pompası. Ev hayatı büyük ölçüde devam eder. 3600W pik güç buzdolabı başlangıcını sorunsuz karşılar.</li>
-  <li><strong>Büyük aile / ev ofis / sık ve uzun kesinti:</strong> <a href="/urun/p3200">P3200 (2048Wh)</a> — yukarıdakilerin hepsi + klima veya ütü gibi yüksek güçlü tek bir cihaz. Tekerlekli tasarım 24 kg ağırlığı kolaylaştırır.</li>
-  <li><strong>Tam ev yedekleme / elektrikli kombi / off-grid düşüncesi:</strong> <a href="/sh4000">SH4000 (5120Wh)</a> — duvara sabitlenen hibrid invertör sistemi. ATS uyumu sayesinde kesinti olduğunda tüm ev otomatik geçer. B5120 modülleriyle 10–20 kWh'a büyütülür.</li>
+  <li><strong>Stüdyo / bekar / sadece internet:</strong> <a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800 (512Wh)</a> — modem, laptop, birkaç ışık, telefon. 8–10 saatlik kesintide bile rahat. ~6.5 kg, tek elle taşınır.</li>
+  <li><strong>2+1 / 3+1 aile, doğalgaz kombili:</strong> <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800 (1024Wh)</a> — modem + buzdolabı + aydınlatma + kombi pompası. Ev hayatı büyük ölçüde devam eder. 3600W pik güç buzdolabı başlangıcını sorunsuz karşılar.</li>
+  <li><strong>Büyük aile / ev ofis / sık ve uzun kesinti:</strong> <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200 (2048Wh)</a> — yukarıdakilerin hepsi + klima veya ütü gibi yüksek güçlü tek bir cihaz. Tekerlekli tasarım 24 kg ağırlığı kolaylaştırır.</li>
+  <li><strong>Tam ev yedekleme / elektrikli kombi / off-grid düşüncesi:</strong> <a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000 (5120Wh)</a> — duvara sabitlenen hibrid invertör sistemi. ATS uyumu sayesinde kesinti olduğunda tüm ev otomatik geçer. B5120 modülleriyle 10–20 kWh'a büyütülür.</li>
 </ul>
 
 <p>Hangi cihazları aynı anda çalıştırmak istediğinize bakıp kendi watt toplamınızı çıkarmak istiyorsanız <a href="/guc-hesaplayici">Güç Hesaplayıcı</a> aracımız bir dakikada size modeli söyler.</p>
@@ -260,7 +260,7 @@ const blogs: BlogInput[] = [
 
 <p><strong>Kimin için uygundur:</strong> Stüdyo veya 1+1 dairede yaşayan, ev ofisten çalışan, hafta sonu kamp / kısa kaçamaklar planlayan, taşınabilirlik (6.55 kg) önceliği olan kullanıcılar için mantıklı bir giriş seçimidir.</p>
 
-<p><a href="/urun/p800">P800 ürün sayfası →</a></p>
+<p><a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800 ürün sayfası →</a></p>
 
 <h2>P1800 — Ev Yedeklemesinin Denge Noktası</h2>
 
@@ -281,7 +281,7 @@ const blogs: BlogInput[] = [
 
 <p><strong>Kimin için uygundur:</strong> 2+1 veya 3+1 hanede yaşayan, ev ofis çalışan, doğalgazlı kombi kullanan, kesinti sıklığı orta-yüksek olan bölgelerdeki müşteriler için en dengeli seçim. Ayrıca karavan ve hafta sonu kamp kullanımıyla ev yedeklemesinin birlikte düşünüldüğü ikili senaryolar için uygun bir çözümdür.</p>
 
-<p><a href="/urun/p1800">P1800 ürün sayfası →</a></p>
+<p><a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800 ürün sayfası →</a></p>
 
 <h2>P3200 — Yüksek Kapasite, Yazlık ve Klima Kullanım Senaryoları</h2>
 
@@ -289,20 +289,20 @@ const blogs: BlogInput[] = [
 
 <p>Ağırlık, bu segmente geçişte dikkat edilmesi gereken en önemli fiziksel farktır: 24.35 kg. Bu ağırlık tekerlek ve teleskopik kolla taşınabilir kılınmıştır; ancak ürünün farklı katlar arasında sürekli taşınması değil, belirli bir konumda sabit veya yarı-sabit kullanımı tasarlanan kullanım modelini yansıtır.</p>
 
-<p>P3200'ün P1800'e göre ikinci kritik farkı <strong>1000W solar giriş kapasitesidir</strong>. İki adet <a href="/urun/sp400">SP400 (400W)</a> panelinin paralel bağlantısıyla güneşli koşullarda 700–800W gerçek giriş elde edilebilir; bu sayede ürün güneşli bir günde yaklaşık 3 saatte tam dolum yapar. Yazlık, bağ evi, tarım arazisi ve off-grid kullanım senaryolarında bu özellik belirleyicidir.</p>
+<p>P3200'ün P1800'e göre ikinci kritik farkı <strong>1000W solar giriş kapasitesidir</strong>. İki adet <a href="/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400">SP400 (400W)</a> panelinin paralel bağlantısıyla güneşli koşullarda 700–800W gerçek giriş elde edilebilir; bu sayede ürün güneşli bir günde yaklaşık 3 saatte tam dolum yapar. Yazlık, bağ evi, tarım arazisi ve off-grid kullanım senaryolarında bu özellik belirleyicidir.</p>
 
 <p>Saha gözlemlerimize göre P3200'ün en başarılı kullanım senaryoları şunlardır: yaz sezonunda klima + buzdolabı + aydınlatma yüklerinin tek bir cihaz üzerinden beslenmesi; elektrikli el aleti kullanan profesyonellerin saha enerjisi; sık ve uzun süreli kesinti yaşayan büyük ailelerin tam ev yedeklemesi (elektrikli ısıtıcı/kombi hariç).</p>
 
 <p><strong>Segment sınırları ve dikkat edilmesi gerekenler:</strong></p>
 <ul>
-  <li>24.35 kg ağırlık, ürünün sık sık farklı mekânlar arasında taşınmasını zorlaştırır. Taşınabilirlik ön planda olan kullanım senaryoları için P1800 + <a href="/urun/sp200">SP200</a> kombinasyonu alternatif olarak değerlendirilebilir.</li>
+  <li>24.35 kg ağırlık, ürünün sık sık farklı mekânlar arasında taşınmasını zorlaştırır. Taşınabilirlik ön planda olan kullanım senaryoları için P1800 + <a href="/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200">SP200</a> kombinasyonu alternatif olarak değerlendirilebilir.</li>
   <li>Ürün dahili powerbank, jump-starter (araç akü takviye) ve LED fener modülü içerir. Bu özellikler, tek bir cihazla birden fazla saha ihtiyacına yanıt verilmesini sağlar.</li>
   <li>Uygulama üzerinden cihaz bazında anlık tüketim izleme desteklenmektedir; enerji yönetimi ve tüketim analizi yapmak isteyen kullanıcılar için fayda sağlar.</li>
 </ul>
 
 <p><strong>Kimin için uygundur:</strong> Sık ve uzun süreli elektrik kesintisi yaşayan büyük aileler, karavan ciddi kullanım senaryoları, yazlık ve bağ evi sahipleri, klima kullanan haneler, elektrikli el aleti gerektiren saha profesyonelleri için uygundur.</p>
 
-<p><a href="/urun/p3200">P3200 ürün sayfası →</a></p>
+<p><a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200 ürün sayfası →</a></p>
 
 <h2>Karar Matrisi: Siz Hangisiniz?</h2>
 
@@ -313,7 +313,7 @@ const blogs: BlogInput[] = [
 <p><strong>P1800.</strong> Hem uygulama hem UPS hem de buzdolabı başlangıç akımını tolere eden pik güç bir arada. "Keşke P3200 alsaydım" en az gelen model bu.</p>
 
 <h3>Elektrikli kombim var ve sık kesinti yaşıyorum</h3>
-<p><strong>P3200 tek başına yetmez.</strong> Elektrikli kombi saatte 1500–2000W sürekli çeker; P3200 bile <1.5 saat verir. <a href="/sh4000">SH4000</a> + B5120 genişletme kombinasyonuna bakmalısınız.</p>
+<p><strong>P3200 tek başına yetmez.</strong> Elektrikli kombi saatte 1500–2000W sürekli çeker; P3200 bile <1.5 saat verir. <a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a> + B5120 genişletme kombinasyonuna bakmalısınız.</p>
 
 <h3>Karavanım var, haftada bir kullanıyoruz</h3>
 <p><strong>P1800.</strong> Ağırlık/kapasite dengesi, buzdolabı + mini fan + aydınlatma için bir hafta sonu yeterli. SP200 solar paneli ile birleştirirseniz haftanın tamamı güneşle geçer.</p>

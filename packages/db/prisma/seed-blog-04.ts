@@ -102,7 +102,7 @@ const blogs: BlogInput[] = [
 
 <p>UPS cihazlarının temel tasarım amacı, şebeke kesildiğinde sunucu veya bilgisayarın "düzgün şekilde kapanması" için gerekli olan 5–15 dakikalık süreyi sağlamaktır. Uzun süreli bir kesintide (örneğin 2 saat) klasik UPS'in rolü sınırlıdır. Ev ortamında modem + mesh Wi-Fi için satın alınan 800 VA'lık bir UPS, 6 saatlik bir kesintinin belki ilk yarım saatinde dayanır.</p>
 
-<p>Power station ise tasarımı gereği uzun süreli kullanım için optimize edilmiştir. <a href="/urun/p800">P800</a> sınıfı bir ürün, modem + mesh Wi-Fi kombinasyonunu (ort. 20W) yaklaşık 23 saat çalıştırabilir. Bu süre aynı ürünle laptop, TV, aydınlatma eklenmiş olarak bile 5–6 saate ulaşır.</p>
+<p>Power station ise tasarımı gereği uzun süreli kullanım için optimize edilmiştir. <a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800</a> sınıfı bir ürün, modem + mesh Wi-Fi kombinasyonunu (ort. 20W) yaklaşık 23 saat çalıştırabilir. Bu süre aynı ürünle laptop, TV, aydınlatma eklenmiş olarak bile 5–6 saate ulaşır.</p>
 
 <h3>Batarya Ömrü</h3>
 
@@ -141,7 +141,7 @@ const blogs: BlogInput[] = [
 <p><strong>Klasik line-interactive UPS yeterlidir.</strong> Dosyaların kaydedilip bilgisayarın düzgün kapatılması için bu süre yeterlidir. Kesintilerin uzun sürdüğü bir bölgede çalışıyorsanız power station'a yönelin.</p>
 
 <h3>Ev Kesinti Yedeklemesi (Modem + Buzdolabı + Aydınlatma + TV)</h3>
-<p><strong>Power station.</strong> Klasik UPS bu yükü kaldırmaz; power station hem kapasite hem dalga formu hem de çok-amaçlılık açısından doğru seçimdir. <a href="/urun/p1800">P1800</a> ev ihtiyaçlarının büyük çoğunluğunu karşılar.</p>
+<p><strong>Power station.</strong> Klasik UPS bu yükü kaldırmaz; power station hem kapasite hem dalga formu hem de çok-amaçlılık açısından doğru seçimdir. <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a> ev ihtiyaçlarının büyük çoğunluğunu karşılar.</p>
 
 <h3>Küçük İşletme / Kafe / Mağaza</h3>
 <p><strong>Power station veya hybrid kurulum.</strong> POS cihazı + modem + aydınlatma tipik yüktür. 4 saatlik kesintiyi kaldırabilecek power station (P1800/P3200) satış sürekliliğini korur ve akıllı telefon üzerinden izlenebilir.</p>
@@ -242,7 +242,7 @@ const blogs: BlogInput[] = [
 <p>Türkiye'deki evlerde yaygın olan doğalgazlı kombiler, ısıyı doğalgazdan alır; elektrik yalnızca sirkülasyon pompası, brülör fanı ve kontrol kartı için kullanılır. Ortalama tüketim <strong>80–120W</strong>. İlk ateşleme anında fan 200–300W'a çıkabilir; ancak bu süre saniyenin altındadır ve standart power station'lar sorunsuz karşılar.</p>
 
 <h3>Elektrikli Kombi / Elektrikli Termosifon</h3>
-<p>Elektrikli kombi: 1500–2000W sürekli. Elektrikli termosifon: 1500–3000W (kapasiteye göre). Bu cihazlar için taşınabilir power station pratik bir çözüm değildir; ev enerji sistemi (<a href="/sh4000">SH4000</a> gibi) veya sabit solar kurulumu gereklidir.</p>
+<p>Elektrikli kombi: 1500–2000W sürekli. Elektrikli termosifon: 1500–3000W (kapasiteye göre). Bu cihazlar için taşınabilir power station pratik bir çözüm değildir; ev enerji sistemi (<a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a> gibi) veya sabit solar kurulumu gereklidir.</p>
 
 <h3>LED Aydınlatma</h3>
 <p>Oda aydınlatması (2–3 ampul): 15–30W. Dolaylı LED şerit: 10–25W. Odabaşı lamba: 5–10W. Evin ana aydınlatma yükü 40–80W aralığında kalır; bu ihtiyaç düşük Wh ile uzun süre karşılanır.</p>
@@ -321,18 +321,18 @@ const blogs: BlogInput[] = [
   </tbody>
 </table>
 
-<p>Bu senaryo, <a href="/urun/p3200">P3200 (2048Wh)</a> kapasitesinde rahatlıkla karşılanır ve sonunda %25 rezerv kalır. <a href="/urun/p1800">P1800 (1024Wh)</a> bu senaryoda yetersiz kalır; cihaz sayısının azaltılması veya klima/TV sürelerinin kısaltılması gerekir.</p>
+<p>Bu senaryo, <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200 (2048Wh)</a> kapasitesinde rahatlıkla karşılanır ve sonunda %25 rezerv kalır. <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800 (1024Wh)</a> bu senaryoda yetersiz kalır; cihaz sayısının azaltılması veya klima/TV sürelerinin kısaltılması gerekir.</p>
 
 <h2>Kapasite Seçimi İçin Pratik Öneri</h2>
 
 <p>Hesapladığınız Wh ihtiyacına göre seçim matrisi:</p>
 
 <ul>
-  <li><strong>400 Wh altı ihtiyaç:</strong> <a href="/urun/p800">P800</a> uygundur. Modem + laptop + aydınlatma + telefon şarjı senaryosu bu aralığa girer.</li>
-  <li><strong>400–900 Wh ihtiyaç:</strong> <a href="/urun/p800">P800</a> sınırda; <a href="/urun/p1800">P1800</a> rahat eder. Tercih bütçeye göre yapılır.</li>
-  <li><strong>900–1700 Wh ihtiyaç:</strong> <a href="/urun/p1800">P1800</a> ideal; <a href="/urun/p3200">P3200</a> konforlu seçim.</li>
-  <li><strong>1700–3500 Wh ihtiyaç:</strong> <a href="/urun/p3200">P3200</a> uygundur. Sık ve uzun kesinti yaşayanlar için doğru kapasite.</li>
-  <li><strong>3500 Wh üstü:</strong> <a href="/sh4000">SH4000</a> + B5120 modül kombinasyonu. Tam ev yedekleme veya off-grid senaryolar için.</li>
+  <li><strong>400 Wh altı ihtiyaç:</strong> <a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800</a> uygundur. Modem + laptop + aydınlatma + telefon şarjı senaryosu bu aralığa girer.</li>
+  <li><strong>400–900 Wh ihtiyaç:</strong> <a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800</a> sınırda; <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a> rahat eder. Tercih bütçeye göre yapılır.</li>
+  <li><strong>900–1700 Wh ihtiyaç:</strong> <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a> ideal; <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200</a> konforlu seçim.</li>
+  <li><strong>1700–3500 Wh ihtiyaç:</strong> <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200</a> uygundur. Sık ve uzun kesinti yaşayanlar için doğru kapasite.</li>
+  <li><strong>3500 Wh üstü:</strong> <a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a> + B5120 modül kombinasyonu. Tam ev yedekleme veya off-grid senaryolar için.</li>
 </ul>
 
 <h2>Sıkça Sorulan Sorular</h2>

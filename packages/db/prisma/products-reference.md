@@ -1,6 +1,6 @@
 # Blog Seed — Ürün Referans Sayfası
 
-Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullanacağı **otoriter ürün verilerini** tek yerde toplar. Rakamlar doğrudan `packages/db/scripts/add-technical-specs.ts` ve `packages/db/prisma/seed-compare.ts` dosyalarından, yani site içinde gösterilen datasheet değerleriyle birebir uyumlu olarak alınmıştır. Herhangi bir değer yanlış/eksik ise önce burayı düzelt, sonra seed'ler yazılacak — seed'lerde bu tablodaki rakamlar kullanılacak.
+Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullanacağı **otoriter ürün verilerini** tek yerde toplar. **Ürün iç linkleri** kısa `/urun/p3200` formatında değil; canlı sitedeki veritabanı `slug` değerleriyle aynı olan **uzun SEO path**'leridir (`packages/db/scripts/add-technical-specs.ts` içindeki `PRODUCT_SLUGS` ile senkron). Rakamlar doğrudan `packages/db/scripts/add-technical-specs.ts` ve `packages/db/prisma/seed-compare.ts` dosyalarından, yani site içinde gösterilen datasheet değerleriyle birebir uyumlu olarak alınmıştır. Herhangi bir değer yanlış/eksik ise önce burayı düzelt, sonra seed'ler yazılacak — seed'lerde bu tablodaki rakamlar kullanılacak.
 
 > Not: Ana sayfa kartlarındaki Wh değerleri (ör. P800 "768Wh") pazarlama yuvarlaması/invertör üzerinden ölçümdür. Blog yazılarında **datasheet Wh'ı** kullanacağız (P800 = 512Wh).
 
@@ -9,7 +9,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 ## 1) Taşınabilir Güç Kaynakları (Power Stations)
 
 ### P800 — Giriş Segmenti
-- **URL:** `/urun/p800`
+- **URL (mağaza / SEO slug):** `/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800`
 - **Batarya:** 512Wh, LiFePO4, 25.6V, 4000+ döngü (@25°C, 0.5C, DOD80%)
 - **AC Çıkış:** 800W sürekli, **1200W Smart-Boost**, 220/230/240V, 50/60Hz, saf sinüs
 - **Şarj:** AC 600W (~1.2 sa), Araç 120W, Max Solar 300W, 3-4 sa solar ile tam şarj
@@ -20,7 +20,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Kutu içeriği:** Güç Kaynağı, AC Şarj Kablosu, Araç Şarj Kablosu, XT60→MC4 Dönüştürücü Kablo, 3 Modlu LED El Feneri, 4in1 Kablo, Kullanım Kılavuzu
 
 ### P1800 — Hafta Sonu / Hafif Ev Yedekleme
-- **URL:** `/urun/p1800`
+- **URL (mağaza / SEO slug):** `/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800`
 - **Batarya:** 1024Wh, LiFePO4, 51.2V, 4000+ döngü
 - **AC Çıkış:** 1800W sürekli, **3600W pik**, 220/230/240V, 50/60Hz
 - **Şarj:** AC 1200W (~1.2 sa), Araç 120W, Max Solar 500W (10–52V)
@@ -31,7 +31,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Verimlilik:** Batarya→AC %99, AC→Batarya %99
 
 ### Singo 2000 Pro — Outdoor Orta Segment
-- **URL:** `/urun/singo-2000-pro`
+- **URL (mağaza / SEO slug):** `/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro`
 - **Batarya:** 1920Wh, LiFePO4, 48V, 4000+ döngü
 - **AC Çıkış:** 2000W sürekli, 4000W pik, 4× AC priz
 - **Şarj:** AC 1500W (~1.5 sa), Araç 120W, Max Solar 500W
@@ -40,7 +40,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Wi-Fi** (yalnız) uygulama kontrolü
 
 ### P3200 — Flagship / Ev Yedekleme
-- **URL:** `/urun/p3200`
+- **URL (mağaza / SEO slug):** `/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200`
 - **Batarya:** 2048Wh, LiFePO4, 51.2V, 4000+ döngü
 - **AC Çıkış:** 3200W sürekli, **6400W pik**, 4× AC priz
 - **Şarj:** AC 1800W (~1.5 sa), **Max Solar 1000W** (12–80V, 2–3 sa solar ile tam şarj), Araç 120W
@@ -50,7 +50,8 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Kullanım:** Buzdolabı + klima (inverter) + kombi pompası + modem — ev kısa-orta süreli kesinti, karavan kalıcı
 
 ### SH4000 — Hibrid Ev Enerji Sistemi
-- **URL:** `/sh4000` (standalone landing — `/urun/sh4000` değil)
+- **Mağaza URL (SEO slug):** `/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000`
+- **Kurumsal landing (tanıtım):** `/sh4000` — blog iç linklerinde ürün sayfası için yukarıdaki `/urun/...` path kullanılır
 - **Batarya:** 5120Wh, LiFePO4, 51.2V, 4000+ döngü (genişletilebilir, B5120 modüllerle)
 - **AC Çıkış:** **4000W sürekli, 8000W pik**, 220/230/240V, 50Hz
 - **Şarj:**
@@ -75,7 +76,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 ## 2) Taşınabilir Güneş Panelleri
 
 ### SP100 — Küçük / Balkon / Acil Çanta
-- **URL:** `/urun/sp100`
+- **URL (mağaza / SEO slug):** `/urun/tasinabilir-gunes-paneli-100w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp100`
 - **Güç:** 100W Max (25W × 4), Monokristal silikon
 - **Elektriksel:** 18V / 5.6A, **Voc 21.6V**, Isc 6.16A
 - **Verimlilik:** %21–23 dönüşüm
@@ -84,7 +85,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Kullanım:** P800 şarjı, küçük kamp, balkon solar desteği
 
 ### SP200 — Orta / Karavan
-- **URL:** `/urun/sp200`
+- **URL (mağaza / SEO slug):** `/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200`
 - **Güç:** 200W Max (50W × 4)
 - **Elektriksel:** 24V / 8.33A, **Voc 28.8V**, Isc 9.12A
 - **Verimlilik:** %21–23
@@ -92,7 +93,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Kullanım:** P1800/Singo karavan/kamp kurulumu
 
 ### SP400 — Büyük / Off-Grid
-- **URL:** `/urun/sp400`
+- **URL (mağaza / SEO slug):** `/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400`
 - **Güç:** 400W Max (100W × 4)
 - **Elektriksel:** 44V / 10A, **Voc 52.8V**, Isc 10A
 - **Verimlilik:** %21–23

@@ -87,7 +87,7 @@ const blogs: BlogInput[] = [
   <tbody>
     <tr>
       <td>Giriş (500Wh)</td>
-      <td><a href="/urun/p800">P800</a></td>
+      <td><a href="/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800">P800</a></td>
       <td>512 Wh</td>
       <td>800 W / 1200 W Boost</td>
       <td>6.55 kg</td>
@@ -95,7 +95,7 @@ const blogs: BlogInput[] = [
     </tr>
     <tr>
       <td>Orta (1000Wh)</td>
-      <td><a href="/urun/p1800">P1800</a></td>
+      <td><a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a></td>
       <td>1024 Wh</td>
       <td>1800 W / 3600 W pik</td>
       <td>12.7 kg</td>
@@ -103,7 +103,7 @@ const blogs: BlogInput[] = [
     </tr>
     <tr>
       <td>Üst-Orta (2000Wh)</td>
-      <td><a href="/urun/p3200">P3200</a></td>
+      <td><a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200</a></td>
       <td>2048 Wh</td>
       <td>3200 W / 6400 W pik</td>
       <td>24.35 kg</td>
@@ -111,7 +111,7 @@ const blogs: BlogInput[] = [
     </tr>
     <tr>
       <td>Flagship (5000Wh+)</td>
-      <td><a href="/sh4000">SH4000</a></td>
+      <td><a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a></td>
       <td>5120 Wh (genişletilebilir)</td>
       <td>4000 W / 8000 W pik</td>
       <td>65 kg (sabit)</td>
@@ -163,7 +163,7 @@ const blogs: BlogInput[] = [
 <p>Yük: Buzdolabı + 9000 BTU klima (3 saat) + aydınlatma. Klima tek başına 800W × 3 saat × 1.15 = 2760Wh. <strong>P3200 + SP400 panel</strong> kombosu doğru. Güneşli 5 saatte panel 1600–2000Wh üretir, P3200 gün içinde şarj kalır.</p>
 
 <h3>Senaryo D — Tam Ev Kesintisi, Elektrikli Kombi</h3>
-<p>P800/P1800/P3200 yetersiz. Elektrikli kombi 1500–2000W sürekli; P3200 bile 1 saat verir. Bu senaryoda <a href="/sh4000">SH4000</a> + 1–2 adet B5120 batarya modülü + solar panel dizimi gerekir.</p>
+<p>P800/P1800/P3200 yetersiz. Elektrikli kombi 1500–2000W sürekli; P3200 bile 1 saat verir. Bu senaryoda <a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a> + 1–2 adet B5120 batarya modülü + solar panel dizimi gerekir.</p>
 
 <h2>Ne Zaman "Üstünü Al" Demeliyiz?</h2>
 
@@ -190,7 +190,7 @@ const blogs: BlogInput[] = [
 <h2>Sıkça Sorulan Sorular</h2>
 
 <h3>Fiyat/performans açısından en çok tercih edilen model hangisidir?</h3>
-<p>Saha verilerimize göre <a href="/urun/p1800">P1800</a>, ürün ailemizin en yüksek paya sahip modelidir. 1024Wh kapasite, 1800W sürekli ve 3600W pik çıkış, 12.7 kg ağırlık kombinasyonu; ev yedeklemesinin yaklaşık %80'ini kapsayan ihtiyaç profilini tek ürünle karşılamaktadır.</p>
+<p>Saha verilerimize göre <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a>, ürün ailemizin en yüksek paya sahip modelidir. 1024Wh kapasite, 1800W sürekli ve 3600W pik çıkış, 12.7 kg ağırlık kombinasyonu; ev yedeklemesinin yaklaşık %80'ini kapsayan ihtiyaç profilini tek ürünle karşılamaktadır.</p>
 
 <h3>Ucuz bir model alıp sonra batarya ekleyebilir miyim?</h3>
 <p>P800, P1800 ve P3200 <strong>genişletilebilir değil</strong>. Ekstra batarya modülü desteği sadece SH4000 ile B5120 arasında var. "Önce küçük al, sonra büyüt" planı bu ailede işlemiyor — baştan doğru kapasite seçin.</p>
@@ -199,7 +199,7 @@ const blogs: BlogInput[] = [
 <p>LiFePO4'ün döngü ömrü uzun, yani batarya zamanla ciddi kapasite kaybetmez. Ama BMS kartı, invertör, portlar yıpranabilir; yenilenmiş olarak satılanlar yalnızca yetkili kaynaklardan alınmalı. Garanti süresinin kalan kısmına dikkat edin.</p>
 
 <h3>Solar paneli sonra eklesem olur mu?</h3>
-<p>Olur. Tüm modellerimizde XT60 veya MC4 solar giriş var. <a href="/urun/sp100">SP100</a>, <a href="/urun/sp200">SP200</a>, <a href="/urun/sp400">SP400</a> panellerimizden birini doğrudan bağlarsınız; cihazla birlikte gelen dönüştürücü kablo gerekirse devreye girer. Panel seçimi için ayrı bir yazımız var: <a href="/blog/tasinabilir-gunes-paneli-secimi-100w-200w-400w">SP100 vs SP200 vs SP400</a>.</p>
+<p>Olur. Tüm modellerimizde XT60 veya MC4 solar giriş var. <a href="/urun/tasinabilir-gunes-paneli-100w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp100">SP100</a>, <a href="/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200">SP200</a>, <a href="/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400">SP400</a> panellerimizden birini doğrudan bağlarsınız; cihazla birlikte gelen dönüştürücü kablo gerekirse devreye girer. Panel seçimi için ayrı bir yazımız var: <a href="/blog/tasinabilir-gunes-paneli-secimi-100w-200w-400w">SP100 vs SP200 vs SP400</a>.</p>
 
 <h3>Kredi kartına 9–12 taksit var mı?</h3>
 <p>Dönem dönem 12 taksite kadar seçenekler açılıyor. Güncel kampanyaları sepet aşamasında görürsünüz. Kurumsal ve KOBİ faturalı satış için özel fiyatlandırma yapıyoruz — <a href="/iletisim">iletişim sayfasından</a> bize ulaşın.</p>
@@ -300,7 +300,7 @@ const blogs: BlogInput[] = [
   <li><strong>Sabah 9:00 / akşam 16:00:</strong> %30–50. Açı optimizasyonu ile artırılabilir.</li>
 </ul>
 
-<p>Pratik hesap: Yazın <strong>günlük 5 saat iyi güneşe</strong> denk gelirseniz, SP200 panelden tipik 700–900Wh / gün enerji alırsınız. Bu, <a href="/urun/p1800">P1800</a>'ün neredeyse tam bir dolumuna yeter.</p>
+<p>Pratik hesap: Yazın <strong>günlük 5 saat iyi güneşe</strong> denk gelirseniz, SP200 panelden tipik 700–900Wh / gün enerji alırsınız. Bu, <a href="/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800">P1800</a>'ün neredeyse tam bir dolumuna yeter.</p>
 
 <h2>Katlama, Ağırlık, Taşıma</h2>
 
@@ -311,7 +311,7 @@ const blogs: BlogInput[] = [
 <p>Katlanmış ölçüsü 61×60 cm, kalınlığı 4.5 cm, ağırlığı 8 kg. Karavan iç dolabı ve standart otomobil bagajı için uygun boyuttadır. Açık hâldeyken panel 2074×608 mm'ye genişler; karavan yan kurulumu veya zemin sergilemesi için doğru büyüklüğü sunar. Panelin üzerindeki rüzgar delikleri belirli koşullarda yeterli olsa da, orta-şiddetli rüzgarda kamp kazığı veya ağırlık ile sabitleme yapılmasını öneriyoruz.</p>
 
 <h3>SP400 — Kalıcı Kurulum ve Yüksek Üretim</h3>
-<p>Katlanmış 72×99 cm, kalınlığı 4.5 cm, ağırlığı 16.3 kg. Bu segment, "sürekli taşıma" kullanım profilinin dışına çıkar; yazlık, bağ evi ve kalıcı off-grid kurulumlar için tasarlanmıştır. Açık boyutu 2617×990 mm'dir. Kullanım şekli; bahçe zemin standı veya duvar/sabit yüzey montajı üzerinden yaygındır. İki adet SP400'ün paralel bağlantısıyla <a href="/urun/p3200">P3200</a>'ün 1000W solar giriş kapasitesi tam olarak kullanılır ve en verimli tam dolum süresi (yaklaşık 3 saat) elde edilir.</p>
+<p>Katlanmış 72×99 cm, kalınlığı 4.5 cm, ağırlığı 16.3 kg. Bu segment, "sürekli taşıma" kullanım profilinin dışına çıkar; yazlık, bağ evi ve kalıcı off-grid kurulumlar için tasarlanmıştır. Açık boyutu 2617×990 mm'dir. Kullanım şekli; bahçe zemin standı veya duvar/sabit yüzey montajı üzerinden yaygındır. İki adet SP400'ün paralel bağlantısıyla <a href="/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200">P3200</a>'ün 1000W solar giriş kapasitesi tam olarak kullanılır ve en verimli tam dolum süresi (yaklaşık 3 saat) elde edilir.</p>
 
 <h2>Hangi Power Station ile Hangi Panel?</h2>
 
