@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogHeader, BlogContent, BlogShare, BlogCard } from "@/components/blog";
 import BlogViewTracker from "@/components/blog/BlogViewTracker";
+import BlogSidebar from "@/components/blog/BlogSidebar";
 import { JsonLd } from "@/components/seo";
 import { generateBlogMetadata, generateArticleSchema, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
 import "@/styles/blog.css";
@@ -138,6 +139,39 @@ async function getRelatedPosts(
   }
 }
 
+async function getBlogSidebarData(): Promise<{
+  categories: { name: string; count: number }[];
+  sidebarPosts: { slug: string; title: string; category: string | null; viewCount: number }[];
+}> {
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    if (typeof prisma.blogPost === "undefined") {
+      return { categories: [], sidebarPosts: [] };
+    }
+    const posts = await prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true, title: true, category: true, viewCount: true },
+    });
+    const categoryMap = new Map<string, number>();
+    posts.forEach((p: { category: string | null }) => {
+      if (p.category) categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1);
+    });
+    const categories = Array.from(categoryMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+    const sidebarPosts = posts.map((p: { slug: string; title: string; category: string | null; viewCount: number }) => ({
+      slug: p.slug,
+      title: p.title,
+      category: p.category,
+      viewCount: p.viewCount,
+    }));
+    return { categories, sidebarPosts };
+  } catch (error) {
+    console.log("Error fetching blog sidebar data:", error);
+    return { categories: [], sidebarPosts: [] };
+  }
+}
+
 // Generate metadata for SEO
 export async function generateMetadata({
   params,
@@ -203,8 +237,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
-  // Fetch related posts
-  const relatedPosts = await getRelatedPosts(post.id, post.category);
+  // Fetch related posts + listing sidebar (kategoriler / en çok okunanlar)
+  const [relatedPosts, sidebarData] = await Promise.all([
+    getRelatedPosts(post.id, post.category),
+    getBlogSidebarData(),
+  ]);
 
   const readingTime = calculateReadingTime(post.content);
   const pageUrl = `${siteConfig.url}/blog/${slug}`;
@@ -236,44 +273,59 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       
       <main className="min-h-screen bg-[var(--background)]">
         <div className="container px-4 md:px-6 lg:px-8 pt-[120px] pb-12 md:pb-16">
-          <article className="blog-article">
-            {/* Header */}
-            <BlogHeader
-              title={post.title}
-              publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
-              updatedAt={post.updatedAt?.toISOString()}
-              category={post.category || undefined}
-              readingTime={readingTime}
+          <div className="blog-layout">
+            <div className="blog-layout__main">
+              <article className="blog-article">
+                {/* Header */}
+                <BlogHeader
+                  title={post.title}
+                  publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
+                  updatedAt={post.updatedAt?.toISOString()}
+                  category={post.category || undefined}
+                  readingTime={readingTime}
+                />
+
+                {/* Content */}
+                <BlogContent content={post.content} title={post.title} />
+
+                {/* Share */}
+                <BlogShare title={post.title} url={pageUrl} />
+              </article>
+
+              {/* Related Posts */}
+              {relatedPosts.length > 0 && (
+                <section className="blog-related">
+                  <h2 className="blog-related__title">İlgili Yazılar</h2>
+                  <div className="blog-grid">
+                    {relatedPosts.map((relatedPost) => (
+                      <BlogCard
+                        key={relatedPost.id}
+                        slug={relatedPost.slug}
+                        title={relatedPost.title}
+                        excerpt={
+                          relatedPost.excerpt || createExcerpt(relatedPost.content)
+                        }
+                        publishedAt={relatedPost.publishedAt?.toISOString() || new Date().toISOString()}
+                        category={relatedPost.category || undefined}
+                        readingTime={calculateReadingTime(relatedPost.content)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            <BlogSidebar
+              categories={sidebarData.categories}
+              allPosts={sidebarData.sidebarPosts}
+              activeCategory={null}
+              categoryHrefFor={(cat) =>
+                cat ? `/blog?cat=${encodeURIComponent(cat)}` : "/blog"
+              }
+              emphasizedCategory={post.category}
+              excludeSlug={post.slug}
             />
-
-            {/* Content */}
-            <BlogContent content={post.content} title={post.title} />
-
-            {/* Share */}
-            <BlogShare title={post.title} url={pageUrl} />
-          </article>
-
-          {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <section className="blog-related">
-              <h2 className="blog-related__title">İlgili Yazılar</h2>
-              <div className="blog-grid">
-                {relatedPosts.map((relatedPost) => (
-                  <BlogCard
-                    key={relatedPost.id}
-                    slug={relatedPost.slug}
-                    title={relatedPost.title}
-                    excerpt={
-                      relatedPost.excerpt || createExcerpt(relatedPost.content)
-                    }
-                    publishedAt={relatedPost.publishedAt?.toISOString() || new Date().toISOString()}
-                    category={relatedPost.category || undefined}
-                    readingTime={calculateReadingTime(relatedPost.content)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+          </div>
         </div>
       </main>
     </>

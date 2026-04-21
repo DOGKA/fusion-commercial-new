@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import BlogCard from "./BlogCard";
 import BlogSidebar from "./BlogSidebar";
 
@@ -18,10 +19,33 @@ interface BlogPost {
 interface BlogPageClientProps {
   posts: BlogPost[];
   categories: { name: string; count: number }[];
+  /** `/blog?cat=` ile gelen filtre (sunucu doğrular) */
+  initialCategory?: string | null;
 }
 
-export default function BlogPageClient({ posts, categories }: BlogPageClientProps) {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+export default function BlogPageClient({
+  posts,
+  categories,
+  initialCategory = null,
+}: BlogPageClientProps) {
+  const router = useRouter();
+  const [activeCategory, setActiveCategory] = useState<string | null>(initialCategory);
+
+  useEffect(() => {
+    setActiveCategory(initialCategory);
+  }, [initialCategory]);
+
+  const setCategory = useCallback(
+    (cat: string | null) => {
+      setActiveCategory(cat);
+      if (cat) {
+        router.replace(`/blog?cat=${encodeURIComponent(cat)}`, { scroll: false });
+      } else {
+        router.replace("/blog", { scroll: false });
+      }
+    },
+    [router]
+  );
 
   const filteredPosts = useMemo(() => {
     if (!activeCategory) return posts;
@@ -46,7 +70,7 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
         {activeCategory && (
           <div className="blog-filter-badge">
             <span>{activeCategory}</span>
-            <button onClick={() => setActiveCategory(null)} aria-label="Filtreyi kaldır">
+            <button onClick={() => setCategory(null)} aria-label="Filtreyi kaldır">
               &times;
             </button>
           </div>
@@ -85,7 +109,7 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
         categories={categories}
         allPosts={sidebarPosts}
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={setCategory}
       />
     </div>
   );

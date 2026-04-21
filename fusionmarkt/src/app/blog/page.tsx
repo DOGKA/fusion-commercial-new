@@ -58,7 +58,11 @@ async function getBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
-export default async function BlogPage() {
+type BlogPageProps = {
+  searchParams: Promise<{ cat?: string }>;
+};
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const posts = await getBlogPosts();
 
   // Categories with counts
@@ -69,6 +73,12 @@ export default async function BlogPage() {
   const categories = Array.from(categoryMap.entries())
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
+
+  const sp = await searchParams;
+  const rawCat = typeof sp.cat === "string" ? sp.cat : null;
+  const decodedCat = rawCat ? decodeURIComponent(rawCat) : null;
+  const initialCategory =
+    decodedCat && categories.some((c) => c.name === decodedCat) ? decodedCat : null;
 
   // Serialize posts for client
   const clientPosts = posts.map((p) => ({
@@ -114,7 +124,11 @@ export default async function BlogPage() {
         </header>
 
         {/* Blog Content + Sidebar */}
-        <BlogPageClient posts={clientPosts} categories={categories} />
+        <BlogPageClient
+          posts={clientPosts}
+          categories={categories}
+          initialCategory={initialCategory}
+        />
       </div>
     </main>
   );

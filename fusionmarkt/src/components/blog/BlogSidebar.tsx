@@ -15,31 +15,55 @@ interface BlogSidebarProps {
   categories: { name: string; count: number }[];
   allPosts: SidebarPost[];
   activeCategory?: string | null;
-  onCategoryChange: (category: string | null) => void;
+  /** Liste sayfası: yazıları süzmek için */
+  onCategoryChange?: (category: string | null) => void;
+  /** Yazı detayı: kategori satırları bu href ile `/blog?cat=` gibi yönlendirilir */
+  categoryHrefFor?: (category: string | null) => string;
+  /** Detay sayfasında yazının kategorisini görsel olarak vurgular (filtre değil) */
+  emphasizedCategory?: string | null;
+  /** Popüler listesinden çıkar (detay sayfasında mevcut yazı tekrar gösterilmesin) */
+  excludeSlug?: string;
 }
 
 export default function BlogSidebar({
   categories,
   allPosts,
-  activeCategory,
+  activeCategory = null,
   onCategoryChange,
+  categoryHrefFor,
+  emphasizedCategory,
+  excludeSlug,
 }: BlogSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const useCategoryLinks = Boolean(categoryHrefFor);
 
   const popularPosts = useMemo(() => {
     const filtered = activeCategory
       ? allPosts.filter((p) => p.category === activeCategory)
       : allPosts;
-    return [...filtered]
+    const withoutCurrent = excludeSlug
+      ? filtered.filter((p) => p.slug !== excludeSlug)
+      : filtered;
+    return [...withoutCurrent]
       .sort((a, b) => b.viewCount - a.viewCount)
       .slice(0, 5);
-  }, [allPosts, activeCategory]);
+  }, [allPosts, activeCategory, excludeSlug]);
 
   const totalCount = categories.reduce((sum, c) => sum + c.count, 0);
 
   function handleCategoryClick(cat: string | null) {
-    onCategoryChange(cat);
+    onCategoryChange?.(cat);
     setIsOpen(false);
+  }
+
+  function categoryRowActive(cat: string | null) {
+    if (cat === null) {
+      return !activeCategory && !emphasizedCategory;
+    }
+    if (useCategoryLinks && emphasizedCategory) {
+      return emphasizedCategory === cat;
+    }
+    return activeCategory === cat;
   }
 
   const sidebarContent = (
@@ -52,23 +76,47 @@ export default function BlogSidebar({
         </h3>
         <ul className="blog-sidebar__list">
           <li>
-            <button
-              onClick={() => handleCategoryClick(null)}
-              className={`blog-sidebar__link ${!activeCategory ? "blog-sidebar__link--active" : ""}`}
-            >
-              <span>Tümü</span>
-              <span className="blog-sidebar__count">{totalCount}</span>
-            </button>
+            {useCategoryLinks && categoryHrefFor ? (
+              <Link
+                href={categoryHrefFor(null)}
+                className={`blog-sidebar__link ${categoryRowActive(null) ? "blog-sidebar__link--active" : ""}`}
+                onClick={() => setIsOpen(false)}
+              >
+                <span>Tümü</span>
+                <span className="blog-sidebar__count">{totalCount}</span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleCategoryClick(null)}
+                className={`blog-sidebar__link ${categoryRowActive(null) ? "blog-sidebar__link--active" : ""}`}
+              >
+                <span>Tümü</span>
+                <span className="blog-sidebar__count">{totalCount}</span>
+              </button>
+            )}
           </li>
           {categories.map((cat) => (
             <li key={cat.name}>
-              <button
-                onClick={() => handleCategoryClick(cat.name)}
-                className={`blog-sidebar__link ${activeCategory === cat.name ? "blog-sidebar__link--active" : ""}`}
-              >
-                <span>{cat.name}</span>
-                <span className="blog-sidebar__count">{cat.count}</span>
-              </button>
+              {useCategoryLinks && categoryHrefFor ? (
+                <Link
+                  href={categoryHrefFor(cat.name)}
+                  className={`blog-sidebar__link ${categoryRowActive(cat.name) ? "blog-sidebar__link--active" : ""}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>{cat.name}</span>
+                  <span className="blog-sidebar__count">{cat.count}</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleCategoryClick(cat.name)}
+                  className={`blog-sidebar__link ${categoryRowActive(cat.name) ? "blog-sidebar__link--active" : ""}`}
+                >
+                  <span>{cat.name}</span>
+                  <span className="blog-sidebar__count">{cat.count}</span>
+                </button>
+              )}
             </li>
           ))}
         </ul>
