@@ -1848,6 +1848,161 @@
     min-width: unset !important;
   }
 
+  /* Power Calculator - global mobile input override'ını burada kır */
+  .power-calculator-page input[type="text"],
+  .power-calculator-page input[type="email"],
+  .power-calculator-page input[type="password"],
+  .power-calculator-page input[type="tel"],
+  .power-calculator-page input[type="number"],
+  .power-calculator-page select,
+  .power-calculator-page textarea {
+    min-height: unset !important;
+    height: auto !important;
+    font-size: inherit !important;
+  }
+
+  /* Power Calculator - minimal mobile layout */
+  .power-calculator-page .pc-device-card {
+    padding: 0.625rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .power-calculator-page .pc-device-icon {
+    width: 1.9rem !important;
+    height: 1.9rem !important;
+    border-radius: 0.7rem !important;
+  }
+
+  .power-calculator-page .pc-device-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 5rem !important;
+    gap: 0.375rem !important;
+  }
+
+  /* Güç/Saat/Adet kontrolleri — hepsi aynı yükseklik ve stil
+     NOT: input.* ve button.* ile specificity arttırıldı; aksi halde
+     yukarıdaki .power-calculator-page input[type="number"] (auto height)
+     kuralı galip gelir ve inputlar oval görünür. */
+  .power-calculator-page input.pc-device-input,
+  .power-calculator-page input.pc-mobile-input,
+  .power-calculator-page input.pc-qty-input,
+  .power-calculator-page button.pc-stepper-btn {
+    min-height: var(--pc-control-height) !important;
+    height: var(--pc-control-height) !important;
+    font-size: 0.8125rem !important;
+    line-height: 1 !important;
+    border-radius: var(--pc-control-radius) !important;
+    box-sizing: border-box !important;
+  }
+
+  .power-calculator-page input.pc-device-input,
+  .power-calculator-page input.pc-mobile-input {
+    padding: 0 0.5rem !important;
+  }
+
+  .power-calculator-page input.pc-qty-input {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 0 0.15rem !important;
+    text-align: center !important;
+  }
+
+  .power-calculator-page .pc-qty-wrap {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    gap: 0.2rem !important;
+    width: 100% !important;
+  }
+
+  .power-calculator-page button.pc-stepper-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .power-calculator-page .pc-delete-btn {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    min-width: 1.75rem !important;
+    min-height: 1.75rem !important;
+  }
+
+  .power-calculator-page .pc-add-device-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+  }
+
+  .power-calculator-page .pc-energy-editor {
+    padding: 0.75rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .power-calculator-page .pc-energy-title {
+    font-size: 0.8125rem !important;
+  }
+
+  .power-calculator-page .pc-energy-meta {
+    display: none !important;
+  }
+
+  .power-calculator-page .pc-energy-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .power-calculator-page .pc-energy-card,
+  .power-calculator-page .pc-energy-manual-card {
+    padding: 0.625rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .power-calculator-page .pc-energy-chip {
+    top: -0.42rem !important;
+    left: 0.7rem !important;
+    padding: 0.14rem 0.42rem !important;
+    border-radius: 9999px !important;
+  }
+
+  .power-calculator-page .pc-energy-chip-text {
+    font-size: 0.58rem !important;
+    line-height: 1 !important;
+    font-weight: 600 !important;
+  }
+
+  .power-calculator-page .pc-energy-input {
+    min-height: 2rem !important;
+    height: 2rem !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+  }
+
+  .power-calculator-page .pc-season-grid {
+    gap: 0.5rem !important;
+  }
+
+  .power-calculator-page .pc-season-btn {
+    padding: 0.625rem 0.45rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .power-calculator-page .pc-season-label {
+    font-size: 0.75rem !important;
+  }
+
+  .power-calculator-page .pc-season-value {
+    font-size: 1rem !important;
+    margin-top: 0.125rem !important;
+  }
+
+  .power-calculator-page .pc-nav-button {
+    min-height: unset !important;
+    min-width: unset !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    padding: 0.7rem 1rem !important;
+    border-radius: 0.75rem !important;
+  }
+
   /* Input alanları daha büyük */
   input[type="text"],
   input[type="email"],

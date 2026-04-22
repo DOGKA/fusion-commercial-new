@@ -1648,3 +1648,56 @@ header.header-slider-light .header-dropdown a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* ===========================================================================
+   Power Calculator - Shared Control Sizing
+   Device card controls must align on both mobile and desktop
+=========================================================================== */
+.power-calculator-page {
+  --pc-control-height: 2.25rem;
+  --pc-control-height-mobile: 2rem;
+  --pc-control-radius: 0.625rem;
+}
+
+@media (max-width: 639px) {
+  .power-calculator-page {
+    --pc-control-height: var(--pc-control-height-mobile);
+  }
+}
+
+/* NOT: input.* / button.* selector'ları specificity arttırmak için kullanıldı,
+   aksi halde mobile.css'deki .power-calculator-page input[type="number"] kuralı
+   bu ortak yüksekliği ezer ve oval görünüm oluşur. */
+.power-calculator-page input.pc-device-input,
+.power-calculator-page input.pc-mobile-input,
+.power-calculator-page input.pc-qty-input,
+.power-calculator-page button.pc-stepper-btn {
+  min-height: var(--pc-control-height);
+  height: var(--pc-control-height);
+  border-radius: var(--pc-control-radius);
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+.power-calculator-page button.pc-stepper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Power calculator energy chips */
+.power-calculator-page .pc-energy-chip {
+  position: absolute;
+  top: -0.6rem;
+  left: 0.9rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.power-calculator-page .pc-energy-chip-text {
+  display: block;
+  font-size: 0.7rem;
+  line-height: 1;
+  font-weight: 600;
+}

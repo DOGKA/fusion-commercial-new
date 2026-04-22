@@ -22,6 +22,18 @@ export interface Device {
   quantity: number;
   hoursPerDay: number;
   dailyEnergy: number; // Wh/gün (power * quantity * hoursPerDay)
+  iconKey?: string;    // DEVICE_ICONS map anahtarı
+}
+
+// Senaryo cihazı (hazır şablon cihaz)
+export interface ScenarioDevice {
+  id: string;           // benzersiz slug (örn. 'laptop', 'kettle')
+  name: string;         // Gösterilen ad
+  power: number;        // W (tipik güç)
+  hoursPerDay: number;  // Günlük kullanım saati
+  quantity?: number;    // Adet (varsayılan 1)
+  icon?: string;        // Lucide ikon adı (DEVICE_ICONS map'i üzerinden)
+  note?: string;        // "Kısa süreli" gibi açıklama
 }
 
 // Senaryo tanımı
@@ -34,6 +46,7 @@ export interface Scenario {
   maxPower: number;     // W
   description?: string;
   descriptionEn?: string;
+  devices?: ScenarioDevice[]; // Senaryoya özel hazır cihaz listesi
 }
 
 // Hesaplayıcı form durumu
