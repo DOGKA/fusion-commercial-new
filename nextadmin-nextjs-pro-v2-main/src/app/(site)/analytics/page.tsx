@@ -27,9 +27,9 @@ import {
 interface GAData {
   visitors: number;
   pageViews: number;
-  sessions: number;
-  avgSessionDuration: number;
-  bounceRate: number;
+  sessions: number | null;
+  avgSessionDuration: number | null;
+  bounceRate: number | null;
   deviceBreakdown: { device: string; sessions: number; percentage: number }[];
   topPages: { page: string; views: number; users: number }[];
   trafficSources: { source: string; sessions: number; users: number; percentage: number }[];
@@ -67,14 +67,17 @@ interface AnalyticsData {
   gscConnected: boolean;
   visitors?: number;
   pageViews?: number;
-  sessions?: number;
-  avgSessionDuration?: number;
-  bounceRate?: number;
+  sessions?: number | null;
+  avgSessionDuration?: number | null;
+  bounceRate?: number | null;
   deviceBreakdown?: GAData["deviceBreakdown"];
   topPages?: GAData["topPages"];
   trafficSources?: GAData["trafficSources"];
   gscData?: GSCData | null;
   couponStats: CouponStats;
+  // period=today için backend Realtime API kullanıyor; bu durumda metric set'i
+  // farklı (sessions/avgSessionDuration/bounceRate/source-medium yok).
+  realtime?: boolean;
 }
 
 export default function AnalyticsPage() {
@@ -207,13 +210,19 @@ export default function AnalyticsPage() {
 
       {/* ==================== GOOGLE ANALYTICS SECTION ==================== */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <BarChart3 className="w-5 h-5 text-blue-600" />
           <h2 className="text-lg font-semibold text-dark dark:text-white">Google Analytics</h2>
           {data?.gaConnected && (
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
               Bağlı
+            </span>
+          )}
+          {data?.realtime && (
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              Canlı · Son 30 dk
             </span>
           )}
         </div>
@@ -261,7 +270,9 @@ export default function AnalyticsPage() {
                   <div>
                     <p className="text-sm text-gray-500">Ort. Oturum Süresi</p>
                     <h3 className="text-2xl font-bold text-dark dark:text-white">
-                      {formatDuration(data?.avgSessionDuration || 0)}
+                      {data?.avgSessionDuration == null
+                        ? "—"
+                        : formatDuration(data.avgSessionDuration)}
               </h3>
             </div>
           </div>
@@ -276,7 +287,9 @@ export default function AnalyticsPage() {
                   <div>
                     <p className="text-sm text-gray-500">Hemen Çıkma Oranı</p>
                     <h3 className="text-2xl font-bold text-dark dark:text-white">
-                      %{(data?.bounceRate || 0).toFixed(1)}
+                      {data?.bounceRate == null
+                        ? "—"
+                        : `%${data.bounceRate.toFixed(1)}`}
                     </h3>
           </div>
             </div>

@@ -107,17 +107,29 @@ export async function GET(request: NextRequest) {
     ]);
 
     // GA verilerini çek (eğer yapılandırılmışsa)
+    // period=today için Realtime API kullan (Data API'nin 24-48 saat aggregation
+    // gecikmesi nedeniyle bugünün verisi 0 dönüyor). Diğer periyotlarda standart
+    // Data API.
     let gaData = null;
     if (gaConnected) {
       try {
-        console.log("Fetching GA data for property:", settings!.gaPropertyId);
-        gaData = await fetchGoogleAnalyticsData(
-          settings!.gaPropertyId!,
-          settings!.gaServiceAccountEmail!,
-          settings!.gaServiceAccountKey!,
-          period
-        );
-        console.log("GA data result:", gaData ? "SUCCESS" : "NULL", gaData ? { visitors: gaData.visitors, pageViews: gaData.pageViews } : null);
+        if (period === "today") {
+          console.log("Fetching GA Realtime data for property:", settings!.gaPropertyId);
+          gaData = await fetchGoogleAnalyticsRealtimeData(
+            settings!.gaPropertyId!,
+            settings!.gaServiceAccountEmail!,
+            settings!.gaServiceAccountKey!
+          );
+        } else {
+          console.log("Fetching GA Data API for property:", settings!.gaPropertyId, "period:", period);
+          gaData = await fetchGoogleAnalyticsData(
+            settings!.gaPropertyId!,
+            settings!.gaServiceAccountEmail!,
+            settings!.gaServiceAccountKey!,
+            period
+          );
+        }
+        console.log("GA data result:", gaData ? "SUCCESS" : "NULL", gaData ? { visitors: gaData.visitors, pageViews: gaData.pageViews, realtime: gaData.realtime ?? false } : null);
       } catch (error) {
         console.error("GA Data API error:", error);
       }
@@ -359,15 +371,159 @@ async function fetchGoogleAnalyticsData(
     return {
       visitors: totalVisitors,
       pageViews: totalPageViews,
-      sessions: totalSessions,
-      avgSessionDuration: Math.round(avgSessionDuration),
-      bounceRate: Math.round(bounceRate * 100) / 100,
+      sessions: totalSessions as number | null,
+      avgSessionDuration: Math.round(avgSessionDuration) as number | null,
+      bounceRate: (Math.round(bounceRate * 100) / 100) as number | null,
       deviceBreakdown,
       topPages,
       trafficSources,
+      realtime: false,
     };
   } catch (error) {
     console.error("GA fetch error:", error);
+    return null;
+  }
+}
+
+// Google Analytics Realtime API çağrısı — son 30 dakika canlı veri
+// Data API'nin aksine sessions/avgSessionDuration/bounceRate/source-medium
+// dimensionları yok; visitors/pageViews/deviceCategory/topPages destekleniyor.
+async function fetchGoogleAnalyticsRealtimeData(
+  propertyId: string,
+  serviceAccountEmail: string,
+  serviceAccountKey: string
+) {
+  try {
+    const jwt = await createGoogleJWT(
+      serviceAccountEmail,
+      serviceAccountKey,
+      "https://www.googleapis.com/auth/analytics.readonly"
+    );
+    if (!jwt) return null;
+
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion: jwt,
+      }),
+    });
+
+    if (!tokenRes.ok) {
+      console.error("Realtime: Failed to get access token:", await tokenRes.text());
+      return null;
+    }
+
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
+
+    // Realtime API son 30 dakika ile sınırlı, dateRanges parametresi yok.
+    const [metricsRes, topPagesRes] = await Promise.all([
+      // Cihaz dağılımı + toplam aktif kullanıcı/sayfa görüntüleme
+      fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runRealtimeReport`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dimensions: [{ name: "deviceCategory" }],
+            metrics: [
+              { name: "activeUsers" },
+              { name: "screenPageViews" },
+            ],
+          }),
+        }
+      ),
+      // En çok görüntülenen sayfalar (web için unifiedScreenName = page title)
+      fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runRealtimeReport`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dimensions: [{ name: "unifiedScreenName" }],
+            metrics: [
+              { name: "screenPageViews" },
+              { name: "activeUsers" },
+            ],
+            orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+            limit: 10,
+          }),
+        }
+      ),
+    ]);
+
+    if (!metricsRes.ok) {
+      console.error("GA Realtime metrics error:", await metricsRes.text());
+      return null;
+    }
+
+    const metricsData = await metricsRes.json();
+    const topPagesData = topPagesRes.ok ? await topPagesRes.json() : null;
+
+    let totalVisitors = 0;
+    let totalPageViews = 0;
+    const deviceBreakdown: { device: string; sessions: number; percentage: number }[] = [];
+
+    if (metricsData.rows) {
+      for (const row of metricsData.rows) {
+        const device = row.dimensionValues[0].value;
+        const users = parseInt(row.metricValues[0].value) || 0;
+        const views = parseInt(row.metricValues[1].value) || 0;
+
+        totalVisitors += users;
+        totalPageViews += views;
+
+        // Realtime'da sessions yok; UI'nin "sessions" alanını dolduran yer için
+        // activeUsers'i proxy olarak kullanıyoruz (oran/hesaplama bozulmasın diye).
+        deviceBreakdown.push({
+          device,
+          sessions: users,
+          percentage: 0,
+        });
+      }
+
+      if (totalVisitors > 0) {
+        for (const item of deviceBreakdown) {
+          item.percentage = Math.round((item.sessions / totalVisitors) * 100);
+        }
+      }
+    }
+
+    const topPages: { page: string; views: number; users: number }[] = [];
+    if (topPagesData?.rows) {
+      for (const row of topPagesData.rows) {
+        topPages.push({
+          page: row.dimensionValues[0].value,
+          views: parseInt(row.metricValues[0].value) || 0,
+          users: parseInt(row.metricValues[1].value) || 0,
+        });
+      }
+    }
+
+    return {
+      visitors: totalVisitors,
+      pageViews: totalPageViews,
+      // Realtime API bu üç metriği sağlamaz; UI tarafında "—" gösterilebilsin
+      // diye 0 yerine null dönüyoruz.
+      sessions: null as number | null,
+      avgSessionDuration: null as number | null,
+      bounceRate: null as number | null,
+      deviceBreakdown,
+      topPages,
+      // Realtime'da source/medium dimensionları yok.
+      trafficSources: [] as { source: string; sessions: number; users: number; percentage: number }[],
+      realtime: true,
+    };
+  } catch (error) {
+    console.error("GA Realtime fetch error:", error);
     return null;
   }
 }
