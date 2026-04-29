@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
                     : "bg-white dark:bg-gray-dark text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
-                {p === "today" ? "Bugün" : p === "week" ? "Bu Hafta" : "Bu Ay"}
+                {p === "today" ? "Şu An" : p === "week" ? "Bu Hafta" : "Bu Ay"}
               </button>
             ))}
           </div>
