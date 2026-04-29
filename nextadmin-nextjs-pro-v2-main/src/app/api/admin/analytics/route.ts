@@ -419,8 +419,29 @@ async function fetchGoogleAnalyticsRealtimeData(
     const accessToken = tokenData.access_token;
 
     // Realtime API son 30 dakika ile sınırlı, dateRanges parametresi yok.
-    const [metricsRes, topPagesRes] = await Promise.all([
-      // Cihaz dağılımı + toplam aktif kullanıcı/sayfa görüntüleme
+    // Üç paralel sorgu:
+    //   1) Dimension'sız toplam (visitors/pageViews için doğru sayım — aynı
+    //      kullanıcı birden fazla cihazda olsa bile tek sayılır)
+    //   2) deviceCategory kırılımı (sadece cihaz dağılımı yüzdeleri için;
+    //      bu satırlar TOPLANIRSA çift sayım olur, o yüzden toplamı 1'den alıyoruz)
+    //   3) Top pages (unifiedScreenName = web'de page title)
+    const [totalsRes, deviceRes, topPagesRes] = await Promise.all([
+      fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runRealtimeReport`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            metrics: [
+              { name: "activeUsers" },
+              { name: "screenPageViews" },
+            ],
+          }),
+        }
+      ),
       fetch(
         `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runRealtimeReport`,
         {
@@ -438,7 +459,6 @@ async function fetchGoogleAnalyticsRealtimeData(
           }),
         }
       ),
-      // En çok görüntülenen sayfalar (web için unifiedScreenName = page title)
       fetch(
         `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runRealtimeReport`,
         {
@@ -460,39 +480,43 @@ async function fetchGoogleAnalyticsRealtimeData(
       ),
     ]);
 
-    if (!metricsRes.ok) {
-      console.error("GA Realtime metrics error:", await metricsRes.text());
+    if (!totalsRes.ok) {
+      console.error("GA Realtime totals error:", await totalsRes.text());
       return null;
     }
 
-    const metricsData = await metricsRes.json();
+    const totalsData = await totalsRes.json();
+    const deviceData = deviceRes.ok ? await deviceRes.json() : null;
     const topPagesData = topPagesRes.ok ? await topPagesRes.json() : null;
 
+    // Toplam visitors/pageViews dimension'sız sorgudan alınır (tekil sayım).
     let totalVisitors = 0;
     let totalPageViews = 0;
+    if (totalsData.rows && totalsData.rows.length > 0) {
+      const row = totalsData.rows[0];
+      totalVisitors = parseInt(row.metricValues?.[0]?.value || "0") || 0;
+      totalPageViews = parseInt(row.metricValues?.[1]?.value || "0") || 0;
+    }
+
+    // Cihaz kırılımı yalnızca yüzde göstermek için. Yüzdelerin toplamı 100
+    // olsun diye paydayı kendi satırlarının toplamından hesaplıyoruz.
     const deviceBreakdown: { device: string; sessions: number; percentage: number }[] = [];
-
-    if (metricsData.rows) {
-      for (const row of metricsData.rows) {
-        const device = row.dimensionValues[0].value;
-        const users = parseInt(row.metricValues[0].value) || 0;
-        const views = parseInt(row.metricValues[1].value) || 0;
-
-        totalVisitors += users;
-        totalPageViews += views;
-
-        // Realtime'da sessions yok; UI'nin "sessions" alanını dolduran yer için
-        // activeUsers'i proxy olarak kullanıyoruz (oran/hesaplama bozulmasın diye).
+    if (deviceData?.rows) {
+      let deviceUsersSum = 0;
+      for (const row of deviceData.rows) {
+        const users = parseInt(row.metricValues?.[0]?.value || "0") || 0;
+        deviceUsersSum += users;
         deviceBreakdown.push({
-          device,
+          device: row.dimensionValues[0].value,
+          // Realtime'da sessions metriği yok; UI alanını doldurmak için
+          // device-bazlı activeUsers değerini proxy olarak veriyoruz.
           sessions: users,
           percentage: 0,
         });
       }
-
-      if (totalVisitors > 0) {
+      if (deviceUsersSum > 0) {
         for (const item of deviceBreakdown) {
-          item.percentage = Math.round((item.sessions / totalVisitors) * 100);
+          item.percentage = Math.round((item.sessions / deviceUsersSum) * 100);
         }
       }
     }
