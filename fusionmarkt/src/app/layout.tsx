@@ -14,6 +14,10 @@ import { MysteryBoxModal } from "@/components/campaign";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import {
+  GoogleTagManagerScript,
+  GoogleTagManagerNoScript,
+} from "@/components/GoogleTagManager";
 import { JsonLd } from "@/components/seo";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { 
@@ -109,7 +113,10 @@ export default function RootLayout({
   const organizationSchema = generateOrganizationSchema();
   const webSiteSchema = generateWebSiteSchema();
 
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  // GTM ID is no longer read from env — it now comes from the
+  // SiteSettings DB row via <GoogleTagManagerScript /> below so
+  // a single admin-managed value drives both GA Data API and the
+  // tag injected into the public site.
   const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
   return (
@@ -131,43 +138,31 @@ export default function RootLayout({
           }}
         />
 
-        {/* Consent Mode v2 defaults — MUST be before any Google tags */}
-        {(gtmId || googleAdsId) && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                window.gtag = gtag;
-                gtag('consent', 'default', {
-                  'ad_storage': 'denied',
-                  'ad_user_data': 'denied',
-                  'ad_personalization': 'denied',
-                  'analytics_storage': 'denied',
-                  'functionality_storage': 'denied',
-                  'personalization_storage': 'denied',
-                  'security_storage': 'granted',
-                  'wait_for_update': 500
-                });
-              `,
-            }}
-          />
-        )}
+        {/* Consent Mode v2 defaults — MUST be before any Google tags.
+            Always rendered so gtag() exists for both GTM and GA4 even if
+            Google Ads env is not configured. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = gtag;
+              gtag('consent', 'default', {
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'analytics_storage': 'denied',
+                'functionality_storage': 'denied',
+                'personalization_storage': 'denied',
+                'security_storage': 'granted',
+                'wait_for_update': 500
+              });
+            `,
+          }}
+        />
 
-        {/* GTM — beforeInteractive ensures it's in initial HTML for bot verification */}
-        {gtmId && (
-          <Script
-            id="gtm-init"
-            strategy="beforeInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','${gtmId}');`,
-            }}
-          />
-        )}
+        {/* GTM init script — DB-driven, runs only when admin has configured a GTM ID */}
+        <GoogleTagManagerScript />
 
         {/* Google Ads direct tag — belt-and-suspenders for Ads verification */}
         {googleAdsId && (
@@ -194,17 +189,8 @@ export default function RootLayout({
         <JsonLd data={[organizationSchema, webSiteSchema]} />
       </head>
       <body className={`${inter.variable} antialiased bg-background text-foreground`}>
-        {/* GTM noscript fallback */}
-        {gtmId && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        )}
+        {/* GTM noscript fallback — DB-driven via SiteSettings.googleTagManagerId */}
+        <GoogleTagManagerNoScript />
 
         <ThemeProvider>
           <CookieConsentProvider>

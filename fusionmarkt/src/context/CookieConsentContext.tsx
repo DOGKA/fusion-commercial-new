@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useCallback, ReactNode, useMemo, useSyncExternalStore } from "react";
+import { createContext, useContext, useCallback, ReactNode, useMemo, useSyncExternalStore, useEffect, useRef } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -169,8 +169,40 @@ function clearTrackingCookies() {
 export function CookieConsentProvider({ children }: { children: ReactNode }) {
   // useSyncExternalStore - React 18+ recommended way for external state
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  
+
   const { preferences, hasConsent } = state;
+
+  // Apply previously stored consent to Google (consent default -> update) once after hydration.
+  // Without this, gtag would remain at the "default denied" state set in layout.tsx
+  // even for returning visitors who had already accepted.
+  const initialConsentAppliedRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (initialConsentAppliedRef.current) return;
+    if (!hasConsent) return;
+
+    let attempts = 0;
+    const apply = () => {
+      if (typeof window.gtag === "function") {
+        updateGoogleConsent(preferences);
+        window.dispatchEvent(
+          new CustomEvent("cookieConsentUpdated", { detail: preferences })
+        );
+        initialConsentAppliedRef.current = true;
+        return true;
+      }
+      return false;
+    };
+
+    if (apply()) return;
+    const interval = window.setInterval(() => {
+      attempts++;
+      if (apply() || attempts > 50) {
+        window.clearInterval(interval);
+      }
+    }, 100);
+    return () => window.clearInterval(interval);
+  }, [hasConsent, preferences]);
 
   const savePreferences = useCallback((prefs: CookiePreferences) => {
     const toSave: CookiePreferences = {
@@ -185,14 +217,17 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     setCookieValue("consent_analytics", toSave.analytics ? "1" : "0");
     setCookieValue("consent_marketing", toSave.marketing ? "1" : "0");
     setCookieValue("consent_preferences", toSave.preferences ? "1" : "0");
-    
+
     updateGoogleConsent(toSave);
-    
+    // Mark consent as already applied so the mount-restore effect below
+    // does not re-emit another consent update for the same state.
+    initialConsentAppliedRef.current = true;
+
     if (!toSave.analytics || !toSave.marketing) {
       clearTrackingCookies();
     }
-    
-    window.dispatchEvent(new CustomEvent("cookieConsentUpdated"));
+
+    window.dispatchEvent(new CustomEvent("cookieConsentUpdated", { detail: toSave }));
     emitChange();
   }, []);
 
