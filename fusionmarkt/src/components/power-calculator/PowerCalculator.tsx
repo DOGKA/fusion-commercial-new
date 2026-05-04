@@ -1357,23 +1357,18 @@ export default function PowerCalculator() {
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
                     {bundleSuggestions.map((bundle) => {
-                      const includesPanel = recommendedPanelDbProduct?.id
-                        ? bundle.items?.some((item) => item.product?.id === recommendedPanelDbProduct.id)
-                        : false;
-                      const badgeLabel = includesPanel ? 'İstasyon + Panel Dahil' : 'İstasyon Dahil';
-
+                      // Önceden bundle içeriğini sağdaki rozetle (örn.
+                      // "İstasyon + Panel Dahil") özetliyorduk; ancak paket
+                      // içeriği batarya/inverter gibi varyasyonlar gösterince
+                      // bu etiket kolayca yanıltıcı oluyordu. Bundle adı
+                      // (örn. "SH4000 + B5120 Modül + Hibrit Inverter") zaten
+                      // içeriği açıkça yazdığı için sağdaki rozet kaldırıldı.
                       return (
                         <div key={bundle.id}>
-                          <div className="flex items-center justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <ShoppingBag className="text-violet-500 w-4 h-4 shrink-0" />
-                              <span className="text-sm font-semibold text-foreground truncate">
-                                Hazır Paket
-                              </span>
-                            </div>
-                            <span className="pc-result-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-[11px] font-semibold text-violet-600 dark:text-violet-400 whitespace-nowrap leading-none">
-                              <Check className="w-3 h-3" />
-                              {badgeLabel}
+                          <div className="flex items-center gap-1.5 min-w-0 mb-2">
+                            <ShoppingBag className="text-violet-500 w-4 h-4 shrink-0" />
+                            <span className="text-sm font-semibold text-foreground truncate">
+                              Hazır Paket
                             </span>
                           </div>
 
