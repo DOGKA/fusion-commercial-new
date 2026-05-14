@@ -144,13 +144,13 @@ export default function AddToCartButton({
           backdropFilter: disabled ? "none" : "blur(16px)",
           WebkitBackdropFilter: disabled ? "none" : "blur(16px)",
           border: disabled
-            ? "1px solid rgba(251, 191, 36, 0.45)"
+            ? "1px solid rgba(251, 191, 36, 0.55)"
             : buttonState === "success"
             ? "1px solid rgba(16, 185, 129, 0.6)"
             : buttonState === "error"
             ? "1px solid rgba(239, 68, 68, 0.6)"
             : "1px solid var(--glass-border)",
-          color: disabled ? "#FBBF24" : "var(--foreground)",
+          color: "var(--foreground)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -239,7 +239,7 @@ export default function AddToCartButton({
           ? "rgba(239, 68, 68, 0.15)"
           : "var(--glass-bg)",
         border: disabled
-          ? "1px solid rgba(251, 191, 36, 0.45)"
+          ? "1px solid rgba(251, 191, 36, 0.55)"
           : buttonState === "success"
           ? "1px solid rgba(16, 185, 129, 0.4)"
           : buttonState === "error"
@@ -247,7 +247,7 @@ export default function AddToCartButton({
           : "1px solid var(--glass-border)",
         borderRadius: SQUIRCLE.md, // 14px squircle
         color: disabled
-          ? "#FBBF24"
+          ? "var(--foreground)"
           : buttonState === "success"
           ? "#34d399"
           : buttonState === "error"

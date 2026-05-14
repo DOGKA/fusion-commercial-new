@@ -344,6 +344,15 @@
     font-weight: 600 !important;
     color: var(--foreground) !important;
   }
+
+  /* Out-of-stock (disabled) durumu: amber paleti koru — masaüstüyle aynı stil */
+  .product-add-to-cart-btn:disabled {
+    background-color: rgba(251, 191, 36, 0.12) !important;
+    border: 1px solid rgba(251, 191, 36, 0.55) !important;
+    color: var(--foreground) !important;
+    box-shadow: 0 2px 10px rgba(251, 191, 36, 0.20) !important;
+    cursor: not-allowed !important;
+  }
   
   /* Button içindeki TEXT span'ı - görünür */
   .product-add-to-cart-btn > span:nth-child(2) {
