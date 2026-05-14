@@ -40,6 +40,7 @@ export async function GET() {
         images: true,
         thumbnail: true,
         brand: true,
+        stock: true,
       },
     });
 
@@ -52,6 +53,7 @@ export async function GET() {
       comparePrice: number | null;
       image: string | null;
       brand: string | null;
+      stock: number;
     }> = {};
 
     products.forEach((product) => {
@@ -67,6 +69,7 @@ export async function GET() {
         comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
         image: product.images?.[0] || product.thumbnail || null,
         brand: product.brand,
+        stock: product.stock ?? 0,
       };
     });
 

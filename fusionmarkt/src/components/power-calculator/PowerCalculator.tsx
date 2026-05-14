@@ -31,6 +31,7 @@ import {
   Leaf,
   Power,
   ShoppingBag,
+  AlertTriangle,
   Check,
   Pencil,
   GraduationCap,
@@ -174,6 +175,7 @@ interface DBProduct {
   comparePrice: number | null;
   image: string | null;
   brand: string | null;
+  stock: number;
 }
 
 interface BundleSuggestionItem {
@@ -1204,10 +1206,17 @@ export default function PowerCalculator() {
                           </div>
                         </div>
 
+                        {(() => {
+                          const stationId = result.powerStation.station?.id || '';
+                          const stationStockOut = (dbProducts[stationId]?.stock ?? 0) <= 0;
+                          return (
                         <button
+                          type="button"
+                          disabled={stationStockOut}
+                          title={stationStockOut ? 'Yakında stoklarda' : undefined}
                           onClick={async () => {
+                            if (stationStockOut) return;
                             if (result.powerStation.station) {
-                              const stationId = result.powerStation.station.id;
                               const dbProduct = dbProducts[stationId];
                               await addItem({
                                 productId: dbProduct?.id || stationId,
@@ -1224,14 +1233,24 @@ export default function PowerCalculator() {
                             }
                           }}
                           className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
-                            stationAdded
+                            stationStockOut
+                              ? 'bg-amber-500/10 border border-amber-500/55 text-foreground cursor-not-allowed'
+                              : stationAdded
                               ? 'bg-emerald-500 text-white'
                               : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white'
                           }`}
                         >
-                          {stationAdded ? <Check size={16} /> : <ShoppingBag size={16} />}
-                          {stationAdded ? 'Eklendi' : 'Sepete Ekle'}
+                          {stationStockOut ? (
+                            <AlertTriangle size={16} />
+                          ) : stationAdded ? (
+                            <Check size={16} />
+                          ) : (
+                            <ShoppingBag size={16} />
+                          )}
+                          {stationStockOut ? 'Yakında stoklarda' : stationAdded ? 'Eklendi' : 'Sepete Ekle'}
                         </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -1290,10 +1309,17 @@ export default function PowerCalculator() {
                         </div>
                       </div>
 
+                      {(() => {
+                        const panelId = result.solarPanel?.panel?.id || '';
+                        const panelStockOut = (dbProducts[panelId]?.stock ?? 0) <= 0;
+                        return (
                       <button
+                        type="button"
+                        disabled={panelStockOut}
+                        title={panelStockOut ? 'Yakında stoklarda' : undefined}
                         onClick={async () => {
+                          if (panelStockOut) return;
                           if (result.solarPanel?.panel) {
-                            const panelId = result.solarPanel.panel.id;
                             const dbProduct = dbProducts[panelId];
                             await addItem({
                               productId: dbProduct?.id || panelId,
@@ -1311,14 +1337,24 @@ export default function PowerCalculator() {
                           }
                         }}
                         className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
-                          panelAdded
+                          panelStockOut
+                            ? 'bg-amber-500/10 border border-amber-500/55 text-foreground cursor-not-allowed'
+                            : panelAdded
                             ? 'bg-emerald-500 text-white'
                             : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white'
                         }`}
                       >
-                        {panelAdded ? <Check size={16} /> : <ShoppingBag size={16} />}
-                        {panelAdded ? 'Eklendi' : 'Sepete Ekle'}
+                        {panelStockOut ? (
+                          <AlertTriangle size={16} />
+                        ) : panelAdded ? (
+                          <Check size={16} />
+                        ) : (
+                          <ShoppingBag size={16} />
+                        )}
+                        {panelStockOut ? 'Yakında stoklarda' : panelAdded ? 'Eklendi' : 'Sepete Ekle'}
                       </button>
+                        );
+                      })()}
                     </div>
                   </div>
                   </div>
@@ -1436,10 +1472,15 @@ export default function PowerCalculator() {
                                   openCart();
                                 }}
                                 disabled={bundle.stock <= 0}
-                                className="w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 bg-glass-bg hover:bg-glass-bg-hover border border-glass-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={bundle.stock <= 0 ? 'Yakında stoklarda' : undefined}
+                                className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
+                                  bundle.stock <= 0
+                                    ? 'bg-amber-500/10 border border-amber-500/55 text-foreground cursor-not-allowed'
+                                    : 'bg-glass-bg hover:bg-glass-bg-hover border border-glass-border text-foreground'
+                                }`}
                               >
-                                <ShoppingBag size={16} />
-                                Sepete Ekle
+                                {bundle.stock <= 0 ? <AlertTriangle size={16} /> : <ShoppingBag size={16} />}
+                                {bundle.stock <= 0 ? 'Yakında stoklarda' : 'Sepete Ekle'}
                               </button>
                             </div>
                           </div>
