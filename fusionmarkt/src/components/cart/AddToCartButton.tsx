@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { ShoppingBag, Check, Loader2, AlertCircle } from "lucide-react";
+import { ShoppingBag, Check, Loader2, AlertCircle, AlertTriangle } from "lucide-react";
 import { useCart, CartItem } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 
@@ -112,7 +112,7 @@ export default function AddToCartButton({
         onClick={handleClick}
         title={
           disabled
-            ? "Stokta Yok"
+            ? "Yakında stoklarda"
             : buttonState === "loading"
             ? "Ekleniyor..."
             : buttonState === "success"
@@ -126,7 +126,7 @@ export default function AddToCartButton({
         className={cn(
           "relative overflow-hidden",
           "transition-all duration-300 ease-out",
-          disabled && "cursor-not-allowed opacity-50",
+          disabled && "cursor-not-allowed",
           buttonState === "success" && "animate-cart-success",
           className
         )}
@@ -134,31 +134,34 @@ export default function AddToCartButton({
           width: config.icon.width,
           height: config.icon.height,
           borderRadius: SQUIRCLE.lg,
-          backgroundColor:
-            buttonState === "success"
-              ? "rgba(16, 185, 129, 0.95)"
-              : buttonState === "error"
-              ? "rgba(239, 68, 68, 0.95)"
-              : "var(--glass-bg)",
+          backgroundColor: disabled
+            ? "rgba(251, 191, 36, 0.12)"
+            : buttonState === "success"
+            ? "rgba(16, 185, 129, 0.95)"
+            : buttonState === "error"
+            ? "rgba(239, 68, 68, 0.95)"
+            : "var(--glass-bg)",
           backdropFilter: disabled ? "none" : "blur(16px)",
           WebkitBackdropFilter: disabled ? "none" : "blur(16px)",
-          border:
-            buttonState === "success"
-              ? "1px solid rgba(16, 185, 129, 0.6)"
-              : buttonState === "error"
-              ? "1px solid rgba(239, 68, 68, 0.6)"
-              : "1px solid var(--glass-border)",
-          color: "var(--foreground)",
+          border: disabled
+            ? "1px solid rgba(251, 191, 36, 0.45)"
+            : buttonState === "success"
+            ? "1px solid rgba(16, 185, 129, 0.6)"
+            : buttonState === "error"
+            ? "1px solid rgba(239, 68, 68, 0.6)"
+            : "1px solid var(--glass-border)",
+          color: disabled ? "#FBBF24" : "var(--foreground)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: disabled ? "not-allowed" : "pointer",
-          boxShadow:
-            buttonState === "success"
-              ? "0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.2)"
-              : buttonState === "error"
-              ? "0 8px 32px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.2)"
-              : "0 2px 8px rgba(0,0,0,0.1)",
+          boxShadow: disabled
+            ? "0 2px 10px rgba(251, 191, 36, 0.20)"
+            : buttonState === "success"
+            ? "0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.2)"
+            : buttonState === "error"
+            ? "0 8px 32px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.2)"
+            : "0 2px 8px rgba(0,0,0,0.1)",
           transform: buttonState === "success" || buttonState === "error" ? "scale(1.05)" : "scale(1)",
         }}
       >
@@ -166,33 +169,39 @@ export default function AddToCartButton({
         <div
           className={cn(
             "flex items-center justify-center transition-all duration-300",
-            buttonState === "loading" && "animate-spin"
+            buttonState === "loading" && !disabled && "animate-spin"
           )}
         >
-          {buttonState === "idle" && (
-            <ShoppingBag size={config.icon.iconSize} strokeWidth={2.5} />
-          )}
-          {buttonState === "loading" && (
-            <Loader2 size={config.icon.iconSize} strokeWidth={2.5} />
-          )}
-          {buttonState === "success" && (
-            <Check
-              size={config.icon.iconSize}
-              strokeWidth={3}
-              className="animate-pop-in"
-            />
-          )}
-          {buttonState === "error" && (
-            <AlertCircle
-              size={config.icon.iconSize}
-              strokeWidth={2.5}
-              className="animate-pop-in"
-            />
+          {disabled ? (
+            <AlertTriangle size={config.icon.iconSize} strokeWidth={2.5} />
+          ) : (
+            <>
+              {buttonState === "idle" && (
+                <ShoppingBag size={config.icon.iconSize} strokeWidth={2.5} />
+              )}
+              {buttonState === "loading" && (
+                <Loader2 size={config.icon.iconSize} strokeWidth={2.5} />
+              )}
+              {buttonState === "success" && (
+                <Check
+                  size={config.icon.iconSize}
+                  strokeWidth={3}
+                  className="animate-pop-in"
+                />
+              )}
+              {buttonState === "error" && (
+                <AlertCircle
+                  size={config.icon.iconSize}
+                  strokeWidth={2.5}
+                  className="animate-pop-in"
+                />
+              )}
+            </>
           )}
         </div>
 
         {/* Success ripple effect */}
-        {buttonState === "success" && (
+        {!disabled && buttonState === "success" && (
           <span className="absolute inset-0 rounded-[16px] animate-ping bg-emerald-500/30" />
         )}
       </button>
@@ -207,10 +216,11 @@ export default function AddToCartButton({
       type="button"
       disabled={disabled}
       onClick={handleClick}
+      title={disabled ? "Yakında stoklarda" : undefined}
       className={cn(
         "relative overflow-hidden group",
         "transition-all duration-300 ease-out",
-        disabled && "cursor-not-allowed opacity-50",
+        disabled && "cursor-not-allowed",
         buttonState === "success" && "animate-cart-success",
         className
       )}
@@ -221,29 +231,33 @@ export default function AddToCartButton({
         gap: "8px",
         padding: config.text.padding,
         height: `${config.text.height}px`,
-        backgroundColor:
-          buttonState === "success"
-            ? "rgba(16, 185, 129, 0.15)"
-            : buttonState === "error"
-            ? "rgba(239, 68, 68, 0.15)"
-            : "var(--glass-bg)",
-        border:
-          buttonState === "success"
-            ? "1px solid rgba(16, 185, 129, 0.4)"
-            : buttonState === "error"
-            ? "1px solid rgba(239, 68, 68, 0.4)"
-            : "1px solid var(--glass-border)",
+        backgroundColor: disabled
+          ? "rgba(251, 191, 36, 0.12)"
+          : buttonState === "success"
+          ? "rgba(16, 185, 129, 0.15)"
+          : buttonState === "error"
+          ? "rgba(239, 68, 68, 0.15)"
+          : "var(--glass-bg)",
+        border: disabled
+          ? "1px solid rgba(251, 191, 36, 0.45)"
+          : buttonState === "success"
+          ? "1px solid rgba(16, 185, 129, 0.4)"
+          : buttonState === "error"
+          ? "1px solid rgba(239, 68, 68, 0.4)"
+          : "1px solid var(--glass-border)",
         borderRadius: SQUIRCLE.md, // 14px squircle
-        color:
-          buttonState === "success"
-            ? "#34d399"
-            : buttonState === "error"
-            ? "#f87171"
-            : "var(--foreground)",
+        color: disabled
+          ? "#FBBF24"
+          : buttonState === "success"
+          ? "#34d399"
+          : buttonState === "error"
+          ? "#f87171"
+          : "var(--foreground)",
         fontSize: config.text.fontSize,
         fontWeight: 600,
         cursor: disabled ? "not-allowed" : "pointer",
         minWidth: "110px",
+        boxShadow: disabled ? "0 2px 10px rgba(251, 191, 36, 0.20)" : undefined,
         transform: buttonState === "success" || buttonState === "error" ? "scale(1.02)" : "scale(1)",
       }}
     >
@@ -251,46 +265,59 @@ export default function AddToCartButton({
       <span
         className={cn(
           "flex items-center justify-center transition-all duration-300",
-          buttonState === "loading" && "animate-spin"
+          buttonState === "loading" && !disabled && "animate-spin"
         )}
       >
-        {buttonState === "idle" && (
-          <ShoppingBag size={config.text.iconSize} />
-        )}
-        {buttonState === "loading" && (
-          <Loader2 size={config.text.iconSize} />
-        )}
-        {buttonState === "success" && (
-          <Check
-            size={config.text.iconSize}
-            strokeWidth={3}
-            className="animate-pop-in"
-          />
-        )}
-        {buttonState === "error" && (
-          <AlertCircle
-            size={config.text.iconSize}
-            strokeWidth={2.5}
-            className="animate-pop-in"
-          />
+        {disabled ? (
+          <AlertTriangle size={config.text.iconSize} strokeWidth={2.5} />
+        ) : (
+          <>
+            {buttonState === "idle" && (
+              <ShoppingBag size={config.text.iconSize} />
+            )}
+            {buttonState === "loading" && (
+              <Loader2 size={config.text.iconSize} />
+            )}
+            {buttonState === "success" && (
+              <Check
+                size={config.text.iconSize}
+                strokeWidth={3}
+                className="animate-pop-in"
+              />
+            )}
+            {buttonState === "error" && (
+              <AlertCircle
+                size={config.text.iconSize}
+                strokeWidth={2.5}
+                className="animate-pop-in"
+              />
+            )}
+          </>
         )}
       </span>
 
       {/* Text */}
       <span className="transition-all duration-200">
-        {buttonState === "idle" && "Sepete Ekle"}
-        {buttonState === "loading" && "Ekleniyor..."}
-        {buttonState === "success" && "Eklendi!"}
-        {buttonState === "error" && "Varyant Seçiniz"}
+        {disabled
+          ? "Yakında stoklarda"
+          : buttonState === "idle"
+          ? "Sepete Ekle"
+          : buttonState === "loading"
+          ? "Ekleniyor..."
+          : buttonState === "success"
+          ? "Eklendi!"
+          : "Varyant Seçiniz"}
       </span>
 
       {/* Hover shine effect */}
-      <span
-        className={cn(
-          "absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700",
-          "bg-gradient-to-r from-transparent via-white/10 to-transparent"
-        )}
-      />
+      {!disabled && (
+        <span
+          className={cn(
+            "absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700",
+            "bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          )}
+        />
+      )}
     </button>
   );
 }

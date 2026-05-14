@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useSyncExternalStore } from "react";
-import { Truck } from "lucide-react";
 
 // iOS-style Squircle border-radius
 const SQUIRCLE = {
@@ -151,27 +150,10 @@ export function KargoTimer(props: KargoTimerProps) {
     return null;
   }
 
-  // Stokta değilse
+  // Stokta değilse - bilgi artık AddToCartButton (Yakında stoklarda) üzerinde gösterildiği için
+  // burada ayrı bir pill render etmiyoruz.
   if (!inStock) {
-    return (
-      <div 
-        className={className}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '8px 14px',
-          backgroundColor: 'var(--glass-bg)',
-          border: '1px solid var(--border)',
-          borderRadius: SQUIRCLE.md,
-        }}
-      >
-        <Truck size={14} style={{ color: 'var(--foreground-muted)' }} />
-        <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--foreground-muted)' }}>
-          Yakında stoklarda
-        </span>
-      </div>
-    );
+    return null;
   }
 
   const isCheckout = variant === "odeme";

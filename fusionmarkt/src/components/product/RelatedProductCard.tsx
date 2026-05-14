@@ -70,6 +70,12 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
   const savings = product.comparePrice ? product.comparePrice - product.price : 0;
   const isRelatedFavorite = isFavorite(String(product.id));
 
+  // Stok durumu: varyantlı üründe seçili varyantın stoğuna, yoksa toplam stoğa bak.
+  // Varyantsız üründe doğrudan product.stock kontrol edilir.
+  const isOutOfStock = hasVariants
+    ? (selectedVariant ? selectedVariant.stock <= 0 : (product.stock ?? 0) <= 0)
+    : (product.stock ?? 0) <= 0;
+
   const handleNeedsVariant = () => {
     setVariantError(true);
     setTimeout(() => setVariantError(false), 2500);
@@ -279,6 +285,7 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
             }}
             variant="text"
             size="sm"
+            disabled={isOutOfStock}
             requiresVariant={hasVariants}
             onNeedsVariant={handleNeedsVariant}
           />
