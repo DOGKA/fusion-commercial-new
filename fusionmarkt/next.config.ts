@@ -306,37 +306,14 @@ const nextConfig: NextConfig = {
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // CSS CONFIGURATION
+  // CSS / BUNDLER
   // ═══════════════════════════════════════════════════════════════════════════
-  // Disable CSS optimization that causes preload warnings
-  experimental: {
-    optimizeCss: false,
-  },
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // WEBPACK CONFIGURATION
-  // ═══════════════════════════════════════════════════════════════════════════
-  webpack: (config, { isServer }) => {
-    // Fix for CSS preload warnings - disable preload hints for CSS
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...config.optimization.splitChunks?.cacheGroups,
-          // Combine all CSS into fewer chunks to reduce preload issues
-          styles: {
-            name: "styles",
-            test: /\.css$/,
-            chunks: "all",
-            enforce: true,
-            priority: 20,
-          },
-        },
-      };
-    }
-    
-    return config;
-  },
+  // Note: The previous custom `webpack.splitChunks.cacheGroups.styles` rule
+  // (with enforce:true) was the source of "preloaded but not used" warnings
+  // for /_next/static/css/*.css. It forced all CSS into a single chunk that
+  // Next.js 15's automatic route-level CSS loader then preloaded but never
+  // actually used at runtime on certain pages. Letting Next.js handle CSS
+  // chunking automatically is the correct fix.
 };
 
 export default nextConfig;

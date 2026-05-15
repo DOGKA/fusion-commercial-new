@@ -9,6 +9,56 @@
    - Small Mobile: max-width 479px
 =========================================================================== */
 
+/* ===========================================================================
+   MOBILE PERFORMANCE — Backdrop filter / blur azaltma (Safari mobile kritik)
+   
+   Safari mobile'da backdrop-filter: blur(40px) ve filter: blur(150px) gibi
+   ağır filtreler GPU compositor'unu tıkıyor; scroll/animasyon FPS'i düşüyor
+   ve INP poor zonuna kayıyor (RUM verisinde glass-card INP 6168ms görüldü).
+   
+   Çözüm: Mobile'da glass-card backdrop-filter'ını 8px'e düşürüyoruz ve
+   hover'da transform animasyonunu kapatıyoruz (hover zaten touch'ta tetiklenmez
+   ama bazı tarayıcılar :hover'ı tap'te uyguluyor ve repaint maliyetli).
+=========================================================================== */
+@media (max-width: 1023px) {
+  .glass-card,
+  .glass-card-static,
+  .glass,
+  .glass-light,
+  .glass-medium,
+  .glass-heavy,
+  .glass-solid,
+  .glass-panel {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  .glass-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Büyük dekoratif blur div'leri mobile'da paint maliyetini ciddi şekilde
+     artırıyor. opacity'i düşürüp blur radius'unu küçültüyoruz. */
+  [class*="blur-[100px]"],
+  [class*="blur-[120px]"],
+  [class*="blur-[150px]"],
+  [class*="blur-[200px]"] {
+    filter: blur(40px) !important;
+    opacity: 0.5 !important;
+  }
+}
+
+/* iOS Safari için ek will-change/contain optimizasyonu */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 1023px) {
+    .glass-card {
+      contain: layout style paint;
+    }
+  }
+}
+
+
 /* Shipping options - Desktop default */
 .shipping-option-title,
 .shipping-option-price {

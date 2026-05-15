@@ -197,8 +197,9 @@ export default function IletisimPage() {
           HERO SECTION
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="relative pb-16 md:pb-24 overflow-hidden" style={{ paddingTop: "120px" }}>
-        {/* Background Effects */}
-        <div className="absolute inset-0">
+        {/* Background Effects — sadece desktop'ta render edilir.
+            Mobile Safari'de büyük blur filtreleri scroll FPS'ini bozuyor. */}
+        <div className="absolute inset-0 hidden lg:block pointer-events-none" aria-hidden="true">
           <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[var(--fusion-primary)]/10 rounded-full blur-[150px]" />
           <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] bg-[var(--fusion-secondary)]/10 rounded-full blur-[120px]" />
         </div>

@@ -226,6 +226,20 @@ function InteractiveTerminal() {
 
 export default function HakkimizdaPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Parallax sadece desktop'ta. Mobile Safari'de useScroll her frame'de
+  // state update tetikleyip scroll FPS'ini düşürüyor — bu sayfanın takılma
+  // sebebinin başında bu geliyor.
+  const [enableParallax, setEnableParallax] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 1024px) and (pointer: fine)");
+    const update = () => setEnableParallax(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
@@ -288,18 +302,20 @@ export default function HakkimizdaPage() {
           HERO SECTION - Parallax Office Image
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="relative h-[70vh] md:h-[80vh] overflow-hidden">
-        {/* Background Image with Parallax */}
-        <motion.div 
+        {/* Background Image with Parallax — sadece desktop'ta parallax aktif */}
+        <motion.div
           className="absolute inset-0"
-          style={{ opacity: heroOpacity, scale: heroScale }}
+          style={enableParallax ? { opacity: heroOpacity, scale: heroScale } : undefined}
         >
           <Image
             src={OFFICE_IMAGE}
             alt="FusionMarkt Office"
             fill
             priority
+            fetchPriority="high"
             className="object-cover"
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1440px"
+            quality={75}
           />
           {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[var(--background)]" />
@@ -494,8 +510,8 @@ export default function HakkimizdaPage() {
           SOCIAL & CLIMATE SECTION
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-12 md:py-20 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-30">
+        {/* Background Pattern — sadece desktop'ta render edilir */}
+        <div className="absolute inset-0 opacity-30 hidden lg:block pointer-events-none" aria-hidden="true">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-[var(--fusion-primary)]/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[var(--fusion-secondary)]/20 rounded-full blur-[120px]" />
         </div>
