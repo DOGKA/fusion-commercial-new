@@ -35,6 +35,13 @@ interface DbVariant {
   isActive: boolean;
 }
 
+interface DbBundle {
+  id: string;
+  name: string;
+  price: number;
+  isActive: boolean;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -83,12 +90,70 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Bundle'lar için aktif fiyat ve aktiflik kontrolü.
+    // Bundle modelinde indirim Product ile aynı semantikle çalışır:
+    //   bundle.price        = güncel/satış fiyatı
+    //   bundle.comparePrice = eski (çizgili) fiyat — admin indirimi kaldırırsa
+    //                         price ana fiyata çekilir, comparePrice null'a düşer.
+    // Bu yüzden tek karşılaştırma alanı bundle.price yeterli.
+    const bundleIds = items
+      .filter(i => i.isBundle && i.bundleId)
+      .map(i => i.bundleId!) as string[];
+    let bundleMap = new Map<string, DbBundle>();
+    if (bundleIds.length > 0) {
+      const bundles = await prisma.bundle.findMany({
+        where: { id: { in: bundleIds } },
+        select: { id: true, name: true, price: true, isActive: true },
+      });
+      bundleMap = new Map(
+        bundles.map(b => [b.id, { ...b, price: Number(b.price) }]),
+      );
+    }
+
     let recalculatedSubtotal = 0;
 
     for (const item of items) {
       if (item.isBundle) {
-        recalculatedSubtotal += item.price * item.quantity;
-        correctedItems.push(item);
+        if (!item.bundleId) {
+          errors.push({
+            type: "PRODUCT_INACTIVE",
+            productId: item.productId,
+            message: "Paket bilgisi eksik",
+          });
+          continue;
+        }
+        const bundle = bundleMap.get(item.bundleId);
+        if (!bundle) {
+          errors.push({
+            type: "PRODUCT_INACTIVE",
+            productId: item.productId,
+            message: "Paket bulunamadı",
+          });
+          continue;
+        }
+        if (!bundle.isActive) {
+          errors.push({
+            type: "PRODUCT_INACTIVE",
+            productId: item.productId,
+            message: `"${bundle.name}" paketi artık satışta değil`,
+          });
+          continue;
+        }
+        const bundlePrice = bundle.price;
+        if (Math.abs(bundlePrice - item.price) > 0.01) {
+          errors.push({
+            type: "PRICE_CHANGED",
+            productId: item.productId,
+            message: `"${bundle.name}" paket fiyatı değişti`,
+            currentValue: bundlePrice,
+            expectedValue: item.price,
+          });
+          correctedItems.push({ ...item, correctedPrice: bundlePrice, productName: bundle.name });
+          recalculatedSubtotal += bundlePrice * item.quantity;
+        } else {
+          correctedItems.push(item);
+          recalculatedSubtotal += item.price * item.quantity;
+        }
         continue;
       }
 
