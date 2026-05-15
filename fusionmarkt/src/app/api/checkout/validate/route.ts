@@ -31,6 +31,7 @@ interface DbVariant {
   id: string;
   stock: number;
   price: number | null;
+  salePrice: number | null;
   isActive: boolean;
 }
 
@@ -68,9 +69,18 @@ export async function POST(request: NextRequest) {
     if (variantIds.length > 0) {
       const variants = await prisma.productVariant.findMany({
         where: { id: { in: variantIds } },
-        select: { id: true, stock: true, price: true, isActive: true },
+        select: { id: true, stock: true, price: true, salePrice: true, isActive: true },
       });
-      variantMap = new Map(variants.map(v => [v.id, { ...v, price: v.price ? Number(v.price) : null }]));
+      variantMap = new Map(
+        variants.map(v => [
+          v.id,
+          {
+            ...v,
+            price: v.price != null ? Number(v.price) : null,
+            salePrice: v.salePrice != null ? Number(v.salePrice) : null,
+          },
+        ]),
+      );
     }
 
     let recalculatedSubtotal = 0;
@@ -121,7 +131,17 @@ export async function POST(request: NextRequest) {
       }
 
       const variant = item.variant?.id ? variantMap.get(item.variant.id) : null;
-      const effectivePrice = (variant?.price != null) ? variant.price : product.price;
+      // Varyant fiyat mantığı ürün sayfası (BundleProductView / SingleProductView) ile aynı:
+      //   variant.salePrice (indirimli) öncelikli, yoksa variant.price (liste), o da yoksa product.price.
+      // Önceden yalnız variant.price kullanılıyordu; indirimli varyant siparişlerinde "Fiyat Değişti"
+      // uyarısı tetikleniyordu (liste fiyatı sepetteki indirimli fiyatla karşılaştırıldığı için).
+      const effectivePrice = variant
+        ? (variant.salePrice != null
+            ? variant.salePrice
+            : variant.price != null
+              ? variant.price
+              : product.price)
+        : product.price;
 
       if (Math.abs(effectivePrice - item.price) > 0.01) {
         errors.push({
