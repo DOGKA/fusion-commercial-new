@@ -1722,10 +1722,18 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
     return !nonCancellableStatuses.includes(order.status);
   };
   
-  // Check if order can be returned
+  // Check if order can be returned.
+  // SHIPPED: müşteri henüz teslim almamış, hâlâ açık.
+  // DELIVERED: teslim tarihinden itibaren 2 günlük iade penceresi var.
+  //   Süre dolduktan sonra buton sessizce gizlenir (geri sayım gösterilmez);
+  //   iade etmek isteyen müşteri iletişim üzerinden ulaşır.
   const canReturnOrder = (order: Order) => {
-    const returnableStatuses = ["SHIPPED", "DELIVERED"];
-    return returnableStatuses.includes(order.status);
+    if (order.status === "SHIPPED") return true;
+    if (order.status !== "DELIVERED") return false;
+    if (!order.deliveredAt) return true; // tarih yoksa güvenli yan: aç
+    const RETURN_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
+    const elapsed = Date.now() - new Date(order.deliveredAt).getTime();
+    return elapsed < RETURN_WINDOW_MS;
   };
   
   // Close modals
