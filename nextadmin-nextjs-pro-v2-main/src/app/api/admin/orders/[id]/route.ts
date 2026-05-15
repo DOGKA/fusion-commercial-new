@@ -13,7 +13,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
 import { 
   sendOrderStatusEmail, 
-  sendPaymentConfirmedEmail 
+  sendPaymentConfirmedEmail,
+  sendInvoiceReadyEmail
 } from "@/lib/email";
 import { createCancel, createRefund, IYZICO_ENABLED } from "@/lib/iyzico";
 function normalizeIyzicoIp(rawIp?: string | null): string {
@@ -275,6 +276,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       carrierName,
       adminNote,
       invoiceUrl,
+      sendInvoiceNotification,
     } = body;
 
     // Prepare update data
@@ -339,6 +341,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (invoiceUrl !== undefined) {
       updateData.invoiceUrl = invoiceUrl;
       updateData.invoiceUploadedAt = invoiceUrl ? new Date() : null;
+    }
+
+    // Admin "Müşteriye fatura bildirim maili gönder" checkbox'ını işaretlediyse
+    // bildirim zamanını şimdi olarak işaretle — mail gönderimi update sonrası,
+    // ilgili kullanıcı bilgisi alındıktan sonra tetiklenir.
+    const shouldSendInvoiceMail =
+      sendInvoiceNotification === true && Boolean(existing.invoiceUrl);
+    if (shouldSendInvoiceMail) {
+      updateData.invoiceNotifiedAt = new Date();
     }
 
     // Handle stock restoration for cancellation/refund
@@ -496,6 +507,25 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         console.log(`📧 Status email queued for ${customerEmail} (PUT)`);
       } else {
         console.log(`⚠️ No customer email found for order ${order.orderNumber}`);
+      }
+    }
+
+    // Fatura bildirim maili — admin "Kaydet" sırasında checkbox işaretlediyse
+    if (shouldSendInvoiceMail) {
+      const customerEmail = order.user?.email;
+      const customerName = order.user?.name ||
+        (order.billingAddress ? `${order.billingAddress.firstName} ${order.billingAddress.lastName}` : undefined);
+
+      if (customerEmail) {
+        sendInvoiceReadyEmail({
+          to: customerEmail,
+          orderNumber: order.orderNumber,
+          customerName,
+        }).catch((err) => console.error("Invoice email send error (PUT):", err));
+
+        console.log(`📧 Invoice ready email queued for ${customerEmail} (PUT)`);
+      } else {
+        console.log(`⚠️ No customer email for invoice notification: ${order.orderNumber}`);
       }
     }
 

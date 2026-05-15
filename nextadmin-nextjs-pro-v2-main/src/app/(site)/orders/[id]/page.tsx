@@ -77,6 +77,7 @@ interface Order {
   carrierName: string | null;
   invoiceUrl: string | null;
   invoiceUploadedAt: string | null;
+  invoiceNotifiedAt: string | null;
   customerNote: string | null;
   adminNote: string | null;
   createdAt: string;
@@ -164,6 +165,10 @@ export default function OrderDetailPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // "Müşteriye fatura bildirim maili gönder" checkbox state.
+  // Default: yüklü ama bildirim henüz gönderilmemiş fatura varsa açık.
+  const [sendInvoiceNotification, setSendInvoiceNotification] = useState(false);
+
   // Dropdowns
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [paymentDropdownOpen, setPaymentDropdownOpen] = useState(false);
@@ -192,6 +197,8 @@ export default function OrderDetailPage() {
         setTrackingNumber(data.trackingNumber || "");
         setCarrierName(data.carrierName || "");
         setAdminNote(data.adminNote || "");
+        // Fatura var ama bildirim henüz gönderilmediyse checkbox'ı default açık tut
+        setSendInvoiceNotification(Boolean(data.invoiceUrl && !data.invoiceNotifiedAt));
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -217,6 +224,10 @@ export default function OrderDetailPage() {
     }
 
     try {
+      // Sadece yüklü ve daha önce bildirilmemiş fatura varsa mail tetiklensin
+      const willSendInvoiceMail =
+        sendInvoiceNotification && Boolean(order.invoiceUrl);
+
       const res = await fetch(`/api/admin/orders/${order.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -226,6 +237,7 @@ export default function OrderDetailPage() {
           trackingNumber: trackingNumber || null,
           carrierName: carrierName || null,
           adminNote: adminNote || null,
+          sendInvoiceNotification: willSendInvoiceMail,
         }),
       });
 
@@ -233,10 +245,14 @@ export default function OrderDetailPage() {
 
       const data = await res.json();
       setOrder(data.order);
-      
+      // Bildirim gönderildiyse checkbox'ı kapat (artık invoiceNotifiedAt dolu)
+      if (willSendInvoiceMail) setSendInvoiceNotification(false);
+
       // Show appropriate message
       if (finalStatus === "SHIPPED" && order.status !== "SHIPPED") {
         alert("Sipariş güncellendi! Kargo bilgisi eklendiği için durum 'Kargoda' olarak değiştirildi.");
+      } else if (willSendInvoiceMail) {
+        alert("Sipariş güncellendi ve müşteriye fatura bildirim maili gönderildi.");
       } else {
         alert("Sipariş güncellendi!");
       }
@@ -389,14 +405,42 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90 disabled:opacity-50"
-        >
-          {saving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
-          Kaydet
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {order.invoiceUrl && (
+            <label
+              className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stroke bg-white px-3 py-2 text-sm dark:border-dark-3 dark:bg-gray-dark"
+              title="Kaydet'e basıldığında müşteriye 'Faturanız Hazır' bildirim maili gönderilir."
+            >
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={sendInvoiceNotification}
+                onChange={(e) => setSendInvoiceNotification(e.target.checked)}
+              />
+              <span className="text-dark dark:text-white">
+                Müşteriye fatura bildirim maili gönder
+              </span>
+              {order.invoiceNotifiedAt && (
+                <span className="ml-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                  Bildirildi
+                </span>
+              )}
+              {!order.invoiceNotifiedAt && (
+                <span className="ml-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                  Bildirilmedi
+                </span>
+              )}
+            </label>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90 disabled:opacity-50"
+          >
+            {saving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
+            Kaydet
+          </button>
+        </div>
       </div>
 
       {/* Main Grid */}

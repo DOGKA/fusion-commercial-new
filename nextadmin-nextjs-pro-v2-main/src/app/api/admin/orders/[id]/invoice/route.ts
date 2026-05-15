@@ -9,10 +9,10 @@ import { prisma } from "@repo/db";
 import { revalidateTag } from "next/cache";
 import { writeFile, unlink, mkdir } from "fs/promises";
 import { existsSync } from "fs";
+import { randomBytes } from "crypto";
 import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
-import { sendInvoiceReadyEmail } from "@/lib/email";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -37,9 +37,8 @@ async function checkAdminAuth() {
 const STORAGE_BASE_PATH = path.join(process.cwd(), "..", "fusionmarkt", "public", "storage", "invoices");
 // Also save to admin's public folder for direct access
 const ADMIN_STORAGE_PATH = path.join(process.cwd(), "public", "storage", "invoices");
-const PUBLIC_URL_BASE = "/storage/invoices";
-// Frontend URL for cross-app access
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3003";
+// Public URL is served via tokenized API stream route (see /api/invoices/[file])
+const PUBLIC_URL_BASE = "/api/invoices";
 
 /**
  * POST /api/admin/orders/[id]/invoice
@@ -55,23 +54,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
-    // Check if order exists with user info
+    // Check if order exists
     const order = await prisma.order.findUnique({
       where: { id },
-      include: {
-        user: {
-          select: {
-            email: true,
-            name: true,
-          },
-        },
-        billingAddress: {
-          select: {
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
     });
 
     if (!order) {
@@ -119,8 +104,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       await mkdir(ADMIN_STORAGE_PATH, { recursive: true });
     }
 
-    // Generate file name
+    // Generate file name and token for the new tokenized URL scheme.
+    // Bildirim maili artık burada gönderilmiyor — admin sipariş detayında
+    // "Kaydet" basıldığında (checkbox aktifse) tetiklenir.
     const fileName = `${order.orderNumber}.pdf`;
+    const token = randomBytes(24).toString("hex");
     const frontendFilePath = path.join(STORAGE_BASE_PATH, fileName);
     const adminFilePath = path.join(ADMIN_STORAGE_PATH, fileName);
 
@@ -128,37 +116,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     await writeFile(frontendFilePath, buffer);
     await writeFile(adminFilePath, buffer);
 
-    // Use relative path for DB (works for frontend)
-    const invoiceUrl = `${PUBLIC_URL_BASE}/${fileName}`;
-    
+    const invoiceUrl = `${PUBLIC_URL_BASE}/${fileName}?t=${token}`;
+
     console.log(`📁 Invoice saved to: ${frontendFilePath}`);
     console.log(`📁 Invoice also saved to: ${adminFilePath}`);
 
-    // Update order
+    // Update order — yeni fatura ile birlikte bildirim durumu sıfırlanır.
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
         invoiceUrl,
+        invoiceToken: token,
         invoiceUploadedAt: new Date(),
+        invoiceNotifiedAt: null,
       },
     });
 
     console.log(`✅ Invoice uploaded for order ${order.orderNumber}: ${invoiceUrl}`);
-
-    // Send email notification to customer
-    const customerEmail = order.user?.email || (order.billingAddress as any)?.email;
-    const customerName = order.user?.name || 
-      (order.billingAddress ? `${order.billingAddress.firstName} ${order.billingAddress.lastName}` : undefined);
-    
-    if (customerEmail) {
-      sendInvoiceReadyEmail({
-        to: customerEmail,
-        orderNumber: order.orderNumber,
-        customerName,
-      }).catch(err => console.error("Invoice email send error:", err));
-      
-      console.log(`📧 Invoice ready email queued for ${customerEmail}`);
-    }
 
     // Revalidate cache
     revalidateTag("orders");
@@ -234,6 +208,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       data: {
         invoiceUrl: null,
         invoiceUploadedAt: null,
+        invoiceToken: null,
+        invoiceNotifiedAt: null,
       },
     });
 

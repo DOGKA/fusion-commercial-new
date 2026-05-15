@@ -426,6 +426,8 @@ model Order {
   confirmedAt               DateTime?
   invoiceUploadedAt         DateTime?
   invoiceUrl                String?
+  invoiceToken              String?
+  invoiceNotifiedAt         DateTime?
   preparingAt               DateTime?
   refundedAt                DateTime?
   statusHistory             Json?                @db.Json
