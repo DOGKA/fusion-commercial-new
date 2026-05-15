@@ -98,6 +98,12 @@ export const NAV_DATA: NavGroup[] = [
         items: [],
       },
       {
+        title: "Kargo Timer",
+        url: "/marketing/kargo-timer",
+        icon: Icons.Calendar,
+        items: [],
+      },
+      {
         title: "Mail Takip",
         url: "/mail-track",
         icon: Icons.Envelope,

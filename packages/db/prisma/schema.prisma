@@ -1014,10 +1014,32 @@ model ShippingSettings {
   taxRate                Decimal  @default(20) @db.Decimal(5, 2)
   defaultShippingClassId String?
   enableShippingCalc     Boolean  @default(true)
+  // Kargo Timer config
+  timerEnabled           Boolean  @default(true)
+  weekdayCutoffHour      Int      @default(14)
+  weekdayCutoffMinute    Int      @default(0)
+  saturdayEnabled        Boolean  @default(false)
+  saturdayCutoffHour     Int      @default(13)
+  saturdayCutoffMinute   Int      @default(0)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
   @@map("shipping_settings")
+}
+
+model ShippingHoliday {
+  id          String   @id @default(cuid())
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  isRecurring Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, startDate, endDate])
+  @@map("shipping_holidays")
 }
 
 model BlogPost {
