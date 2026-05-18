@@ -1,7 +1,6 @@
 import BlogPageClient from "@/components/blog/BlogPageClient";
 import { staticPageMetadata, generateBreadcrumbSchema, generateItemListSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
-import "@/styles/blog.css";
 
 export const metadata = staticPageMetadata.blog;
 

@@ -1272,12 +1272,10 @@ function CategoryCarousel({
                         badges: product.badges || [],
                         videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
                       } as BundleProduct}
-                      priority={idx < 4}
                     />
                   ) : (
                     <ProductCard 
                       product={mapApiProductToCard(product, freeShippingThreshold)} 
-                      priority={idx < 4}
                     />
                   )}
                 </div>
@@ -1408,7 +1406,7 @@ function StoreFeaturedSection({
             >
               {displayProducts.map((product, idx) => (
                 <div key={`${product.id}-${idx}`} className="flex-shrink-0 w-[280px]">
-                  <ProductCard product={product} priority={idx < 4} />
+                  <ProductCard product={product} />
                 </div>
               ))}
             </div>

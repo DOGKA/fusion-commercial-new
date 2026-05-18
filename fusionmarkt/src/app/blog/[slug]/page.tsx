@@ -5,7 +5,6 @@ import BlogViewTracker from "@/components/blog/BlogViewTracker";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import { JsonLd } from "@/components/seo";
 import { generateBlogMetadata, generateArticleSchema, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
-import "@/styles/blog.css";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
