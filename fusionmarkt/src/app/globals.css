@@ -1559,6 +1559,40 @@
 }
 
 /* ===========================================================================
+   Header - Scrolled State (Glassmorphism, theme-aware)
+   Triggers when window.scrollY > 20px (handled in Header.tsx)
+   - Light theme: frosted white tint
+   - Dark theme:  frosted graphite tint
+   - Above-the-fold homepage slider styling is NOT applied while scrolled,
+     so this rule always wins for scrolled state.
+=========================================================================== */
+header.header-scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 1px 0 var(--glass-border), 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: background-color 400ms var(--ease-default),
+              backdrop-filter 400ms var(--ease-default),
+              -webkit-backdrop-filter 400ms var(--ease-default),
+              border-color 400ms var(--ease-default),
+              box-shadow 400ms var(--ease-default),
+              padding 400ms var(--ease-default);
+}
+
+.dark header.header-scrolled {
+  background: rgba(20, 20, 20, 0.95);
+  box-shadow: 0 1px 0 var(--glass-border), 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Safari fallback: backdrop-filter desteği yoksa daha opak arka plan */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  header.header-scrolled {
+    background: var(--background);
+  }
+}
+
+/* ===========================================================================
    Header - Slider Adaptive Colors (homepage only, above fold)
    Only targets direct header children: nav links, icon buttons, logo SVG
 =========================================================================== */

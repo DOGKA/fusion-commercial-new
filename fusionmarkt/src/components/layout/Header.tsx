@@ -144,10 +144,9 @@ export default function Header() {
       <header
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-          isScrolled 
-            ? "py-2" 
-            : "py-4",
-          headerColorClass
+          isScrolled ? "py-2" : "py-4",
+          (isScrolled || isMobileMenuOpen) && "header-scrolled",
+          !isScrolled && !isMobileMenuOpen && headerColorClass
         )}
       >
 
@@ -335,13 +334,14 @@ export default function Header() {
                   className={cn(
                     "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                     "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
-                    "hover:before:bg-foreground/[0.05]",
-                    isMobileMenuOpen && "before:bg-foreground/[0.08]"
+                    "hover:before:bg-foreground/[0.05]"
                   )}
                   aria-label="Menü"
                 >
                   {isMobileMenuOpen ? (
-                    <X className="w-5 h-5 relative z-10" />
+                    <span className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-foreground/[0.08]">
+                      <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    </span>
                   ) : (
                     <Menu className="w-5 h-5 relative z-10" />
                   )}
@@ -354,13 +354,17 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-x-0 top-[56px] z-40 lg:hidden mobile-dropdown-menu">
+        <div
+          className="fixed inset-x-0 z-40 lg:hidden mobile-dropdown-menu"
+          style={{ top: isScrolled ? "58px" : "74px" }}
+        >
           <div
-            className="fixed inset-0 top-[56px] bg-background/70 backdrop-blur-md"
+            className="fixed inset-0 bg-background/70 backdrop-blur-md"
+            style={{ top: isScrolled ? "58px" : "74px" }}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
-          <div className="relative mx-3 mt-3 overflow-hidden rounded-3xl shadow-2xl">
+          <div className="relative mx-3 mt-2 overflow-hidden rounded-3xl shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.08] to-foreground/[0.02] backdrop-blur-2xl" />
             <div className="absolute inset-0 bg-background/90" />
             <div className="absolute inset-0 rounded-3xl border border-border" />
