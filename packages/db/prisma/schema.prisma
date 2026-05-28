@@ -1240,6 +1240,7 @@ model Faq {
   answer     String
   categoryId String
   order      Int         @default(0)
+  viewCount  Int         @default(0)
   isActive   Boolean     @default(true)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -1248,6 +1249,7 @@ model Faq {
   @@index([categoryId])
   @@index([isActive])
   @@index([order])
+  @@index([viewCount])
   @@map("faqs")
 }
 

@@ -32,6 +32,7 @@ export async function GET() {
         id: true,
         question: true,
         answer: true,
+        viewCount: true,
         category: {
           select: {
             id: true,

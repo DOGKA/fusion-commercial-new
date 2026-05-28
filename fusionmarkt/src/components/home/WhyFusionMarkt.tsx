@@ -2,7 +2,7 @@
 
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
-import { Truck, ShieldCheck, RotateCcw, MessageCircle, CreditCard, PackageCheck } from "lucide-react";
+import { Truck, ShieldCheck, MessageCircle, CreditCard, PackageCheck } from "lucide-react";
 
 const BENEFITS = [
   {
@@ -14,11 +14,6 @@ const BENEFITS = [
     icon: ShieldCheck,
     title: "VDE Kontrollü Sevkiyat",
     subtitle: "Orijinal fabrika kutusunda sevk edilir. Ürünler kutulanmadan önce VDE gerekliliği doğrultusunda teknik ekip tarafından kontrol edilir.",
-  },
-  {
-    icon: RotateCcw,
-    title: "Kolay İade",
-    subtitle: "15 gün içinde koşulsuz iade. Soru sormayız.",
   },
   {
     icon: MessageCircle,
