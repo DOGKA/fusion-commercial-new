@@ -1,6 +1,18 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useSyncExternalStore, useCallback } from "react";
+
+// Media query aboneliği (modül seviyesi — kararlı referans)
+function subscribePointerCoarse(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia("(pointer: coarse)");
+  mq.addEventListener?.("change", callback);
+  return () => mq.removeEventListener?.("change", callback);
+}
+
+function getPointerCoarseSnapshot() {
+  return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HYBRID CAROUSEL - Mobile native scroll + Desktop transform drag
@@ -22,9 +34,14 @@ interface TransformCarouselOptions {
 export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   const { friction = 0.88 } = options;
 
-  // Mode: false = transform drag (desktop), true = native scroll (touch)
-  // İlk render'da false (SSR/hydration uyumu); mount sonrası touch ise true olur.
-  const [nativeScroll, setNativeScroll] = useState(false);
+  // Mode: native scroll (touch) vs transform drag (desktop).
+  // useSyncExternalStore: SSR'da false, client'ta gerçek değer döner; effect
+  // içinde setState yok (cascading render / lint hatası önlenir).
+  const nativeScroll = useSyncExternalStore(
+    subscribePointerCoarse,
+    getPointerCoarseSnapshot,
+    () => false
+  );
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,16 +67,6 @@ export function useTransformCarousel(options: TransformCarouselOptions = {}) {
   // Direction lock
   const scrollDirection = useRef<"horizontal" | "vertical" | null>(null);
   const directionLockThreshold = 3;
-
-  // Touch cihaz tespiti (mount sonrası — hydration mismatch önlenir)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(pointer: coarse)");
-    setNativeScroll(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setNativeScroll(e.matches);
-    mq.addEventListener?.("change", onChange);
-    return () => mq.removeEventListener?.("change", onChange);
-  }, []);
 
   // Clamp helper
   const clampTranslate = useCallback((x: number, max: number) => {
