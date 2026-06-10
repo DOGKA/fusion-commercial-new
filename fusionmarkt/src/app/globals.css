@@ -392,6 +392,33 @@
   transform: scale(1.05);
 }
 
+/* ===========================================================================
+   CAROUSEL DRAG STATE - Sürükleme sırasında repaint maliyetini kıs
+   NOT: Sadece parmak/fare ile aktif sürükleme anında geçerlidir; durağan
+   (idle) görünüm BİREBİR aynıdır. Sürüklerken transition/hover repaint'lerini
+   kapatarak Safari/Chrome'da daha akıcı (titremesiz) kaydırma sağlar.
+=========================================================================== */
+.carousel-dragging,
+.carousel-dragging * {
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.carousel-dragging .trending-product-card:hover .product-card-background {
+  transform: none;
+}
+
+/* Native scroll modu (mobil/touch): scrollbar gizle, hizalama kapalı (serbest) */
+.carousel-native-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.carousel-native-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .trending-product-card .product-card-background::after {
   content: "";
   position: absolute;

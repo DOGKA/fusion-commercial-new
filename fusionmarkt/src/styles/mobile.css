@@ -47,6 +47,15 @@
     filter: blur(40px) !important;
     opacity: 0.5 !important;
   }
+
+  /* Ürün kartı favori butonu — en ağır backdrop-filter kaynağı (her kartta var,
+     slider hareket ederken kompozit maliyeti yüksek). Mobilde blur'u hafifçe
+     kısıyoruz; görsel fark neredeyse yok ama scroll/INP belirgin iyileşir. */
+  button[title="Favorilere Ekle"],
+  button[title="Favorilerden Çıkar"] {
+    backdrop-filter: blur(6px) saturate(1.1) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(1.1) !important;
+  }
 }
 
 /* iOS Safari için ek will-change/contain optimizasyonu */
