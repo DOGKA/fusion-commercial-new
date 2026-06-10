@@ -31,8 +31,30 @@ async function getInitialSliders() {
   }
 }
 
+async function getInitialTrending() {
+  try {
+    const items = await prisma.homepageTrendingCard.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    });
+    return items.map((item) => ({
+      id: item.id,
+      href: item.buttonLink || "#",
+      title: item.title,
+      badge: item.badge || "",
+      attributes: item.attributes || undefined,
+      image: item.image || null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function Home() {
-  const initialSlides = await getInitialSliders();
+  const [initialSlides, initialTrending] = await Promise.all([
+    getInitialSliders(),
+    getInitialTrending(),
+  ]);
 
   return (
     <main className="flex flex-col">
@@ -44,7 +66,7 @@ export default async function Home() {
 
       
 
-      <TrendingCarousel />
+      <TrendingCarousel initialProducts={initialTrending} />
 
       <PromoBanner />
 

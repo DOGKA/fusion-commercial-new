@@ -100,6 +100,15 @@ const nextConfig: NextConfig = {
             key: "X-XSS-Protection",
             value: "1; mode=block",
           },
+          // HSTS - HTTPS zorunluluğu (Cloudflare "Domains without HSTS" bulgusu).
+          // NOT: `includeSubDomains` ve `preload` BİLEREK eklenmedi. mail/webmail
+          // alt alan adlarının TLS'i düzeldikten sonra bunlar Cloudflare SSL/TLS
+          // > Edge Certificates > HSTS bölümünden açılmalı. Aksi halde tarayıcı
+          // tüm alt alan adlarına HTTPS zorlar ve webmail erişimi kırılabilir.
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000",
+          },
         ],
       },
       // ═══════════════════════════════════════════════════════════════════════

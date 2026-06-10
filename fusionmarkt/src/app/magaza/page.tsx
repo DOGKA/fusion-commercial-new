@@ -886,13 +886,15 @@ export default function StorePage() {
       )}
 
       {/* CATEGORIES WITH CAROUSELS */}
-      <section style={{ marginTop: "48px", paddingBottom: "80px" }}>
+      {/* CLS fix: yükleme/sonuç durumlarının yükseklik farkından kaynaklı layout
+          kaymasını önlemek için bölüme alan rezerve ediyoruz. */}
+      <section style={{ marginTop: "48px", paddingBottom: "80px", minHeight: "70vh" }}>
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center" style={{ minHeight: "70vh" }}>
             <Loader2 className="w-8 h-8 text-foreground-muted animate-spin" />
           </div>
         ) : filteredCategories.length === 0 ? (
-          <div className="container text-center py-20">
+          <div className="container text-center" style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <p className="text-foreground-muted">Ürün bulunamadı.</p>
           </div>
         ) : (

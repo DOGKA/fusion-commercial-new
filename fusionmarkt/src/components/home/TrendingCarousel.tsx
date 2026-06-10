@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
@@ -29,10 +30,20 @@ const MOCK_PRODUCTS: TrendingProduct[] = Array.from({ length: 13 }, (_, i) => ({
   attributes: i === 0 || i >= 11 ? undefined : "Özellik 1 | Özellik 2",
 }));
 
-export default function TrendingCarousel() {
-  const [products, setProducts] = useState<TrendingProduct[]>(MOCK_PRODUCTS);
+interface TrendingCarouselProps {
+  initialProducts?: TrendingProduct[];
+}
+
+export default function TrendingCarousel({ initialProducts }: TrendingCarouselProps) {
+  const hasInitialData = Boolean(initialProducts && initialProducts.length > 0);
+  const [products, setProducts] = useState<TrendingProduct[]>(
+    hasInitialData ? (initialProducts as TrendingProduct[]) : MOCK_PRODUCTS
+  );
 
   useEffect(() => {
+    // SSR'dan veri geldiyse tekrar fetch etmeye gerek yok (LCP'yi hızlandırır)
+    if (hasInitialData) return;
+
     const fetchData = async () => {
       try {
         const res = await fetch("/api/public/homepage/trending");
@@ -52,7 +63,7 @@ export default function TrendingCarousel() {
       } catch { /* fallback to mock */ }
     };
     fetchData();
-  }, []);
+  }, [hasInitialData]);
 
   const {
     containerRef,
@@ -91,11 +102,21 @@ export default function TrendingCarousel() {
                 <a href={product.href} className="product-card-link">
                   <div
                     className="product-card-background"
-                    style={product.image
-                      ? { backgroundImage: `url('${product.image}')` }
-                      : { backgroundColor: "var(--background-tertiary)" }
-                    }
+                    style={product.image ? undefined : { backgroundColor: "var(--background-tertiary)" }}
                   >
+                    {product.image && (
+                      <Image
+                        src={product.image}
+                        alt={product.title}
+                        fill
+                        sizes="(max-width: 768px) 280px, 370px"
+                        className="product-card-image"
+                        priority={index < 3}
+                        loading={index < 3 ? undefined : "lazy"}
+                        draggable={false}
+                      />
+                    )}
+
                     {!product.image && (
                       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "8px", zIndex: 1 }}>
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--foreground-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

@@ -106,23 +106,33 @@ export default function CookieConsent() {
     }
   }, [isLoaded, hasConsent, bannerConfig]);
 
+  // INP optimizasyonu: Ağır consent-kaydetme işini (localStorage + cookie yazımı,
+  // gtag consent update, context'in tüm app'i yeniden render etmesi) ilk paint'ten
+  // SONRAYA ertele. Böylece tıklamanın "next paint"i (banner kapanış animasyonu)
+  // anında olur → düşük INP.
+  const deferConsentWork = useCallback((work: () => void) => {
+    requestAnimationFrame(() => {
+      setTimeout(work, 0);
+    });
+  }, []);
+
   const handleAcceptAll = () => {
-    // Use admin defaults (stored in localPrefs) instead of accepting everything
-    updatePreferences(localPrefs);
     setShowBanner(false);
     setShowSettings(false);
+    // Use admin defaults (stored in localPrefs) instead of accepting everything
+    deferConsentWork(() => updatePreferences(localPrefs));
   };
 
   const handleAcceptNecessary = () => {
-    acceptNecessary();
     setShowBanner(false);
     setShowSettings(false);
+    deferConsentWork(() => acceptNecessary());
   };
 
   const handleSaveCustom = () => {
-    updatePreferences(localPrefs);
     setShowBanner(false);
     setShowSettings(false);
+    deferConsentWork(() => updatePreferences(localPrefs));
   };
 
   if (!isLoaded) return null;

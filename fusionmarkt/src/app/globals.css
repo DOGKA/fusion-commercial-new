@@ -388,6 +388,12 @@
   transition: transform 0.4s ease;
 }
 
+.trending-product-card .product-card-image {
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
 .trending-product-card:hover .product-card-background {
   transform: scale(1.05);
 }
