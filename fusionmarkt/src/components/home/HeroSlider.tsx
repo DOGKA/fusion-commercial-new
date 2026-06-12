@@ -357,7 +357,9 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             fill 
             sizes="100vw"
             className="object-cover object-center"
-            loading="eager"
+            {...(currentSlide === 0
+              ? { priority: true }
+              : { loading: "eager" as const })}
           />
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && overlayOpacity > 0 && (
