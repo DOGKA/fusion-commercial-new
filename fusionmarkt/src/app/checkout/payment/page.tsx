@@ -676,7 +676,7 @@ export default function PaymentPage() {
                   }}
                 >
                   <Image
-                    src="https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg"
+                    src="https://cdn.fusionmarkt.com/general/1766832970685-tlw1d8-iyzico_ile_ode_horizontal_white.svg"
                     alt="iyzico ile öde"
                     width={120}
                     height={28}

@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 // Office Image URL
-const OFFICE_IMAGE = "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766565047088-jw7p3r-fusionmarkt-office.png";
+const OFFICE_IMAGE = "https://cdn.fusionmarkt.com/general/1766565047088-jw7p3r-fusionmarkt-office.png";
 
 // ASCII Art Lines
 const asciiLines = [

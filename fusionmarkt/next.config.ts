@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
     unoptimized: process.env.NODE_ENV === 'development',
     minimumCacheTTL: 86400,
     remotePatterns: [
+      // Cloudflare R2 CDN (birincil medya kaynağı)
+      {
+        protocol: "https",
+        hostname: "cdn.fusionmarkt.com",
+        pathname: "/**",
+      },
       // AWS S3 - Frankfurt (eu-central-1)
       {
         protocol: "https",

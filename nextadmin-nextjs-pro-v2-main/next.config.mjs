@@ -26,6 +26,12 @@ const nextConfig = {
   // ═══════════════════════════════════════════════════════════════════════════
   images: {
     remotePatterns: [
+      // Cloudflare R2 CDN (birincil medya kaynağı)
+      {
+        protocol: "https",
+        hostname: "cdn.fusionmarkt.com",
+        port: "",
+      },
       // AWS S3 - Primary storage
       {
         protocol: "https",

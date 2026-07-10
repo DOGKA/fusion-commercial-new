@@ -129,7 +129,7 @@ export const POWER_STATIONS: PowerStation[] = [
     noiseLevel: '<60dB',
     communication: 'Wi-Fi/Bluetooth (Opsiyonel)',
     chargeTimeAc: '0.85',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/P800-1.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/P800-1.png',
     productUrl: '/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800',
     price: '14999'
   },
@@ -180,7 +180,7 @@ export const POWER_STATIONS: PowerStation[] = [
     noiseLevel: '<65dB',
     communication: 'Wi-Fi/Bluetooth',
     chargeTimeAc: '0.85',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/P1800-1-1.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/P1800-1-1.png',
     productUrl: '/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800',
     price: '24999'
   },
@@ -231,7 +231,7 @@ export const POWER_STATIONS: PowerStation[] = [
     noiseLevel: '<65dB',
     communication: 'Wi-Fi',
     chargeTimeAc: '1.3',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/SINGO2000PRO-1-7.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/SINGO2000PRO-1-7.png',
     productUrl: '/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro',
     price: '39999'
   },
@@ -282,7 +282,7 @@ export const POWER_STATIONS: PowerStation[] = [
     noiseLevel: '<65dB',
     communication: 'Wi-Fi/Bluetooth',
     chargeTimeAc: '1.15',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/P3200-1-1.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/P3200-1-1.png',
     productUrl: '/urun/2048wh-6400w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-powerbank-jumpstarter-fener-4000-ustu-dongu-99-99-bms-coklu-cikis-p3200',
     price: '49999'
   },
@@ -333,7 +333,7 @@ export const POWER_STATIONS: PowerStation[] = [
     noiseLevel: '<40dB',
     communication: 'Wi-Fi/Bluetooth',
     chargeTimeAc: '1.4',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/sh400-tasinabilir-guc-kaynagi-hibrid-7.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/sh400-tasinabilir-guc-kaynagi-hibrid-7.png',
     productUrl: '/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000',
     price: '79999'
   }
@@ -365,7 +365,7 @@ export const SOLAR_PANELS: SolarPanel[] = [
     unfoldedDimension: '1250×609×10mm',
     weight: 5,
     mc4Connector: '18V / 5.6A',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/SP100-1-3.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/SP100-1-3.png',
     productUrl: '/urun/tasinabilir-gunes-paneli-100w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp100'
   },
 
@@ -390,7 +390,7 @@ export const SOLAR_PANELS: SolarPanel[] = [
     unfoldedDimension: '2074×608×30mm',
     weight: 8,
     mc4Connector: '24V / 8.33A',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/SP200-1.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/SP200-1.png',
     productUrl: '/urun/tasinabilir-gunes-paneli-200w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp200'
   },
 
@@ -415,7 +415,7 @@ export const SOLAR_PANELS: SolarPanel[] = [
     unfoldedDimension: '2617×990×30mm',
     weight: 16.3,
     mc4Connector: '44V / 10A',
-    image: 'https://mybucketajax.s3.eu-north-1.amazonaws.com/fusionmarkt/products/SP400-2.png',
+    image: 'https://cdn.fusionmarkt.com/fusionmarkt/products/SP400-2.png',
     productUrl: '/urun/tasinabilir-gunes-paneli-400w-ip67-su-gecirmez-3-acili-ayar-katlanabilen-gunes-enerjili-sarj-cihazi-sp400'
   }
 ];

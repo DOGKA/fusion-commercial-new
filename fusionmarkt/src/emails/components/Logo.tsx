@@ -6,7 +6,7 @@
  */
 
 // Logo PNG URL - S3'te host ediliyor
-export const LOGO_URL = "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766999928300-r9o2sl-favicon-1024x1024.png";
+export const LOGO_URL = "https://cdn.fusionmarkt.com/general/1766999928300-r9o2sl-favicon-1024x1024.png";
 
 // Email için logo boyutları
 export const LOGO_WIDTH = 48;

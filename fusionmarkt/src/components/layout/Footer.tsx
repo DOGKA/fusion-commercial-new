@@ -60,7 +60,7 @@ const footerLinks = {
 };
 
 // iyzico logo band for payment methods
-const IYZICO_LOGO_BAND_URL = "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1766832801022-0fvo3-logo_band_white.svg";
+const IYZICO_LOGO_BAND_URL = "https://cdn.fusionmarkt.com/general/1766832801022-0fvo3-logo_band_white.svg";
 
 export default function Footer() {
   const [openSection, setOpenSection] = useState<string | null>(null);

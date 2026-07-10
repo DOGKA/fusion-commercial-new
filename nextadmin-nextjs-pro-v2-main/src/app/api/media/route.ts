@@ -8,9 +8,10 @@ import path from "path";
 
 const prisma = new PrismaClient();
 
-// S3 Client - Frankfurt (eu-central-1)
+// S3 Client - S3_ENDPOINT tanımlıysa (örn. Cloudflare R2) o adrese bağlanır.
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || "eu-central-1",
+  ...(process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT } : {}),
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
@@ -179,6 +180,8 @@ export async function POST(request: NextRequest) {
           Key: key,
           Body: buffer,
           ContentType: file.type,
+          // Dosya adları benzersiz (timestamp+random) olduğu için agresif cache güvenli
+          CacheControl: "public, max-age=31536000, immutable",
           // ACL kaldırıldı - bucket policy ile public access sağlanıyor
           Metadata: {
             originalName: file.name,

@@ -30,7 +30,7 @@ export const partners: Record<string, Partner> = {
     slug: "ieetek",
     name: "IEETek",
     tagline: "Güneş Enerjisi Depolama Çözümlerinin Lideri",
-    logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765898303842-jrbbwi-ieetek-logo-white.png",
+    logo: "https://cdn.fusionmarkt.com/general/1765898303842-jrbbwi-ieetek-logo-white.png",
     about: [
       "Zhuhai İlk Entropy Energy Co., Ltd. (IEETek), güneş enerjisi depolama çözümlerinin lider sağlayıcısı ve üreticisidir. Dünya çapında evler, işletmeler ve bireysel kullanıcılar için emniyetli, güvenilir ve temiz enerji çözümleri sunmaktadır.",
       "10.000 metrekarelik Ar-Ge merkezi ve akıllı fabrikası ile IEETek, enerji teknolojisi alanında ortalama 15 yılı aşkın deneyime sahip mühendis kadrosuyla sektörde öncü konumdadır.",
@@ -69,7 +69,7 @@ export const partners: Record<string, Partner> = {
     slug: "rgp-balls",
     name: "RGP Balls",
     tagline: "Avrupa'nın Lider Hassas Bilya Üreticisi",
-    logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765898303622-oblcj-rgp-logo-white.svg",
+    logo: "https://cdn.fusionmarkt.com/general/1765898303622-oblcj-rgp-logo-white.svg",
     about: [
       "50 yılı aşkın süredir RGP Balls, hassas bilyalar, makaralar ve bilya transfer üniteleri üretimi, ticareti ve dağıtımında Avrupa'nın lider şirketleri arasında yer almaktadır.",
       "İtalya, Cinisello Balsamo'daki merkezimizde 70'ten fazla çalışanımız ve 10.000 m²'lik tesisimiz ile yenilikçi çözümler sunmaya devam ediyoruz.",
@@ -113,7 +113,7 @@ export const partners: Record<string, Partner> = {
     slug: "telesteps",
     name: "Telesteps",
     tagline: "Teleskopik Merdiven Teknolojisinde Devrim",
-    logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765898302743-wbcw3c-telescopics-white.png",
+    logo: "https://cdn.fusionmarkt.com/general/1765898302743-wbcw3c-telescopics-white.png",
     about: [
       "Telesteps merdivenleri, merdiven tasarımı ve teknolojisinde devrim niteliğinde bir atılımdır. TAŞIMASI KOLAY, KULLANIMI KOLAY, DEPOLAMASI KOLAY prensipleriyle üretilen merdivenler, birçok sektörde kullanılmaktadır.",
       "Dünyanın ilk ve tek iletken olmayan Kevlar® Teleskopik Merdivenleri ile yüksek voltaj ortamlarında maksimum güvenlik sağlanmaktadır. DuPont™ Kevlar® ile üretilen bu merdivenler, elektrik güvenliği için tasarlanmıştır.",
@@ -161,7 +161,7 @@ export const partners: Record<string, Partner> = {
     slug: "traffi",
     name: "Traffi Gloves",
     tagline: "El Koruma Alanında Sektör Lideri",
-    logo: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/general/1765962257332-0dpfvn-traffi-black-logo.svg",
+    logo: "https://cdn.fusionmarkt.com/general/1765962257332-0dpfvn-traffi-black-logo.svg",
     about: [
       "Traffi, el koruma uzmanları ve kesime dayanıklı iş eldivenleri konusunda sektör lideri sağlayıcısıdır. Güvenlik ve sürdürülebilirliği ön planda tutan müşteriler için tercih edilen el koruma ortağıdır.",
       "3 Renkli TraffiSystem'in orijinal mucitleri olarak, müşteri odaklı yaklaşımımız ve Sınıfının En İyisi ürünler sunma kararlılığımızla yolumuza öncülük etmeye devam ediyoruz.",

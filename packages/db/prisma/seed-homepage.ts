@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const S3 = "https://fusionmarkt.s3.eu-central-1.amazonaws.com/mainphotos";
+const S3 = "https://cdn.fusionmarkt.com/mainphotos";
 
 async function main() {
   console.log("Seeding homepage data...");
@@ -50,7 +50,7 @@ async function main() {
     data: {
       name: "Ana Sayfa Video Banner",
       videoType: "upload",
-      videoUrl: "https://fusionmarkt.s3.eu-central-1.amazonaws.com/P3200-compressed.mp4",
+      videoUrl: "https://cdn.fusionmarkt.com/P3200-compressed.mp4",
       title: "Taşınabilir Güç İstasyonları",
       subtitle: "Outdoor, kamp ve acil durumlar için yüksek kapasiteli, güvenilir taşınabilir enerji çözümleri.",
       btnText: "Daha Fazla",
