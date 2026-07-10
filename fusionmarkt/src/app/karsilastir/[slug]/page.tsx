@@ -72,8 +72,16 @@ export default function ComparePage({ params }: { params: Promise<{ slug: string
     return product.specValues.find(sv => sv.specId === specId)?.value || "—";
   };
   const getImage = (p: CompareProduct) => p.image || p.product?.thumbnail || p.product?.images?.[0] || null;
-  const getPrice = (p: CompareProduct) => p.price ? Number(p.price) : p.product?.price ? Number(p.product.price) : null;
-  const getComparePrice = (p: CompareProduct) => p.comparePrice ? Number(p.comparePrice) : p.product?.comparePrice ? Number(p.product.comparePrice) : null;
+  // Ürüne bağlıysa her zaman güncel ürün fiyatı gösterilir;
+  // elle girilen fiyat sadece ürüne bağlı olmayan kartlarda kullanılır
+  const getPrice = (p: CompareProduct) => {
+    if (p.product?.price) return Number(p.product.price);
+    return p.price ? Number(p.price) : null;
+  };
+  const getComparePrice = (p: CompareProduct) => {
+    if (p.product?.price) return p.product.comparePrice ? Number(p.product.comparePrice) : null;
+    return p.comparePrice ? Number(p.comparePrice) : null;
+  };
   const getBuyLink = (p: CompareProduct) => p.buyLink || (p.product?.slug ? `/urun/${p.product.slug}` : "#");
 
   const selectedProducts = selected.map(s => getProduct(s));

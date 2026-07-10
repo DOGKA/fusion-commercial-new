@@ -127,7 +127,8 @@ export async function GET(request: NextRequest) {
       
       return {
         ...productWithoutReviews,
-        variants: sortVariants(p.variants || []),
+        // SIMPLE ürünlerde öksüz varyant kayıtları gösterilmesin
+        variants: p.productType === 'VARIABLE' ? sortVariants(p.variants || []) : [],
         ratingAverage,
         ratingCount,
       };

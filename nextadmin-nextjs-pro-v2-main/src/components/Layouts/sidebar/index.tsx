@@ -16,6 +16,7 @@ interface BadgeCounts {
   returns: number;
   contacts: number;
   serviceForms: number;
+  reviews: number;
 }
 
 // Map URL paths to badge count keys
@@ -25,6 +26,7 @@ const BADGE_URL_MAP: Record<string, keyof BadgeCounts> = {
   "/return-requests": "returns",
   "/contact": "contacts",
   "/service-forms": "serviceForms",
+  "/reviews": "reviews",
 };
 
 export function Sidebar() {
@@ -37,6 +39,7 @@ export function Sidebar() {
     returns: 0,
     contacts: 0,
     serviceForms: 0,
+    reviews: 0,
   });
 
   // Fetch badge counts
@@ -51,6 +54,7 @@ export function Sidebar() {
           returns: data.returns || 0,
           contacts: data.contacts || 0,
           serviceForms: data.serviceForms || 0,
+          reviews: data.reviews || 0,
         });
       }
     } catch (error) {

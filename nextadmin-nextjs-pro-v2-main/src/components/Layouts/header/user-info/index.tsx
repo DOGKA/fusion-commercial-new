@@ -18,13 +18,13 @@ export function UserInfo() {
 
   const { data: session } = useSession();
 
-  // Geçerli image URL kontrolü
+  // Geçerli image URL kontrolü - fotoğraf yoksa null döner, baş harf gösterilir
   const getValidImageUrl = (image: string | null | undefined) => {
-    if (!image) return "/images/user/user-03.png";
+    if (!image) return null;
     if (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("/")) {
       return image;
     }
-    return "/images/user/user-03.png";
+    return null;
   };
 
   const USER = {
@@ -32,6 +32,27 @@ export function UserInfo() {
     email: session?.user?.email || "",
     img: getValidImageUrl(session?.user?.image),
   };
+
+  const initial = (USER.name?.[0] || USER.email?.[0] || "A").toUpperCase();
+
+  const Avatar = () =>
+    USER.img ? (
+      <Image
+        src={USER.img}
+        className="size-12 rounded-full object-cover"
+        alt={`Avatar for ${USER.name}`}
+        role="presentation"
+        width={200}
+        height={200}
+      />
+    ) : (
+      <span
+        aria-hidden
+        className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary"
+      >
+        {initial}
+      </span>
+    );
 
   // Session yoksa gösterme
   if (!session?.user) {
@@ -44,14 +65,7 @@ export function UserInfo() {
         <span className="sr-only">My Account</span>
 
         <figure className="flex items-center gap-3">
-          <Image
-            src={USER.img}
-            className="size-12 rounded-full"
-            alt={`Avatar for ${USER.name}`}
-            role="presentation"
-            width={200}
-            height={200}
-          />
+          <Avatar />
           <figcaption className="flex items-center gap-1 font-medium text-dark dark:text-dark-6 max-[1024px]:sr-only">
             <span>{USER.name}</span>
 
@@ -74,14 +88,7 @@ export function UserInfo() {
         <h2 className="sr-only">User information</h2>
 
         <figure className="flex items-center gap-2.5 px-5 py-3.5">
-          <Image
-            src={USER.img}
-            className="size-12 rounded-full"
-            alt={`Avatar for ${USER.name}`}
-            role="presentation"
-            width={200}
-            height={200}
-          />
+          <Avatar />
 
           <figcaption className="space-y-1 text-base font-medium">
             <div className="mb-2 leading-none text-dark dark:text-white">

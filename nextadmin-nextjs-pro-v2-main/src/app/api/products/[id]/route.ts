@@ -160,7 +160,12 @@ export async function PUT(
 
       // Variants güncelleme (variable ürünler için)
       // NOT: Frontend'den variants array gelmezse mevcut varyantlar korunur
-      if (body.variants && Array.isArray(body.variants) && body.variants.length > 0) {
+      // Boş array gelirse (örn. ürün tipi variable -> simple çevrildiğinde) tüm varyantlar silinir
+      if (Array.isArray(body.variants) && body.variants.length === 0) {
+        await (tx.productVariant as any).deleteMany({
+          where: { productId: id },
+        });
+      } else if (body.variants && Array.isArray(body.variants) && body.variants.length > 0) {
         // Mevcut varyantları al (cast to any for combinationKey)
         const existingVariants = await (tx.productVariant as any).findMany({
           where: { productId: id },

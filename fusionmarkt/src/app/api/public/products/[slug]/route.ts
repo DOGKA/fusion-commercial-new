@@ -126,6 +126,7 @@ export async function GET(
                 stock: true,
                 freeShipping: true,
                 shortDescription: true,
+                productType: true,
                 // Varyant bilgileri - frontend'de varyant seçimi için gerekli
                 variants: {
                   where: { isActive: true },
@@ -166,32 +167,33 @@ export async function GET(
 
     // İlişkili ürünleri türlerine göre ayır
     const productWithRelations = product as unknown as ProductWithRelations;
+    const mapRelatedProduct = (r: RelatedProductRelation) => {
+      const price = r.relatedProduct.price ? Number(r.relatedProduct.price) : 0;
+      const related = r.relatedProduct as Record<string, unknown>;
+      return {
+        ...r.relatedProduct,
+        price,
+        comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
+        freeShipping: related.freeShipping === true || price >= freeShippingThreshold,
+        // SIMPLE ürünlerde öksüz varyant kayıtları gösterilmesin
+        variants: related.productType === 'VARIABLE' ? related.variants : [],
+      };
+    };
+
     const frequentlyBought = productWithRelations.relatedFrom
       ?.filter((r: RelatedProductRelation) => r.relationType === 'FREQUENTLY_BOUGHT')
-      .map((r: RelatedProductRelation) => {
-        const price = r.relatedProduct.price ? Number(r.relatedProduct.price) : 0;
-        return {
-          ...r.relatedProduct,
-          price,
-          comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
-          freeShipping: (r.relatedProduct as Record<string, unknown>).freeShipping === true || price >= freeShippingThreshold,
-        };
-      }) || [];
+      .map(mapRelatedProduct) || [];
 
     const alsoViewed = productWithRelations.relatedFrom
       ?.filter((r: RelatedProductRelation) => r.relationType === 'ALSO_VIEWED')
-      .map((r: RelatedProductRelation) => {
-        const price = r.relatedProduct.price ? Number(r.relatedProduct.price) : 0;
-        return {
-          ...r.relatedProduct,
-          price,
-          comparePrice: r.relatedProduct.comparePrice ? Number(r.relatedProduct.comparePrice) : null,
-          freeShipping: (r.relatedProduct as Record<string, unknown>).freeShipping === true || price >= freeShippingThreshold,
-        };
-      }) || [];
+      .map(mapRelatedProduct) || [];
+
+    // Basit (SIMPLE) ürünlerde varyant gösterilmez - eski/öksüz varyant kayıtları
+    // vitrine sızmasın diye sadece VARIABLE ürünlerde varyantlar döndürülür
+    const effectiveVariants = product.productType === 'VARIABLE' ? (product.variants || []) : [];
 
     // Varyantları sırala (08, 09, 10, 11 veya S, M, L, XL)
-    const sortedVariants = [...(product.variants || [])].sort((a, b) => {
+    const sortedVariants = [...effectiveVariants].sort((a, b) => {
       const sizeOrder: Record<string, number> = { 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5 };
       const aVal = a.value || '';
       const bVal = b.value || '';
