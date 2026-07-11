@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
@@ -99,7 +100,7 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
           >
             {products.map((product, index) => (
               <div key={product.id || index} className="trending-product-card theme-dark">
-                <a href={product.href} className="product-card-link">
+                <Link href={product.href} className="product-card-link" draggable={false}>
                   <div
                     className="product-card-background"
                     style={product.image ? undefined : { backgroundColor: "var(--background-tertiary)" }}
@@ -145,7 +146,7 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
             ))}
           </div>

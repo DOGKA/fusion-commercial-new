@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 function ImagePlaceholderIcon({ size = 40 }: { size?: number }) {
   return (
@@ -23,7 +24,7 @@ function PlaceholderLabel({ primary, secondary }: { primary: string; secondary: 
   );
 }
 
-interface SectionProduct {
+export interface SectionProduct {
   title: string;
   badge: string | null;
   spec1: string | null;
@@ -33,7 +34,7 @@ interface SectionProduct {
   link: string | null;
 }
 
-interface SectionData {
+export interface SectionData {
   sectionTitle: string;
   bannerImage: string | null;
   bannerEyebrow: string | null;
@@ -74,10 +75,21 @@ const MOCK_SECTION: SectionData = {
   products: MOCK_PRODUCTS,
 };
 
-export default function CategoryShowcase({ index = 0 }: { index?: number }) {
-  const [section, setSection] = useState<SectionData>(MOCK_SECTION);
+interface CategoryShowcaseProps {
+  index?: number;
+  /** SSR'dan gelen bölüm verisi - CLS'yi önlemek için sunucuda çekilir */
+  initialSection?: SectionData | null;
+}
+
+export default function CategoryShowcase({ index = 0, initialSection }: CategoryShowcaseProps) {
+  const hasInitialData = Boolean(initialSection);
+  const [section, setSection] = useState<SectionData>(initialSection || MOCK_SECTION);
 
   useEffect(() => {
+    // SSR'dan veri geldiyse tekrar fetch etmeye gerek yok (mock -> gerçek
+    // veri takası kaynaklı layout shift'i önler)
+    if (hasInitialData) return;
+
     const fetchData = async () => {
       try {
         const res = await fetch("/api/public/homepage/categories");
@@ -90,7 +102,7 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
       } catch { /* fallback to mock */ }
     };
     fetchData();
-  }, [index]);
+  }, [index, hasInitialData]);
 
   const products = section.products?.length > 0 ? section.products : MOCK_PRODUCTS;
 
@@ -100,13 +112,22 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
         <h2 className="showcase-title-text">{section.sectionTitle}</h2>
 
         {/* Banner */}
-        <div className="showcase-banner-mockup" style={section.bannerImage ? { backgroundImage: `url('${section.bannerImage}')`, backgroundSize: "cover", backgroundPosition: "center" } : {}}>
-          <div className="showcase-banner-overlay">
+        <div className="showcase-banner-mockup">
+          {section.bannerImage && (
+            <Image
+              src={section.bannerImage}
+              alt={section.bannerTitle || section.sectionTitle}
+              fill
+              sizes="(max-width: 768px) 100vw, 1280px"
+              style={{ objectFit: "cover", objectPosition: "center" }}
+            />
+          )}
+          <div className="showcase-banner-overlay" style={{ position: "relative", zIndex: 1 }}>
             {section.bannerEyebrow && <span className="showcase-banner-eyebrow">{section.bannerEyebrow}</span>}
             {section.bannerTitle && <h3 className="showcase-banner-title">{section.bannerTitle}</h3>}
             {section.bannerDesc && <p className="showcase-banner-desc">{section.bannerDesc}</p>}
             {section.bannerBtnText && (
-              <a href={section.bannerBtnLink || "#"} className="showcase-banner-btn">{section.bannerBtnText}</a>
+              <Link href={section.bannerBtnLink || "#"} className="showcase-banner-btn">{section.bannerBtnText}</Link>
             )}
           </div>
           {!section.bannerImage && (
@@ -121,7 +142,7 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
         <div className="showcase-grid-wrapper">
           <div className="showcase-products-grid">
             {products.map((product, idx) => (
-              <a key={idx} href={product.link || "#"} className="showcase-product-mockup" style={{ textDecoration: "none" }}>
+              <Link key={idx} href={product.link || "#"} className="showcase-product-mockup" style={{ textDecoration: "none" }}>
                 <div className="showcase-product-image">
                   {product.badge && <span className="showcase-product-badge-top">{product.badge}</span>}
                   {product.image ? (
@@ -145,12 +166,12 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
                     </div>
                   )}
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
 
           <div className="showcase-see-more-wrapper">
-            <a href={section.seeMoreLink || "#"} className="showcase-see-more-card showcase-see-more-primary" style={{ textDecoration: "none" }}>
+            <Link href={section.seeMoreLink || "#"} className="showcase-see-more-card showcase-see-more-primary" style={{ textDecoration: "none" }}>
               <div className="showcase-see-more-image">
                 {section.seeMoreImage ? (
                   <Image src={section.seeMoreImage} alt="Tümünü Gör" fill sizes="200px" style={{ objectFit: "cover" }} />
@@ -168,16 +189,16 @@ export default function CategoryShowcase({ index = 0 }: { index?: number }) {
                   <ChevronRight size={16} style={{ color: "var(--foreground-muted)" }} />
                 </span>
               </div>
-            </a>
+            </Link>
 
-            <a href={section.accessoryLink || "#"} className="showcase-see-more-card" style={{ textDecoration: "none" }}>
+            <Link href={section.accessoryLink || "#"} className="showcase-see-more-card" style={{ textDecoration: "none" }}>
               <div className="showcase-see-more-secondary">
                 <span className="showcase-see-more-text">{section.accessoryText || "Hangi Ürün Bana Uygun?"}</span>
                 <span className="showcase-see-more-arrow">
                   <ChevronRight size={16} style={{ color: "var(--foreground-muted)" }} />
                 </span>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

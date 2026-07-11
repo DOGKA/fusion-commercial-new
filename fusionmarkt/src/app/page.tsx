@@ -15,6 +15,40 @@ import {
   mapSlidersToPublicDTO,
 } from "@/server/dto";
 
+interface TrendingCardRow {
+  id: string;
+  buttonLink: string | null;
+  title: string;
+  badge: string | null;
+  attributes: string | null;
+  image: string | null;
+}
+
+interface CategorySectionProductRow {
+  title: string;
+  badge: string | null;
+  spec1: string | null;
+  spec2: string | null;
+  price: string | null;
+  image: string | null;
+  link: string | null;
+}
+
+interface CategorySectionRow {
+  sectionTitle: string;
+  bannerImage: string | null;
+  bannerEyebrow: string | null;
+  bannerTitle: string | null;
+  bannerDesc: string | null;
+  bannerBtnText: string | null;
+  bannerBtnLink: string | null;
+  seeMoreImage: string | null;
+  seeMoreLink: string | null;
+  accessoryText: string | null;
+  accessoryLink: string | null;
+  products: CategorySectionProductRow[];
+}
+
 export const metadata = staticPageMetadata.home;
 export const revalidate = 60;
 
@@ -37,7 +71,7 @@ async function getInitialTrending() {
       where: { isActive: true },
       orderBy: { order: "asc" },
     });
-    return items.map((item) => ({
+    return items.map((item: TrendingCardRow) => ({
       id: item.id,
       href: item.buttonLink || "#",
       title: item.title,
@@ -50,10 +84,49 @@ async function getInitialTrending() {
   }
 }
 
+async function getInitialCategorySections() {
+  try {
+    const sections = await prisma.homepageCategorySection.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      include: {
+        products: {
+          orderBy: { order: "asc" },
+        },
+      },
+    });
+    return sections.map((s: CategorySectionRow) => ({
+      sectionTitle: s.sectionTitle,
+      bannerImage: s.bannerImage,
+      bannerEyebrow: s.bannerEyebrow,
+      bannerTitle: s.bannerTitle,
+      bannerDesc: s.bannerDesc,
+      bannerBtnText: s.bannerBtnText,
+      bannerBtnLink: s.bannerBtnLink,
+      seeMoreImage: s.seeMoreImage,
+      seeMoreLink: s.seeMoreLink,
+      accessoryText: s.accessoryText,
+      accessoryLink: s.accessoryLink,
+      products: s.products.map((p: CategorySectionProductRow) => ({
+        title: p.title,
+        badge: p.badge,
+        spec1: p.spec1,
+        spec2: p.spec2,
+        price: p.price,
+        image: p.image,
+        link: p.link,
+      })),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function Home() {
-  const [initialSlides, initialTrending] = await Promise.all([
+  const [initialSlides, initialTrending, initialCategorySections] = await Promise.all([
     getInitialSliders(),
     getInitialTrending(),
+    getInitialCategorySections(),
   ]);
 
   return (
@@ -72,9 +145,9 @@ export default async function Home() {
 
       <VideoBanner />
 
-      <CategoryShowcase index={0} />
+      <CategoryShowcase index={0} initialSection={initialCategorySections[0] || null} />
 
-      <CategoryShowcase index={1} />
+      <CategoryShowcase index={1} initialSection={initialCategorySections[1] || null} />
       
       <CategoryBento />
 
