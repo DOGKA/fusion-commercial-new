@@ -44,6 +44,9 @@ export default function MiniCart() {
   const mounted = useIsMounted();
   const isDark = mounted && resolvedTheme === "dark";
   const panelRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const bottomSentinelRef = useRef<HTMLDivElement>(null);
+  const [isSummaryInView, setIsSummaryInView] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const prevIsOpenRef = useRef(isOpen);
@@ -159,6 +162,21 @@ export default function MiniCart() {
     }
     prevIsOpenRef.current = isOpen;
   }, [isOpen]);
+
+  // Kompakt çubuk: listenin sonundaki özet görünür olunca çubuk gizlenir
+  const hasItems = items.length > 0;
+  useEffect(() => {
+    if (!isOpen || !hasItems) return;
+    const root = scrollAreaRef.current;
+    const sentinel = bottomSentinelRef.current;
+    if (!root || !sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSummaryInView(entry.isIntersecting),
+      { root, threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [isOpen, hasItems]);
 
   // Toggle item selection
   const toggleItemSelection = (itemId: string) => {
@@ -289,99 +307,96 @@ export default function MiniCart() {
             )}
           />
 
-          {/* Action Bar - Compact */}
+          {/* Action Bar - Minimal */}
           {items.length > 0 && (
-            <div className="px-4 pt-3 pb-3">
-              <div className="flex items-center gap-1.5 p-1 bg-foreground/[0.02] border border-border" style={{ borderRadius: '10px' }}>
-                {!isSelectionMode ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setIsSelectionMode(true)}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-colors cursor-pointer"
-                      style={{ borderRadius: '8px' }}
-                    >
-                      <Check size={16} />
-                      Seç
-                    </button>
-                    <div className="w-px h-4 bg-border" />
-                    <button
-                      type="button"
-                      onClick={clearCart}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium text-foreground-muted hover:text-red-400 hover:bg-red-500/[0.06] transition-colors cursor-pointer"
-                      style={{ borderRadius: '8px' }}
-                    >
-                      <Trash2 size={14} />
-                      Temizle
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={selectAllItems}
-                      className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-colors",
-                        selectedItems.size === items.length 
-                          ? "text-emerald-400 bg-emerald-500/10" 
-                          : "text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04]"
-                      )}
-                      style={{ borderRadius: '8px' }}
-                    >
-                      <Check size={14} />
-                      {selectedItems.size === items.length ? 'Kaldır' : 'Tümü'}
-                    </button>
-                    <div className="w-px h-4 bg-border" />
-                    <button
-                      onClick={moveSelectedToFavorites}
-                      disabled={selectedItems.size === 0}
-                      className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-colors",
-                        selectedItems.size > 0 
-                          ? "text-pink-400 hover:bg-pink-500/10" 
-                          : "text-foreground-disabled cursor-not-allowed"
-                      )}
-                      style={{ borderRadius: '8px' }}
-                    >
-                      <Heart size={14} />
-                      Favori
-                    </button>
-                    <div className="w-px h-4 bg-border" />
-                    <button
-                      onClick={deleteSelectedItems}
-                      disabled={selectedItems.size === 0}
-                      className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 h-8 text-[13px] font-medium transition-colors",
-                        selectedItems.size > 0 
-                          ? "text-red-400 hover:bg-red-500/10" 
-                          : "text-foreground-disabled cursor-not-allowed"
-                      )}
-                      style={{ borderRadius: '8px' }}
-                    >
-                      <Trash2 size={14} />
-                      Sil
-                    </button>
-                    <div className="w-px h-4 bg-border" />
-                    <button
-                      onClick={() => {
-                        setIsSelectionMode(false);
-                        setSelectedItems(new Set());
-                      }}
-                      className="w-8 h-8 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
-                      style={{ borderRadius: '8px' }}
-                    >
-                      <X size={14} />
-                    </button>
-                  </>
-                )}
-              </div>
+            <div className="flex items-center px-4 pt-1.5 pb-2 min-h-[36px]">
+              {!isSelectionMode ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsSelectionMode(true)}
+                    className="flex items-center gap-1 h-7 px-2 -ml-2 text-[12px] font-medium text-foreground-muted hover:text-foreground active:bg-foreground/[0.05] transition-colors cursor-pointer rounded-full"
+                  >
+                    <Check size={13} />
+                    Seç
+                  </button>
+                  <div className="flex-1" />
+                  <button
+                    type="button"
+                    onClick={clearCart}
+                    className="flex items-center gap-1 h-7 px-2 -mr-2 text-[12px] font-medium text-foreground-muted hover:text-red-400 active:bg-red-500/[0.06] transition-colors cursor-pointer rounded-full"
+                  >
+                    <Trash2 size={13} />
+                    Temizle
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={selectAllItems}
+                    className={cn(
+                      "flex items-center gap-1 h-7 px-2 -ml-2 text-[12px] font-medium transition-colors rounded-full",
+                      selectedItems.size === items.length
+                        ? "text-emerald-400"
+                        : "text-foreground-muted hover:text-foreground active:bg-foreground/[0.05]"
+                    )}
+                  >
+                    <Check size={13} />
+                    {selectedItems.size === items.length ? 'Kaldır' : 'Tümü'}
+                  </button>
+                  {selectedItems.size > 0 && (
+                    <span className="ml-1 text-[11px] text-foreground-disabled">
+                      {selectedItems.size} seçili
+                    </span>
+                  )}
+                  <div className="flex-1" />
+                  <button
+                    onClick={moveSelectedToFavorites}
+                    disabled={selectedItems.size === 0}
+                    aria-label="Favorilere Taşı"
+                    className={cn(
+                      "w-8 h-7 flex items-center justify-center transition-colors rounded-full",
+                      selectedItems.size > 0
+                        ? "text-pink-400 active:bg-pink-500/10"
+                        : "text-foreground-disabled cursor-not-allowed"
+                    )}
+                  >
+                    <Heart size={14} />
+                  </button>
+                  <button
+                    onClick={deleteSelectedItems}
+                    disabled={selectedItems.size === 0}
+                    aria-label="Seçilenleri Sil"
+                    className={cn(
+                      "w-8 h-7 flex items-center justify-center transition-colors rounded-full",
+                      selectedItems.size > 0
+                        ? "text-red-400 active:bg-red-500/10"
+                        : "text-foreground-disabled cursor-not-allowed"
+                    )}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsSelectionMode(false);
+                      setSelectedItems(new Set());
+                    }}
+                    aria-label="Seçim modundan çık"
+                    className="w-8 h-7 -mr-2 flex items-center justify-center text-foreground-muted hover:text-foreground active:bg-foreground/[0.05] transition-colors rounded-full"
+                  >
+                    <X size={14} />
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
-            CART ITEMS LIST (Scrollable area)
+            SCROLLABLE CONTENT: Items + Summary (tek scroll alanı)
         ═══════════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div ref={scrollAreaRef} className="flex-1 min-h-0 overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className={cn("px-3 py-3 space-y-2", items.length === 0 ? "flex-1" : "flex-none")}>
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-16 text-center">
               <div 
@@ -559,14 +574,19 @@ export default function MiniCart() {
           )}
         </div>
 
+        {/* Listenin sonunu işaretleyen görünmez öğe (kompakt çubuk gizleme tetikleyicisi) */}
+        {items.length > 0 && <div ref={bottomSentinelRef} className="h-px flex-shrink-0" />}
+
         {/* ═══════════════════════════════════════════════════════════════════
-            FOOTER - Summary & CTAs (Sticky at bottom)
+            FOOTER - Summary & CTAs (normal akışta, listenin sonunda)
         ═══════════════════════════════════════════════════════════════════ */}
         {items.length > 0 && (
           <div
             className={cn(
-              "flex-shrink-0 border-t",
-              isDark ? "border-white/[0.06] bg-gradient-to-t from-[#080808] via-[#0a0a0a] to-[#0d0d0d]" : "border-gray-200 bg-gray-50"
+              "border-t",
+              isDark
+                ? "border-white/[0.06] bg-gradient-to-t from-[#080808] via-[#0a0a0a] to-[#0d0d0d]"
+                : "border-gray-200 bg-gray-50"
             )}
           >
             <div className="p-5 space-y-4">
@@ -644,7 +664,7 @@ export default function MiniCart() {
                     </span>
                   </div>
                 )}
-                
+
                 {/* Total Discount */}
                 {totalSavings > 0 && (
                   <div className="flex items-center justify-between">
@@ -654,7 +674,7 @@ export default function MiniCart() {
                     </span>
                   </div>
                 )}
-                
+
                 {/* Final Total */}
                 <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
                   <div>
@@ -693,6 +713,53 @@ export default function MiniCart() {
                   Alışverişe Devam Et
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            KOMPAKT ÇUBUK - Özet görünene kadar panelin altında sabit durur
+        ═══════════════════════════════════════════════════════════════════ */}
+        {items.length > 0 && (
+          <div
+            className={cn(
+              "absolute bottom-0 left-0 right-0 z-20 border-t transition-transform duration-300 ease-out",
+              isDark
+                ? "border-white/[0.06] bg-[#0a0a0a] shadow-[0_-12px_24px_-8px_rgba(0,0,0,0.6)]"
+                : "border-gray-200 bg-white shadow-[0_-12px_24px_-8px_rgba(0,0,0,0.12)]",
+              isSummaryInView ? "translate-y-full pointer-events-none" : "translate-y-0"
+            )}
+          >
+            <div className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                {totalSavings > 0 && (
+                  <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mb-1">
+                    <span className="text-[12px] text-foreground-tertiary line-through">
+                      {formatPrice(originalSubtotal)} ₺
+                    </span>
+                    <span className="text-[10px] font-medium text-emerald-400">
+                      {formatPrice(totalSavings)} ₺ kazanç
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                  <p className="text-xl font-bold text-foreground leading-tight">
+                    {formatPrice(subtotal)}
+                    <span className="text-sm font-normal text-foreground-tertiary ml-1">₺</span>
+                  </p>
+                  <span className="text-[10px] text-foreground-muted">KDV Dahil</span>
+                </div>
+              </div>
+              <Link
+                href="/checkout"
+                onClick={closeCart}
+                className="flex items-center gap-2 flex-shrink-0 py-2.5 px-5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold text-[14px] transition-colors duration-300 shadow-lg shadow-emerald-500/25"
+                style={{ borderRadius: '12px' }}
+              >
+                Ödemeye Git
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         )}

@@ -106,6 +106,16 @@ export default function CookieConsent() {
     }
   }, [isLoaded, hasConsent, bannerConfig]);
 
+  // Allow reopening cookie settings from anywhere (e.g. footer link)
+  useEffect(() => {
+    const handleOpen = () => {
+      setShowSettings(true);
+      setShowBanner(true);
+    };
+    window.addEventListener("openCookieSettings", handleOpen);
+    return () => window.removeEventListener("openCookieSettings", handleOpen);
+  }, []);
+
   // INP optimizasyonu: Ağır consent-kaydetme işini (localStorage + cookie yazımı,
   // gtag consent update, context'in tüm app'i yeniden render etmesi) ilk paint'ten
   // SONRAYA ertele. Böylece tıklamanın "next paint"i (banner kapanış animasyonu)
@@ -146,34 +156,8 @@ export default function CookieConsent() {
       ? "fixed top-4 right-4 md:top-6 md:right-6 z-[9999] w-[calc(100%-32px)] max-w-md"
       : "fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] w-[calc(100%-32px)] max-w-md";
 
-  const floatingButtonClass =
-    position === "center"
-      ? "fixed bottom-4 right-4 md:bottom-6 md:right-6"
-      : position === "top"
-      ? "fixed top-4 right-4 md:top-6 md:right-6"
-      : "fixed bottom-4 right-4 md:bottom-6 md:right-6";
-
   return (
     <>
-      {/* ═══════════════════════════════════════════════════════════════════
-          FLOATING COOKIE BUTTON - Sağ alt köşe
-      ═══════════════════════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {hasConsent && !showBanner && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            onClick={() => setShowBanner(true)}
-            className={`${floatingButtonClass} z-[9990] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center group bg-background-elevated border border-border`}
-            aria-label="Çerez Ayarları"
-          >
-            <Cookie className="w-5 h-5 md:w-6 md:h-6 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* ═══════════════════════════════════════════════════════════════════
           COOKIE MODAL
       ═══════════════════════════════════════════════════════════════════ */}

@@ -120,7 +120,7 @@ export default function RootLayout({
   const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
   return (
-    <html lang="tr" suppressHydrationWarning data-scroll-behavior="smooth" className="dark">
+    <html lang="tr" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <script
           dangerouslySetInnerHTML={{

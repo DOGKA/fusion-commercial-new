@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -100,6 +100,21 @@ export default function PaymentPage() {
   // Contract modal states
   const [contractModalOpen, setContractModalOpen] = useState(false);
   const [activeContractType, setActiveContractType] = useState<"termsAndConditions" | "distanceSalesContract">("termsAndConditions");
+
+  // Mobil sabit onay çubuğu: Toplam bölümü görünene kadar altta durur
+  const totalsSectionRef = useRef<HTMLDivElement>(null);
+  const [showMobileSummaryBar, setShowMobileSummaryBar] = useState(false);
+  const hasCartItems = items.length > 0;
+  useEffect(() => {
+    const target = totalsSectionRef.current;
+    if (!target || !hasCartItems) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowMobileSummaryBar(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasCartItems, isHydrated]);
 
   // Generate order reference number (pre-order reference)
   const orderRefNumber = useMemo(() => {
@@ -984,7 +999,7 @@ export default function PaymentPage() {
             </div>
 
             {/* Totals */}
-            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
+            <div ref={totalsSectionRef} style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
               {/* Original Subtotal - only show if there's product discount */}
               {totalSavings > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
@@ -1243,6 +1258,109 @@ export default function PaymentPage() {
               <span style={{ fontSize: "12px" }}>256-bit SSL ile güvenli ödeme</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobil sabit onay çubuğu: Toplam bölümü görünene kadar altta durur */}
+      <div
+        className="lg:hidden"
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 90,
+          backgroundColor: "var(--background-secondary, var(--background))",
+          borderTop: "1px solid var(--border)",
+          boxShadow: "0 -12px 24px -8px rgba(0,0,0,0.25)",
+          padding: "10px 16px",
+          paddingBottom: "calc(10px + env(safe-area-inset-bottom))",
+          transform: showMobileSummaryBar ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.3s ease",
+          pointerEvents: showMobileSummaryBar ? "auto" : "none"
+        }}
+      >
+        {/* Sözleşme onayları */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div
+              onClick={() => setContractAccepted({ termsAndConditions: !state.contractsAccepted.termsAndConditions })}
+              style={{
+                width: "16px", height: "16px", minWidth: "16px", borderRadius: "3px",
+                border: state.contractsAccepted.termsAndConditions ? "none" : "2px solid var(--foreground-muted)",
+                backgroundColor: state.contractsAccepted.termsAndConditions ? "#10b981" : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", flexShrink: 0, boxSizing: "border-box"
+              }}
+            >
+              {state.contractsAccepted.termsAndConditions && <Check size={10} className="text-white" strokeWidth={3} />}
+            </div>
+            <span style={{ fontSize: "11px", color: "var(--foreground-secondary)", lineHeight: "1.3" }}>
+              <span
+                onClick={() => { setActiveContractType("termsAndConditions"); setContractModalOpen(true); }}
+                style={{ color: "#10b981", cursor: "pointer", textDecoration: "underline" }}
+              >Kullanıcı Sözleşmesi ve Şartlar</span>&apos;ı okudum ve kabul ediyorum. *
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div
+              onClick={() => setContractAccepted({ distanceSalesContract: !state.contractsAccepted.distanceSalesContract })}
+              style={{
+                width: "16px", height: "16px", minWidth: "16px", borderRadius: "3px",
+                border: state.contractsAccepted.distanceSalesContract ? "none" : "2px solid var(--foreground-muted)",
+                backgroundColor: state.contractsAccepted.distanceSalesContract ? "#10b981" : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", flexShrink: 0, boxSizing: "border-box"
+              }}
+            >
+              {state.contractsAccepted.distanceSalesContract && <Check size={10} className="text-white" strokeWidth={3} />}
+            </div>
+            <span style={{ fontSize: "11px", color: "var(--foreground-secondary)", lineHeight: "1.3" }}>
+              <span
+                onClick={() => { setActiveContractType("distanceSalesContract"); setContractModalOpen(true); }}
+                style={{ color: "#10b981", cursor: "pointer", textDecoration: "underline" }}
+              >Mesafeli Satış Sözleşmesi</span>&apos;ni okudum ve kabul ediyorum. *
+            </span>
+          </div>
+        </div>
+
+        {/* Sözleşme / genel hata */}
+        {(errors.termsAndConditions || errors.distanceSalesContract || errors.general) && (
+          <div style={{ marginBottom: "10px", padding: "8px 10px", backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", fontSize: "11px", color: "rgb(248,113,113)" }}>
+            {errors.termsAndConditions || errors.distanceSalesContract || errors.general}
+          </div>
+        )}
+
+        {/* Toplam + Onay butonu */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: "11px", color: "var(--foreground-muted)", margin: 0 }}>{items.length} ürün • KDV Dahil</p>
+            <p style={{ fontSize: "18px", fontWeight: "700", color: "var(--foreground)", margin: 0, lineHeight: 1.2 }}>
+              {formatPrice(total)}
+            </p>
+          </div>
+          <button
+            className="checkout-proceed-btn"
+            onClick={handleCompleteOrder}
+            disabled={isSubmitting}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              height: "44px", padding: "0 20px", fontWeight: "600", fontSize: "14px",
+              borderRadius: "12px", backgroundColor: "#10b981", color: "#fff", border: "none",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              opacity: isSubmitting ? 0.5 : 1,
+              flexShrink: 0
+            }}
+          >
+            {isSubmitting ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <>
+                <ShieldCheck size={16} />
+                Siparişi Onayla
+              </>
+            )}
+          </button>
         </div>
       </div>
 

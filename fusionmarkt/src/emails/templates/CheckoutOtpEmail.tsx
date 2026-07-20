@@ -27,7 +27,7 @@ export const CheckoutOtpEmail = ({ code, name }: CheckoutOtpEmailProps) => {
       <InfoCard label="Doğrulama Kodu" value={displayCode} mono accent />
 
       <SmallText>
-        Bu kod 5 dakika içinde geçerliliğini yitirecektir.
+        Bu kod 10 dakika içinde geçerliliğini yitirecektir.
       </SmallText>
 
       <p

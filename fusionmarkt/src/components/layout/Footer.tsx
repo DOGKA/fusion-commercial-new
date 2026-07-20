@@ -42,6 +42,7 @@ const footerLinks = {
     title: "Kullanıcı Politikaları",
     links: [
       { name: "Çerez Politikası", href: "/cerez-politikasi" },
+      { name: "Çerez Ayarları", href: "#", cookieSettings: true },
       { name: "Gizlilik Politikası ve Güvenlik", href: "/gizlilik-politikasi" },
       { name: "Kullanıcı Sözleşmesi", href: "/kullanici-sozlesmesi" },
       { name: "Site Kullanım Şartları", href: "/kullanim-kosullari" },
@@ -123,7 +124,15 @@ export default function Footer() {
                 <ul className="space-y-2.5">
                   {section.links.map((link) => (
                     <li key={link.name}>
-                      {'external' in link && link.external ? (
+                      {'cookieSettings' in link && link.cookieSettings ? (
+                        <button
+                          type="button"
+                          onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
+                          className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap text-left"
+                        >
+                          {link.name}
+                        </button>
+                      ) : 'external' in link && link.external ? (
                         <a 
                           href={link.href} 
                           target="_blank" 
@@ -179,17 +188,17 @@ export default function Footer() {
                 <div className="flex items-center gap-6 pr-6 border-r border-[var(--glass-border)]">
                   <span className="text-xs text-[var(--foreground-muted)] uppercase tracking-wide">Pazaryerlerimiz</span>
                   <div className="flex items-center gap-4">
-                    <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <Image src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" width={40} height={40} unoptimized />
+                    <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297?sst=0&channelId=1&event=0" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                      <Image src="/pazaryerleri/trendyol-logo.png" alt="Trendyol" width={40} height={40} unoptimized />
                     </a>
                     <a href="https://www.hepsiburada.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <Image src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" width={40} height={40} unoptimized />
+                      <Image src="/pazaryerleri/hepsiburada-logo.png" alt="Hepsiburada" width={40} height={40} unoptimized />
                     </a>
                     <a href="https://www.n11.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <Image src="/pazaryerleri/n11-logo.svg" alt="N11" width={40} height={40} unoptimized />
+                      <Image src="/pazaryerleri/n11-logo.png" alt="N11" width={40} height={40} unoptimized />
                     </a>
                     <a href="https://www.koctas.com.tr/fusionmarkt/s/5869" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                      <Image src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" width={40} height={40} unoptimized />
+                      <Image src="/pazaryerleri/koctas-logo.png" alt="Koçtaş" width={40} height={40} unoptimized />
                     </a>
                   </div>
                 </div>
@@ -277,7 +286,15 @@ export default function Footer() {
                 <ul className="px-4 space-y-1">
                   {section.links.map((link) => (
                     <li key={link.name}>
-                      {'external' in link && link.external ? (
+                      {'cookieSettings' in link && link.cookieSettings ? (
+                        <button
+                          type="button"
+                          onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
+                          className="block w-full text-left py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
+                        >
+                          {link.name}
+                        </button>
+                      ) : 'external' in link && link.external ? (
                         <a
                           href={link.href}
                           target="_blank"
@@ -310,17 +327,17 @@ export default function Footer() {
             <div className="flex flex-col items-center w-full" style={{ gap: '6px', maxWidth: '280px' }}>
               <span className="text-[9px] text-[var(--foreground-muted)] uppercase tracking-wide">Pazaryerlerimiz</span>
               <div className="flex items-center justify-center w-full" style={{ gap: '12px' }}>
-                <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
-                  <Image src="/pazaryerleri/trendyol-logo.svg" alt="Trendyol" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
+                <a href="https://www.trendyol.com/magaza/fusionmarkt-m-1009297?sst=0&channelId=1&event=0" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
+                  <Image src="/pazaryerleri/trendyol-logo.png" alt="Trendyol" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
                 <a href="https://www.hepsiburada.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
-                  <Image src="/pazaryerleri/hepsiburada-logo.svg" alt="Hepsiburada" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
+                  <Image src="/pazaryerleri/hepsiburada-logo.png" alt="Hepsiburada" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
                 <a href="https://www.n11.com/magaza/fusionmarkt" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
-                  <Image src="/pazaryerleri/n11-logo.svg" alt="N11" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
+                  <Image src="/pazaryerleri/n11-logo.png" alt="N11" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
                 <a href="https://www.koctas.com.tr/fusionmarkt/s/5869" target="_blank" rel="noopener noreferrer" style={{ transform: 'translateZ(0)' }}>
-                  <Image src="/pazaryerleri/koctas-logo.svg" alt="Koçtaş" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
+                  <Image src="/pazaryerleri/koctas-logo.png" alt="Koçtaş" width={44} height={44} unoptimized className="opacity-90" style={{ width: '44px', height: '44px' }} />
                 </a>
               </div>
             </div>

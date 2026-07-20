@@ -203,7 +203,7 @@ export default function HesabimPage() {
     return (
       <div className="min-h-screen bg-background" style={{ paddingTop: "120px", paddingBottom: "80px" }}>
         {/* Subtle Background */}
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="account-page-bg fixed inset-0 z-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-emerald-500/[0.03] rounded-full blur-[120px]" />
         </div>
 
@@ -309,100 +309,45 @@ export default function HesabimPage() {
                 )}
 
                 <style jsx global>{`
-                  /* Light mode - page background */
-                  .light .min-h-screen.bg-background {
-                    background-color: #f8fafc !important;
-                  }
-                  /* Hide gradient background in light mode */
-                  .light .fixed.inset-0.z-0 {
-                    display: none !important;
-                  }
+                  /* Light tema — token'ları sayfa kapsamında yeniden tanımla.
+                     bg-glass-bg / border-border / text-foreground-* gibi tüm
+                     utility'ler bu değerleri otomatik alır; class bazlı
+                     !important override'a gerek kalmaz. Dark temadaki panel
+                     ayrımı ("grid çizgileri") light'ta da aynen korunur. */
                   .light .account-page-layout {
                     --background: #ffffff;
+                    --background-secondary: #ffffff;
+                    --glass-bg: #ffffff;
+                    --glass-bg-hover: #f8fafc;
+                    --glass-bg-active: #f1f5f9;
+                    --glass-bg-solid: #ffffff;
+                    --border: #e2e8f0;
+                    --border-hover: #cbd5e1;
+                    --glass-border: #e2e8f0;
+                    --glass-border-hover: #cbd5e1;
                     --foreground: #0f172a;
-                    --foreground-secondary: #0f172a;
-                    --foreground-tertiary: #0f172a;
+                    --foreground-secondary: #334155;
+                    --foreground-tertiary: #475569;
                     --foreground-muted: #64748b;
                     --foreground-disabled: #94a3b8;
                   }
-                  .light .account-page-layout .bg-background {
-                    background-color: #ffffff !important;
+                  /* Light tema: panel içleri beyaz, ayrımı kenarlık verir.
+                     (Dark temada ayrım bg kontrastıyla sağlanıyor; light'ta
+                     beyaz-üstü-beyaz olduğu için 1px çizgi gerekiyor.
+                     .border taşıyanlar zaten kenarlıklı — çift çizgi olmasın.) */
+                  .light .account-page-layout :where(.bg-glass-bg:not(.border):not(.order-item-image)) {
+                    box-shadow: inset 0 0 0 1px var(--border);
                   }
-                  .light .account-page-layout .bg-glass-bg {
-                    background-color: #ffffff !important;
+                  /* Light tema: dekoratif emerald blur arka planı gizle */
+                  .light .account-page-bg {
+                    display: none;
                   }
-                  .light .account-page-layout .bg-glass-bg-hover {
-                    background-color: #f8fafc !important;
+                  /* Tarih input'unun native takvim ikonu tema ile uyumlu */
+                  .account-date-input {
+                    color-scheme: dark;
                   }
-                  .light .account-page-layout .light-white-card {
-                    background-color: #ffffff !important;
-                  }
-                  .light .account-page-layout .account-sidebar-card,
-                  .light .account-page-layout .account-content-card {
-                    background-color: #ffffff !important;
-                    border-color: #e2e8f0 !important;
-                    border-radius: 16px !important;
-                  }
-                  .light .account-page-layout .text-foreground {
-                    color: #0f172a !important;
-                  }
-                  .light .account-page-layout .text-foreground-secondary {
-                    color: #0f172a !important;
-                  }
-                  .light .account-page-layout .text-foreground-muted {
-                    color: #0f172a !important;
-                  }
-                  .light .account-page-layout .text-foreground-tertiary {
-                    color: #0f172a !important;
-                  }
-                  .light .account-page-layout .text-foreground-disabled {
-                    color: #9ca3af !important;
-                  }
-                  /* Status card backgrounds - white in light mode */
-                  .light .account-page-layout .bg-emerald-500\/10 {
-                    background-color: #ffffff !important;
-                    border-color: #10b981 !important;
-                  }
-                  .light .account-page-layout .bg-amber-500\/10 {
-                    background-color: #ffffff !important;
-                    border-color: #f59e0b !important;
-                  }
-                  .light .account-page-layout .bg-red-500\/10 {
-                    background-color: #ffffff !important;
-                    border-color: #ef4444 !important;
-                  }
-                  .light .account-page-layout .bg-purple-500\/10 {
-                    background-color: #ffffff !important;
-                    border-color: #a855f7 !important;
-                  }
-                  /* Toast notification - white background in light mode */
-                  .light .notification-toast.bg-emerald-500\/10 {
-                    background-color: #ffffff !important;
-                    border-color: #10b981 !important;
-                  }
-                  .light .notification-toast.bg-red-500\/10 {
-                    background-color: #ffffff !important;
-                    border-color: #ef4444 !important;
-                  }
-                  /* Modal success/error elements - white in light mode */
-                  .light .account-page-layout .bg-emerald-500\/20 {
-                    background-color: #d1fae5 !important;
-                  }
-                  .light .account-page-layout .bg-red-500\/20 {
-                    background-color: #fee2e2 !important;
-                  }
-                  /* Sidebar and content card inner elements - white bg in light mode */
-                  .light .account-page-layout .account-sidebar-card > *,
-                  .light .account-page-layout .account-sidebar-card nav,
-                  .light .account-page-layout .account-sidebar-card > div {
-                    background-color: #ffffff !important;
-                  }
-                  /* Modal container - white background in light mode */
-                  .light .modal-container {
-                    background-color: #ffffff !important;
-                  }
-                  .light .modal-container .light-white-card {
-                    background-color: #ffffff !important;
+                  .light .account-date-input {
+                    color-scheme: light;
                   }
                 `}</style>
               </div>
@@ -1857,20 +1802,22 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
         </div>
         
         {/* Status Filter */}
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-9 px-3 pr-8 rounded-lg bg-glass-bg border border-border text-[13px] text-foreground appearance-none cursor-pointer focus:outline-none focus:border-emerald-500/30 transition-all"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
-        >
-          <option value="all">Tüm Durumlar</option>
-          <option value="PENDING">Beklemede</option>
-          <option value="PROCESSING">Hazırlanıyor</option>
-          <option value="SHIPPED">Kargoda</option>
-          <option value="DELIVERED">Teslim Edildi</option>
-          <option value="CANCELLED">İptal</option>
-          <option value="REFUNDED">İade</option>
-        </select>
+        <div className="relative flex-shrink-0 max-w-[45%]">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full h-9 px-3 pr-8 rounded-lg bg-glass-bg border border-border text-[13px] text-foreground appearance-none cursor-pointer focus:outline-none focus:border-emerald-500/30 transition-all"
+          >
+            <option value="all">Tüm Durumlar</option>
+            <option value="PENDING">Beklemede</option>
+            <option value="PROCESSING">Hazırlanıyor</option>
+            <option value="SHIPPED">Kargoda</option>
+            <option value="DELIVERED">Teslim Edildi</option>
+            <option value="CANCELLED">İptal</option>
+            <option value="REFUNDED">İade</option>
+          </select>
+          <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-foreground-muted pointer-events-none" />
+        </div>
       </div>
 
       {/* No Results */}
@@ -1994,7 +1941,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                         </div>
                         {index < arr.length - 1 && (
                           <div className={`order-step-connector flex-1 h-0.5 mx-1 min-w-[20px] transition-all ${
-                            arr[index + 1].done ? 'bg-gradient-to-r from-emerald-500/50 to-emerald-500/30' : 'bg-glass-bg'
+                            arr[index + 1].done ? 'bg-gradient-to-r from-emerald-500/50 to-emerald-500/30' : 'bg-border'
                           }`} />
                         )}
                       </div>
@@ -2020,9 +1967,9 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-start gap-2 sm:gap-3 p-2 bg-glass-bg rounded-lg"
+                        className="order-item-row flex items-start gap-2 sm:gap-3 p-2 bg-glass-bg rounded-lg"
                       >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-glass-bg rounded-lg overflow-hidden relative flex-shrink-0">
+                        <div className="order-item-image w-10 h-10 sm:w-12 sm:h-12 bg-glass-bg rounded-lg overflow-hidden relative flex-shrink-0">
                           {item.product.thumbnail || item.product.images[0] ? (
                             <Image
                               src={item.product.thumbnail || item.product.images[0]}
@@ -2037,23 +1984,23 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                             </div>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="order-item-info flex-1 min-w-0">
                           <Link
                             href={`/urun/${item.product.slug}`}
-                            className="text-[13px] text-foreground hover:text-emerald-400 transition-colors line-clamp-2"
+                            className="text-[13px] text-foreground hover:text-emerald-400 transition-colors line-clamp-2 break-words"
                           >
                             {item.product.name}
                           </Link>
-                          {item.variantInfo && (
-                            <p className="text-[11px] text-foreground-muted">
+                          {item.variantInfo?.name && item.variantInfo?.value && (
+                            <p className="text-[11px] text-foreground-muted truncate">
                               {item.variantInfo.name}: {item.variantInfo.value}
                             </p>
                           )}
-                          <p className="text-[11px] text-foreground-muted">
+                          <p className="text-[11px] text-foreground-muted whitespace-nowrap">
                             {formatPrice(item.price)} × {item.quantity}
                           </p>
                         </div>
-                        <span className="text-[13px] font-medium text-foreground">
+                        <span className="order-item-price text-[13px] font-medium text-foreground flex-shrink-0 text-right whitespace-nowrap">
                           {formatPrice(item.subtotal)}
                         </span>
                       </div>
@@ -2265,7 +2212,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                           </div>
                         )}
                         
-                        <div className="p-3 bg-glass-bg rounded-lg light-white-card">
+                        <div className="p-3 bg-glass-bg rounded-lg">
                           <p className="text-[11px] text-amber-400 mb-2 flex items-center gap-1 font-medium">
                             <AlertCircle size={10} />
                             Önemli Bilgiler
@@ -2363,7 +2310,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
           />
           
           {/* Modal Content */}
-          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden light-white-card modal-container">
+          <div className="relative w-full max-w-md bg-background-secondary border border-border rounded-2xl shadow-2xl overflow-hidden modal-container">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="text-[16px] font-semibold text-foreground">Sipariş İptali</h3>
@@ -2378,7 +2325,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
             {/* Body */}
             <div className="p-4 space-y-4">
               {requestSuccess ? (
-                <div className="text-center py-4 light-white-card">
+                <div className="text-center py-4">
                   <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
                     <Check size={28} className="text-emerald-400" />
                   </div>
@@ -2391,7 +2338,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
                     <p className="text-[14px] font-mono text-foreground">#{cancelModalOrder.orderNumber}</p>
                   </div>
                   
-                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg light-white-card">
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                     <p className="text-[13px] text-amber-400">
                       <strong>Uyarı:</strong> İptal talebiniz mağaza onayına gönderilecektir. Onay sonrası ödemeniz iade edilecektir.
                     </p>
@@ -2449,7 +2396,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
           />
           
           {/* Modal Content */}
-          <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-border rounded-2xl shadow-2xl overflow-hidden light-white-card modal-container">
+          <div className="relative w-full max-w-md bg-background-secondary border border-border rounded-2xl shadow-2xl overflow-hidden modal-container">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="text-[16px] font-semibold text-foreground">İade Talebi</h3>
@@ -2464,7 +2411,7 @@ function OrdersPane({ initialExpandedOrder, onExpandChange }: OrdersPaneProps) {
             {/* Body */}
             <div className="p-4 space-y-4">
               {requestSuccess ? (
-                <div className="text-center py-4 light-white-card">
+                <div className="text-center py-4">
                   <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
                     <Check size={28} className="text-emerald-400" />
                   </div>
@@ -3063,7 +3010,7 @@ function AccountPane({ user, showNotification, onLogout }: AccountPaneProps) {
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
-              className="w-full max-w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground outline-none focus:border-emerald-500/40 transition-all [color-scheme:dark] box-border"
+              className="account-date-input w-full max-w-full h-11 px-4 bg-glass-bg border border-border rounded-lg text-[15px] text-foreground outline-none focus:border-emerald-500/40 transition-all box-border"
             />
           </div>
         </div>

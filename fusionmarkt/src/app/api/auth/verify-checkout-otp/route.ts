@@ -42,7 +42,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Kodun süresi dolmuş. Lütfen yeni kod isteyin." }, { status: 400 });
     }
 
-    if (user.activationCode !== code.toUpperCase()) {
+    // Accept the code with or without the "F-" prefix; ignore spaces and dashes.
+    // Stored format is always "F-XXXXXX".
+    const normalize = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const stored = normalize(user.activationCode);
+    const entered = normalize(String(code));
+    const isMatch = entered === stored || `F${entered}` === stored;
+
+    if (!isMatch) {
       return NextResponse.json({ error: "Geçersiz kod" }, { status: 400 });
     }
 

@@ -75,6 +75,22 @@ export default function CheckoutPage() {
   const hasFetchedProfile = useRef(false);
   const hasFetchedAddresses = useRef(false);
   const loginPanelRef = useRef<HTMLDivElement>(null);
+
+  // Mobil kompakt özet çubuğu: Toplam bölümü görünene kadar altta sabit durur
+  const totalsSectionRef = useRef<HTMLDivElement>(null);
+  const [showMobileSummaryBar, setShowMobileSummaryBar] = useState(false);
+
+  const hasCartItems = items.length > 0;
+  useEffect(() => {
+    const target = totalsSectionRef.current;
+    if (!target || !hasCartItems) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowMobileSummaryBar(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasCartItems, isHydrated]);
   const [authMissingFields, setAuthMissingFields] = useState<string[]>([]);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const authFieldsChecked = useRef(false);
@@ -361,6 +377,7 @@ export default function CheckoutPage() {
             // Varsayılan adresi seç ve bilgileri doldur
             const defaultAddr = formatted.find((a: SavedAddress) => a.isDefault) || formatted[0];
             if (defaultAddr) {
+              setShowNewAddressForm(false);
               setSelectedAddressId(defaultAddr.id);
               setCity(defaultAddr.city);
               setDistrict(defaultAddr.district);
@@ -517,14 +534,26 @@ export default function CheckoutPage() {
     }
   };
 
+  // The OTP input always displays a fixed "F-" prefix; otpCode state holds
+  // only the part after the prefix. This handler extracts that part from the
+  // raw input value, tolerating pastes of the full "F-XXXXXX" code.
+  const handleOtpInputChange = (value: string) => {
+    let raw = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (raw.startsWith("F")) raw = raw.slice(1);
+    while (raw.length > 6 && raw.startsWith("F")) raw = raw.slice(1);
+    setOtpCode(raw.slice(0, 6));
+    setOtpError("");
+  };
+
   const handleVerifyOtp = async () => {
+    if (!otpCode) return;
     setOtpVerifying(true);
     setOtpError("");
     try {
       const res = await fetch("/api/auth/verify-checkout-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), code: otpCode }),
+        body: JSON.stringify({ email: email.trim(), code: `F-${otpCode}` }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -696,6 +725,8 @@ export default function CheckoutPage() {
   const shippingCost = selectedShipping?.isFree ? 0 : (selectedShipping?.cost || 0);
   const couponDiscount = appliedCoupon?.discount || 0;
   const total = subtotal + shippingCost - couponDiscount;
+  const compactOriginalTotal = originalSubtotal + shippingCost;
+  const compactSavings = Math.max(0, compactOriginalTotal - total);
 
   // Move to favorites
   const handleMoveToFavorites = (item: typeof items[0]) => {
@@ -951,7 +982,7 @@ export default function CheckoutPage() {
                           </p>
                         </div>
                         <div style={{ display: "flex", gap: "8px", marginBottom: otpError ? "8px" : 0 }}>
-                          <input type="text" value={otpCode} onChange={(e) => { setOtpCode(e.target.value.toUpperCase()); setOtpError(""); }} onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()} placeholder="F-XXXXXX" maxLength={8} autoFocus style={{ ...inputStyle, flex: 1, height: "44px", textAlign: "center", fontWeight: "600", letterSpacing: "2px" }} />
+                          <input type="text" inputMode="text" autoComplete="one-time-code" autoCapitalize="characters" autoCorrect="off" spellCheck={false} value={`F-${otpCode}`} onChange={(e) => handleOtpInputChange(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()} placeholder="F-XXXXXX" maxLength={10} autoFocus style={{ ...inputStyle, flex: 1, height: "44px", textAlign: "center", fontWeight: "600", letterSpacing: "2px" }} />
                           <button type="button" onClick={handleVerifyOtp} disabled={otpVerifying || otpCode.length < 4} style={{ height: "44px", padding: "0 20px", backgroundColor: "#6366f1", color: "#fff", border: "none", borderRadius: "10px", fontSize: "13px", fontWeight: "600", cursor: otpVerifying || otpCode.length < 4 ? "not-allowed" : "pointer", opacity: otpVerifying || otpCode.length < 4 ? 0.6 : 1, display: "flex", alignItems: "center", gap: "6px" }}>
                             {otpVerifying ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Doğrula
                           </button>
@@ -1005,7 +1036,7 @@ export default function CheckoutPage() {
 
             {/* Company Fields - Sadece kurumsal seçildiğinde */}
             {invoiceType === "company" && (
-              <div style={{ padding: "20px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px", marginBottom: "24px" }}>
+              <div style={{ marginBottom: "24px" }}>
                 <div data-field="companyName" style={{ marginBottom: "12px" }}>
                   <label style={labelStyle}><Building2 size={13} /> Şirket Adı *</label>
                   <input
@@ -1570,7 +1601,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Totals */}
-            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
+            <div ref={totalsSectionRef} style={{ borderTop: "1px solid var(--border)", paddingTop: "20px", marginBottom: "20px" }}>
               {/* Original Subtotal - only show if there's product discount */}
               {totalSavings > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
@@ -1691,6 +1722,73 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobil kompakt özet çubuğu - Toplam bölümü görünene kadar altta sabit */}
+      {hasCartItems && (
+        <div
+          className="lg:hidden"
+          style={{
+            position: "fixed",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 90,
+            backgroundColor: "var(--background-secondary, var(--background))",
+            borderTop: "1px solid var(--border)",
+            boxShadow: "0 -12px 24px -8px rgba(0,0,0,0.25)",
+            padding: "12px 16px",
+            paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
+            transform: showMobileSummaryBar ? "translateY(0)" : "translateY(100%)",
+            transition: "transform 0.3s ease",
+            pointerEvents: showMobileSummaryBar ? "auto" : "none"
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            {compactSavings > 0 && (
+              <div style={{ display: "flex", alignItems: "baseline", gap: "6px", whiteSpace: "nowrap", marginBottom: "4px", lineHeight: 1 }}>
+                <span style={{ fontSize: "12px", color: "var(--foreground-tertiary)", textDecoration: "line-through" }}>
+                  {formatPrice(compactOriginalTotal)}
+                </span>
+                <span style={{ fontSize: "10px", fontWeight: "500", color: "#10b981" }}>
+                  {formatPrice(compactSavings)} kazanç
+                </span>
+              </div>
+            )}
+            <div style={{ display: "flex", alignItems: "baseline", gap: "6px", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: "18px", fontWeight: "700", color: "var(--foreground)", margin: 0, lineHeight: 1.2 }}>
+                {formatPrice(total)}
+              </p>
+              <span style={{ fontSize: "10px", color: "var(--foreground-muted)" }}>KDV Dahil</span>
+            </div>
+          </div>
+          <button
+            className="checkout-proceed-btn"
+            onClick={handleProceedToPayment}
+            disabled={isSubmitting || preflightLoading}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              height: "44px", padding: "0 20px", fontWeight: "600", fontSize: "14px",
+              borderRadius: "12px", backgroundColor: "#10b981", color: "#fff", border: "none",
+              cursor: isSubmitting || preflightLoading ? "not-allowed" : "pointer",
+              opacity: isSubmitting || preflightLoading ? 0.5 : 1,
+              flexShrink: 0
+            }}
+          >
+            {isSubmitting || preflightLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <>
+                Ödemeye Geç
+                <ChevronRight size={16} />
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Preflight Validation Modal */}
       {showPreflightModal && preflightErrors.length > 0 && (

@@ -22,20 +22,31 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({
       where: { email: normalizedEmail },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, activationCode: true, activationCodeExp: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
     }
 
-    const code = generateActivationCode();
-    const codeExp = new Date(Date.now() + 5 * 60 * 1000);
+    // Reuse the existing code if it's still valid (at least 2 minutes left),
+    // so a resend doesn't invalidate the code in the previous email.
+    const hasValidCode =
+      user.activationCode &&
+      user.activationCodeExp &&
+      new Date(user.activationCodeExp).getTime() - Date.now() > 2 * 60 * 1000;
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { activationCode: code, activationCodeExp: codeExp },
-    });
+    let code: string;
+    if (hasValidCode) {
+      code = user.activationCode!;
+    } else {
+      code = generateActivationCode();
+      const codeExp = new Date(Date.now() + 10 * 60 * 1000);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { activationCode: code, activationCodeExp: codeExp },
+      });
+    }
 
     const result = await sendCheckoutOtpEmail(user.email!, code, user.name || undefined);
     if (!result.success) {
