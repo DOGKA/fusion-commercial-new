@@ -45,9 +45,8 @@ export default function MiniCart() {
   const isDark = mounted && resolvedTheme === "dark";
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const bottomSentinelRef = useRef<HTMLDivElement>(null);
+  const summarySectionRef = useRef<HTMLDivElement>(null);
   const [isSummaryInView, setIsSummaryInView] = useState(false);
-  const [hasUserScrolled, setHasUserScrolled] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const prevIsOpenRef = useRef(isOpen);
@@ -57,7 +56,6 @@ export default function MiniCart() {
     setSelectedItems(new Set());
     setIsSelectionMode(false);
     setIsSummaryInView(false);
-    setHasUserScrolled(false);
     closeCartOriginal();
   }, [closeCartOriginal]);
   
@@ -162,26 +160,25 @@ export default function MiniCart() {
         setSelectedItems(new Set());
         setIsSelectionMode(false);
         setIsSummaryInView(false);
-        setHasUserScrolled(false);
       });
     }
     prevIsOpenRef.current = isOpen;
   }, [isOpen]);
 
-  // Detaylı özet görünür olunca ayrı kompakt çubuk gizlenir
+  // Checkout ile aynı mantık: detaylı özet görünürken kompakt çubuk gizlenir
   const hasItems = items.length > 0;
   useEffect(() => {
     if (!isOpen || !hasItems) return;
     const root = scrollAreaRef.current;
-    const sentinel = bottomSentinelRef.current;
-    if (!root || !sentinel) return;
+    const summary = summarySectionRef.current;
+    if (!root || !summary) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsSummaryInView(hasUserScrolled && entry.isIntersecting),
+      ([entry]) => setIsSummaryInView(entry.isIntersecting),
       { root, threshold: 0 }
     );
-    observer.observe(sentinel);
+    observer.observe(summary);
     return () => observer.disconnect();
-  }, [isOpen, hasItems, hasUserScrolled]);
+  }, [isOpen, hasItems]);
 
   // Toggle item selection
   const toggleItemSelection = (itemId: string) => {
@@ -402,9 +399,6 @@ export default function MiniCart() {
         ═══════════════════════════════════════════════════════════════════ */}
         <div
           ref={scrollAreaRef}
-          onScroll={() => {
-            if (!hasUserScrolled) setHasUserScrolled(true);
-          }}
           className="flex-1 min-h-0 overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
         >
         <div className={cn("px-3 py-3 space-y-2", items.length === 0 ? "flex-1" : "flex-none")}>
@@ -585,14 +579,12 @@ export default function MiniCart() {
           )}
         </div>
 
-        {/* Tüm ürünlerin bittiği ve detaylı özetin başladığı nokta */}
-        {items.length > 0 && <div ref={bottomSentinelRef} className="h-px flex-shrink-0" />}
-
         {/* ═══════════════════════════════════════════════════════════════════
             FOOTER - Listenin sonunda eski yerindeki detaylı özet
         ═══════════════════════════════════════════════════════════════════ */}
         {items.length > 0 && (
           <div
+            ref={summarySectionRef}
             className={cn(
               "border-t",
               isDark
