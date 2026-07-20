@@ -47,6 +47,7 @@ export default function MiniCart() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
   const [isSummaryInView, setIsSummaryInView] = useState(false);
+  const [hasUserScrolled, setHasUserScrolled] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const prevIsOpenRef = useRef(isOpen);
@@ -55,6 +56,8 @@ export default function MiniCart() {
   const closeCart = useCallback(() => {
     setSelectedItems(new Set());
     setIsSelectionMode(false);
+    setIsSummaryInView(false);
+    setHasUserScrolled(false);
     closeCartOriginal();
   }, [closeCartOriginal]);
   
@@ -158,12 +161,14 @@ export default function MiniCart() {
       queueMicrotask(() => {
         setSelectedItems(new Set());
         setIsSelectionMode(false);
+        setIsSummaryInView(false);
+        setHasUserScrolled(false);
       });
     }
     prevIsOpenRef.current = isOpen;
   }, [isOpen]);
 
-  // Kompakt çubuk: listenin sonundaki özet görünür olunca çubuk gizlenir
+  // Detaylı özet görünür olunca ayrı kompakt çubuk gizlenir
   const hasItems = items.length > 0;
   useEffect(() => {
     if (!isOpen || !hasItems) return;
@@ -171,12 +176,12 @@ export default function MiniCart() {
     const sentinel = bottomSentinelRef.current;
     if (!root || !sentinel) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsSummaryInView(entry.isIntersecting),
+      ([entry]) => setIsSummaryInView(hasUserScrolled && entry.isIntersecting),
       { root, threshold: 0 }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [isOpen, hasItems]);
+  }, [isOpen, hasItems, hasUserScrolled]);
 
   // Toggle item selection
   const toggleItemSelection = (itemId: string) => {
@@ -395,7 +400,13 @@ export default function MiniCart() {
         {/* ═══════════════════════════════════════════════════════════════════
             SCROLLABLE CONTENT: Items + Summary (tek scroll alanı)
         ═══════════════════════════════════════════════════════════════════ */}
-        <div ref={scrollAreaRef} className="flex-1 min-h-0 overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div
+          ref={scrollAreaRef}
+          onScroll={() => {
+            if (!hasUserScrolled) setHasUserScrolled(true);
+          }}
+          className="flex-1 min-h-0 overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+        >
         <div className={cn("px-3 py-3 space-y-2", items.length === 0 ? "flex-1" : "flex-none")}>
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-16 text-center">
@@ -574,11 +585,11 @@ export default function MiniCart() {
           )}
         </div>
 
-        {/* Listenin sonunu işaretleyen görünmez öğe (kompakt çubuk gizleme tetikleyicisi) */}
+        {/* Tüm ürünlerin bittiği ve detaylı özetin başladığı nokta */}
         {items.length > 0 && <div ref={bottomSentinelRef} className="h-px flex-shrink-0" />}
 
         {/* ═══════════════════════════════════════════════════════════════════
-            FOOTER - Summary & CTAs (normal akışta, listenin sonunda)
+            FOOTER - Listenin sonunda eski yerindeki detaylı özet
         ═══════════════════════════════════════════════════════════════════ */}
         {items.length > 0 && (
           <div
@@ -718,9 +729,7 @@ export default function MiniCart() {
         )}
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            KOMPAKT ÇUBUK - Özet görünene kadar panelin altında sabit durur
-        ═══════════════════════════════════════════════════════════════════ */}
+        {/* Checkout gibi: detaylı özet görünene kadar panelin altında sabit */}
         {items.length > 0 && (
           <div
             className={cn(
