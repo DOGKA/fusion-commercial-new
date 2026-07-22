@@ -38,3 +38,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Yan performans build çıktısı (NEXT_DIST_DIR)
+/.next-perf/

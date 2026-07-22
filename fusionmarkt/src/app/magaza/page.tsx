@@ -864,18 +864,26 @@ export default function StorePage() {
       </section>
 
       {/* FEATURED PRODUCTS - Öne Çıkan Ürünler */}
-      {!featuredLoading && featuredProducts.length > 0 && (
+      {/* CLS fix: yüklenirken hiçbir şey render etmemek, veri gelince altındaki
+          tüm içeriği aşağı itip büyük layout shift yaratıyordu (CLS ~0.50).
+          Skeleton ile aynı yükseklikte alan rezerve ediyoruz. */}
+      {featuredLoading ? (
+        <StoreFeaturedSkeleton />
+      ) : featuredProducts.length > 0 ? (
         <StoreFeaturedSection
           title="Öne Çıkan Ürünler"
           eyebrow="Seçili Koleksiyon"
           products={featuredProducts}
           isDark={isDark}
           accentColor="#6B7280"
+          priorityImages
         />
-      )}
+      ) : null}
 
       {/* BESTSELLER PRODUCTS - Çok Satanlar */}
-      {!bestsellerLoading && bestsellerProducts.length > 0 && (
+      {bestsellerLoading ? (
+        <StoreFeaturedSkeleton />
+      ) : bestsellerProducts.length > 0 ? (
         <StoreFeaturedSection
           title="Çok Satanlar"
           eyebrow="Trend Ürünler"
@@ -883,7 +891,7 @@ export default function StorePage() {
           isDark={isDark}
           accentColor="#F59E0B"
         />
-      )}
+      ) : null}
 
       {/* CATEGORIES WITH CAROUSELS */}
       {/* CLS fix: yükleme/sonuç durumlarının yükseklik farkından kaynaklı layout
@@ -1291,6 +1299,50 @@ function CategoryCarousel({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   STORE FEATURED SKELETON - Yüklenirken alan rezerve eder (CLS fix)
+   StoreFeaturedSection ile aynı yükseklikte: header + 640px kart satırı
+───────────────────────────────────────────────────────────────────────────── */
+function StoreFeaturedSkeleton() {
+  return (
+    <section style={{ marginTop: "48px" }} aria-hidden="true">
+      <div className="container">
+        {/* Mobile header placeholder */}
+        <div className="flex lg:hidden items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 rounded-full bg-foreground/10 animate-pulse" />
+            <div>
+              <div className="h-[11px] w-24 rounded bg-foreground/10 animate-pulse" style={{ marginBottom: "4px" }} />
+              <div className="h-[18px] w-36 rounded bg-foreground/10 animate-pulse" />
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop header placeholder */}
+        <div className="hidden lg:flex items-end justify-between mb-3">
+          <div>
+            <div className="h-[11px] w-28 rounded bg-foreground/10 animate-pulse" style={{ marginBottom: "12px" }} />
+            <div className="h-[32px] w-64 rounded bg-foreground/10 animate-pulse" />
+          </div>
+          <div className="h-9 w-20 rounded-xl bg-foreground/10 animate-pulse" />
+        </div>
+
+        {/* Card row placeholder - ProductCard sabit 640px yüksekliğinde */}
+        <div className="relative overflow-hidden">
+          <div className="flex items-stretch pb-4" style={{ gap: "16px" }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 w-[280px] h-[640px] rounded-2xl border border-border bg-glass-bg animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    STORE FEATURED SECTION - Öne Çıkan / Çok Satanlar (isDark pattern)
 ───────────────────────────────────────────────────────────────────────────── */
 function StoreFeaturedSection({
@@ -1299,12 +1351,14 @@ function StoreFeaturedSection({
   products,
   isDark,
   accentColor,
+  priorityImages = false,
 }: {
   title: string;
   eyebrow: string;
   products: Product[];
   isDark: boolean;
   accentColor: string;
+  priorityImages?: boolean;
 }) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -1408,7 +1462,9 @@ function StoreFeaturedSection({
             >
               {displayProducts.map((product, idx) => (
                 <div key={`${product.id}-${idx}`} className="flex-shrink-0 w-[280px]">
-                  <ProductCard product={product} />
+                  {/* LCP fix: ekranda ilk görünen kartların görselleri eager +
+                      fetchpriority=high yüklensin */}
+                  <ProductCard product={product} priority={priorityImages && idx < 4} />
                 </div>
               ))}
             </div>

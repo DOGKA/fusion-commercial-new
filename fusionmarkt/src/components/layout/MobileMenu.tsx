@@ -133,9 +133,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     };
   }, [isOpen, onClose]);
 
-  // Menü kapanınca akordiyonu sıfırla
+  // Menü kapanınca akordiyonu sıfırla (MiniCart ile aynı kalıp: senkron
+  // setState yerine microtask'a ertele - react-hooks/set-state-in-effect)
   useEffect(() => {
-    if (!isOpen) setExpanded(null);
+    if (!isOpen) {
+      queueMicrotask(() => setExpanded(null));
+    }
   }, [isOpen]);
 
   if (!isOpen) return null;

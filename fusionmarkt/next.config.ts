@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   // ═══════════════════════════════════════════════════════════════════════════
   outputFileTracingRoot: path.join(__dirname, "../"),
 
+  // Opsiyonel: dev server'ın .next klasörünü bozmadan yan build alabilmek için
+  // (ör. NEXT_DIST_DIR=.next-perf npm run build)
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
+
   // ═══════════════════════════════════════════════════════════════════════════
   // SERVER EXTERNAL PACKAGES
   // ═══════════════════════════════════════════════════════════════════════════

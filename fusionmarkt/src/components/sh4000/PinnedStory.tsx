@@ -117,11 +117,13 @@ export default function PinnedStory() {
     return () => ctx.revert();
   }, []);
 
+  // CLS fix: content-visibility:auto, GSAP pin-spacer ile birlikte viewport'a
+  // yaklaşırken büyük layout shift (0.5+) üretiyordu. Pinlenen bölümlerde
+  // content-visibility kullanılmamalı.
   return (
     <section
       ref={sectionRef}
       className="bg-background py-16 md:py-24"
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px' }}
     >
       {/* ==================== DESKTOP LAYOUT ==================== */}
       <div className="hidden lg:block">

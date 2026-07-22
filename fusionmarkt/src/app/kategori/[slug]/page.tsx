@@ -925,7 +925,7 @@ export default function CategoryPage() {
                       priority={idx < 4}
                     />
                   ) : (
-                    <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} />
+                    <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} priority={idx < 4} />
                   )}
                 </div>
               ))}
