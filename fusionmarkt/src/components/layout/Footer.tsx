@@ -18,47 +18,95 @@ function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 }
 
-const footerLinks = {
+type FooterLink =
+  | { name: string; href: string; kind: "internal" }
+  | { name: string; href: string; kind: "external" }
+  | { name: string; kind: "cookieSettings" };
+
+const footerLinks: Record<string, { title: string; links: FooterLink[] }> = {
   kurumsal: {
     title: "Kurumsal",
     links: [
-      { name: "Hakkımızda", href: "/hakkimizda" },
-      { name: "İletişim", href: "/iletisim" },
-      { name: "Blog", href: "/blog" },
+      { name: "Hakkımızda", href: "/hakkimizda", kind: "internal" },
+      { name: "İletişim", href: "/iletisim", kind: "internal" },
+      { name: "Blog", href: "/blog", kind: "internal" },
     ],
   },
   destek: {
     title: "Müşteri Hizmetleri",
     links: [
-      { name: "Sıkça Sorulan Sorular", href: "/sikca-sorulan-sorular" },
-      { name: "Sipariş Takibi", href: "/hesabim" },
-      { name: "İade ve Değişim", href: "/iade-politikasi" },
-      { name: "Aplikasyon Kullanım Kılavuzu", href: "https://ieetek.vercel.app/", external: true },
-      { name: "Kullanım Kılavuzları", href: "/kullanim-kilavuzlari" },
-      { name: "Servis Formu", href: "/servis-formu" },
+      { name: "Sıkça Sorulan Sorular", href: "/sikca-sorulan-sorular", kind: "internal" },
+      { name: "Sipariş Takibi", href: "/hesabim", kind: "internal" },
+      { name: "İade ve Değişim", href: "/iade-politikasi", kind: "internal" },
+      { name: "Aplikasyon Kullanım Kılavuzu", href: "https://ieetek.vercel.app/", kind: "external" },
+      { name: "Kullanım Kılavuzları", href: "/kullanim-kilavuzlari", kind: "internal" },
+      { name: "Servis Formu", href: "/servis-formu", kind: "internal" },
     ],
   },
   kullaniciPolitikalari: {
     title: "Kullanıcı Politikaları",
     links: [
-      { name: "Çerez Politikası", href: "/cerez-politikasi" },
-      { name: "Çerez Ayarları", href: "#", cookieSettings: true },
-      { name: "Gizlilik Politikası ve Güvenlik", href: "/gizlilik-politikasi" },
-      { name: "Kullanıcı Sözleşmesi", href: "/kullanici-sozlesmesi" },
-      { name: "Site Kullanım Şartları", href: "/kullanim-kosullari" },
-      { name: "Ücretlendirme Politikası", href: "/ucretlendirme-politikasi" },
+      { name: "Çerez Politikası", href: "/cerez-politikasi", kind: "internal" },
+      { name: "Çerez Ayarları", kind: "cookieSettings" },
+      { name: "Gizlilik Politikası ve Güvenlik", href: "/gizlilik-politikasi", kind: "internal" },
+      { name: "Kullanıcı Sözleşmesi", href: "/kullanici-sozlesmesi", kind: "internal" },
+      { name: "Site Kullanım Şartları", href: "/kullanim-kosullari", kind: "internal" },
+      { name: "Ücretlendirme Politikası", href: "/ucretlendirme-politikasi", kind: "internal" },
     ],
   },
   satisOdeme: {
     title: "Satış ve Ödeme Bilgileri",
     links: [
-      { name: "Mesafeli Satış Sözleşmesi", href: "/mesafeli-satis-sozlesmesi" },
-      { name: "Ödeme Seçenekleri", href: "/odeme-secenekleri" },
-      { name: "Gönderim Yerleri", href: "/gonderim-yerleri" },
-      { name: "İade Politikası", href: "/iade-politikasi" },
+      { name: "Mesafeli Satış Sözleşmesi", href: "/mesafeli-satis-sozlesmesi", kind: "internal" },
+      { name: "Ödeme Seçenekleri", href: "/odeme-secenekleri", kind: "internal" },
+      { name: "Gönderim Yerleri", href: "/gonderim-yerleri", kind: "internal" },
+      { name: "İade Politikası", href: "/iade-politikasi", kind: "internal" },
     ],
   },
 };
+
+function FooterNavLink({
+  link,
+  className,
+}: {
+  link: FooterLink;
+  className: string;
+}) {
+  if (link.kind === "cookieSettings") {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("openCookieSettings"));
+          }
+        }}
+        className={className}
+      >
+        {link.name}
+      </button>
+    );
+  }
+
+  if (link.kind === "external") {
+    return (
+      <a
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {link.name}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={link.href} className={className}>
+      {link.name}
+    </Link>
+  );
+}
 
 // iyzico logo band for payment methods
 const IYZICO_LOGO_BAND_URL = "https://cdn.fusionmarkt.com/general/1766832801022-0fvo3-logo_band_white.svg";
@@ -123,29 +171,15 @@ export default function Footer() {
                 <h4 className="font-semibold mb-4 text-sm whitespace-nowrap">{section.title}</h4>
                 <ul className="space-y-2.5">
                   {section.links.map((link) => (
-                    <li key={link.name}>
-                      {'cookieSettings' in link && link.cookieSettings ? (
-                        <button
-                          type="button"
-                          onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
-                          className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap text-left"
-                        >
-                          {link.name}
-                        </button>
-                      ) : 'external' in link && link.external ? (
-                        <a 
-                          href={link.href} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap"
-                        >
-                          {link.name}
-                        </a>
-                      ) : (
-                        <Link href={link.href} className="text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap">
-                          {link.name}
-                        </Link>
-                      )}
+                    <li key={`${section.title}-${link.kind}-${link.name}`}>
+                      <FooterNavLink
+                        link={link}
+                        className={
+                          link.kind === "cookieSettings"
+                            ? "text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap text-left"
+                            : "text-sm text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors block whitespace-nowrap"
+                        }
+                      />
                     </li>
                   ))}
                 </ul>
@@ -285,32 +319,15 @@ export default function Footer() {
               >
                 <ul className="px-4 space-y-1">
                   {section.links.map((link) => (
-                    <li key={link.name}>
-                      {'cookieSettings' in link && link.cookieSettings ? (
-                        <button
-                          type="button"
-                          onClick={() => window.dispatchEvent(new CustomEvent("openCookieSettings"))}
-                          className="block w-full text-left py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
-                        >
-                          {link.name}
-                        </button>
-                      ) : 'external' in link && link.external ? (
-                        <a
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
-                        >
-                          {link.name}
-                        </a>
-                      ) : (
-                        <Link
-                          href={link.href}
-                          className="block py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
-                        >
-                          {link.name}
-                        </Link>
-                      )}
+                    <li key={`${section.title}-${link.kind}-${link.name}`}>
+                      <FooterNavLink
+                        link={link}
+                        className={
+                          link.kind === "cookieSettings"
+                            ? "block w-full text-left py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
+                            : "block py-2.5 text-[14px] text-[var(--foreground-tertiary)] hover:text-[var(--fusion-primary)] transition-colors"
+                        }
+                      />
                     </li>
                   ))}
                 </ul>

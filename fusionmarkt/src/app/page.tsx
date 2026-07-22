@@ -10,6 +10,7 @@ import PartnerLogos from "@/components/home/PartnerLogos";
 import HomeSeoContent from "@/components/home/HomeSeoContent";
 import { staticPageMetadata } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
+import { applyLiveShowcasePrices } from "@/server/showcase-live-prices";
 import {
   selectSliderPublic,
   mapSlidersToPublicDTO,
@@ -95,6 +96,8 @@ async function getInitialCategorySections() {
         },
       },
     });
+    // Vitrin fiyatlarını güncel ürün/bundle fiyatlarıyla değiştir
+    await applyLiveShowcasePrices(sections);
     return sections.map((s: CategorySectionRow) => ({
       sectionTitle: s.sectionTitle,
       bannerImage: s.bannerImage,

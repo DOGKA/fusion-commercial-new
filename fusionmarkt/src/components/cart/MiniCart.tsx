@@ -191,15 +191,6 @@ export default function MiniCart() {
     setSelectedItems(newSelected);
   };
 
-  // Select all items
-  const selectAllItems = () => {
-    if (selectedItems.size === items.length) {
-      setSelectedItems(new Set());
-    } else {
-      setSelectedItems(new Set(items.map(item => item.id)));
-    }
-  };
-
   // Delete selected items
   const deleteSelectedItems = () => {
     selectedItems.forEach(id => removeItem(id));
@@ -335,16 +326,15 @@ export default function MiniCart() {
               ) : (
                 <>
                   <button
-                    onClick={selectAllItems}
-                    className={cn(
-                      "flex items-center gap-1 h-7 px-2 -ml-2 text-[12px] font-medium transition-colors rounded-full",
-                      selectedItems.size === items.length
-                        ? "text-emerald-400"
-                        : "text-foreground-muted hover:text-foreground active:bg-foreground/[0.05]"
-                    )}
+                    type="button"
+                    onClick={() => {
+                      setIsSelectionMode(false);
+                      setSelectedItems(new Set());
+                    }}
+                    className="flex items-center gap-1 h-7 px-2 -ml-2 text-[12px] font-medium text-foreground-muted hover:text-foreground active:bg-foreground/[0.05] transition-colors cursor-pointer rounded-full"
                   >
-                    <Check size={13} />
-                    {selectedItems.size === items.length ? 'Kaldır' : 'Tümü'}
+                    <X size={13} />
+                    İptal
                   </button>
                   {selectedItems.size > 0 && (
                     <span className="ml-1 text-[11px] text-foreground-disabled">
@@ -370,23 +360,13 @@ export default function MiniCart() {
                     disabled={selectedItems.size === 0}
                     aria-label="Seçilenleri Sil"
                     className={cn(
-                      "w-8 h-7 flex items-center justify-center transition-colors rounded-full",
+                      "w-8 h-7 -mr-2 flex items-center justify-center transition-colors rounded-full",
                       selectedItems.size > 0
                         ? "text-red-400 active:bg-red-500/10"
                         : "text-foreground-disabled cursor-not-allowed"
                     )}
                   >
                     <Trash2 size={14} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsSelectionMode(false);
-                      setSelectedItems(new Set());
-                    }}
-                    aria-label="Seçim modundan çık"
-                    className="w-8 h-7 -mr-2 flex items-center justify-center text-foreground-muted hover:text-foreground active:bg-foreground/[0.05] transition-colors rounded-full"
-                  >
-                    <X size={14} />
                   </button>
                 </>
               )}
@@ -700,7 +680,12 @@ export default function MiniCart() {
                 <Link
                   href="/checkout"
                   onClick={closeCart}
-                  className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold text-base transition-[background-color,transform,box-shadow] duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                  className={cn(
+                    "flex items-center justify-center gap-2 w-full py-4 px-6 text-white font-semibold text-base transition-[background-color,transform,box-shadow] duration-300 hover:-translate-y-0.5",
+                    isDark
+                      ? "bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-600 hover:to-emerald-700 shadow-md shadow-emerald-900/30"
+                      : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+                  )}
                   style={{ borderRadius: '16px' }}
                 >
                   Ödemeye Git
@@ -729,7 +714,11 @@ export default function MiniCart() {
               isDark
                 ? "border-white/[0.06] bg-[#0a0a0a] shadow-[0_-12px_24px_-8px_rgba(0,0,0,0.6)]"
                 : "border-gray-200 bg-white shadow-[0_-12px_24px_-8px_rgba(0,0,0,0.12)]",
-              isSummaryInView ? "translate-y-full pointer-events-none" : "translate-y-0"
+              isSummaryInView
+                ? items.length >= 3
+                  ? "translate-y-0 md:translate-y-full md:pointer-events-none"
+                  : "translate-y-full pointer-events-none"
+                : "translate-y-0"
             )}
           >
             <div className="flex items-center justify-between gap-3 px-4 py-3">
@@ -755,7 +744,12 @@ export default function MiniCart() {
               <Link
                 href="/checkout"
                 onClick={closeCart}
-                className="flex items-center gap-2 flex-shrink-0 py-2.5 px-5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold text-[14px] transition-colors duration-300 shadow-lg shadow-emerald-500/25"
+                className={cn(
+                  "flex items-center gap-2 flex-shrink-0 py-2.5 px-5 text-white font-semibold text-[14px] transition-colors duration-300",
+                  isDark
+                    ? "bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-600 hover:to-emerald-700 shadow-md shadow-emerald-900/30"
+                    : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-lg shadow-emerald-500/25"
+                )}
                 style={{ borderRadius: '12px' }}
               >
                 Ödemeye Git

@@ -609,9 +609,8 @@ function CategorySectionForm({ section, saving, onSave, dbProducts, productCateg
 
   const addProductFromDb = (p: DbProduct) => {
     if ((form.products?.length || 0) >= 4) return;
-    const price = p.comparePrice && p.comparePrice < p.price
-      ? Number(p.comparePrice).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : Number(p.price).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // price = müşterinin ödeyeceği güncel fiyat (indirim varsa indirimli fiyat)
+    const price = Number(p.price).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     setForm({
       ...form,
       products: [...(form.products || []), {

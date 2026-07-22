@@ -371,3 +371,17 @@
   color: #ff6b6b;
 }
 
+
+/* ===========================================================================
+   CHECKOUT PROCEED BUTTONS - Dark Theme Dimming
+   Dark temada parlak emerald (#10b981) çok göz alıyor;
+   MiniCart/MobileMenu ile aynı sönük tonlara çekiyoruz.
+   (Ödemeye Geç, Siparişi Onayla, sipariş onay sayfası CTA'ları)
+=========================================================================== */
+.dark .checkout-proceed-btn {
+  background-color: #047857 !important; /* emerald-700 */
+}
+
+.dark .checkout-proceed-btn:hover:not(:disabled) {
+  background-color: #059669 !important; /* emerald-600 */
+}

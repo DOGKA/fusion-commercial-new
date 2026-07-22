@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { MobileThemeToggle } from "@/components/ThemeToggle";
+import MobileMenu from "@/components/layout/MobileMenu";
 import { useTheme } from "next-themes";
 
 // Hydration-safe mounted check
@@ -327,142 +328,29 @@ export default function Header() {
                 )}
               </button>
 
-              {/* Mobile Menu - sadece <1024px'te görünür */}
-              <div className="hidden max-lg:flex items-center">
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className={cn(
-                    "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
-                    "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
-                    "hover:before:bg-foreground/[0.05]"
-                  )}
-                  aria-label="Menü"
-                >
-                  {isMobileMenuOpen ? (
-                    <span className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-foreground/[0.08]">
-                      <X className="w-3.5 h-3.5" strokeWidth={2.5} />
-                    </span>
-                  ) : (
-                    <Menu className="w-5 h-5 relative z-10" />
-                  )}
-                </button>
-              </div>
+              {/* Mobile Menu - sadece <1024px'te görünür, sepet butonuyla aynı yapı/davranış */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={cn(
+                  "relative hidden max-lg:flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
+                  "hover:before:bg-foreground/[0.05]"
+                )}
+                aria-label="Menü"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5 relative z-10" />
+                ) : (
+                  <Menu className="w-5 h-5 relative z-10" />
+                )}
+              </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-x-0 z-40 lg:hidden mobile-dropdown-menu"
-          style={{ top: isScrolled ? "58px" : "74px" }}
-        >
-          <div
-            className="fixed inset-0 bg-background/70 backdrop-blur-md"
-            style={{ top: isScrolled ? "58px" : "74px" }}
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-
-          <div className="relative mx-3 mt-2 overflow-hidden rounded-3xl shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.08] to-foreground/[0.02] backdrop-blur-2xl" />
-            <div className="absolute inset-0 bg-background/90" />
-            <div className="absolute inset-0 rounded-3xl border border-border" />
-            
-            <nav className="relative p-4 space-y-1">
-              {navigation.map((item) => (
-                item.submenu ? (
-                  <div key={item.name}>
-                    <button
-                      onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
-                      className={cn(
-                        "w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-colors duration-200",
-                        activeDropdown === item.name 
-                          ? "text-foreground bg-foreground/[0.06]" 
-                          : "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
-                      )}
-                    >
-                      {item.name}
-                      <ChevronDown className={cn(
-                        "w-4 h-4 transition-transform duration-300 text-foreground/40",
-                        activeDropdown === item.name && "rotate-180 text-foreground"
-                      )} />
-                    </button>
-                    
-                    {activeDropdown === item.name && (
-                      <div className="mt-1 ml-4 space-y-0.5 pb-2">
-                        {item.submenu.map((sub) => (
-                          <Link
-                            key={sub.name}
-                            href={sub.href}
-                            prefetch={false}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="flex items-center gap-2 px-4 py-2.5 text-[14px] text-foreground/50 hover:text-foreground rounded-lg transition-colors"
-                          >
-                            <span className="w-1 h-1 rounded-full bg-foreground/30" />
-                            {sub.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    key={item.name}
-                    href={item.href!}
-                    prefetch={false}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-colors duration-200",
-                      item.name === "Güç Hesaplayıcı" 
-                        ? "text-[var(--fusion-primary)]" 
-                        : "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
-                    )}
-                  >
-                    {item.name}
-                    {item.name === "Güç Hesaplayıcı" && (
-                      <span className="px-2 py-0.5 text-[10px] font-bold bg-[var(--fusion-primary)]/20 text-[var(--fusion-primary)] rounded">
-                        Simulator
-                      </span>
-                    )}
-                    {item.name === "SH4000" && (
-                      <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-500 rounded">
-                        Enerji Çözümü
-                      </span>
-                    )}
-                  </Link>
-                )
-              ))}
-              
-              <div className="my-3 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
-              
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  href="/favori"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-colors"
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Favorilerim</span>
-                  {favoritesCount > 0 && (
-                    <span className="w-5 h-5 bg-pink-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {favoritesCount}
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  href="/hesabim"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] font-medium text-foreground/60 hover:text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.06] rounded-xl border border-foreground/[0.05] transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  <span>Hesabım</span>
-                </Link>
-              </div>
-            </nav>
-          </div>
-        </div>
-      )}
+      {/* Mobile Menu - MiniCart tarzı sağdan açılan panel */}
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
   );
 }

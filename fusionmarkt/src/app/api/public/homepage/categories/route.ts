@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { applyLiveShowcasePrices } from "@/server/showcase-live-prices";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,8 @@ export async function GET() {
         },
       },
     });
+    // Vitrin fiyatlarını güncel ürün/bundle fiyatlarıyla değiştir
+    await applyLiveShowcasePrices(items);
     return NextResponse.json({ items });
   } catch {
     return NextResponse.json({ items: [] });
