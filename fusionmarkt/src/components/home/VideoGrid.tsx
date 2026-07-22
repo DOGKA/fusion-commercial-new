@@ -102,10 +102,19 @@ function VideoCard({ video }: { video: VideoData }) {
   );
 }
 
-export default function VideoGrid() {
-  const [videos, setVideos] = useState<VideoData[]>(MOCK_VIDEOS);
+interface VideoGridProps {
+  /** SSR'dan gelen videolar (page.tsx). undefined = SSR verisi yok, client fetch yapılır */
+  initialVideos?: VideoData[];
+}
+
+export default function VideoGrid({ initialVideos }: VideoGridProps) {
+  const hasInitialData = initialVideos !== undefined;
+  const [videos, setVideos] = useState<VideoData[]>(
+    hasInitialData && initialVideos.length > 0 ? initialVideos : MOCK_VIDEOS
+  );
 
   useEffect(() => {
+    if (hasInitialData) return;
     const fetchData = async () => {
       try {
         const res = await fetch("/api/public/homepage/videos");
@@ -118,7 +127,7 @@ export default function VideoGrid() {
       } catch { /* fallback to mock */ }
     };
     fetchData();
-  }, []);
+  }, [hasInitialData]);
 
   return (
     <section className="video-grid-section">

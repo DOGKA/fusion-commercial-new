@@ -113,7 +113,9 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                         sizes="(max-width: 768px) 280px, 370px"
                         className="product-card-image"
                         priority={index < 3}
-                        loading={index < 3 ? undefined : "lazy"}
+                        // Lazy YOK: carousel görselleri sayfa açılınca arka planda
+                        // topluca iner; hızlı kaydırmada beyaz kart görünmez.
+                        loading={index < 3 ? undefined : "eager"}
                         draggable={false}
                       />
                     )}

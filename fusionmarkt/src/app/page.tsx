@@ -125,11 +125,76 @@ async function getInitialCategorySections() {
   }
 }
 
+async function getInitialPromo() {
+  try {
+    const item = await prisma.homepagePromo.findFirst({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    });
+    if (!item) return null;
+    return {
+      title: item.title,
+      subtitle: item.subtitle,
+      buttonText: item.buttonText,
+      buttonLink: item.buttonLink,
+      image: item.image,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function getInitialVideoBanner() {
+  try {
+    const item = await prisma.homepageVideoBanner.findFirst({
+      where: { isActive: true },
+    });
+    if (!item) return null;
+    return {
+      videoType: item.videoType,
+      videoUrl: item.videoUrl,
+      title: item.title,
+      subtitle: item.subtitle,
+      btnText: item.btnText,
+      btnLink: item.btnLink,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function getInitialVideos() {
+  try {
+    const items = await prisma.homepageVideo.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    });
+    return items.map((v: { id: string; title: string; youtubeUrl: string; thumbnail: string | null }) => ({
+      id: v.id,
+      title: v.title,
+      youtubeUrl: v.youtubeUrl,
+      thumbnail: v.thumbnail,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function Home() {
-  const [initialSlides, initialTrending, initialCategorySections] = await Promise.all([
+  const [
+    initialSlides,
+    initialTrending,
+    initialCategorySections,
+    initialPromo,
+    initialVideoBanner,
+    initialVideos,
+  ] = await Promise.all([
     getInitialSliders(),
     getInitialTrending(),
     getInitialCategorySections(),
+    getInitialPromo(),
+    getInitialVideoBanner(),
+    getInitialVideos(),
   ]);
 
   return (
@@ -144,9 +209,9 @@ export default async function Home() {
 
       <TrendingCarousel initialProducts={initialTrending} />
 
-      <PromoBanner />
+      <PromoBanner initialPromo={initialPromo} />
 
-      <VideoBanner />
+      <VideoBanner initialItem={initialVideoBanner} />
 
       <CategoryShowcase index={0} initialSection={initialCategorySections[0] || null} />
 
@@ -154,7 +219,7 @@ export default async function Home() {
       
       <CategoryBento />
 
-      <VideoGrid />
+      <VideoGrid initialVideos={initialVideos} />
       <WhyFusionMarkt />
       
       <PartnerLogos />

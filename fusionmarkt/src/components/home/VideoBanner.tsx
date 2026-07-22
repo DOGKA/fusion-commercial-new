@@ -17,11 +17,18 @@ function getYouTubeId(url: string): string | null {
   return match ? match[1] : null;
 }
 
-export default function VideoBanner() {
-  const [data, setData] = useState<VideoBannerData | null>(null);
-  const [loaded, setLoaded] = useState(false);
+interface VideoBannerProps {
+  /** SSR'dan gelen veri (page.tsx). undefined = SSR verisi yok, client fetch yapılır */
+  initialItem?: VideoBannerData | null;
+}
+
+export default function VideoBanner({ initialItem }: VideoBannerProps) {
+  const hasInitialData = initialItem !== undefined;
+  const [data, setData] = useState<VideoBannerData | null>(initialItem ?? null);
+  const [loaded, setLoaded] = useState(hasInitialData);
 
   useEffect(() => {
+    if (hasInitialData) return;
     const fetchData = async () => {
       try {
         const res = await fetch("/api/public/homepage/video-banner");
@@ -33,7 +40,7 @@ export default function VideoBanner() {
       setLoaded(true);
     };
     fetchData();
-  }, []);
+  }, [hasInitialData]);
 
   if (!loaded || !data?.videoUrl) {
     return null;

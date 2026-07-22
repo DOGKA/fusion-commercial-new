@@ -11,10 +11,21 @@ interface PromoData {
   image: string | null;
 }
 
-export default function PromoBanner() {
-  const [promo, setPromo] = useState<PromoData | null>(null);
+interface PromoBannerProps {
+  /** SSR'dan gelen promo verisi (page.tsx). undefined = SSR verisi yok, client fetch yapılır */
+  initialPromo?: PromoData | null;
+}
+
+export default function PromoBanner({ initialPromo }: PromoBannerProps) {
+  const hasInitialData = initialPromo !== undefined;
+  const [promo, setPromo] = useState<PromoData | null>(initialPromo ?? null);
+  // resolved: veri kaynağından (SSR veya API) kesin cevap alındı mı?
+  // Admin'e yönelik "Banner Görseli Eklenecek" yer tutucusu ancak cevap
+  // "gerçekten banner yok" ise gösterilir; yükleme sırasında asla görünmez.
+  const [resolved, setResolved] = useState(hasInitialData);
 
   useEffect(() => {
+    if (hasInitialData) return;
     const fetchData = async () => {
       try {
         const res = await fetch("/api/public/homepage/promos");
@@ -24,10 +35,11 @@ export default function PromoBanner() {
             setPromo(data.items[0]);
           }
         }
-      } catch { /* fallback to mockup */ }
+      } catch { /* fallback below */ }
+      setResolved(true);
     };
     fetchData();
-  }, []);
+  }, [hasInitialData]);
 
   return (
     <section className="py-6 lg:py-8">
@@ -49,7 +61,7 @@ export default function PromoBanner() {
                     <Link href={promo.buttonLink} className="banner-button">{promo.buttonText}</Link>
                   )}
                 </>
-              ) : (
+              ) : resolved ? (
                 <>
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--foreground-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
@@ -59,7 +71,7 @@ export default function PromoBanner() {
                   <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground-muted)", marginTop: "8px" }}>1440 x 228 px</p>
                   <p style={{ fontSize: "12px", color: "var(--foreground-disabled)" }}>Banner Görseli Eklenecek</p>
                 </>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
