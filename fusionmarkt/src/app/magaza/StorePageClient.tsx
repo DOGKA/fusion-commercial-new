@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import {
   ChevronRight,
-  Loader2,
   Search,
   X,
   Info,
@@ -400,10 +399,7 @@ function buildCategoriesWithProducts(
     });
 }
 
-export default function StorePageClient({ initialData }: { initialData?: StoreInitialData | null }) {
-  // SSR'dan veri geldiyse client-side fetch'ler atlanır (CLS + LCP iyileştirmesi)
-  const hasInitialData = Boolean(initialData);
-
+export default function StorePageClient({ initialData }: { initialData: StoreInitialData }) {
   // IMPORTANT: We do NOT rely on Tailwind `dark:` variants here because the app
   // theme is driven by `next-themes` + CSS variables, and `dark:` variants are
   // inconsistent in some environments (e.g. incognito).
@@ -411,174 +407,45 @@ export default function StorePageClient({ initialData }: { initialData?: StoreIn
   const mounted = useIsMounted();
   const isDark = mounted && resolvedTheme === "dark";
 
-  const [banner, setBanner] = useState<Banner | null>(() =>
-    initialData ? (initialData.banners.find((b) => b.placement === "SHOP_HEADER") ?? null) : null
+  // Tüm veri SSR'da (page.tsx) Prisma'dan çekilip prop olarak gelir.
+  // Client-side fetch yok; sayfa ilk render'da içerikle hazır.
+  const { freeShippingThreshold } = initialData;
+  const banner = useMemo<Banner | null>(
+    () => initialData.banners.find((b) => b.placement === "SHOP_HEADER") ?? null,
+    [initialData]
   );
-  const [categoryBanners, setCategoryBanners] = useState<Record<string, Banner>>(() =>
-    initialData ? extractCategoryBanners(initialData.banners) : {}
+  const categoryBanners = useMemo<Record<string, Banner>>(
+    () => extractCategoryBanners(initialData.banners),
+    [initialData]
   );
-  const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>(() =>
-    initialData
-      ? buildCategoriesWithProducts(
-          initialData.categories,
-          initialData.products,
-          initialData.bundles,
-          initialData.freeShippingThreshold
-        )
-      : []
+  const categoriesWithProducts = useMemo<CategoryWithProducts[]>(
+    () =>
+      buildCategoriesWithProducts(
+        initialData.categories,
+        initialData.products,
+        initialData.bundles,
+        initialData.freeShippingThreshold
+      ),
+    [initialData]
   );
-  const [loading, setLoading] = useState(!hasInitialData);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(() =>
-    initialData ? mapApiProductsToCards(initialData.featured, initialData.freeShippingThreshold) : []
+  const featuredProducts = useMemo<Product[]>(
+    () => mapApiProductsToCards(initialData.featured, initialData.freeShippingThreshold),
+    [initialData]
   );
-  const [bestsellerProducts, setBestsellerProducts] = useState<Product[]>(() =>
-    initialData ? mapApiProductsToCards(initialData.bestseller, initialData.freeShippingThreshold) : []
+  const bestsellerProducts = useMemo<Product[]>(
+    () => mapApiProductsToCards(initialData.bestseller, initialData.freeShippingThreshold),
+    [initialData]
   );
-  const [featuredLoading, setFeaturedLoading] = useState(!hasInitialData);
-  const [bestsellerLoading, setBestsellerLoading] = useState(!hasInitialData);
+
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
-  const [freeShippingThreshold, setFreeShippingThreshold] = useState(
-    initialData?.freeShippingThreshold ?? 2000
-  );
-  
-  // Filter state
-  const [storeFilters, setStoreFilters] = useState<FilterGroup[]>([]);
+
+  // Filter state (getAllFilters statik liste döndürür, effect'e gerek yok)
+  const [storeFilters] = useState<FilterGroup[]>(() => getAllFilters());
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
-
-  // Load store filters on mount
-  useEffect(() => {
-    setStoreFilters(getAllFilters());
-  }, []);
-
-  // Fetch banners (header + category banners)
-  // SSR initial data varsa atla - veri zaten sunucudan geldi
-  useEffect(() => {
-    if (hasInitialData) return;
-    const fetchBanners = async () => {
-      try {
-        // ✅ Public API kullan - Tum aktif bannerlari cek
-        const res = await fetch("/api/public/banners");
-        if (res.ok) {
-          const data = (await res.json()) as Banner[];
-          
-          // SHOP_HEADER banner
-          const headerBanner = data.find(b => b.placement === "SHOP_HEADER");
-          if (headerBanner) setBanner(headerBanner);
-          
-          // SHOP_CATEGORY_* bannerlar - slug'a gore map'le
-          const catBanners: Record<string, Banner> = {};
-          data.forEach(b => {
-            if (b.placement.startsWith("SHOP_CATEGORY_")) {
-              // Placement'tan slug'ı bul
-              Object.entries(CATEGORY_PLACEMENT_MAP).forEach(([slug, placement]) => {
-                if (b.placement === placement) {
-                  catBanners[slug] = b;
-                }
-              });
-            }
-          });
-          setCategoryBanners(catBanners);
-        }
-      } catch {
-        // ignore
-      }
-    };
-    fetchBanners();
-  }, [hasInitialData]);
-
-  // Fetch all categories, products AND bundles
-  // SSR initial data varsa atla - veri zaten sunucudan geldi
-  useEffect(() => {
-    if (hasInitialData) return;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Fetch categories, products, bundles and shipping settings in parallel
-        const [categoriesRes, productsRes, bundlesRes, shippingRes] = await Promise.all([
-          fetch("/api/public/categories"),
-          fetch("/api/public/products?limit=100"),
-          fetch("/api/public/bundles?limit=100"),
-          fetch("/api/public/shipping/calculate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items: [] }),
-          }).catch(() => null),
-        ]);
-
-        // Get free shipping threshold from shipping API
-        let threshold = 2000; // Default
-        if (shippingRes && shippingRes.ok) {
-          const shippingData = await shippingRes.json();
-          threshold = shippingData.freeShippingThreshold || 2000;
-        }
-        setFreeShippingThreshold(threshold);
-
-        let apiCategories: ApiCategory[] = [];
-        if (categoriesRes.ok) {
-          const catData = await categoriesRes.json();
-          apiCategories = (catData.categories || catData || []) as ApiCategory[];
-        }
-
-        let apiProducts: ApiProduct[] = [];
-        if (productsRes.ok) {
-          const data = await productsRes.json();
-          apiProducts = (data.products || []) as ApiProduct[];
-        }
-
-        let apiBundles: ApiBundle[] = [];
-        if (bundlesRes.ok) {
-          const bundleData = await bundlesRes.json();
-          apiBundles = (bundleData.bundles || []) as ApiBundle[];
-        }
-
-        setCategoriesWithProducts(
-          buildCategoriesWithProducts(apiCategories, apiProducts, apiBundles, threshold)
-        );
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [hasInitialData]);
-
-  // Fetch featured & bestseller products
-  // SSR initial data varsa atla - veri zaten sunucudan geldi
-  useEffect(() => {
-    if (hasInitialData) return;
-    const fetchFeaturedAndBestseller = async () => {
-      try {
-        const [featuredRes, bestsellerRes] = await Promise.all([
-          fetch("/api/public/products?featured=true&limit=12"),
-          fetch("/api/public/products?bestseller=true&limit=6&inStock=true"),
-        ]);
-
-        if (featuredRes.ok) {
-          const data = await featuredRes.json();
-          setFeaturedProducts(mapApiProductsToCards(data.products || [], freeShippingThreshold));
-        }
-        if (bestsellerRes.ok) {
-          const data = await bestsellerRes.json();
-          setBestsellerProducts(mapApiProductsToCards(data.products || [], freeShippingThreshold));
-        }
-      } catch (error) {
-        console.error("Error fetching featured/bestseller:", error);
-      } finally {
-        setFeaturedLoading(false);
-        setBestsellerLoading(false);
-      }
-    };
-
-    if (freeShippingThreshold > 0) {
-      fetchFeaturedAndBestseller();
-    }
-  }, [freeShippingThreshold, hasInitialData]);
 
   const sortProducts = (products: ProductWithCategory[]): ProductWithCategory[] => products;
 
@@ -935,12 +802,8 @@ export default function StorePageClient({ initialData }: { initialData?: StoreIn
       </section>
 
       {/* FEATURED PRODUCTS - Öne Çıkan Ürünler */}
-      {/* CLS fix: yüklenirken hiçbir şey render etmemek, veri gelince altındaki
-          tüm içeriği aşağı itip büyük layout shift yaratıyordu (CLS ~0.50).
-          Skeleton ile aynı yükseklikte alan rezerve ediyoruz. */}
-      {featuredLoading ? (
-        <StoreFeaturedSkeleton />
-      ) : featuredProducts.length > 0 ? (
+      {/* Veri SSR'dan hazır geldiği için loading/skeleton durumu yok */}
+      {featuredProducts.length > 0 && (
         <StoreFeaturedSection
           title="Öne Çıkan Ürünler"
           eyebrow="Seçili Koleksiyon"
@@ -949,12 +812,10 @@ export default function StorePageClient({ initialData }: { initialData?: StoreIn
           accentColor="#6B7280"
           priorityImages
         />
-      ) : null}
+      )}
 
       {/* BESTSELLER PRODUCTS - Çok Satanlar */}
-      {bestsellerLoading ? (
-        <StoreFeaturedSkeleton />
-      ) : bestsellerProducts.length > 0 ? (
+      {bestsellerProducts.length > 0 && (
         <StoreFeaturedSection
           title="Çok Satanlar"
           eyebrow="Trend Ürünler"
@@ -962,17 +823,11 @@ export default function StorePageClient({ initialData }: { initialData?: StoreIn
           isDark={isDark}
           accentColor="#F59E0B"
         />
-      ) : null}
+      )}
 
       {/* CATEGORIES WITH CAROUSELS */}
-      {/* CLS fix: yükleme/sonuç durumlarının yükseklik farkından kaynaklı layout
-          kaymasını önlemek için bölüme alan rezerve ediyoruz. */}
       <section style={{ marginTop: "48px", paddingBottom: "80px", minHeight: "70vh" }}>
-        {loading ? (
-          <div className="flex items-center justify-center" style={{ minHeight: "70vh" }}>
-            <Loader2 className="w-8 h-8 text-foreground-muted animate-spin" />
-          </div>
-        ) : filteredCategories.length === 0 ? (
+        {filteredCategories.length === 0 ? (
           <div className="container text-center" style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <p className="text-foreground-muted">Ürün bulunamadı.</p>
           </div>
@@ -1366,50 +1221,6 @@ function CategoryCarousel({
         </div>
       </div>
     </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   STORE FEATURED SKELETON - Yüklenirken alan rezerve eder (CLS fix)
-   StoreFeaturedSection ile aynı yükseklikte: header + 640px kart satırı
-───────────────────────────────────────────────────────────────────────────── */
-function StoreFeaturedSkeleton() {
-  return (
-    <section style={{ marginTop: "48px" }} aria-hidden="true">
-      <div className="container">
-        {/* Mobile header placeholder */}
-        <div className="flex lg:hidden items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-8 rounded-full bg-foreground/10 animate-pulse" />
-            <div>
-              <div className="h-[11px] w-24 rounded bg-foreground/10 animate-pulse" style={{ marginBottom: "4px" }} />
-              <div className="h-[18px] w-36 rounded bg-foreground/10 animate-pulse" />
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop header placeholder */}
-        <div className="hidden lg:flex items-end justify-between mb-3">
-          <div>
-            <div className="h-[11px] w-28 rounded bg-foreground/10 animate-pulse" style={{ marginBottom: "12px" }} />
-            <div className="h-[32px] w-64 rounded bg-foreground/10 animate-pulse" />
-          </div>
-          <div className="h-9 w-20 rounded-xl bg-foreground/10 animate-pulse" />
-        </div>
-
-        {/* Card row placeholder - ProductCard sabit 640px yüksekliğinde */}
-        <div className="relative overflow-hidden">
-          <div className="flex items-stretch pb-4" style={{ gap: "16px" }}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-[280px] h-[640px] rounded-2xl border border-border bg-glass-bg animate-pulse"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
