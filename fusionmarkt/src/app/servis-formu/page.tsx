@@ -274,9 +274,7 @@ export default function ServisFormuPage() {
           >
             <div className="glass-card-static p-4 sm:p-6 md:p-10 rounded-3xl overflow-hidden">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center">
-                  <ClipboardList className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+                <ClipboardList className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">Arıza Bildirim Formu</h2>
                   <p className="text-sm text-[var(--foreground-tertiary)]">* ile işaretli alanlar zorunludur</p>

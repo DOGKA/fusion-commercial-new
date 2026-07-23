@@ -133,6 +133,8 @@ interface ApiProduct {
   variants?: ApiVariant[];
   shortDescription?: string;
   videoUrl?: string;
+  ratingAverage?: number;
+  ratingCount?: number;
 }
 
 interface ApiCategory {
@@ -185,6 +187,8 @@ interface ApiBundle {
   shortDescription?: string | null;
   createdAt?: string;
   badges?: ApiBundleBadge[];
+  ratingAverage?: number;
+  ratingCount?: number;
 }
 
 // Kategori slug -> placement mapping
@@ -307,6 +311,8 @@ function buildCategoriesWithProducts(
       shortDescription: product.shortDescription,
       isBundle: false,
       videoUrl: product.videoUrl, // Videolu ürün etiketi için
+      ratingAverage: product.ratingAverage,
+      ratingCount: product.ratingCount,
       // freeShipping artık mapApiProductToCard içinde hesaplanıyor
     };
 
@@ -367,6 +373,8 @@ function buildCategoriesWithProducts(
       itemCount: bundle.itemCount || (bundle.items?.length || 0),
       freeShipping: bundlePrice >= threshold,
       badges: bundle.badges || [],
+      ratingAverage: bundle.ratingAverage,
+      ratingCount: bundle.ratingCount,
     };
 
     // Create category if not exists (fallback)

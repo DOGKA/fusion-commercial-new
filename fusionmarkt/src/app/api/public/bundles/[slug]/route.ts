@@ -73,7 +73,6 @@ const bundleInclude = {
       user: {
         select: {
           name: true,
-          email: true,
         },
       },
     },

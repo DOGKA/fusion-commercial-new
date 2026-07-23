@@ -67,6 +67,30 @@
   }
 }
 
+/* ===========================================================================
+   MOBILE BORDER RELIABILITY — Light tema, glass-border kutuları
+   
+   Sorun: `.glass-card` ve `border border-[var(--glass-border)]` ile çizilen
+   kutular masaüstünde (backdrop-filter: blur(40px)) düzgün görünüyor ama
+   mobilde (backdrop-filter: blur(8px) — bkz. üstteki perf override) border
+   çizgisi, özellikle kutunun tek başına/bitişiksiz olan kenarında (çoğunlukla
+   sol kenar), light temada zayıf/görünmez hale gelebiliyor. Kesin sebep,
+   backdrop-filter + border-radius + 1px border kombinasyonunun mobilde daha
+   düşük blur radius'la farklı compositing/anti-aliasing davranışı göstermesi.
+   
+   Çözüm: `border` özelliğine ek olarak `box-shadow: inset` ile aynı çizgiyi
+   bir kez daha (farklı bir compositing katmanında) çiziyoruz. Bu teknik
+   projede `hesabim` sayfasında zaten light tema için kullanılıyor ve orada
+   sorunu çözüyor (bkz. src/app/hesabim/page.tsx `.light .account-page-layout`
+   override'ı). Additive bir güvenlik katmanı; mevcut border'ı kaldırmıyor,
+   üstüne ek bir görünürlük garantisi ekliyor. */
+@media (max-width: 1023px) {
+  .light .glass-card,
+  .light [class*="border-[var(--glass-border)]"] {
+    box-shadow: inset 0 0 0 1px var(--glass-border);
+  }
+}
+
 
 /* Shipping options - Desktop default */
 .shipping-option-title,

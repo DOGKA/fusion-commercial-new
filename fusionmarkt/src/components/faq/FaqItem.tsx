@@ -1,36 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  HelpCircle,
-  ChevronDown,
-  RefreshCcw,
-  CreditCard,
-  Truck,
-  User,
-  Battery,
-  Gauge,
-  Zap,
-  ShieldCheck,
-  Smartphone,
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useRef } from "react";
-
-const iconMap: Record<
-  string,
-  React.ComponentType<{ className?: string; style?: React.CSSProperties }>
-> = {
-  RefreshCcw,
-  CreditCard,
-  Truck,
-  User,
-  HelpCircle,
-  Battery,
-  Gauge,
-  Zap,
-  ShieldCheck,
-  Smartphone,
-};
 
 export interface FaqItemCategory {
   id: string;
@@ -56,10 +28,6 @@ interface FaqItemProps {
 }
 
 export default function FaqItem({ item, isOpen, onToggle, index }: FaqItemProps) {
-  const IconComponent = item.category.icon
-    ? iconMap[item.category.icon] || HelpCircle
-    : HelpCircle;
-  const color = item.category.color || "var(--fusion-primary)";
   const tracked = useRef(false);
 
   useEffect(() => {
@@ -100,13 +68,6 @@ export default function FaqItem({ item, isOpen, onToggle, index }: FaqItemProps)
         className="w-full flex items-start gap-3 md:gap-4 p-4 md:p-5 text-left hover:bg-[var(--glass-bg-hover)] transition-colors"
         aria-expanded={isOpen}
       >
-        <div
-          className="hidden sm:flex w-10 h-10 rounded-xl items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: `${color}15` }}
-        >
-          <IconComponent className="w-5 h-5" style={{ color }} />
-        </div>
-
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-[14px] md:text-[15px] leading-snug pr-2">
             {item.question}
@@ -137,11 +98,9 @@ export default function FaqItem({ item, isOpen, onToggle, index }: FaqItemProps)
             transition={{ duration: 0.2 }}
           >
             <div className="px-4 md:px-5 pb-4 md:pb-5 pt-0">
-              <div className="sm:pl-14">
-                <p className="text-sm md:text-base text-[var(--foreground-secondary)] leading-relaxed whitespace-pre-line">
-                  {item.answer}
-                </p>
-              </div>
+              <p className="text-sm md:text-base text-[var(--foreground-secondary)] leading-relaxed whitespace-pre-line">
+                {item.answer}
+              </p>
             </div>
           </motion.div>
         )}

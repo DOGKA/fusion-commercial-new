@@ -8,10 +8,7 @@ import {
   Ban, 
   Shield, 
   Award, 
-  FileText,
-  CheckCircle,
-  XCircle,
-  AlertTriangle
+  FileText
 } from "lucide-react";
 
 export default function KullanimKosullariPage() {
@@ -70,10 +67,8 @@ export default function KullanimKosullariPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <PenTool className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <PenTool className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İçerik Gönderme</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
@@ -87,8 +82,7 @@ export default function KullanimKosullariPage() {
                   "En az 13 yaşında olduğunuzu",
                   "Sağladığınız içeriğin kullanımı bu Kullanım Şartlarını ihlal etmeyeceğini ve herhangi bir kişi veya kuruluşun zarar görmesine neden olmayacağını",
                 ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <CheckCircle className="w-5 h-5 text-[var(--fusion-success)] flex-shrink-0 mt-0.5" />
+                  <div key={index} className="p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <span className="text-sm text-[var(--foreground-secondary)]">{item}</span>
                   </div>
                 ))}
@@ -102,10 +96,8 @@ export default function KullanimKosullariPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <Ban className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Ban className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Yasaklı İçerikler</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
@@ -121,8 +113,7 @@ export default function KullanimKosullariPage() {
                   "Diğer web sitelerine, adreslere, e-posta adreslerine, iletişim bilgilerine veya telefon numaralarına atıfta bulunan her türlü bilgi",
                   "Herhangi bir bilgisayar virüsü, solucan veya diğer potansiyel olarak zarar verici bilgisayar programları veya dosyaları içeren içerikler",
                 ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                    <XCircle className="w-5 h-5 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
+                  <div key={index} className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
                     <span className="text-sm text-[var(--foreground-secondary)]">{item}</span>
                   </div>
                 ))}
@@ -136,10 +127,8 @@ export default function KullanimKosullariPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Shield className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Tazminat ve Zararların Tazmini</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
@@ -154,10 +143,8 @@ export default function KullanimKosullariPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Award className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Award className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Lisans ve Haklar</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -189,10 +176,8 @@ export default function KullanimKosullariPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <FileText className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İçerik Kullanımı ve Yayınlanması</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -215,14 +200,9 @@ export default function KullanimKosullariPage() {
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      <strong>Sorumluluk:</strong> Gönderinizin içeriğinden yalnızca sizin sorumlu olduğunuzu kabul edersiniz. Gönderdiğiniz içeriklerin hiçbiri, FusionMarkt, temsilcileri, iştirakleri, bağlı kuruluşları, ortakları veya üçüncü taraf hizmet sağlayıcıları ve bunların ilgili yöneticileri, memurları ve çalışanları açısından herhangi bir gizlilik yükümlülüğüne tabi olmayacaktır.
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  <strong>Sorumluluk:</strong> Gönderinizin içeriğinden yalnızca sizin sorumlu olduğunuzu kabul edersiniz. Gönderdiğiniz içeriklerin hiçbiri, FusionMarkt, temsilcileri, iştirakleri, bağlı kuruluşları, ortakları veya üçüncü taraf hizmet sağlayıcıları ve bunların ilgili yöneticileri, memurları ve çalışanları açısından herhangi bir gizlilik yükümlülüğüne tabi olmayacaktır.
+                </p>
               </div>
             </motion.div>
 

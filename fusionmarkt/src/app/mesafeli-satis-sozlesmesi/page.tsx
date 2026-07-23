@@ -14,7 +14,6 @@ import {
   Shield,
   Gavel,
   AlertTriangle,
-  XCircle,
   Lock,
   Calendar,
   Mail,
@@ -60,14 +59,12 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
-                <div>
-                  <span className="text-xs font-medium text-[var(--fusion-primary)] uppercase tracking-wider">Taraflar</span>
-                  <h2 className="text-xl md:text-2xl font-bold">Satıcı Bilgileri</h2>
-                </div>
+              <div className="mb-6">
+                <span className="text-xs font-medium text-[var(--fusion-primary)] uppercase tracking-wider">Taraflar</span>
+                <h2 className="text-xl md:text-2xl font-bold flex items-center gap-3">
+                  <Building2 className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
+                  Satıcı Bilgileri
+                </h2>
               </div>
               
               <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
@@ -114,10 +111,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <User className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <User className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Alıcı Bilgileri</h2>
               </div>
               
@@ -148,10 +143,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Target className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Target className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Konu</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -171,10 +164,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Package className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Package className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Sözleşme Kapsamındaki Ürünler</h2>
               </div>
               
@@ -207,10 +198,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <CreditCard className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Ödeme</h2>
               </div>
               
@@ -249,10 +238,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Truck className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Truck className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Teslimat</h2>
               </div>
               
@@ -285,10 +272,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <RotateCcw className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <RotateCcw className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Cayma Hakkı</h2>
               </div>
               
@@ -316,16 +301,13 @@ export default function MesafeliSatisSozlesmesiPage() {
 
               <h3 className="font-semibold mb-3">Cayma Hakkı Kapsamı Dışındaki Ürünler:</h3>
               <div className="space-y-2">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                  <XCircle className="w-4 h-4 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
                   <span className="text-sm text-[var(--foreground-secondary)]">Fiyatı finansal piyasalardaki dalgalanmalara bağlı olarak değişen ürünler</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                  <XCircle className="w-4 h-4 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
                   <span className="text-sm text-[var(--foreground-secondary)]">Sağlık ve hijyen nedenleriyle iade edilemeyen ürünler</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                  <XCircle className="w-4 h-4 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
                   <span className="text-sm text-[var(--foreground-secondary)]">Kişisel ihtiyaçlara göre hazırlanan ürünler</span>
                 </div>
               </div>
@@ -344,10 +326,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Shield className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Garanti ve Sorumluluk</h2>
               </div>
               
@@ -363,12 +343,9 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    SATICI, garanti koşullarına uymayan veya yetkisiz müdahaleye uğramış ürünler için sorumluluk kabul etmez. ALICI, ürünlerin kullanım talimatlarına uygun olarak kullanılmaması durumunda doğacak zararlardan kendisinin sorumlu olduğunu kabul eder.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  SATICI, garanti koşullarına uymayan veya yetkisiz müdahaleye uğramış ürünler için sorumluluk kabul etmez. ALICI, ürünlerin kullanım talimatlarına uygun olarak kullanılmaması durumunda doğacak zararlardan kendisinin sorumlu olduğunu kabul eder.
+                </p>
               </div>
             </motion.div>
 
@@ -379,10 +356,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Lock className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Lock className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Kişisel Verilerin Korunması</h2>
               </div>
               
@@ -407,10 +382,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Gavel className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Gavel className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Uyuşmazlıkların Çözümü ve Yetkili Mahkemeler</h2>
               </div>
               
@@ -443,10 +416,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <AlertTriangle className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Mücbir Sebep</h2>
               </div>
               
@@ -468,10 +439,8 @@ export default function MesafeliSatisSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Calendar className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Sözleşme Tarihi ve Onayı</h2>
               </div>
               

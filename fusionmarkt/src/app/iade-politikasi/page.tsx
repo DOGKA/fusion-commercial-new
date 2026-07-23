@@ -7,13 +7,11 @@ import {
   FileText, 
   CheckCircle,
   XCircle,
-  AlertTriangle,
   Wrench,
   RefreshCw,
   CreditCard,
   Shield,
-  Smartphone,
-  Clock
+  Smartphone
 } from "lucide-react";
 
 const nonReturnableItems = [
@@ -62,10 +60,8 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--fusion-success)] to-[var(--fusion-primary)] flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-7 h-7 text-white" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Calendar className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">14 Günlük Yasal Cayma Hakkı</h2>
                   <p className="text-sm text-[var(--fusion-success)]">Mesafeli satış sözleşmesi kapsamında</p>
@@ -77,22 +73,16 @@ export default function IadePolitikasiPage() {
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    Tüm iptal ve iade işlemleri <strong>Hesabım → Siparişlerim</strong> bölümünden çevrimiçi olarak yapılmaktadır.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Tüm iptal ve iade işlemleri <strong>Hesabım → Siparişlerim</strong> bölümünden çevrimiçi olarak yapılmaktadır.
+                </p>
               </div>
 
               <div className="space-y-3">
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      Eğer orijinal siparişiniz ücretsiz ürünler içeriyorsa, tam bir geri ödeme almak için tüm ilgili ürünleri iade etmelisiniz. Saklanan ücretsiz ürünlerin perakende değeri, geri ödeme tutarınızdan düşülecektir.
-                    </p>
-                  </div>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Eğer orijinal siparişiniz ücretsiz ürünler içeriyorsa, tam bir geri ödeme almak için tüm ilgili ürünleri iade etmelisiniz. Saklanan ücretsiz ürünlerin perakende değeri, geri ödeme tutarınızdan düşülecektir.
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <p className="text-sm text-[var(--foreground-secondary)]">
@@ -109,17 +99,14 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <FileText className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İptal ve İade Süreci</h2>
               </div>
 
               {/* Sipariş İptali */}
               <div className="mb-6 p-5 rounded-xl bg-[var(--fusion-accent)]/10 border border-[var(--fusion-accent)]/20">
-                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                  <XCircle className="w-5 h-5 text-[var(--fusion-accent)]" />
+                <h3 className="font-semibold text-lg mb-3">
                   Sipariş İptali (Kargoya Verilmemiş Siparişler)
                 </h3>
                 <p className="text-sm text-[var(--foreground-secondary)] mb-3">
@@ -133,8 +120,7 @@ export default function IadePolitikasiPage() {
 
               {/* Ürün İadesi */}
               <div className="mb-6 p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                  <RotateCcw className="w-5 h-5 text-[var(--fusion-success)]" />
+                <h3 className="font-semibold text-lg mb-3">
                   Ürün İadesi (Kargoya Verilmiş/Teslim Edilmiş Siparişler)
                 </h3>
                 <p className="text-sm text-[var(--foreground-secondary)] mb-3">
@@ -193,12 +179,9 @@ export default function IadePolitikasiPage() {
               </div>
 
               <div className="mt-6 p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    <strong>Önemli:</strong> Sigortalı kargo kullanmanızı öneririz; kaybolan veya hasar gören ürünlerden biz sorumlu değiliz.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  <strong>Önemli:</strong> Sigortalı kargo kullanmanızı öneririz; kaybolan veya hasar gören ürünlerden biz sorumlu değiliz.
+                </p>
               </div>
             </motion.div>
 
@@ -209,10 +192,8 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <CheckCircle className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Uygunluk Koşulları</h2>
               </div>
               
@@ -227,8 +208,7 @@ export default function IadePolitikasiPage() {
                   "Saklanan ücretsiz ürünlerin değeri, iade tutarından düşülecektir.",
                   "FusionMarkt yalnızca ürünün orijinal satın alma fiyatını iade eder; nakliye masrafları iade edilmez.",
                 ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <CheckCircle className="w-5 h-5 text-[var(--fusion-success)] flex-shrink-0 mt-0.5" />
+                  <div key={index} className="p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <span className="text-sm text-[var(--foreground-secondary)]">{item}</span>
                   </div>
                 ))}
@@ -242,17 +222,14 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <XCircle className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <XCircle className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İade Edilemeyen Ürünler</h2>
               </div>
               
               <div className="grid sm:grid-cols-2 gap-3">
                 {nonReturnableItems.map((item, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                    <XCircle className="w-4 h-4 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
+                  <div key={index} className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
                     <span className="text-sm text-[var(--foreground-secondary)]">{item}</span>
                   </div>
                 ))}
@@ -266,10 +243,8 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <Wrench className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Wrench className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Kusurlu veya Hasarlı Ürünler</h2>
               </div>
               
@@ -278,12 +253,9 @@ export default function IadePolitikasiPage() {
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-[var(--fusion-success)]" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    İade edilen kusurlu ürünler için nakliye masrafları tarafımızdan karşılanır.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  İade edilen kusurlu ürünler için nakliye masrafları tarafımızdan karşılanır.
+                </p>
               </div>
             </motion.div>
 
@@ -294,20 +266,15 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <RefreshCw className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <RefreshCw className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Değişim Süreci</h2>
               </div>
               
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-[var(--fusion-accent)]" />
-                  <p className="text-[var(--foreground-secondary)]">
-                    Posta yoluyla yapılan değişimlerin işleme alınması için <strong>5-7 iş günü</strong> sürebilir.
-                  </p>
-                </div>
+                <p className="text-[var(--foreground-secondary)]">
+                  Posta yoluyla yapılan değişimlerin işleme alınması için <strong>5-7 iş günü</strong> sürebilir.
+                </p>
               </div>
             </motion.div>
 
@@ -318,10 +285,8 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <CreditCard className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Para İadeleri ve Krediler</h2>
               </div>
               
@@ -330,7 +295,6 @@ export default function IadePolitikasiPage() {
               </p>
 
               <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                <CreditCard className="w-6 h-6 text-[var(--fusion-success)] mb-3" />
                 <h4 className="font-semibold mb-2">Kredi Kartı / Havale İadesi</h4>
                 <p className="text-sm text-[var(--foreground-secondary)]">
                   Kredi kartı ödemelerinde iade <strong>5-7 iş günü</strong> içinde kartınıza yansır. Havale/EFT ödemelerinde ise ödemeniz <strong>3 iş günü</strong> içinde gönderim yaptığınız banka hesabına iade edilir.
@@ -351,10 +315,8 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Shield className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Sınırlı Sorumluluk</h2>
               </div>
               
@@ -370,12 +332,9 @@ export default function IadePolitikasiPage() {
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      <strong>Önemli:</strong> Eksik veya hasarlı ürünlerle ilgili talepler, teslimattan sonraki <strong>iki iş günü</strong> içinde yapılmalıdır.
-                    </p>
-                  </div>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    <strong>Önemli:</strong> Eksik veya hasarlı ürünlerle ilgili talepler, teslimattan sonraki <strong>iki iş günü</strong> içinde yapılmalıdır.
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -387,10 +346,8 @@ export default function IadePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Smartphone className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İade Öncesi Hazırlık</h2>
               </div>
 

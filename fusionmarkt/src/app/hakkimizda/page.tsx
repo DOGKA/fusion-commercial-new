@@ -525,10 +525,8 @@ export default function HakkimizdaPage() {
               viewport={{ once: true }}
               className="glass-card p-8 md:p-10 rounded-3xl"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#E1306C] to-[#F77737] flex items-center justify-center">
-                  <Users className="w-7 h-7 text-white" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Users className="w-6 h-6 text-[#E1306C] flex-shrink-0" />
                 <h3 className="text-2xl font-bold">Sosyal Etkileşim ve Takip</h3>
               </div>
               
@@ -564,10 +562,8 @@ export default function HakkimizdaPage() {
               viewport={{ once: true }}
               className="glass-card p-8 md:p-10 rounded-3xl"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--fusion-success)] to-emerald-600 flex items-center justify-center">
-                  <Leaf className="w-7 h-7 text-white" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Leaf className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h3 className="text-2xl font-bold">İklim Hareketi</h3>
               </div>
               

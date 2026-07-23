@@ -314,16 +314,11 @@ export default function FaqPageClient({
 
                     return (
                       <div key={category.id}>
-                        <div className="flex items-start sm:items-center gap-3 mb-4">
-                          <div
-                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: `${color}15` }}
-                          >
-                            <IconComponent
-                              className="w-4 h-4 sm:w-5 sm:h-5"
-                              style={{ color }}
-                            />
-                          </div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <IconComponent
+                            className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
+                            style={{ color }}
+                          />
                           <div className="flex-1 min-w-0">
                             <h2 className="text-base sm:text-xl font-bold leading-tight">
                               {category.name}

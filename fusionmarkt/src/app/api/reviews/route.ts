@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 // İsim maskeleme fonksiyonu: "DOĞUKAN ARIK" -> "D*** A***"
 function maskName(fullName: string): string {
   if (!fullName || fullName.trim() === "") return "Anonim";
-  
+
   const parts = fullName.trim().split(/\s+/);
   return parts.map(part => {
     if (part.length <= 1) return part;
@@ -14,19 +14,25 @@ function maskName(fullName: string): string {
   }).join(" ");
 }
 
-// POST - Create a new review (allows guest users too, supports both products and bundles)
+// POST - Create a new review
+// Sadece üye olan VE ürünü satın almış (teslim edilmiş siparişi olan) kullanıcılar yorum yapabilir
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
-    // Check for session first to determine if guest name is required
+    // Üyelik zorunlu
     const session = await getServerSession(authOptions);
-    const isGuest = !session?.user?.email;
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: "Yorum yapabilmek için giriş yapmalısınız" },
+        { status: 401 }
+      );
+    }
 
     // Validate required fields - either productId or bundleId must be provided
     const hasProductId = !!data.productId;
     const hasBundleId = !!data.bundleId;
-    
+
     if (!hasProductId && !hasBundleId) {
       return NextResponse.json(
         { error: "Ürün ID veya Paket ID zorunludur" },
@@ -37,14 +43,6 @@ export async function POST(request: NextRequest) {
     if (!data.rating || !data.comment) {
       return NextResponse.json(
         { error: "Puan ve yorum zorunludur" },
-        { status: 400 }
-      );
-    }
-
-    // Guest users must provide a name
-    if (isGuest && (!data.guestName || data.guestName.trim() === "")) {
-      return NextResponse.json(
-        { error: "Lütfen adınızı ve soyadınızı giriniz" },
         { status: 400 }
       );
     }
@@ -85,115 +83,81 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    let userId: string | null = null;
-    let isVerified = false;
-    let displayName: string = "Anonim";
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, name: true },
+    });
 
-    // Name display preference from frontend (for logged-in users)
-    const namePreference = data.nameDisplayPreference || "masked";
-
-    if (session?.user?.email) {
-      // Logged in user
-      const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true, name: true },
-      });
-
-      if (user) {
-        userId = user.id;
-        
-        // Set display name based on user preference
-        if (namePreference === "full") {
-          displayName = user.name || "Kullanıcı";
-        } else {
-          displayName = maskName(user.name || "Kullanıcı");
-        }
-
-        // Check if user has purchased this product/bundle (for verification badge)
-        if (hasProductId) {
-          const hasPurchased = await prisma.orderItem.findFirst({
-            where: {
-              productId: data.productId,
-              order: {
-                userId: user.id,
-                status: "DELIVERED",
-              },
-            },
-          });
-          isVerified = !!hasPurchased;
-        } else if (hasBundleId) {
-          const hasPurchased = await prisma.orderItem.findFirst({
-            where: {
-              bundleId: data.bundleId,
-              order: {
-                userId: user.id,
-                status: "DELIVERED",
-              },
-            },
-          });
-          isVerified = !!hasPurchased;
-        }
-
-        // Check if user already reviewed this product/bundle
-        const existingReviewWhere = hasProductId 
-          ? { productId: data.productId, userId: user.id }
-          : { bundleId: data.bundleId, userId: user.id };
-          
-        const existingReview = await prisma.review.findFirst({
-          where: existingReviewWhere,
-        });
-
-        if (existingReview) {
-          // Güncelleme talebi - mevcut yorumu güncelle ve tekrar onaya gönder
-          const updatedReview = await prisma.review.update({
-            where: { id: existingReview.id },
-            data: {
-              rating: rating,
-              title: data.title || null,
-              comment: data.comment,
-              images: data.images || existingReview.images || [],
-              displayName: displayName, // İsim tercihini güncelle
-              isApproved: false, // Tekrar onay bekliyor
-              adminReply: null, // Admin yanıtı sıfırla
-              adminReplyAt: null,
-            },
-            include: {
-              user: { select: { name: true, email: true } },
-              product: { select: { name: true } },
-              bundle: { select: { name: true } },
-            },
-          });
-
-          return NextResponse.json({
-            success: true,
-            message: "Yorum güncelleme talebiniz alındı ve onay bekliyor",
-            isUpdate: true,
-            displayName,
-            isVerified,
-            review: updatedReview,
-          }, { status: 200 });
-        }
-      }
+    if (!user) {
+      return NextResponse.json(
+        { error: "Kullanıcı bulunamadı" },
+        { status: 404 }
+      );
     }
 
-    // For guest users, create a unique guest user with masked name
-    if (!userId) {
-      const guestName = data.guestName.trim();
-      const maskedName = maskName(guestName);
-      displayName = maskedName;
-      
-      // Create a unique guest user for this review (using timestamp to make unique)
-      const uniqueEmail = `guest_${Date.now()}_${Math.random().toString(36).substring(7)}@fusionmarkt.com`;
-      
-      const guestUser = await prisma.user.create({
+    // Satın alma kontrolü: kullanıcının bu ürünü/paketi içeren teslim edilmiş bir siparişi olmalı
+    const hasPurchased = await prisma.orderItem.findFirst({
+      where: {
+        ...(hasProductId ? { productId: data.productId } : { bundleId: data.bundleId }),
+        order: {
+          userId: user.id,
+          status: "DELIVERED",
+        },
+      },
+    });
+
+    if (!hasPurchased) {
+      return NextResponse.json(
+        { error: "Sadece doğrulanmış alışveriş yapan kullanıcılar yorum yapabilir" },
+        { status: 403 }
+      );
+    }
+
+    // Name display preference from frontend
+    const namePreference = data.nameDisplayPreference || "masked";
+    const displayName = namePreference === "full"
+      ? (user.name || "Kullanıcı")
+      : maskName(user.name || "Kullanıcı");
+
+    // Check if user already reviewed this product/bundle
+    const existingReviewWhere = hasProductId
+      ? { productId: data.productId, userId: user.id }
+      : { bundleId: data.bundleId, userId: user.id };
+
+    const existingReview = await prisma.review.findFirst({
+      where: existingReviewWhere,
+    });
+
+    if (existingReview) {
+      // Güncelleme talebi - mevcut yorumu güncelle ve tekrar onaya gönder
+      const updatedReview = await prisma.review.update({
+        where: { id: existingReview.id },
         data: {
-          email: uniqueEmail,
-          name: maskedName, // Store masked name directly
-          emailVerified: null,
+          rating: rating,
+          title: data.title || null,
+          comment: data.comment,
+          images: data.images || existingReview.images || [],
+          displayName: displayName, // İsim tercihini güncelle
+          isVerified: true,
+          isApproved: false, // Tekrar onay bekliyor
+          adminReply: null, // Admin yanıtı sıfırla
+          adminReplyAt: null,
+        },
+        include: {
+          user: { select: { name: true, email: true } },
+          product: { select: { name: true } },
+          bundle: { select: { name: true } },
         },
       });
 
-      userId = guestUser.id;
+      return NextResponse.json({
+        success: true,
+        message: "Yorum güncelleme talebiniz alındı ve onay bekliyor",
+        isUpdate: true,
+        displayName,
+        isVerified: true,
+        review: updatedReview,
+      }, { status: 200 });
     }
 
     // Create the review
@@ -201,13 +165,13 @@ export async function POST(request: NextRequest) {
       data: {
         productId: hasProductId ? data.productId : null,
         bundleId: hasBundleId ? data.bundleId : null,
-        userId: userId,
+        userId: user.id,
         rating: rating, // 1-5 integer
         title: data.title || null,
         comment: data.comment,
         images: data.images || [],
         displayName: displayName, // Kullanıcının tercih ettiği görünen isim
-        isVerified: isVerified,
+        isVerified: true, // Satın alma zorunlu olduğu için her yorum doğrulanmış
         isApproved: false, // Requires admin approval
       },
       include: {
@@ -221,7 +185,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Yorumunuz başarıyla gönderildi",
       displayName,
-      isVerified,
+      isVerified: true,
       review,
     }, { status: 201 });
 
@@ -233,4 +197,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

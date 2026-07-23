@@ -18,10 +18,16 @@ const categoryIcons: Record<string, React.ReactNode> = {
   "Güneş Paneli": <Sun className="w-4 h-4" />,
 };
 
-// Kategori renkleri
+// Kategori renkleri (filtre butonları için gradient)
 const categoryColors: Record<string, string> = {
   "Taşınabilir Güç İstasyonu": "from-blue-500 to-blue-600",
   "Güneş Paneli": "from-amber-500 to-amber-600",
+};
+
+// Kategori ikon renkleri (bare/inline ikon için düz renk)
+const categoryIconColors: Record<string, string> = {
+  "Taşınabilir Güç İstasyonu": "text-blue-500",
+  "Güneş Paneli": "text-amber-500",
 };
 
 type Product = {
@@ -144,10 +150,10 @@ export default function KullanimKilavuzlariClient() {
             <div key={category} className="mb-8">
               {/* Kategori Başlık */}
               <div className="flex items-center gap-2 mb-4">
-                <div className={`p-2 rounded-lg bg-gradient-to-r ${categoryColors[category]} text-white`}>
+                <span className={categoryIconColors[category]}>
                   {categoryIcons[category]}
-                </div>
-                <h2 className="text-lg font-semibold text-slate-900">{category}</h2>
+                </span>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{category}</h2>
                 <span className="text-xs text-slate-500">({categoryProducts.length})</span>
               </div>
 

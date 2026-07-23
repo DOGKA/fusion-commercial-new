@@ -35,7 +35,7 @@ interface ApiReview {
   adminReply?: string | null;
   adminReplyAt?: string | null;
   createdAt?: string;
-  isVerifiedPurchase?: boolean;
+  isVerified?: boolean;
 }
 
 interface ApiKeyFeature {
@@ -421,7 +421,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
               adminReply: r.adminReply || null,
               adminReplyAt: r.adminReplyAt || null,
               createdAt: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : "",
-              isVerifiedPurchase: r.isVerifiedPurchase || false,
+              isVerifiedPurchase: r.isVerified || false,
             }));
             setReviews(mappedReviews);
           }
@@ -513,8 +513,10 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
   const [reviewSubmitted, setReviewSubmitted] = useState(false); // Yorum gönderildi mi
   const [reviewIsUpdate, setReviewIsUpdate] = useState(false); // Güncelleme mi
   const [reviewFormOpen, setReviewFormOpen] = useState(false); // Form açık mı
-  const [guestName, setGuestName] = useState(""); // Misafir kullanıcı adı
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Kullanıcı giriş yapmış mı
+  const [canReview, setCanReview] = useState(false); // Yorum yapma yetkisi var mı (üye + paketi satın almış)
+  const [reviewEligibilityReason, setReviewEligibilityReason] = useState<string | null>(null); // NOT_LOGGED_IN | NOT_PURCHASED
+  const [reviewEligibilityChecked, setReviewEligibilityChecked] = useState(false); // Uygunluk kontrolü tamamlandı mı
   const [userName, setUserName] = useState(""); // Giriş yapmış kullanıcının adı
   const [nameDisplayPreference, setNameDisplayPreference] = useState<"masked" | "full">("masked"); // İsim gösterim tercihi
   const reviewImageInputRef = useRef<HTMLInputElement>(null);
@@ -541,7 +543,25 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
       })
       .catch(() => setIsLoggedIn(false));
   }, []);
-  
+
+  // Yorum yapma uygunluğunu kontrol et (üye + paketi satın almış olma şartı)
+  useEffect(() => {
+    const bid = productData?.id;
+    if (!bid) return;
+
+    fetch(`/api/reviews/eligibility?bundleId=${bid}`)
+      .then(res => res.json())
+      .then(data => {
+        setCanReview(!!data?.canReview);
+        setReviewEligibilityReason(data?.reason || null);
+      })
+      .catch(() => {
+        setCanReview(false);
+        setReviewEligibilityReason("NOT_LOGGED_IN");
+      })
+      .finally(() => setReviewEligibilityChecked(true));
+  }, [productData?.id]);
+
   // Ortalama puan hesapla
   const averageRating = reviews.length > 0 
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) 
@@ -621,21 +641,9 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
     return uploadedUrls;
   };
   
-  // Yorum gönderme
+  // Yorum gönderme (sadece üye + paketi satın almış kullanıcılar)
   const handleSubmitReview = async () => {
     if (!reviewRating || !reviewComment.trim()) {
-      return;
-    }
-    
-    // Guest kullanıcılar için isim zorunlu
-    if (!isLoggedIn && !guestName.trim()) {
-      alert("Lütfen adınızı ve soyadınızı giriniz");
-      return;
-    }
-    
-    // Guest kullanıcılar görsel yükleyemez
-    if (!isLoggedIn && reviewImages.length > 0) {
-      alert("Görsel eklemek için giriş yapmanız gerekmektedir");
       return;
     }
     
@@ -656,8 +664,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
           title: reviewTitle || null,
           comment: reviewComment,
           images: imageUrls, // Yüklenen görsel URL'leri
-          guestName: !isLoggedIn ? guestName.trim() : undefined,
-          nameDisplayPreference: isLoggedIn ? nameDisplayPreference : "masked",
+          nameDisplayPreference: nameDisplayPreference,
         }),
       });
       
@@ -674,7 +681,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
         setReviewComment("");
         setReviewImages([]);
         setReviewImagePreviews([]);
-        setGuestName("");
       } else {
         const data = await response.json();
         alert(data.error || "Yorum gönderilemedi");
@@ -1741,9 +1747,29 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                   borderBottom: activeTab === tab ? '2px solid white' : '2px solid transparent',
                   cursor: 'pointer',
                   transition: 'color 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}
               >
                 {tab}
+                {tab === 'Yorumlar' && reviews.length > 0 && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ display: 'inline-flex', gap: '1px' }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={11}
+                          fill={star <= Math.round(Number(averageRating)) ? '#FBBF24' : 'none'}
+                          stroke="#FBBF24"
+                        />
+                      ))}
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--foreground-tertiary)' }}>
+                      ({reviews.length})
+                    </span>
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -1920,7 +1946,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                         <CheckCircle size={18} />
                         {reviewIsUpdate ? 'Güncelleme Talebiniz Gönderildi' : 'Yorumunuz Gönderildi'}
                       </div>
-                    ) : (
+                    ) : canReview ? (
                       <button
                         onClick={() => setReviewFormOpen(true)}
                         style={{
@@ -1943,6 +1969,66 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                         <MessageCircle size={18} />
                         Yorum Yaz
                       </button>
+                    ) : !reviewEligibilityChecked ? (
+                      // Uygunluk kontrolü henüz tamamlanmadı
+                      <div style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        color: 'var(--foreground-muted)',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                        Yükleniyor...
+                      </div>
+                    ) : reviewEligibilityReason === 'NOT_LOGGED_IN' ? (
+                      // Giriş yapmamış kullanıcı
+                      <div style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px',
+                      }}>
+                        <p style={{ fontSize: '13px', color: 'var(--foreground-secondary)', margin: 0, textAlign: 'center' }}>
+                          Yorum yapabilmek için giriş yapmalısınız. Yalnızca bu paketi satın alan üyelerimiz yorum yapabilir.
+                        </p>
+                        <a
+                          href="/hesabim"
+                          style={{
+                            padding: '10px 24px',
+                            backgroundColor: '#10B981',
+                            borderRadius: '10px',
+                            color: '#ffffff',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                          }}
+                        >
+                          <User size={16} />
+                          Giriş Yap
+                        </a>
+                      </div>
+                    ) : (
+                      // Giriş yapmış ama paketi satın almamış kullanıcı
+                      <div style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                      }}>
+                        <MessageCircle size={16} style={{ color: 'var(--foreground-muted)', flexShrink: 0 }} />
+                        <p style={{ fontSize: '13px', color: 'var(--foreground-secondary)', margin: 0, textAlign: 'center' }}>
+                          Sadece doğrulanmış alışveriş yapan kullanıcılar yorum yapabilir.
+                        </p>
+                      </div>
                     )
                   ) : (
                     // Açık durum - form
@@ -2071,40 +2157,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                       </div>
                     )}
                     
-                    {/* Ad Soyad - Sadece guest kullanıcılar için */}
-                    {!isLoggedIn && (
-                      <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>
-                          Adınız Soyadınız *
-                        </label>
-                        <input
-                          type="text"
-                          value={guestName}
-                          onChange={(e) => setGuestName(e.target.value)}
-                          placeholder="Örn: John Doe"
-                          style={{ width: '100%', padding: '12px 16px', backgroundColor: 'var(--glass-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', fontSize: '14px', outline: 'none' }}
-                        />
-                        {/* Maskelenmiş isim önizlemesi */}
-                        {guestName.trim() && (
-                          <div style={{ 
-                            marginTop: '8px', 
-                            padding: '10px 14px', 
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)', 
-                            border: '1px solid rgba(16, 185, 129, 0.2)', 
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                          }}>
-                            <User size={14} style={{ color: '#10B981' }} />
-                            <span style={{ fontSize: '12px', color: 'var(--foreground-secondary)' }}>
-                              Yorumunuz <strong style={{ color: '#10B981' }}>{maskName(guestName)}</strong> olarak görüntülenecek
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                      
                       {/* Başlık */}
                       <div style={{ marginBottom: '16px' }}>
                         <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>Başlık (Opsiyonel)</label>
@@ -2129,8 +2181,8 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                         />
                       </div>
                       
-                      {/* Görsel Yükleme - Sadece Üyeler */}
-                      {isLoggedIn ? (
+                      {/* Görsel Yükleme */}
+                      {isLoggedIn && (
                         <div style={{ marginBottom: '16px' }}>
                           <label style={{ fontSize: '13px', color: 'var(--foreground-secondary)', marginBottom: '8px', display: 'block' }}>
                             Görsel Ekle (Opsiyonel - Max 3 adet)
@@ -2217,18 +2269,11 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             </>
                           )}
                         </div>
-                      ) : (
-                        <div style={{ marginBottom: '16px', padding: '12px 16px', backgroundColor: 'var(--glass-bg)', border: '1px dashed var(--border)', borderRadius: '10px' }}>
-                          <p style={{ fontSize: '12px', color: 'var(--foreground-muted)', margin: 0 }}>
-                            Görsel eklemek için <a href="/hesabim" style={{ color: '#10B981', textDecoration: 'underline' }}>giriş yapın</a>
-                          </p>
-                        </div>
                       )}
                       
                     {/* Gönder Butonu */}
                     {(() => {
-                      const needsGuestName = !isLoggedIn && !guestName.trim();
-                      const isDisabled = reviewSubmitting || reviewSubmitted || !reviewComment.trim() || !reviewRating || needsGuestName;
+                      const isDisabled = reviewSubmitting || reviewSubmitted || !reviewComment.trim() || !reviewRating;
                       const isActive = !isDisabled;
                       
                       return (
@@ -2263,8 +2308,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             'Gönderiliyor...'
                           ) : !reviewRating ? (
                             'Lütfen Puanlama Yapınız'
-                          ) : needsGuestName ? (
-                            'Lütfen Adınızı Giriniz'
                           ) : !reviewComment.trim() ? (
                             'Lütfen Yorumunuzu Yazınız'
                           ) : (

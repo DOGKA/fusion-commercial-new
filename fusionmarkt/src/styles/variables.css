@@ -137,9 +137,16 @@
   --surface-overlay: rgba(255, 255, 255, 0.95);
   
   /* BORDER - Light Theme */
-  --border: #E5E7EB;
-  --border-secondary: #D1D5DB;
-  --border-hover: #9CA3AF;
+  /* rgba(0,0,0,x) kullanıyoruz (sabit hex değil) çünkü bu token --background,
+     --surface, --background-secondary gibi birbirinden hafif farklı birden
+     çok zemin rengi üzerinde kullanılıyor. Sabit bir hex (örn. #E5E7EB) bu
+     zeminlerin en azından birine (örn. --background: #f5f5f7) çok yakın
+     kalıyor ve border tek başına (bitişik iki kartın çizgisi üst üste
+     binmediği yerlerde) neredeyse görünmez oluyordu. Alpha tabanlı değer her
+     zeminde tutarlı bir kontrast sağlıyor. */
+  --border: rgba(0, 0, 0, 0.14);
+  --border-secondary: rgba(0, 0, 0, 0.2);
+  --border-hover: rgba(0, 0, 0, 0.32);
   --border-focus: var(--fusion-primary);
   
   /* GLASS EFFECTS - Light Theme */
@@ -147,9 +154,9 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.85);
   --glass-bg-active: rgba(255, 255, 255, 0.95);
   --glass-bg-solid: rgba(255, 255, 255, 0.95);
-  --glass-border: rgba(0, 0, 0, 0.06);
-  --glass-border-hover: rgba(0, 0, 0, 0.12);
-  --glass-border-active: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(0, 0, 0, 0.18);
+  --glass-border-hover: rgba(0, 0, 0, 0.24);
+  --glass-border-active: rgba(0, 0, 0, 0.3);
   
   /* SHADOWS - Light Theme */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -185,6 +192,22 @@
   --badge-warning-text: #92400E;
   --badge-error-bg: #FEE2E2;
   --badge-error-text: #991B1B;
+
+  /* PRODUCT CARD "PILL" BADGES (Ücretsiz Kargo, Puan, Distribütör, Taksit vb.)
+     - Light temada bg-glass-bg (yarı saydam beyaz) üzerinde düşük opaklı
+     pastel renkler (örn. rgba(251,191,36,0.35)) beyazla karışınca kontrastı
+     çok düşürüyor ve erişilebilirlik açısından okunmuyor. Bu yüzden light
+     temada daha koyu/doygun ton + daha yüksek opaklık kullanıyoruz. Dark
+     temada eski (orijinal) değerler korunuyor. */
+  --pill-border-emerald: rgba(4, 120, 87, 0.55);
+  --pill-accent-emerald: #047857;
+  --pill-border-cyan: rgba(14, 116, 144, 0.55);
+  --pill-accent-cyan: #0E7490;
+  --pill-border-amber: rgba(180, 83, 9, 0.55);
+  --pill-border-amber-soft: rgba(180, 83, 9, 0.4);
+  --pill-accent-amber: #B45309;
+  --pill-border-violet: rgba(109, 40, 217, 0.5);
+  --pill-accent-violet: #6D28D9;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -261,6 +284,17 @@
   --badge-warning-text: #FBBF24;
   --badge-error-bg: rgba(239, 68, 68, 0.2);
   --badge-error-text: #F87171;
+
+  /* PRODUCT CARD "PILL" BADGES - Dark Theme (orijinal değerler korunuyor) */
+  --pill-border-emerald: rgba(16, 185, 129, 0.35);
+  --pill-accent-emerald: #10B981;
+  --pill-border-cyan: rgba(34, 211, 238, 0.35);
+  --pill-accent-cyan: #22D3EE;
+  --pill-border-amber: rgba(251, 191, 36, 0.35);
+  --pill-border-amber-soft: rgba(251, 191, 36, 0.25);
+  --pill-accent-amber: #FBBF24;
+  --pill-border-violet: rgba(139, 92, 246, 0.35);
+  --pill-accent-violet: #A78BFA;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

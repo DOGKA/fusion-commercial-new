@@ -534,17 +534,17 @@ export default function ProductCard({ product, className, priority = false }: Pr
                       style={{
                         height: 28,
                         padding: '0 14px',
-                        border: '1px solid rgba(16, 185, 129, 0.35)',
+                        border: '1px solid var(--pill-border-emerald)',
                         borderRadius: SQUIRCLE.sm,
                       }}
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--pill-accent-emerald)' }}>
                         <path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/>
                         <path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/>
                         <circle cx="7" cy="18" r="2"/>
                         <circle cx="17" cy="18" r="2"/>
                       </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pill-accent-emerald)' }}>
                         Ücretsiz Kargo
                       </span>
                     </span>
@@ -556,12 +556,12 @@ export default function ProductCard({ product, className, priority = false }: Pr
                       style={{
                         height: 28,
                         padding: '0 14px',
-                        border: '1px solid rgba(34, 211, 238, 0.35)',
+                        border: '1px solid var(--pill-border-cyan)',
                         borderRadius: SQUIRCLE.sm,
                       }}
                     >
-                      <Play size={11} style={{ color: '#22d3ee', fill: '#22d3ee' }} />
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#22d3ee' }}>
+                      <Play size={11} style={{ color: 'var(--pill-accent-cyan)', fill: 'var(--pill-accent-cyan)' }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pill-accent-cyan)' }}>
                         Videolu Ürün
                       </span>
                     </span>
@@ -575,7 +575,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 style={{
                   height: 28,
                   padding: '0 14px',
-                  border: '1px solid rgba(251, 191, 36, 0.35)',
+                  border: '1px solid var(--pill-border-amber)',
                   borderRadius: SQUIRCLE.sm,
                 }}
               >
@@ -586,8 +586,12 @@ export default function ProductCard({ product, className, priority = false }: Pr
                       key={star} 
                       size={11} 
                       className={star <= Math.round(ratingAverage || 0) 
-                        ? "fill-amber-400 text-amber-400" 
+                        ? "" 
                         : "fill-transparent text-foreground-disabled"
+                      }
+                      style={star <= Math.round(ratingAverage || 0) 
+                        ? { fill: 'var(--pill-accent-amber)', color: 'var(--pill-accent-amber)' } 
+                        : undefined
                       }
                     />
                   ))}
@@ -607,11 +611,11 @@ export default function ProductCard({ product, className, priority = false }: Pr
                   style={{
                     height: 28,
                     padding: '0 8px',
-                    border: '1px solid rgba(251, 191, 36, 0.25)',
+                    border: '1px solid var(--pill-border-amber-soft)',
                     borderRadius: SQUIRCLE.sm,
                   }}
                 >
-                  <BadgeCheck size={11} className="text-amber-400" />
+                  <BadgeCheck size={11} style={{ color: 'var(--pill-accent-amber)' }} />
                   <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
                     Yetkili Distribütör
                   </span>
@@ -622,11 +626,11 @@ export default function ProductCard({ product, className, priority = false }: Pr
                   style={{
                     height: 28,
                     padding: '0 8px',
-                    border: '1px solid rgba(139, 92, 246, 0.35)',
+                    border: '1px solid var(--pill-border-violet)',
                     borderRadius: SQUIRCLE.sm,
                   }}
                 >
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--pill-accent-violet)' }}>
                     <rect width="20" height="14" x="2" y="5" rx="2"/>
                     <line x1="2" x2="22" y1="10" y2="10"/>
                   </svg>

@@ -15,12 +15,9 @@ import {
   Clock,
   Warehouse,
   FileText,
-  Percent,
-  Boxes,
-  Receipt,
-  Ban,
-  CheckCircle,
-  Info
+  Percent, 
+  Boxes, 
+  Receipt
 } from "lucide-react";
 
 const restrictedCountries = [
@@ -70,10 +67,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--fusion-primary)] to-[var(--fusion-accent)] flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-7 h-7 text-white" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Globe className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">Nerelere Gönderim Yapıyoruz?</h2>
                   <p className="text-sm text-[var(--fusion-success)]">Dünya çapında teslimat</p>
@@ -81,21 +76,15 @@ export default function GonderimYerleriPage() {
               </div>
               
               <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20 mb-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-6 h-6 text-[var(--fusion-success)]" />
-                  <p className="text-[var(--foreground-secondary)] font-medium">
-                    FusionMarkt dünya çapında gönderim yapmaktadır.
-                  </p>
-                </div>
+                <p className="text-[var(--foreground-secondary)] font-medium">
+                  FusionMarkt dünya çapında gönderim yapmaktadır.
+                </p>
               </div>
 
               <div className="p-5 rounded-xl bg-[var(--fusion-error)]/10 border border-[var(--fusion-error)]/20">
-                <div className="flex items-start gap-3 mb-4">
-                  <Ban className="w-5 h-5 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    <strong>Gönderim Yapılmayan Ülkeler:</strong>
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)] mb-4">
+                  <strong>Gönderim Yapılmayan Ülkeler:</strong>
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {restrictedCountries.map((country) => (
                     <span key={country} className="px-3 py-1.5 rounded-lg bg-[var(--fusion-error)]/20 text-sm font-medium text-[var(--fusion-error)]">
@@ -113,10 +102,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Phone className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Müşteri Hizmetleri</h2>
               </div>
               
@@ -146,10 +133,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Truck className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Truck className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Nakliye ve Ücretlendirme</h2>
               </div>
               
@@ -159,15 +144,19 @@ export default function GonderimYerleriPage() {
 
               <div className="grid lg:grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <Package className="w-5 h-5 text-[var(--fusion-primary)] mb-2" />
-                  <h4 className="font-semibold mb-1">Çoklu Koli</h4>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Package className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0" />
+                    <h4 className="font-semibold">Çoklu Koli</h4>
+                  </div>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Siparişler birden fazla koli halinde gönderilebilir; ek ücret talep edilmez.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <Truck className="w-5 h-5 text-[var(--fusion-accent)] mb-2" />
-                  <h4 className="font-semibold mb-1">DHL Mail</h4>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Truck className="w-5 h-5 text-[var(--fusion-accent)] flex-shrink-0" />
+                    <h4 className="font-semibold">DHL Mail</h4>
+                  </div>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Bazı durumlarda DHL Mail kullanılabilir, teslimat ülkenin posta servisi tarafından tamamlanır.
                   </p>
@@ -176,20 +165,14 @@ export default function GonderimYerleriPage() {
 
               <div className="space-y-3">
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      <strong>Özel Sipariş:</strong> Özel sipariş ürünleri, önce tedarikçimizden depomuza ulaşabilir ve ardından size gönderilir.
-                    </p>
-                  </div>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    <strong>Özel Sipariş:</strong> Özel sipariş ürünleri, önce tedarikçimizden depomuza ulaşabilir ve ardından size gönderilir.
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      <strong>Büyük Boyutlu Ürünler:</strong> Uluslararası nakliye firmalarıyla Kapıdan-Kapıya veya Kapıdan-Havaalanına hizmeti sunulabilir.
-                    </p>
-                  </div>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    <strong>Büyük Boyutlu Ürünler:</strong> Uluslararası nakliye firmalarıyla Kapıdan-Kapıya veya Kapıdan-Havaalanına hizmeti sunulabilir.
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -201,24 +184,19 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <AlertTriangle className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Ürün Kısıtlamaları ve Uyum</h2>
               </div>
               
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <CheckCircle className="w-4 h-4 text-[var(--fusion-success)] flex-shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <span className="text-sm text-[var(--foreground-secondary)]">Sipariş verdiğiniz ürünlerin ülkenizde çalışacağından emin olmak için tüm teknik özellikleri kontrol ediniz.</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <CheckCircle className="w-4 h-4 text-[var(--fusion-success)] flex-shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <span className="text-sm text-[var(--foreground-secondary)]">Ülkenizdeki ithalat düzenlemelerinin siparişinizi engelleyip engellemediğini kontrol etmek alıcının sorumluluğundadır.</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <AlertTriangle className="w-4 h-4 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
                   <span className="text-sm text-[var(--foreground-secondary)]">Üretici veya hükümet kısıtlamaları nedeniyle bazı ürünler Türkiye dışına gönderilemeyebilir.</span>
                 </div>
               </div>
@@ -231,10 +209,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <RotateCcw className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <RotateCcw className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Reddedilen ve İade Edilen Teslimatlar</h2>
               </div>
               
@@ -252,22 +228,24 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <FileCheck className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <FileCheck className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İmza ve Teslimat Süreleri</h2>
               </div>
               
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
-                  <FileCheck className="w-6 h-6 text-[var(--fusion-primary)] mb-3" />
-                  <h4 className="font-semibold mb-2">İmza Zorunluluğu</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileCheck className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
+                    <h4 className="font-semibold">İmza Zorunluluğu</h4>
+                  </div>
                   <p className="text-sm text-[var(--foreground-secondary)]">Tüm gönderimler imza gerektirir.</p>
                 </div>
                 <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                  <Clock className="w-6 h-6 text-[var(--fusion-success)] mb-3" />
-                  <h4 className="font-semibold mb-2">Aynı Gün Gönderim</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
+                    <h4 className="font-semibold">Aynı Gün Gönderim</h4>
+                  </div>
                   <p className="text-sm text-[var(--foreground-secondary)]">Türkiye Saati (GMT+3) sabah 7'den önce verilen siparişler, stokta mevcutsa bir iş günü içinde gönderilir.</p>
                 </div>
               </div>
@@ -286,10 +264,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Warehouse className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Warehouse className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Stok İstisnaları ve Teslimat Süreçleri</h2>
               </div>
               
@@ -305,10 +281,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <FileText className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Tasdikli Belgeler ve Ücretler</h2>
               </div>
               
@@ -330,10 +304,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <Percent className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Percent className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İndirim ve Üretici Kampanyaları</h2>
               </div>
               
@@ -342,12 +314,9 @@ export default function GonderimYerleriPage() {
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    Siparişinize ilişkin fiyatlandırmayı kontrol etmek için sepet bilgilerinizi inceleyin.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Siparişinize ilişkin fiyatlandırmayı kontrol etmek için sepet bilgilerinizi inceleyin.
+                </p>
               </div>
             </motion.div>
 
@@ -358,10 +327,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Boxes className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Boxes className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Çoklu Ürün Siparişleri ve Gecikmeler</h2>
               </div>
               
@@ -377,10 +344,8 @@ export default function GonderimYerleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Receipt className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Receipt className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Gümrük Vergileri ve Diğer Ücretler</h2>
               </div>
               
@@ -404,12 +369,9 @@ export default function GonderimYerleriPage() {
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    <strong>Önemli:</strong> Bu hizmetle birlikte, FusionMarkt'a ek ithalat ücretlerini veya teslimat konumunun yanlış beyan edilmesi durumunda ek masrafları ödeme yönteminizden tahsil etme yetkisi vermiş olursunuz.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  <strong>Önemli:</strong> Bu hizmetle birlikte, FusionMarkt'a ek ithalat ücretlerini veya teslimat konumunun yanlış beyan edilmesi durumunda ek masrafları ödeme yönteminizden tahsil etme yetkisi vermiş olursunuz.
+                </p>
               </div>
             </motion.div>
 

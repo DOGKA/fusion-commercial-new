@@ -253,12 +253,10 @@ export default function IletisimPage() {
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                   className="glass-card p-6 rounded-2xl group hover:border-[var(--glass-border-hover)] transition-all"
                 >
-                  <div 
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: `${card.color}15` }}
-                  >
-                    <card.icon className="w-7 h-7" style={{ color: card.color }} />
-                  </div>
+                  <card.icon
+                    className="w-7 h-7 mb-4 transition-transform group-hover:scale-110"
+                    style={{ color: card.color }}
+                  />
                   <h3 className="text-lg font-bold mb-1">{card.title}</h3>
                   <p className="text-[var(--foreground)] font-medium mb-2">{card.value}</p>
                   <p className="text-sm text-[var(--foreground-tertiary)]">
@@ -288,9 +286,7 @@ export default function IletisimPage() {
               >
                 <div className="glass-card p-8 md:p-10 rounded-3xl">
                   <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-[var(--fusion-primary)]" />
-                    </div>
+                    <FileText className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                     <div>
                       <h2 className="text-2xl font-bold">İletişim Formu</h2>
                       <p className="text-sm text-[var(--foreground-tertiary)]">Mesajınızı bize iletin</p>
@@ -446,7 +442,7 @@ export default function IletisimPage() {
                   
                   <div className="relative">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366]">
+                      <div className="text-[#25D366] flex-shrink-0">
                         <WhatsAppIcon />
                       </div>
                       <div>
@@ -482,12 +478,7 @@ export default function IletisimPage() {
                         href={link.href}
                         className="flex items-center gap-3 p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--glass-bg-hover)] hover:border-[var(--glass-border-hover)] transition-all group w-full"
                       >
-                        <div 
-                          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: `${link.color}15` }}
-                        >
-                          <link.icon className="w-5 h-5" style={{ color: link.color }} />
-                        </div>
+                        <link.icon className="w-5 h-5 flex-shrink-0" style={{ color: link.color }} />
                         <span className="font-medium flex-1">{link.title}</span>
                         <ArrowRight className="w-4 h-4 text-[var(--foreground-tertiary)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </Link>

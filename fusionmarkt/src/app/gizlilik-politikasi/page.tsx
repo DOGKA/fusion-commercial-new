@@ -13,10 +13,7 @@ import {
   MapPin,
   Cookie,
   Settings,
-  BarChart3,
-  Megaphone,
   AlertCircle,
-  CheckCircle,
   Building2,
   Scale
 } from "lucide-react";
@@ -59,10 +56,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Building2 className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Biz Kimiz</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -83,10 +78,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <AlertCircle className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">FusionMarkt Gizlilik Politikasındaki Değişiklikler</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
@@ -101,10 +94,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <FileCheck className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <FileCheck className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Bu Politikanın Amacı</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -127,10 +118,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Database className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Database className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Sizden Topladığımız Veriler</h2>
               </div>
               
@@ -141,37 +130,25 @@ export default function GizlilikPolitikasiPage() {
               <h3 className="font-semibold text-lg mb-4">Bize Verdiğiniz Kişisel Bilgiler</h3>
               <div className="grid gap-4 mb-6">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-[var(--fusion-success)]" />
-                    Hesap Kaydı
-                  </h4>
+                  <h4 className="font-semibold mb-2">Hesap Kaydı</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Bizde bir hesap için kaydolduğunuzda adınız, adresleriniz, telefon numaralarınız veya e-posta adresleriniz gibi tanımlayıcı bilgiler.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-[var(--fusion-success)]" />
-                    Satın Almalar
-                  </h4>
+                  <h4 className="font-semibold mb-2">Satın Almalar</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Bir siparişi işlemek ve satın aldığınız ürünleri size göndermek için kullanılan ad, telefon numarası, e-posta adresi, posta adresi, fatura ve diğer bilgiler.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-[var(--fusion-success)]" />
-                    Bizimle İletişime Geçmek
-                  </h4>
+                  <h4 className="font-semibold mb-2">Bizimle İletişime Geçmek</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Bir web formu aracılığıyla, hesabınızı güncelleyerek veya hesabınıza bilgi ekleyerek, blog gönderilerine, topluluk tartışmalarına ve sohbetlere katılarak veya hizmetlerimizle ilgili olarak bizimle başka bir şekilde iletişim kurduğunuzda ek bilgiler sağlayabilirsiniz.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-[var(--fusion-success)]" />
-                    Kimlik Doğrulama
-                  </h4>
+                  <h4 className="font-semibold mb-2">Kimlik Doğrulama</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Kimliğinizi doğrulamak veya kimliğinizi belirlemek için geçerli ulusal yasalar tarafından toplamamız gereken bilgiler.
                   </p>
@@ -181,14 +158,12 @@ export default function GizlilikPolitikasiPage() {
               <h3 className="font-semibold text-lg mb-4">Otomatik Olarak Topladığımız Bilgiler</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <Megaphone className="w-5 h-5 text-[var(--fusion-primary)] mb-2" />
                   <h4 className="font-semibold mb-1">Reklam</h4>
                   <p className="text-xs text-[var(--foreground-secondary)]">
                     Hizmetlerimizle etkileşiminiz, reklam tercihleriniz ve bizimle olan iletişiminiz hakkında bilgi.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <BarChart3 className="w-5 h-5 text-[var(--fusion-accent)] mb-2" />
                   <h4 className="font-semibold mb-1">Reklam Analitiği</h4>
                   <p className="text-xs text-[var(--foreground-secondary)]">
                     Sayfa görüntülemeleri, trafik akışları, yönlendirme URL'leri, IP adresiniz ve tarama geçmişiniz.
@@ -204,10 +179,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Scale className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Scale className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">EEA Kişisel Veri Haklarınız</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
@@ -386,22 +359,28 @@ export default function GizlilikPolitikasiPage() {
               <h2 className="text-xl md:text-2xl font-bold mb-6">Onayınızı Nasıl Geri Çekebilirsiniz</h2>
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <Mail className="w-6 h-6 text-[var(--fusion-primary)] mb-3" />
-                  <h4 className="font-semibold mb-2">E-posta Pazarlama</h4>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-[var(--fusion-primary)]" />
+                    E-posta Pazarlama
+                  </h4>
                   <p className="text-xs text-[var(--foreground-secondary)]">
                     Profilinizdeki E-posta tercihleri sayfasından veya e-postaların altındaki bağlantılardan abonelikten çıkabilirsiniz.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <Cookie className="w-6 h-6 text-[var(--fusion-accent)] mb-3" />
-                  <h4 className="font-semibold mb-2">Reklam</h4>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Cookie className="w-5 h-5 text-[var(--fusion-accent)]" />
+                    Reklam
+                  </h4>
                   <p className="text-xs text-[var(--foreground-secondary)]">
                     Çerez tercihleri sayfamızdaki uygun çerezlerin işaretini kaldırarak vazgeçebilirsiniz.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <Settings className="w-6 h-6 text-[var(--fusion-success)] mb-3" />
-                  <h4 className="font-semibold mb-2">Push Bildirimleri</h4>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-[var(--fusion-success)]" />
+                    Push Bildirimleri
+                  </h4>
                   <p className="text-xs text-[var(--foreground-secondary)]">
                     Web tarayıcısı ayarlarınızda veya mobil uygulama ayarlarında yapılandırabilirsiniz.
                   </p>
@@ -416,10 +395,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <Cookie className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Cookie className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">FusionMarkt Çerezleri ve Çerez Türleri</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
@@ -452,10 +429,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Lock className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Lock className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Bilgilerinizi Nasıl Koruyoruz</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -475,10 +450,8 @@ export default function GizlilikPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Globe className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Uluslararası Bilgi Aktarımları</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">

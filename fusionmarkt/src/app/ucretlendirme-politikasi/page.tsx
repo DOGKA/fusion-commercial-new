@@ -8,9 +8,7 @@ import {
   CreditCard, 
   RefreshCw, 
   Shield, 
-  Percent,
-  AlertCircle,
-  Info
+  Percent
 } from "lucide-react";
 
 export default function UcretlendirmePolitikasiPage() {
@@ -51,43 +49,28 @@ export default function UcretlendirmePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Globe className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Uluslararası Fiyatlandırma ve Ödeme Seçenekleri</h2>
               </div>
               
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-[var(--fusion-warning)] flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      Gösterilen tüm TL dışı para birimi tutarları yalnızca genel bilgi amacıyla sağlanan tahminlerdir. Herhangi bir yabancı para birimi bilgisinin doğruluğunu garanti etmiyoruz.
-                    </p>
-                  </div>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Gösterilen tüm TL dışı para birimi tutarları yalnızca genel bilgi amacıyla sağlanan tahminlerdir. Herhangi bir yabancı para birimi bilgisinin doğruluğunu garanti etmiyoruz.
+                  </p>
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-4">
                   <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-[var(--fusion-primary)]/10 flex items-center justify-center">
-                        <DollarSign className="w-5 h-5 text-[var(--fusion-primary)]" />
-                      </div>
-                      <h3 className="font-semibold">Nihai Tutar</h3>
-                    </div>
+                    <h3 className="font-semibold mb-3">Nihai Tutar</h3>
                     <p className="text-sm text-[var(--foreground-secondary)]">
                       Sepetinizde gösterilen nihai tutar Türk lirası cinsindendir.
                     </p>
                   </div>
                   
                   <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-[var(--fusion-accent)]/10 flex items-center justify-center">
-                        <Info className="w-5 h-5 text-[var(--fusion-accent)]" />
-                      </div>
-                      <h3 className="font-semibold">Ek Masraflar</h3>
-                    </div>
+                    <h3 className="font-semibold mb-3">Ek Masraflar</h3>
                     <p className="text-sm text-[var(--foreground-secondary)]">
                       Tahmini ürün fiyatına gümrük, harç ve/veya vergiler dahil değildir.
                     </p>
@@ -103,10 +86,8 @@ export default function UcretlendirmePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <CreditCard className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Kredi Kartı İşlemleri</h2>
               </div>
               
@@ -116,12 +97,9 @@ export default function UcretlendirmePolitikasiPage() {
                 </p>
                 
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      <strong>Döviz Kuru Dalgalanmaları:</strong> Dalgalanan döviz kurları nedeniyle iade tutarları satın alma fiyatından daha fazla veya daha az olabilir.
-                    </p>
-                  </div>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    <strong>Döviz Kuru Dalgalanmaları:</strong> Dalgalanan döviz kurları nedeniyle iade tutarları satın alma fiyatından daha fazla veya daha az olabilir.
+                  </p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[var(--fusion-error)]/10 border border-[var(--fusion-error)]/20">
@@ -145,10 +123,8 @@ export default function UcretlendirmePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <RefreshCw className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <RefreshCw className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İadeler ve Değişimler</h2>
               </div>
               
@@ -180,10 +156,8 @@ export default function UcretlendirmePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Shield className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Gizlilik</h2>
               </div>
               
@@ -205,10 +179,8 @@ export default function UcretlendirmePolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <Percent className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Percent className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İndirimler</h2>
               </div>
               
@@ -217,12 +189,9 @@ export default function UcretlendirmePolitikasiPage() {
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    <strong>Öneri:</strong> Fiyatlandırmayı onaylamak için lütfen sepetinizdeki bilgileri kontrol edin.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  <strong>Öneri:</strong> Fiyatlandırmayı onaylamak için lütfen sepetinizdeki bilgileri kontrol edin.
+                </p>
               </div>
             </motion.div>
 
@@ -234,25 +203,19 @@ export default function UcretlendirmePolitikasiPage() {
               className="grid sm:grid-cols-3 gap-4"
             >
               <div className="glass-card p-5 rounded-2xl text-center">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center mx-auto mb-3">
-                  <DollarSign className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+                <DollarSign className="w-6 h-6 text-[var(--fusion-primary)] mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">TL Bazlı</h3>
                 <p className="text-xs text-[var(--foreground-tertiary)]">Nihai tutar Türk Lirası cinsindendir</p>
               </div>
               
               <div className="glass-card p-5 rounded-2xl text-center">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center mx-auto mb-3">
-                  <Shield className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+                <Shield className="w-6 h-6 text-[var(--fusion-success)] mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">Güvenli Ödeme</h3>
                 <p className="text-xs text-[var(--foreground-tertiary)]">256-Bit SSL şifreli işlemler</p>
               </div>
               
               <div className="glass-card p-5 rounded-2xl text-center">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center mx-auto mb-3">
-                  <CreditCard className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+                <CreditCard className="w-6 h-6 text-[var(--fusion-accent)] mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">Çoklu Ödeme</h3>
                 <p className="text-xs text-[var(--foreground-tertiary)]">Visa, Mastercard, Troy destekli</p>
               </div>

@@ -54,13 +54,9 @@ export default function CerezPolitikasiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Cookie className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold">Çerez Nedir?</h2>
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Cookie className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
+                <h2 className="text-xl md:text-2xl font-bold">Çerez Nedir?</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
                 Bir Çerez, bir web sitesinin bilgisayarınızda, telefonunuzda veya başka herhangi bir aygıtta depoladığı küçük bir metin dosyasıdır. Çerezler taramayı kolaylaştırmak ve daha kullanıcı dostu hale getirmek için gereklidir. Bilgisayarınıza zarar vermezler ve hassas kişisel bilgilerinizi saklamak için asla kullanılmazlar.
@@ -113,40 +109,40 @@ export default function CerezPolitikasiPage() {
               <h2 className="text-xl md:text-2xl font-bold mb-6">Çerez Kullanım Amaçları</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--fusion-primary)]/10 flex items-center justify-center mb-3">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Settings className="w-5 h-5 text-[var(--fusion-primary)]" />
-                  </div>
-                  <h3 className="font-semibold mb-2">Önemli Web Sitesi İşlemleri</h3>
+                    Önemli Web Sitesi İşlemleri
+                  </h3>
                   <p className="text-sm text-[var(--foreground-secondary)] leading-relaxed">
                     Bu teknolojiler, platformumuzdaki hizmetleri size sunmak ve ürünleri sepete eklemek, form göndermek, video oynatmak gibi özellikleri kullanmak için gereklidir.
                   </p>
                 </div>
                 
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--fusion-success)]/10 flex items-center justify-center mb-3">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Shield className="w-5 h-5 text-[var(--fusion-success)]" />
-                  </div>
-                  <h3 className="font-semibold mb-2">Performans ve İşlevsellik</h3>
+                    Performans ve İşlevsellik
+                  </h3>
                   <p className="text-sm text-[var(--foreground-secondary)] leading-relaxed">
                     Bu teknolojiler platformumuzun işlevselliğini artırmak için kullanılır.
                   </p>
                 </div>
                 
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--fusion-accent)]/10 flex items-center justify-center mb-3">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <BarChart3 className="w-5 h-5 text-[var(--fusion-accent)]" />
-                  </div>
-                  <h3 className="font-semibold mb-2">Analitik</h3>
+                    Analitik
+                  </h3>
                   <p className="text-sm text-[var(--foreground-secondary)] leading-relaxed">
                     Web sitelerimizin nasıl kullanıldığını anlamamıza ve platformumuzu geliştirmemize yardımcı olur.
                   </p>
                 </div>
                 
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--fusion-warning)]/10 flex items-center justify-center mb-3">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Megaphone className="w-5 h-5 text-[var(--fusion-warning)]" />
-                  </div>
-                  <h3 className="font-semibold mb-2">Reklamcılık</h3>
+                    Reklamcılık
+                  </h3>
                   <p className="text-sm text-[var(--foreground-secondary)] leading-relaxed">
                     Reklam mesajlarını sizin için daha uygun hale getiren teknolojilerdir.
                   </p>

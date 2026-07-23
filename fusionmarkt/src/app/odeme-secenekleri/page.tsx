@@ -6,12 +6,9 @@ import {
   Building2, 
   Shield, 
   Lock, 
-  CheckCircle,
   AlertTriangle,
-  MessageCircle,
   Phone,
-  Mail,
-  Info
+  Mail
 } from "lucide-react";
 
 export default function OdemeSecenekleriPage() {
@@ -64,10 +61,8 @@ export default function OdemeSecenekleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--fusion-primary)] to-[var(--fusion-accent)] flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-7 h-7 text-white" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <CreditCard className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">Kredi Kartı ile Ödeme</h2>
                   <p className="text-sm text-[var(--fusion-primary)]">3D Secure Sistemi ile</p>
@@ -80,19 +75,13 @@ export default function OdemeSecenekleriPage() {
 
               <div className="grid sm:grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Shield className="w-5 h-5 text-[var(--fusion-success)]" />
-                    <h4 className="font-semibold">Güvenli Doğrulama</h4>
-                  </div>
+                  <h4 className="font-semibold mb-2">Güvenli Doğrulama</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Kart bilgileriniz doğrudan bankanız aracılığıyla doğrulanır.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Lock className="w-5 h-5 text-[var(--fusion-primary)]" />
-                    <h4 className="font-semibold">Bilgi Güvenliği</h4>
-                  </div>
+                  <h4 className="font-semibold mb-2">Bilgi Güvenliği</h4>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Kart bilgileriniz hiçbir şekilde tarafımızca saklanmaz.
                   </p>
@@ -100,12 +89,9 @@ export default function OdemeSecenekleriPage() {
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-[var(--fusion-success)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    Ödeme işleminin başarılı bir şekilde tamamlanmasının ardından siparişiniz onaylanır ve hazırlık süreci başlar.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Ödeme işleminin başarılı bir şekilde tamamlanmasının ardından siparişiniz onaylanır ve hazırlık süreci başlar.
+                </p>
               </div>
 
               {/* Kabul Edilen Kartlar */}
@@ -128,10 +114,8 @@ export default function OdemeSecenekleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--fusion-accent)] to-[var(--fusion-success)] flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-7 h-7 text-white" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Building2 className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">Havale/EFT ile Ödeme</h2>
                   <p className="text-sm text-[var(--fusion-accent)]">Banka Transferi</p>
@@ -143,35 +127,25 @@ export default function OdemeSecenekleriPage() {
               </p>
 
               <div className="p-5 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[var(--fusion-primary)]/20 flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-5 h-5 text-[var(--fusion-primary)]" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">WhatsApp ile Dekont Gönderin</h4>
-                    <p className="text-sm text-[var(--foreground-secondary)] mb-2">
-                      İşlemlerin daha hızlı tamamlanabilmesi adına, ödeme dekontunu WhatsApp hattımıza iletmeniz gerekmektedir.
-                    </p>
-                    <a 
-                      href="https://wa.me/908508406160" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] text-white text-sm font-medium hover:bg-[#20BA5C] transition-colors"
-                    >
-                      <Phone className="w-4 h-4" />
-                      +90 850 840 6160
-                    </a>
-                  </div>
-                </div>
+                <h4 className="font-semibold mb-1">WhatsApp ile Dekont Gönderin</h4>
+                <p className="text-sm text-[var(--foreground-secondary)] mb-2">
+                  İşlemlerin daha hızlı tamamlanabilmesi adına, ödeme dekontunu WhatsApp hattımıza iletmeniz gerekmektedir.
+                </p>
+                <a 
+                  href="https://wa.me/908508406160" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] text-white text-sm font-medium hover:bg-[#20BA5C] transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                  +90 850 840 6160
+                </a>
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-[var(--fusion-accent)] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-[var(--foreground-secondary)]">
-                    Havale/EFT ödemeleri, banka kayıtlarının kontrol edilip onaylanmasının ardından işleme alınır. Ödeme onay süresi, bankalar arası işlem süresine göre değişiklik gösterebilir.
-                  </p>
-                </div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Havale/EFT ödemeleri, banka kayıtlarının kontrol edilip onaylanmasının ardından işleme alınır. Ödeme onay süresi, bankalar arası işlem süresine göre değişiklik gösterebilir.
+                </p>
               </div>
             </motion.div>
 
@@ -182,10 +156,8 @@ export default function OdemeSecenekleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <AlertTriangle className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Hukuki Bilgilendirme</h2>
               </div>
               
@@ -213,10 +185,8 @@ export default function OdemeSecenekleriPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Shield className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Veri Koruma</h2>
               </div>
               
@@ -233,25 +203,19 @@ export default function OdemeSecenekleriPage() {
               className="grid sm:grid-cols-3 gap-4"
             >
               <div className="glass-card p-5 rounded-2xl text-center">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center mx-auto mb-3">
-                  <Lock className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+                <Lock className="w-6 h-6 text-[var(--fusion-success)] mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">256-Bit SSL</h3>
                 <p className="text-xs text-[var(--foreground-tertiary)]">Şifreli veri transferi</p>
               </div>
               
               <div className="glass-card p-5 rounded-2xl text-center">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center mx-auto mb-3">
-                  <Shield className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+                <Shield className="w-6 h-6 text-[var(--fusion-primary)] mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">3D Secure</h3>
                 <p className="text-xs text-[var(--foreground-tertiary)]">Banka doğrulaması</p>
               </div>
               
               <div className="glass-card p-5 rounded-2xl text-center">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center mx-auto mb-3">
-                  <CreditCard className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+                <CreditCard className="w-6 h-6 text-[var(--fusion-accent)] mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">PCI DSS</h3>
                 <p className="text-xs text-[var(--foreground-tertiary)]">Ödeme güvenlik standardı</p>
               </div>

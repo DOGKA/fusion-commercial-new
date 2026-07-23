@@ -14,7 +14,6 @@ import {
   Gavel,
   XCircle,
   Globe,
-  ShieldAlert,
   Mail,
   HelpCircle
 } from "lucide-react";
@@ -75,10 +74,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Copyright className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Copyright className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Telif Hakkı Bildirimi</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
@@ -93,10 +90,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Bookmark className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Bookmark className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Ticari Markalar Bildirimi</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -116,10 +111,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <Ban className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Ban className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Kullanımla İlgili Kısıtlamalar</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
@@ -139,8 +132,7 @@ export default function KullaniciSozlesmesiPage() {
                   "Web sitesinin kullanıcıya veya başkalarına zarar vermeyi amaçlayan bir şekilde kullanılması",
                   "Kullanım Koşullarının ihlal edilmesini önlemek amacıyla tarafımızdan uygulanan herhangi bir önlemi atlatmak",
                 ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <XCircle className="w-4 h-4 text-[var(--fusion-error)] flex-shrink-0 mt-0.5" />
+                  <div key={index} className="p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <span className="text-sm text-[var(--foreground-secondary)]">{item}</span>
                   </div>
                 ))}
@@ -154,10 +146,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-warning)]/10 flex items-center justify-center flex-shrink-0">
-                  <ExternalLink className="w-6 h-6 text-[var(--fusion-warning)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <ExternalLink className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Üçüncü Taraf Siteleri</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -175,10 +165,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <AlertTriangle className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Yasal Uyarı</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
@@ -193,10 +181,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Scale className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Scale className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Sorumluluğun Sınırlandırılması</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -219,10 +205,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <MessageSquare className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <MessageSquare className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">İletişimler ve Gönderimler</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -243,10 +227,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-accent)]/10 flex items-center justify-center flex-shrink-0">
-                  <Gavel className="w-6 h-6 text-[var(--fusion-accent)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <Gavel className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Yetki ve Yasa Seçimi</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -266,10 +248,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-error)]/10 flex items-center justify-center flex-shrink-0">
-                  <XCircle className="w-6 h-6 text-[var(--fusion-error)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <XCircle className="w-6 h-6 text-[var(--fusion-error)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Fesih</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
@@ -287,28 +267,20 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-6 h-6 text-[var(--fusion-primary)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-6">
+                <Globe className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Uluslararası Nakliye ve İhracat</h2>
               </div>
               
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-[var(--fusion-primary)]" />
-                    Uluslararası Nakliye
-                  </h3>
+                  <h3 className="font-semibold mb-3">Uluslararası Nakliye</h3>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Bazı üreticiler, bazı ürünlerini Türkiye dışında satmamızı kısıtlamaktadır.
                   </p>
                 </div>
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <ShieldAlert className="w-5 h-5 text-[var(--fusion-warning)]" />
-                    İhracat Yasaklaması
-                  </h3>
+                  <h3 className="font-semibold mb-3">İhracat Yasaklaması</h3>
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Sattığımız ürünler, Türkiye Cumhuriyeti ihracat kontrol yasalarına ve düzenlemelerine tabidir. Bu ürünlerin ihracatı için gerekli lisansları veya izinleri almaktan müşterilerimiz sorumludur.
                   </p>
@@ -329,10 +301,8 @@ export default function KullaniciSozlesmesiPage() {
               viewport={{ once: true }}
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--fusion-success)]/10 flex items-center justify-center flex-shrink-0">
-                  <HelpCircle className="w-6 h-6 text-[var(--fusion-success)]" />
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <HelpCircle className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Sorularınız mı Var?</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">

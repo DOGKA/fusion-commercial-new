@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -8,17 +8,13 @@ import {
   X, 
   Minus, 
   Plus, 
-  Trash2, 
   ShoppingBag, 
   ArrowRight, 
-  Heart,
-  Check,
   Sparkles,
   Truck,
   Gift
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useFavorites } from "@/context/FavoritesContext";
 import { cn, formatPrice } from "@/lib/utils";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
@@ -38,8 +34,7 @@ function useIsMounted() {
 }
 
 export default function MiniCart() {
-  const { items, isOpen, closeCart: closeCartOriginal, itemCount, subtotal, originalSubtotal, totalSavings, removeItem, updateQuantity, clearCart } = useCart();
-  const { addItem: addToFavorites } = useFavorites();
+  const { items, isOpen, closeCart, itemCount, subtotal, originalSubtotal, totalSavings, removeItem, updateQuantity } = useCart();
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
   const isDark = mounted && resolvedTheme === "dark";
@@ -47,17 +42,6 @@ export default function MiniCart() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const summarySectionRef = useRef<HTMLDivElement>(null);
   const [isSummaryInView, setIsSummaryInView] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const prevIsOpenRef = useRef(isOpen);
-  
-  // Wrap closeCart to reset selection state
-  const closeCart = useCallback(() => {
-    setSelectedItems(new Set());
-    setIsSelectionMode(false);
-    setIsSummaryInView(false);
-    closeCartOriginal();
-  }, [closeCartOriginal]);
   
   // Shipping state
   const [shippingInfo, setShippingInfo] = useState<{
@@ -152,17 +136,11 @@ export default function MiniCart() {
     };
   }, [isOpen, closeCart]);
 
-  // Track isOpen changes to reset selection when cart is closed externally
+  // Panel kapanınca kompakt çubuk durumunu sıfırla (yeniden açılışta flaş olmasın)
   useEffect(() => {
-    if (prevIsOpenRef.current && !isOpen) {
-      // Cart was just closed externally (not via closeCart)
-      queueMicrotask(() => {
-        setSelectedItems(new Set());
-        setIsSelectionMode(false);
-        setIsSummaryInView(false);
-      });
+    if (!isOpen) {
+      queueMicrotask(() => setIsSummaryInView(false));
     }
-    prevIsOpenRef.current = isOpen;
   }, [isOpen]);
 
   // Checkout ile aynı mantık: detaylı özet görünürken kompakt çubuk gizlenir
@@ -180,45 +158,6 @@ export default function MiniCart() {
     return () => observer.disconnect();
   }, [isOpen, hasItems]);
 
-  // Toggle item selection
-  const toggleItemSelection = (itemId: string) => {
-    const newSelected = new Set(selectedItems);
-    if (newSelected.has(itemId)) {
-      newSelected.delete(itemId);
-    } else {
-      newSelected.add(itemId);
-    }
-    setSelectedItems(newSelected);
-  };
-
-  // Delete selected items
-  const deleteSelectedItems = () => {
-    selectedItems.forEach(id => removeItem(id));
-    setSelectedItems(new Set());
-    setIsSelectionMode(false);
-  };
-
-  // Move selected items to favorites
-  const moveSelectedToFavorites = () => {
-    selectedItems.forEach(id => {
-      const item = items.find(i => i.id === id);
-      if (item) {
-        addToFavorites({
-          productId: item.productId,
-          slug: item.slug,
-          title: item.title,
-          brand: item.brand,
-          price: item.price,
-          originalPrice: item.originalPrice,
-          image: item.image,
-          variant: item.variant,
-        });
-      }
-    });
-    // Remove from cart after adding to favorites
-    deleteSelectedItems();
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -235,7 +174,7 @@ export default function MiniCart() {
       <div
         ref={panelRef}
         className={cn(
-          "absolute right-0 top-0 bottom-0 w-full max-w-[480px]",
+          "absolute right-0 top-0 bottom-0 w-full max-w-[400px]",
           // Dark theme must be the old dark panel (not light)
           isDark ? "bg-gradient-to-b from-[#0d0d0d] to-[#080808]" : "bg-white",
           "border-l border-border",
@@ -299,79 +238,6 @@ export default function MiniCart() {
               isDark ? "via-white/[0.06]" : "via-black/[0.08]"
             )}
           />
-
-          {/* Action Bar - Minimal */}
-          {items.length > 0 && (
-            <div className="flex items-center px-4 pt-1.5 pb-2 min-h-[36px]">
-              {!isSelectionMode ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setIsSelectionMode(true)}
-                    className="flex items-center gap-1 h-7 px-2 -ml-2 text-[12px] font-medium text-foreground-muted hover:text-foreground active:bg-foreground/[0.05] transition-colors cursor-pointer rounded-full"
-                  >
-                    <Check size={13} />
-                    Seç
-                  </button>
-                  <div className="flex-1" />
-                  <button
-                    type="button"
-                    onClick={clearCart}
-                    className="flex items-center gap-1 h-7 px-2 -mr-2 text-[12px] font-medium text-foreground-muted hover:text-red-400 active:bg-red-500/[0.06] transition-colors cursor-pointer rounded-full"
-                  >
-                    <Trash2 size={13} />
-                    Temizle
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSelectionMode(false);
-                      setSelectedItems(new Set());
-                    }}
-                    className="flex items-center gap-1 h-7 px-2 -ml-2 text-[12px] font-medium text-foreground-muted hover:text-foreground active:bg-foreground/[0.05] transition-colors cursor-pointer rounded-full"
-                  >
-                    <X size={13} />
-                    İptal
-                  </button>
-                  {selectedItems.size > 0 && (
-                    <span className="ml-1 text-[11px] text-foreground-disabled">
-                      {selectedItems.size} seçili
-                    </span>
-                  )}
-                  <div className="flex-1" />
-                  <button
-                    onClick={moveSelectedToFavorites}
-                    disabled={selectedItems.size === 0}
-                    aria-label="Favorilere Taşı"
-                    className={cn(
-                      "w-8 h-7 flex items-center justify-center transition-colors rounded-full",
-                      selectedItems.size > 0
-                        ? "text-pink-400 active:bg-pink-500/10"
-                        : "text-foreground-disabled cursor-not-allowed"
-                    )}
-                  >
-                    <Heart size={14} />
-                  </button>
-                  <button
-                    onClick={deleteSelectedItems}
-                    disabled={selectedItems.size === 0}
-                    aria-label="Seçilenleri Sil"
-                    className={cn(
-                      "w-8 h-7 -mr-2 flex items-center justify-center transition-colors rounded-full",
-                      selectedItems.size > 0
-                        ? "text-red-400 active:bg-red-500/10"
-                        : "text-foreground-disabled cursor-not-allowed"
-                    )}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </>
-              )}
-            </div>
-          )}
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
@@ -404,47 +270,15 @@ export default function MiniCart() {
             items.map((item) => (
               <div
                 key={item.id}
-                onClick={isSelectionMode ? () => toggleItemSelection(item.id) : undefined}
-                className={cn(
-                  "group relative bg-glass-bg border transition-colors duration-200",
-                  isSelectionMode && "cursor-pointer",
-                  isSelectionMode && selectedItems.has(item.id) 
-                    ? "border-emerald-500/30 bg-emerald-500/[0.06] ring-1 ring-emerald-500/20" 
-                    : "border-border hover:border-border-hover hover:bg-glass-bg-hover"
-                )}
+                className="group relative bg-glass-bg border border-border hover:border-border-hover hover:bg-glass-bg-hover transition-colors duration-200"
                 style={{ borderRadius: '14px', overflow: 'hidden' }}
               >
                 {/* Grid Layout: Image | Content */}
                 <div className="flex">
-                  {/* Selection Checkbox - Top left corner */}
-                  {isSelectionMode && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleItemSelection(item.id);
-                      }}
-                      className={cn(
-                        "minicart-checkbox absolute top-3 left-3 sm:top-3 sm:left-3 z-20 w-5 h-5 sm:w-5 sm:h-5 border sm:border-2 flex items-center justify-center transition-colors cursor-pointer shadow-lg rounded sm:rounded-md",
-                        selectedItems.has(item.id) 
-                          ? "bg-emerald-500 border-emerald-500 text-white" 
-                          : "bg-glass-bg border-border text-transparent hover:border-emerald-400"
-                      )}
-                    >
-                      <Check className="w-3 h-3 sm:w-3 sm:h-3" strokeWidth={3} />
-                    </button>
-                  )}
-
                   {/* Image - 1:1 Square - Clickable */}
                   <Link 
                     href={`/urun/${item.slug}`}
-                    onClick={(e) => {
-                      if (isSelectionMode) {
-                        e.preventDefault();
-                        return;
-                      }
-                      closeCart();
-                    }}
+                    onClick={closeCart}
                     className="relative w-[72px] h-[72px] flex-shrink-0 bg-background m-2 hover:opacity-80 transition-opacity" 
                     style={{ borderRadius: '10px', overflow: 'hidden' }}
                   >
@@ -468,13 +302,7 @@ export default function MiniCart() {
                     {/* Top: Brand + Title + Variant - Clickable */}
                     <Link 
                       href={`/urun/${item.slug}`}
-                      onClick={(e) => {
-                        if (isSelectionMode) {
-                          e.preventDefault();
-                          return;
-                        }
-                        closeCart();
-                      }}
+                      onClick={closeCart}
                       className="pr-6 hover:opacity-80 transition-opacity"
                     >
                       {!!item.brand?.trim() && (
@@ -516,11 +344,10 @@ export default function MiniCart() {
                       <div
                         className="minicart-quantity-controls flex items-center self-start bg-glass-bg border border-border p-0.5"
                         style={{ borderRadius: '10px' }}
-                        onClick={(e) => e.stopPropagation()}
                       >
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
                           style={{ borderRadius: '8px' }}
                         >
@@ -531,7 +358,7 @@ export default function MiniCart() {
                         </span>
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover transition-colors"
                           style={{ borderRadius: '8px' }}
                         >
@@ -542,17 +369,15 @@ export default function MiniCart() {
                   </div>
 
                   {/* Remove Button - Top right corner */}
-                  {!isSelectionMode && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                      className="absolute top-2 right-2 p-1 text-foreground-disabled hover:text-red-400 hover:bg-red-400/10 transition-[color,background-color,opacity] opacity-0 group-hover:opacity-100"
-                      style={{ borderRadius: '6px' }}
-                      aria-label="Ürünü Kaldır"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    className="absolute top-2 right-2 p-1 text-foreground-disabled hover:text-red-400 hover:bg-red-400/10 transition-[color,background-color,opacity] opacity-0 group-hover:opacity-100"
+                    style={{ borderRadius: '6px' }}
+                    aria-label="Ürünü Kaldır"
+                  >
+                    <X size={12} />
+                  </button>
                 </div>
               </div>
             ))
@@ -564,7 +389,6 @@ export default function MiniCart() {
         ═══════════════════════════════════════════════════════════════════ */}
         {items.length > 0 && (
           <div
-            ref={summarySectionRef}
             className={cn(
               "border-t",
               isDark
@@ -637,7 +461,7 @@ export default function MiniCart() {
               )}
 
               {/* Totals Breakdown */}
-              <div className="space-y-2">
+              <div ref={summarySectionRef} className="space-y-2">
                 {/* Original Subtotal - only show if there's a discount */}
                 {totalSavings > 0 && (
                   <div className="flex items-center justify-between">
@@ -706,8 +530,8 @@ export default function MiniCart() {
         )}
         </div>
 
-        {/* Checkout gibi: detaylı özet görünene kadar panelin altında sabit */}
-        {items.length > 0 && (
+        {/* 3+ farklı ürün olduğunda, detaylı özet görünene kadar panelin altında sabit */}
+        {items.length >= 3 && (
           <div
             className={cn(
               "absolute bottom-0 left-0 right-0 z-20 border-t transition-transform duration-300 ease-out",
@@ -715,9 +539,7 @@ export default function MiniCart() {
                 ? "border-white/[0.06] bg-[#0a0a0a] shadow-[0_-12px_24px_-8px_rgba(0,0,0,0.6)]"
                 : "border-gray-200 bg-white shadow-[0_-12px_24px_-8px_rgba(0,0,0,0.12)]",
               isSummaryInView
-                ? items.length >= 3
-                  ? "translate-y-0 md:translate-y-full md:pointer-events-none"
-                  : "translate-y-full pointer-events-none"
+                ? "translate-y-full pointer-events-none"
                 : "translate-y-0"
             )}
           >

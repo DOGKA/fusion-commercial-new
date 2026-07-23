@@ -25,6 +25,20 @@ const pulseAnimationStyle = `
       font-size: 10px !important;
     }
   }
+  .kargo-timer-text {
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+  @media (max-width: 420px) {
+    .kargo-timer-text {
+      font-size: 10px !important;
+    }
+  }
+  @media (max-width: 360px) {
+    .kargo-timer-text {
+      font-size: 9px !important;
+    }
+  }
 `;
 
 // Hydration-safe mounted state
@@ -393,13 +407,14 @@ export function KargoTimer(props: KargoTimerProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'nowrap',
           gap: '8px',
           marginBottom: '6px',
+          minWidth: 0,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             <span style={{ fontSize: '12px' }}>⚡</span>
-            <span style={{
-              fontSize: '11px',
+            <span className="kargo-timer-text" style={{
               fontWeight: 700,
               color: 'var(--foreground)',
               letterSpacing: '0.02em',
@@ -407,11 +422,10 @@ export function KargoTimer(props: KargoTimerProps) {
               HIZLI TESLİMAT
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
             <span
-              className="timer-pulse"
+              className="timer-pulse kargo-timer-text"
               style={{
-                fontSize: '11px',
                 fontWeight: 700,
                 color: '#10B981',
                 fontVariantNumeric: 'tabular-nums',
@@ -420,8 +434,7 @@ export function KargoTimer(props: KargoTimerProps) {
               {String(timer.hours).padStart(2, '0')}:{String(timer.minutes).padStart(2, '0')}:{String(timer.seconds).padStart(2, '0')}
             </span>
             <span style={{ color: 'var(--foreground-muted)' }}>•</span>
-            <span style={{
-              fontSize: '11px',
+            <span className="kargo-timer-text" style={{
               fontWeight: 700,
               color: '#10B981',
             }}>
