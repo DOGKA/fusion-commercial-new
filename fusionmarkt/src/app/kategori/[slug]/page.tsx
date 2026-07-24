@@ -840,7 +840,9 @@ export default function CategoryPage() {
               className="flex items-stretch"
             >
               {loading ? (
-                <div className="flex items-center justify-center py-20 w-full">
+                // CLS fix: kart yüksekliği (640px) kadar alan rezerve et ki
+                // ürünler gelince alttaki içerik aşağı kaymasın
+                <div className="flex items-center justify-center w-full" style={{ minHeight: '640px' }}>
                   <div
                     className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
                     style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}
@@ -890,7 +892,8 @@ export default function CategoryPage() {
 
         {/* DESKTOP */}
         {loading ? (
-          <div className="hidden lg:flex items-center justify-center py-20">
+          // CLS fix: grid gelmeden önce yükseklik rezerve et (StorePageClient'taki 70vh deseni)
+          <div className="hidden lg:flex items-center justify-center" style={{ minHeight: '70vh' }}>
             <div
               className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
               style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}

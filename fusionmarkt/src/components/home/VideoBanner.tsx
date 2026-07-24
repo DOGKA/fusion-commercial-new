@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 interface VideoBannerData {
@@ -27,6 +27,11 @@ export default function VideoBanner({ initialItem }: VideoBannerProps) {
   const [data, setData] = useState<VideoBannerData | null>(initialItem ?? null);
   const [loaded, setLoaded] = useState(hasInitialData);
 
+  // YouTube iframe/video ağır olduğu için sayfa açılışında yüklenmez;
+  // banner viewport'a yaklaşınca mount edilir (INP/ana thread optimizasyonu).
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
   useEffect(() => {
     if (hasInitialData) return;
     const fetchData = async () => {
@@ -42,7 +47,23 @@ export default function VideoBanner({ initialItem }: VideoBannerProps) {
     fetchData();
   }, [hasInitialData]);
 
-  if (!loaded || !data?.videoUrl) {
+  const hasVideo = loaded && !!data?.videoUrl;
+
+  useEffect(() => {
+    if (!hasVideo || isInView) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsInView(true);
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasVideo, isInView]);
+
+  if (!hasVideo || !data?.videoUrl) {
     return null;
   }
 
@@ -50,23 +71,40 @@ export default function VideoBanner({ initialItem }: VideoBannerProps) {
   const hasOverlay = data.title || data.subtitle || data.btnText;
 
   return (
-    <section className="py-6 lg:py-8">
+    <section ref={sectionRef} className="py-6 lg:py-8">
       <div className="container">
         <div className="video-banner-wrapper">
           {ytId ? (
             <div className="video-banner-yt-container">
-              <iframe
-                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&playsinline=1&showinfo=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&fs=0&vq=hd1080`}
-                allow="autoplay; encrypted-media"
-                allowFullScreen={false}
-                className="video-banner-yt-iframe"
-                title="Video Banner"
-              />
+              {isInView ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&playsinline=1&showinfo=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&fs=0&vq=hd1080`}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen={false}
+                  className="video-banner-yt-iframe"
+                  title="Video Banner"
+                />
+              ) : (
+                // Facade: iframe mount edilene kadar video kapak görseli
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg`}
+                  alt={data.title || "Video Banner"}
+                  loading="lazy"
+                  decoding="async"
+                  className="video-banner-yt-iframe"
+                  style={{ objectFit: "cover" }}
+                />
+              )}
             </div>
           ) : (
-            <video autoPlay muted loop playsInline>
-              <source src={data.videoUrl} type="video/mp4" />
-            </video>
+            isInView ? (
+              <video autoPlay muted loop playsInline>
+                <source src={data.videoUrl} type="video/mp4" />
+              </video>
+            ) : (
+              <div style={{ width: "100%", aspectRatio: "16 / 9", backgroundColor: "var(--background-tertiary)" }} />
+            )
           )}
 
           {hasOverlay && (

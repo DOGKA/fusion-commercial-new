@@ -203,9 +203,9 @@
   --pill-accent-emerald: #047857;
   --pill-border-cyan: rgba(14, 116, 144, 0.55);
   --pill-accent-cyan: #0E7490;
-  --pill-border-amber: rgba(180, 83, 9, 0.55);
-  --pill-border-amber-soft: rgba(180, 83, 9, 0.4);
-  --pill-accent-amber: #B45309;
+  --pill-border-amber: rgba(251, 191, 36, 0.55);
+  --pill-border-amber-soft: rgba(251, 191, 36, 0.4);
+  --pill-accent-amber: #FBBF24;
   --pill-border-violet: rgba(109, 40, 217, 0.5);
   --pill-accent-violet: #6D28D9;
 }

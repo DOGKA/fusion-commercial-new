@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, type Variants } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useInView, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -202,9 +202,10 @@ function PartnerCard({ partner }: { partner: Partner }) {
               <p className="text-xs text-foreground-secondary dark:text-white/70 mb-3">{partner.tagline}</p>
               <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 group">
                 Keşfet
+                {/* Sonsuz döngü yalnızca kart açıkken çalışsın (INP/ana thread) */}
                 <motion.span
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1, repeat: Infinity }}
+                  animate={isFlipped ? { x: [0, 4, 0] } : { x: 0 }}
+                  transition={isFlipped ? { duration: 1, repeat: Infinity } : { duration: 0.2 }}
                 >
                   →
                 </motion.span>
@@ -218,14 +219,18 @@ function PartnerCard({ partner }: { partner: Partner }) {
 }
 
 export default function PartnerLogos() {
+  const sectionRef = useRef<HTMLElement>(null);
+  // Bölüm ekranda değilken blur'lu pulse animasyonları çalışmasın
+  const inView = useInView(sectionRef, { margin: "100px" });
+
   return (
-    <section className="py-20 lg:py-24 relative overflow-hidden">
+    <section ref={sectionRef} className="py-20 lg:py-24 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-500/[0.03] to-background pointer-events-none" />
       
-      {/* Animated Background Orbs */}
-      <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+      {/* Animated Background Orbs - yalnızca görünürken animate olur */}
+      <div className={`absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl ${inView ? "animate-pulse" : ""}`} />
+      <div className={`absolute top-1/3 right-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl ${inView ? "animate-pulse" : ""}`} style={{ animationDelay: "1s" }} />
       
       <div className="container relative z-10">
         {/* Header */}

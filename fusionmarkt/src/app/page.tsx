@@ -1,13 +1,17 @@
+import dynamic from "next/dynamic";
 import HeroSlider from "@/components/home/HeroSlider";
-import WhyFusionMarkt from "@/components/home/WhyFusionMarkt";
 import TrendingCarousel from "@/components/home/TrendingCarousel";
-import PromoBanner from "@/components/home/PromoBanner";
-import VideoBanner from "@/components/home/VideoBanner";
-import VideoGrid from "@/components/home/VideoGrid";
-import CategoryShowcase from "@/components/home/CategoryShowcase";
-import CategoryBento from "@/components/home/CategoryBento";
-import PartnerLogos from "@/components/home/PartnerLogos";
 import HomeSeoContent from "@/components/home/HomeSeoContent";
+
+// Ekran altı bölümler ayrı chunk'lara bölünür (SSR açık kalır):
+// tek seferde inen JS/hydration yükünü azaltarak INP'yi iyileştirir.
+const PromoBanner = dynamic(() => import("@/components/home/PromoBanner"));
+const VideoBanner = dynamic(() => import("@/components/home/VideoBanner"));
+const VideoGrid = dynamic(() => import("@/components/home/VideoGrid"));
+const CategoryShowcase = dynamic(() => import("@/components/home/CategoryShowcase"));
+const CategoryBento = dynamic(() => import("@/components/home/CategoryBento"));
+const WhyFusionMarkt = dynamic(() => import("@/components/home/WhyFusionMarkt"));
+const PartnerLogos = dynamic(() => import("@/components/home/PartnerLogos"));
 import { staticPageMetadata } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
 import { applyLiveShowcasePrices } from "@/server/showcase-live-prices";

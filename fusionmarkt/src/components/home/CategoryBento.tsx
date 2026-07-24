@@ -196,7 +196,8 @@ export default function CategoryBento() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch(`/api/public/banners?_t=${Date.now()}`);
+        // Cache-buster yok: /api/public/* yanıtları CDN/browser cache'inden gelsin
+        const res = await fetch("/api/public/banners");
         if (res.ok) {
           const data = await res.json();
           const categoryBanner = data.find(

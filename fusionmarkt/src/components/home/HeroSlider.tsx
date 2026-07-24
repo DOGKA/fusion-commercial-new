@@ -356,6 +356,8 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
             alt={slide.title} 
             fill 
             sizes="100vw"
+            // Dekoratif arka plan: q=60 LCP baytlarını ~%25 azaltır, görsel fark algılanmaz
+            quality={60}
             className="object-cover object-center"
             {...(currentSlide === 0
               ? { priority: true }

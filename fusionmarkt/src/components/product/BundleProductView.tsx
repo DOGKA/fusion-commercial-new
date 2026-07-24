@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, MessageCircle, Star, CheckCircle, User, Minus, Plus } from "lucide-react";
@@ -13,6 +13,9 @@ const getServerSnapshot = () => false;
 function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 }
+
+// SSR'da useLayoutEffect uyarısını önlemek için izomorfik varyant
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -279,7 +282,11 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
   const [variantImage, setVariantImage] = useState<string | null>(null);
   // Adet seçimi
   const [quantity, setQuantity] = useState(1);
-  
+
+  // Mobil yapışkan CTA: fiyat bölümü yukarı kaydırılıp görünümden çıkınca göster
+  const priceSectionRef = useRef<HTMLDivElement>(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+
   // Sibling bundles (prev/next in same category)
   const [siblingProducts, setSiblingProducts] = useState<{
     prev: { slug: string; name: string; thumbnail?: string } | null;
@@ -300,12 +307,27 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
   );
 
   // Açıklama yüksekliğini kontrol et - kısa içeriklerde buton gösterme
-  useEffect(() => {
+  // (CLS fix: boyamadan önce ölçülsün diye layout effect)
+  useIsomorphicLayoutEffect(() => {
     if (descriptionRef.current) {
       const contentHeight = descriptionRef.current.scrollHeight;
       setShowExpandButton(contentHeight > 400);
     }
   }, [productData?.description, activeTab]);
+
+  // Fiyat bölümü viewport'un üstüne çıkınca yapışkan CTA'yı göster,
+  // tekrar görünür olunca (veya viewport'un altındayken) gizle
+  useEffect(() => {
+    const el = priceSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) =>
+        setShowStickyCta(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [productData, loading]);
 
   // Bundle state'leri
   const [bundleItems, setBundleItems] = useState<BundleItem[]>(initialData?.items || []);
@@ -1516,7 +1538,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
             {/* Üst Kısım Sonu */}
 
             {/* Price Section - Alt Kısım */}
-            <div className="product-price-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: 'auto' }}>
+            <div ref={priceSectionRef} className="product-price-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: 'auto' }}>
               {(() => {
                 // Fiyat mantığı:
                 // Product modeli: price = güncel fiyat, comparePrice = eski fiyat (indirim varsa)
@@ -2332,7 +2354,9 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                       <div 
                         ref={descriptionRef}
                         style={{ 
-                          maxHeight: (showExpandButton && !descriptionExpanded) ? '400px' : 'none', 
+                          // CLS fix: kapalıyken her zaman 400px (SSR ilk boyama ile
+                          // hydration sonrası aynı olsun; kısa içerikte zaten etkisiz)
+                          maxHeight: descriptionExpanded ? 'none' : '400px', 
                           overflow: 'hidden',
                           position: 'relative',
                           maxWidth: '100%',
@@ -2469,6 +2493,93 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
         </div>
 
       </div>
+
+      {/* YAPIŞKAN CTA - Fiyat bölümü geçilince alttan görünür (mobil + web) */}
+      {(() => {
+        let displayPrice: number;
+        let displayComparePrice: number | null = null;
+
+        if (selectedVariant) {
+          displayPrice = selectedVariant.salePrice ?? selectedVariant.price ?? product.price;
+          if (selectedVariant.salePrice && selectedVariant.price && selectedVariant.price > selectedVariant.salePrice) {
+            displayComparePrice = selectedVariant.price;
+          }
+        } else {
+          displayPrice = product.price;
+          displayComparePrice = product.comparePrice ?? null;
+        }
+
+        const hasDiscount = displayComparePrice != null && displayComparePrice > displayPrice;
+        const hasVariants = product.variants && product.variants.length > 0;
+        const isOutOfStock = hasVariants
+          ? (selectedVariant ? selectedVariant.stock <= 0 : false)
+          : (product.stock ?? 0) <= 0;
+
+        return (
+          <div
+            className={`product-sticky-cta fixed bottom-0 left-0 right-0 z-[90] border-t transition-transform duration-300 ease-out ${
+              showStickyCta ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+            }`}
+            style={{
+              backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
+              borderColor: 'var(--border)',
+              boxShadow: isDark
+                ? '0 -12px 24px -8px rgba(0,0,0,0.6)'
+                : '0 -12px 24px -8px rgba(0,0,0,0.12)',
+              paddingBottom: 'env(safe-area-inset-bottom)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 24px', maxWidth: '1400px', margin: '0 auto' }}>
+              <div style={{ minWidth: 0 }}>
+                {hasDiscount && displayComparePrice != null && (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1, marginBottom: '4px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
+                      {formatPrice(displayComparePrice)} TL
+                    </span>
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: '#10B981' }}>
+                      {formatPrice(displayComparePrice - displayPrice)} TL kazanç
+                    </span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)', lineHeight: 1.2 }}>
+                    {formatPrice(displayPrice)}
+                    <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--foreground-tertiary)', marginLeft: '4px' }}>TL</span>
+                  </span>
+                  <span style={{ fontSize: '10px', color: 'var(--foreground-muted)' }}>KDV Dahil</span>
+                </div>
+              </div>
+              <AddToCartButton
+                product={{
+                  productId: productData?.id || product.id || '',
+                  slug: productData?.slug || slug || '',
+                  title: productData?.name || product.name || '',
+                  brand: productData?.brand || product.brand || '',
+                  price: displayPrice,
+                  originalPrice: displayComparePrice,
+                  image: productData?.thumbnail || productData?.images?.[0] || product.images?.[0] || '',
+                  quantity: quantity,
+                  variant: selectedVariant ? {
+                    id: selectedVariant.id,
+                    name: selectedVariant.name || '',
+                    type: selectedVariant.type || 'size',
+                    value: selectedVariant.value || '',
+                  } : undefined,
+                  // Bundle bilgileri - eğer bundle ise
+                  isBundle: bundleItems.length > 0,
+                  bundleId: bundleItems.length > 0 ? (productData?.id || product.id || '') : undefined,
+                  bundleItemVariants: bundleItemVariantsForCart,
+                }}
+                variant="text"
+                size="sm"
+                className="flex-shrink-0"
+                disabled={isOutOfStock}
+                requiresVariant={hasVariants}
+              />
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
