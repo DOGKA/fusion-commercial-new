@@ -45,34 +45,11 @@ import {
   Ship,
   Wrench,
   Store,
-  Smartphone,
-  Tv,
-  Lightbulb,
-  Fan,
-  Thermometer,
-  Coffee,
-  Router,
-  Monitor,
-  Projector,
-  Speaker,
-  Bed,
-  Wind,
-  Flame,
   Heart,
   UtensilsCrossed,
   Shield,
   Flower2,
   Wheat,
-  Refrigerator,
-  Radio,
-  Radar,
-  Flashlight,
-  Sparkles,
-  Scissors,
-  Stethoscope,
-  CreditCard,
-  Droplets,
-  Cloud,
   Minus,
   LucideIcon
 } from 'lucide-react';
@@ -96,45 +73,6 @@ const SCENARIO_ICONS: Record<string, LucideIcon> = {
   'Shield': Shield,
   'Flower2': Flower2,
   'Wheat': Wheat,
-};
-
-// Icon map for preset ve senaryo cihazları
-const DEVICE_ICONS: Record<string, LucideIcon> = {
-  'laptop': Laptop,
-  'smartphone': Smartphone,
-  'tablet': Smartphone,
-  'led-lamp': Lightbulb,
-  'fan': Fan,
-  'mini-fridge': Thermometer,
-  'fridge': Refrigerator,
-  'cpap': Wind,
-  'drone': Camera,
-  'camera': Camera,
-  'monitor': Monitor,
-  'projector': Projector,
-  'bluetooth-speaker': Speaker,
-  'tv': Tv,
-  'electric-blanket': Bed,
-  'hair-dryer': Wind,
-  'electric-kettle': Flame,
-  'coffee-maker': Coffee,
-  'router': Router,
-  'pump': Droplets,
-  'flashlight': Flashlight,
-  'radio': Radio,
-  'smoke': Cloud,
-  'music': Music,
-  'party-light': Sparkles,
-  'sonar': Radar,
-  'walkie': Radio,
-  'survey': Radar,
-  'pos': CreditCard,
-  'security': Shield,
-  'sensor': Radar,
-  'mower': Scissors,
-  'trimmer': Scissors,
-  'medical': Stethoscope,
-  'wrench': Wrench,
 };
 
 // Step types
@@ -638,13 +576,7 @@ export default function PowerCalculator() {
                         : 'border-border bg-surface-secondary hover:bg-background-hover hover:border-border-hover'
                     }`}
                   >
-                    <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 transition-all ${
-                      isSelected
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500/20'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
+                    <Icon className="w-5 h-5 shrink-0 text-emerald-500 transition-colors" />
 
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-foreground truncate">
@@ -686,9 +618,7 @@ export default function PowerCalculator() {
             <div className="animate-fade-in">
               {/* Başlık */}
               <div className="flex items-start gap-3 mb-5 sm:mb-6">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                  <ScenarioIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
+                <ScenarioIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 shrink-0 mt-1" />
                 <div className="flex-1 min-w-0">
                   <h2 className="text-lg sm:text-2xl font-bold text-foreground leading-tight">
                     {scenario?.name || 'Cihazlar'}
@@ -702,17 +632,12 @@ export default function PowerCalculator() {
               {/* Cihaz kartları - mobil & desktop ortak tek sütun liste */}
               <div className="space-y-2.5 sm:space-y-3">
                 {devices.map((device) => {
-                  const Icon = (device.iconKey && DEVICE_ICONS[device.iconKey]) || Zap;
                   return (
                     <div
                       key={device.id}
                       className="pc-device-card relative rounded-xl border border-border bg-surface-secondary hover:border-border-hover transition-colors p-3 sm:p-4"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="pc-device-icon w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                          <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </div>
-
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-2.5">
                             <div className="min-w-0 flex-1">
@@ -726,7 +651,7 @@ export default function PowerCalculator() {
                             <button
                               onClick={() => handleRemoveDevice(device.id)}
                               aria-label="Cihazı sil"
-                              className="pc-delete-btn shrink-0 w-8 h-8 rounded-lg border border-border bg-background-secondary text-foreground-muted hover:text-red-500 hover:border-red-500/40 hover:bg-red-500/5 transition-colors flex items-center justify-center"
+                              className="pc-delete-btn shrink-0 w-8 h-8 text-foreground-muted hover:text-red-500 transition-colors flex items-center justify-center"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -981,8 +906,8 @@ export default function PowerCalculator() {
                         {mode.badge}
                       </div>
                     )}
-                    <div className={`w-10 h-10 mx-auto rounded-lg flex items-center justify-center mb-2 transition-all ${
-                      isSelected ? 'bg-emerald-500 text-white' : 'bg-glass-bg text-foreground-secondary group-hover:bg-foreground/20 dark:group-hover:bg-white/20'
+                    <div className={`mx-auto flex items-center justify-center mb-2 transition-colors ${
+                      isSelected ? 'text-emerald-500' : 'text-foreground-secondary group-hover:text-foreground'
                     }`}>
                       <Icon size={20} />
                     </div>
@@ -1360,9 +1285,7 @@ export default function PowerCalculator() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-surface-overlay border border-border">
-                    <div className="w-[60px] h-[60px] rounded-xl bg-background-secondary flex items-center justify-center shrink-0">
-                      <Sun className="w-6 h-6 opacity-30" />
-                    </div>
+                    <Sun className="w-6 h-6 opacity-30 shrink-0" />
                     <p className="text-xs text-foreground-muted">
                       {chargeMode === 'grid-only' || chargeMode === 'no-charge' ? 'Bu şarj modu için solar panel önerilmiyor.' : 'Uygun solar panel bulunamadı.'}
                     </p>
