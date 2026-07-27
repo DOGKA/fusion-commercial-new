@@ -286,6 +286,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
   // Mobil yapışkan CTA: fiyat bölümü yukarı kaydırılıp görünümden çıkınca göster
   const priceSectionRef = useRef<HTMLDivElement>(null);
   const [showStickyCta, setShowStickyCta] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   // Sibling bundles (prev/next in same category)
   const [siblingProducts, setSiblingProducts] = useState<{
@@ -328,6 +329,21 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
     observer.observe(el);
     return () => observer.disconnect();
   }, [productData, loading]);
+
+  // Sabit CTA'nın footer içeriğini kapatmasını önle
+  useEffect(() => {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsFooterVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  const shouldShowStickyCta = showStickyCta && !isFooterVisible;
 
   // Bundle state'leri
   const [bundleItems, setBundleItems] = useState<BundleItem[]>(initialData?.items || []);
@@ -2541,7 +2557,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
             {/* Mobil: alttan tam genişlik bar */}
             <div
               className={`product-sticky-cta md:hidden fixed bottom-0 left-0 right-0 z-[90] border-t transition-transform duration-300 ease-out ${
-                showStickyCta ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+                shouldShowStickyCta ? 'translate-y-0' : 'translate-y-full pointer-events-none'
               }`}
               style={{
                 backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
@@ -2586,7 +2602,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
             {/* Web: ortalanmış yüzen glass pill */}
             <div
               className={`hidden md:block fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-1rem)] max-w-[600px] -translate-x-1/2 transition-all duration-300 ease-out ${
-                showStickyCta ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'
+                shouldShowStickyCta ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'
               }`}
             >
               <div className="flex items-center gap-3 md:gap-5 border border-[var(--glass-border)] bg-[var(--surface)] px-4 py-3 md:px-6 md:py-4 shadow-xl backdrop-blur-xl" style={{ borderRadius: 20 }}>

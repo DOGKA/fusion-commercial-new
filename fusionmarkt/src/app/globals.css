@@ -1771,3 +1771,21 @@ header.header-slider-light .header-dropdown a:hover {
   line-height: 1;
   font-weight: 600;
 }
+
+/* Cihaz kartı Wh değeri - her değişimde hafif büyüyüp küçülür */
+@keyframes pc-wh-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.power-calculator-page .pc-wh-pop {
+  display: inline-block;
+  animation: pc-wh-pop 0.35s ease-out;
+}

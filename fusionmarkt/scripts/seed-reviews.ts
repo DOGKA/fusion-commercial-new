@@ -76,11 +76,11 @@ function genEmail(name: string): string {
   return `${local}@${domain}`;
 }
 
-/** Yorum tarihini üretir: daysAgo gün önce, gün içinde makul bir saat */
+/** Yorum tarihini üretir: date verilmişse o gün, yoksa daysAgo gün önce; gün içinde makul bir saat */
 function reviewDate(review: SeedReview): Date {
   const h = hash(review.name + review.comment);
-  const d = new Date();
-  d.setDate(d.getDate() - review.daysAgo);
+  const d = review.date ? new Date(`${review.date}T12:00:00+03:00`) : new Date();
+  if (!review.date) d.setDate(d.getDate() - (review.daysAgo ?? 0));
   d.setHours(9 + (h % 14), h % 60, (h * 7) % 60, 0); // 09:00 - 22:59 arası
   return d;
 }

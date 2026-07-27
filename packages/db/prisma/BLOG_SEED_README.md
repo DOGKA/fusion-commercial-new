@@ -1,6 +1,6 @@
 # Blog Seed Çalıştırma Talimatları
 
-10 adet SEO odaklı Türkçe blog yazısı, 2'şerli 5 seed dosyasına bölünmüştür. Her seed bağımsız çalışır; tekrar çalıştırılırsa içerik `upsert` ile güncellenir (mevcut kayıtlar silinmez, içerik ve meta güncellenir).
+20 adet SEO odaklı Türkçe blog yazısı, 2'şerli 10 seed dosyasına bölünmüştür. Her seed bağımsız çalışır; tekrar çalıştırılırsa içerik `upsert` ile güncellenir (mevcut kayıtlar silinmez, içerik ve meta güncellenir).
 
 ## Ürün Referansı
 
@@ -17,6 +17,11 @@ Blog yazıları yazılırken kullanılan otoriter ürün verileri:
 | 03 | `seed-blog-03.ts` | Karavan İçin Power Station mı Solar Paket mi? | Power Station Nedir? Jeneratörden Farkı Nedir? |
 | 04 | `seed-blog-04.ts` | UPS mi Power Station mı? | Elektrik Kesintisinde Hangi Cihaz İçin Kaç Wh Gerekir? |
 | 05 | `seed-blog-05.ts` | Power Station ile Klima Çalışır mı? | Sessiz Jeneratör Alternatifi: Power Station Rehberi |
+| 06 | `seed-blog-06.ts` | Monokristal, Polikristal ve Esnek Panel Farkı | Türkiye'de Güneş Paneli Günde Kaç Saat Üretir? |
+| 07 | `seed-blog-07.ts` | Balkonda Güneş Paneli | Üç Zamanlı Tarife ile Power Station |
+| 08 | `seed-blog-08.ts` | Gerçek Kullanılabilir Kapasite | 4000 Döngü Ne Demek? |
+| 09 | `seed-blog-09.ts` | Jackery, EcoFlow, Bluetti, Anker ve IEETek | Lityum Batarya Yangın Riski |
+| 10 | `seed-blog-10.ts` | Hibrit İnvertör ve ATS | Solar Kablo ve Konnektör Rehberi |
 
 ## Çalıştırma
 
@@ -29,13 +34,18 @@ npx tsx prisma/seed-blog-02.ts
 npx tsx prisma/seed-blog-03.ts
 npx tsx prisma/seed-blog-04.ts
 npx tsx prisma/seed-blog-05.ts
+npx tsx prisma/seed-blog-06.ts
+npx tsx prisma/seed-blog-07.ts
+npx tsx prisma/seed-blog-08.ts
+npx tsx prisma/seed-blog-09.ts
+npx tsx prisma/seed-blog-10.ts
 ```
 
 ### Hepsi Sırayla
 
 ```bash
 cd packages/db
-for i in 01 02 03 04 05; do npx tsx prisma/seed-blog-$i.ts; done
+for i in 01 02 03 04 05 06 07 08 09 10; do npx tsx prisma/seed-blog-$i.ts; done
 ```
 
 ### Server'da (Production)
@@ -70,6 +80,16 @@ DATABASE_URL="postgresql://..." npx tsx prisma/seed-blog-01.ts
 /blog/elektrik-kesintisinde-kac-wh-gerekir
 /blog/power-station-ile-klima-calisir-mi
 /blog/sessiz-jenerator-alternatifi-power-station
+/blog/gunes-paneli-monokristal-polikristal-esnek-fark
+/blog/turkiye-il-il-gunes-paneli-verimli-gunes-saati
+/blog/balkonda-gunes-paneli-apartman-solar-kurulum
+/blog/uc-zamanli-tarife-power-station-elektrik-tasarrufu
+/blog/gercek-kullanilabilir-kapasite-wh-verim-kayiplari
+/blog/4000-dongu-ne-demek-power-station-kac-yil-dayanir
+/blog/jackery-ecoflow-bluetti-anker-ieetek-karsilastirma
+/blog/lityum-batarya-yangin-riski-lifepo4-guvenlik
+/blog/hibrit-invertor-ats-nedir-ev-panosu-baglanti
+/blog/solar-kablo-konnektor-mc4-xt60-anderson-kesit-hesabi
 ```
 
 ## İç Linkler (Blog Yazılarında Kullanılan URL'ler)
@@ -82,5 +102,14 @@ Seed yazılırken kullanılan tüm iç linkler mevcut rotalara işaret eder:
 - Araç: `/guc-hesaplayici`
 - Blog cross-link'ler (aynı seed paketi içinde birbirine atıfta bulunur)
 - `/iletisim`, `/magaza`
+- Dış kaynaklar: GEPA, MGM, PVGIS, EPDK, IEC, UL, IATA, NFPA ve ABD Enerji Bakanlığı gibi otorite kaynakları
+
+## Yeni Yazı Standardı (06–10)
+
+- Medium benzeri doğal akış ve kısa paragraflar
+- Jenerik `Sonuç` başlığı kullanılmaz; son bölüm konuya özgü başlıkla doğal CTA'ya bağlanır
+- Her yazıda ilgili ürün, kategori, araç ve diğer bloglara iç linkler bulunur
+- Her yazıda en az bir güvenilir dış kaynak bulunur
+- İçerik Türkçe HTML olarak saklanır; tablo, liste, hızlı cevap kutusu ve SSS kullanılabilir
 
 Yeni bir ürün sayfası veya kategori slug'u değişirse ilgili `content` string'lerini güncelleyip seed'i yeniden çalıştırın — `upsert` mevcut yazıları yeniler.

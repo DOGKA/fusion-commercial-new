@@ -500,10 +500,10 @@ export default function PowerCalculator() {
   };
 
   return (
-    <div className="power-calculator-page max-w-5xl mx-auto px-4 py-8">
+    <div className="power-calculator-page max-w-5xl mx-auto px-4 py-8 max-md:pb-28">
       {/* Step Indicator - Simple Minimal */}
-      <div className="flex items-center justify-center mb-10">
-        <div className="inline-flex items-center gap-2">
+      <div className="flex items-center justify-center mb-6 lg:mb-10">
+        <div className="inline-flex items-center gap-1 sm:gap-2">
           {steps.map((step, idx) => {
             const Icon = step.icon;
             const isActive = step.id === currentStep;
@@ -515,9 +515,9 @@ export default function PowerCalculator() {
                 <button
                   onClick={() => isClickable && setCurrentStep(step.id)}
                   disabled={!isClickable}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+                  className={`flex flex-col lg:flex-row items-center gap-0.5 lg:gap-2 px-2.5 sm:px-4 py-1.5 lg:py-2.5 transition-all duration-300 ${
                     isActive 
-                      ? 'bg-emerald-500/20 text-emerald-400' 
+                      ? 'text-emerald-400' 
                       : isCompleted 
                         ? 'text-emerald-400 hover:text-emerald-300' 
                         : isClickable
@@ -530,14 +530,14 @@ export default function PowerCalculator() {
                   }`}>
                     <Icon size={16} />
                   </div>
-                  <span className={`text-sm font-medium hidden lg:block transition-colors ${
+                  <span className={`text-[10px] lg:text-sm font-medium transition-colors ${
                     isActive || isCompleted ? 'text-emerald-400' : 'text-foreground'
                   }`}>
                     {step.label}
                   </span>
                 </button>
                 {idx < steps.length - 1 && (
-                  <div className={`w-8 h-px hidden sm:block ${
+                  <div className={`w-3 sm:w-8 h-px ${
                     idx < currentStepIndex ? 'bg-emerald-500' : 'bg-foreground/20'
                   }`} />
                 )}
@@ -548,7 +548,7 @@ export default function PowerCalculator() {
       </div>
 
       {/* Step Content - Glassmorphism Card */}
-      <div className="relative p-6 md:p-8 rounded-3xl bg-surface-secondary border border-border backdrop-blur-xl shadow-2xl">
+      <div className="relative p-4 sm:p-6 md:p-8 rounded-3xl bg-surface-secondary border border-border backdrop-blur-xl shadow-2xl">
         {/* STEP 1: Senaryo Seçimi + Hızlı Cihaz Ekleme */}
         {currentStep === 'scenario' && (
           <div className="animate-fade-in">
@@ -570,7 +570,7 @@ export default function PowerCalculator() {
                   <button
                     key={scenario.id}
                     onClick={() => handleScenarioSelect(scenario.id)}
-                    className={`group relative flex items-center gap-3 p-3 md:p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 text-left ${
+                    className={`group relative flex items-center gap-3 p-3 md:p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 text-left active:scale-[0.98] ${
                       isSelected
                         ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)]'
                         : 'border-border bg-surface-secondary hover:bg-background-hover hover:border-border-hover'
@@ -591,7 +591,7 @@ export default function PowerCalculator() {
 
                     {scenario.dailyEnergy > 0 && (
                       <span className={`shrink-0 text-xs font-semibold px-2 py-1 rounded-md ${
-                        isSelected ? 'bg-emerald-500/20 text-emerald-500' : 'bg-background-secondary text-foreground-muted'
+                        isSelected ? 'text-emerald-500' : 'bg-background-secondary text-foreground-muted'
                       }`}>
                         {scenario.dailyEnergy}Wh
                       </span>
@@ -613,20 +613,16 @@ export default function PowerCalculator() {
         {/* STEP 2a: Senaryo Cihaz Detayları (Hazır senaryo seçildiğinde) */}
         {currentStep === 'devices' && (() => {
           const scenario = selectedScenario ? getScenarioById(selectedScenario) : null;
-          const ScenarioIcon = scenario ? (SCENARIO_ICONS[scenario.icon] || Zap) : Zap;
           return (
             <div className="animate-fade-in">
               {/* Başlık */}
-              <div className="flex items-start gap-3 mb-5 sm:mb-6">
-                <ScenarioIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 shrink-0 mt-1" />
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg sm:text-2xl font-bold text-foreground leading-tight">
-                    {scenario?.name || 'Cihazlar'}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-foreground-secondary mt-0.5">
-                    Tipik cihazları gösteriyoruz. Güç, saat ve adet alanlarına tıklayarak kendi değerlerinize göre düzenleyin.
-                  </p>
-                </div>
+              <div className="text-center mb-5 sm:mb-6">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground leading-tight">
+                  {scenario?.name || 'Cihazlar'}
+                </h2>
+                <p className="text-xs sm:text-sm text-foreground-secondary mt-0.5">
+                  Tipik cihazları gösteriyoruz. Güç, saat ve adet alanlarına tıklayarak kendi değerlerinize göre düzenleyin.
+                </p>
               </div>
 
               {/* Cihaz kartları - mobil & desktop ortak tek sütun liste */}
@@ -639,13 +635,19 @@ export default function PowerCalculator() {
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-2.5">
-                            <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
+                            <div className="min-w-0 flex-1 flex items-baseline gap-1.5">
                               <div className="text-sm sm:text-[15px] font-semibold text-foreground leading-tight truncate">
                                 {device.name}
                               </div>
-                              <div className="text-[11px] sm:text-xs text-foreground-muted mt-0.5 tabular-nums">
-                                {Math.round(device.dailyEnergy)} Wh/gün
+                              <div className="shrink-0 text-[11px] sm:text-xs text-foreground-muted tabular-nums">
+                                <span
+                                  key={Math.round(device.dailyEnergy)}
+                                  className="pc-wh-pop font-bold text-emerald-500"
+                                >
+                                  {Math.round(device.dailyEnergy)}
+                                </span>
+                                {' '}Wh/gün
                               </div>
                             </div>
                             <button
@@ -657,10 +659,10 @@ export default function PowerCalculator() {
                             </button>
                           </div>
 
-                          {/* Düzenlenebilir alanlar - 3'lü grid */}
-                          <div className="pc-device-grid grid grid-cols-3 gap-2">
-                            <label className="block">
-                              <span className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold mb-1">
+                          {/* Düzenlenebilir alanlar - her input kendi çerçevesine sahip */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <label className="flex flex-col items-center gap-1 cursor-text">
+                              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-foreground-muted font-semibold">
                                 Güç (W)
                               </span>
                               <input
@@ -668,11 +670,11 @@ export default function PowerCalculator() {
                                 min={0}
                                 value={device.power || ''}
                                 onChange={(e) => handleUpdateDeviceField(device.id, 'power', Number(e.target.value) || 0)}
-                                className="pc-device-input w-full px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-background-secondary border border-border focus:border-emerald-500/50 text-sm font-semibold text-foreground outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="pc-device-input w-full border border-border bg-background-secondary text-center text-sm sm:text-base font-bold text-foreground outline-none tabular-nums transition-colors focus:border-emerald-500 focus:bg-emerald-500/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </label>
-                            <label className="block">
-                              <span className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold mb-1">
+                            <label className="flex flex-col items-center gap-1 cursor-text">
+                              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-foreground-muted font-semibold">
                                 Saat/Gün
                               </span>
                               <input
@@ -681,19 +683,19 @@ export default function PowerCalculator() {
                                 min={0}
                                 value={device.hoursPerDay || ''}
                                 onChange={(e) => handleUpdateDeviceField(device.id, 'hoursPerDay', Number(e.target.value) || 0)}
-                                className="pc-device-input w-full px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-background-secondary border border-border focus:border-emerald-500/50 text-sm font-semibold text-foreground outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="pc-device-input w-full border border-border bg-background-secondary text-center text-sm sm:text-base font-bold text-foreground outline-none tabular-nums transition-colors focus:border-emerald-500 focus:bg-emerald-500/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </label>
-                            <label className="block">
-                              <span className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold mb-1">
+                            <div className="flex flex-col items-center gap-1">
+                              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-foreground-muted font-semibold">
                                 Adet
                               </span>
-                              <div className="pc-qty-wrap flex items-center gap-1">
+                              <div className="flex items-center justify-center gap-0.5 w-full h-[var(--pc-control-height)] rounded-[var(--pc-control-radius)] border border-border bg-background-secondary px-0.5 transition-colors focus-within:border-emerald-500 focus-within:bg-emerald-500/5">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateDeviceField(device.id, 'quantity', Math.max(1, device.quantity - 1))}
                                   aria-label="Adet azalt"
-                                  className="pc-stepper-btn shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-background-secondary border border-border text-foreground-muted hover:text-foreground flex items-center justify-center"
+                                  className="shrink-0 w-6 h-6 rounded-full text-foreground-muted hover:text-foreground hover:bg-background-hover active:scale-95 transition flex items-center justify-center"
                                 >
                                   <Minus size={12} />
                                 </button>
@@ -702,18 +704,18 @@ export default function PowerCalculator() {
                                   min={1}
                                   value={device.quantity || 1}
                                   onChange={(e) => handleUpdateDeviceField(device.id, 'quantity', Number(e.target.value) || 1)}
-                                  className="pc-qty-input w-full min-w-0 px-1 py-1.5 sm:py-2 rounded-md bg-background-secondary border border-border focus:border-emerald-500/50 text-center text-sm font-semibold text-foreground outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  className="w-8 min-w-0 bg-transparent text-center text-sm sm:text-base font-bold text-foreground outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateDeviceField(device.id, 'quantity', device.quantity + 1)}
                                   aria-label="Adet arttır"
-                                  className="pc-stepper-btn shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-background-secondary border border-border text-foreground-muted hover:text-foreground flex items-center justify-center"
+                                  className="shrink-0 w-6 h-6 rounded-full text-emerald-500 hover:bg-emerald-500/10 active:scale-95 transition flex items-center justify-center"
                                 >
                                   <Plus size={12} />
                                 </button>
                               </div>
-                            </label>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -895,7 +897,7 @@ export default function PowerCalculator() {
                   <button
                     key={mode.id}
                     onClick={() => setChargeMode(mode.id as ChargeMode)}
-                    className={`group relative p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 text-center ${
+                    className={`group relative p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 text-center active:scale-[0.98] ${
                       isSelected
                         ? 'border-emerald-500 bg-emerald-500/10'
                         : 'border-border bg-surface-secondary hover:bg-background-hover hover:border-border-hover'
@@ -1015,7 +1017,7 @@ export default function PowerCalculator() {
                   <Leaf size={14} className="text-emerald-400" />
                   Taşınabilirlik
                 </div>
-                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-3 rounded-xl bg-foreground/5 p-1">
                   {[
                     { id: 'auto', label: 'Otomatik' },
                     { id: 'compact', label: 'Kompakt' },
@@ -1026,10 +1028,10 @@ export default function PowerCalculator() {
                       <button
                         key={opt.id}
                         onClick={() => setPortability(opt.id as PortabilityPriority)}
-                        className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium transition-all ${
+                        className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all active:scale-[0.97] ${
                           isSelected
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-surface-secondary text-foreground-muted hover:bg-background-hover hover:text-foreground'
+                            ? 'bg-emerald-500 text-white shadow-sm'
+                            : 'text-foreground-muted hover:text-foreground'
                         }`}
                       >
                         {opt.label}
@@ -1046,7 +1048,7 @@ export default function PowerCalculator() {
                     <Zap size={14} className="text-amber-400" />
                     Şarj Hızı
                   </div>
-                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                  <div className="grid grid-cols-3 rounded-xl bg-foreground/5 p-1">
                     {[
                       { id: 'economic', label: 'Ekonomik' },
                       { id: 'balanced', label: 'Dengeli' },
@@ -1057,10 +1059,10 @@ export default function PowerCalculator() {
                         <button
                           key={opt.id}
                           onClick={() => setChargeSpeed(opt.id as ChargeSpeedPreference)}
-                          className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium transition-all ${
+                          className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all active:scale-[0.97] ${
                             isSelected
-                              ? 'bg-amber-500 text-white'
-                              : 'bg-surface-secondary text-foreground-muted hover:bg-background-hover hover:text-foreground'
+                              ? 'bg-amber-500 text-white shadow-sm'
+                              : 'text-foreground-muted hover:text-foreground'
                           }`}
                         >
                           {opt.label}
@@ -1112,22 +1114,24 @@ export default function PowerCalculator() {
                       </div>
 
                       <div className="flex-1 min-w-0 flex flex-col py-0.5 sm:py-1">
-                        <div className="flex-1 flex flex-col justify-center gap-1.5 sm:gap-1.5 lg:gap-2 my-1.5 sm:my-2 lg:my-3">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Kapasite</span>
-                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.capacity} Wh</span>
-                          </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Çıkış</span>
-                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.outputPower} W</span>
-                          </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Tepe</span>
-                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.station.surgePower} W</span>
-                          </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Süre</span>
-                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.runtimeHours ? formatHours(result.powerStation.runtimeHours, 'tr') : '-'}</span>
+                        <div className="flex-1 flex flex-col justify-center my-1.5 sm:my-2 lg:my-3">
+                          <div className="divide-y divide-border">
+                            <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                              <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Kapasite</span>
+                              <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.capacity} Wh</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                              <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Çıkış</span>
+                              <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.outputPower} W</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                              <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Tepe</span>
+                              <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.station.surgePower} W</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                              <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Süre</span>
+                              <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.powerStation.runtimeHours ? formatHours(result.powerStation.runtimeHours, 'tr') : '-'}</span>
+                            </div>
                           </div>
                         </div>
 
@@ -1157,7 +1161,7 @@ export default function PowerCalculator() {
                               stationAddedTimeoutRef.current = window.setTimeout(() => setStationAdded(false), 1200);
                             }
                           }}
-                          className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
+                          className={`pc-cta-btn w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
                             stationStockOut
                               ? 'bg-amber-500/10 border border-amber-500/55 text-foreground cursor-not-allowed'
                               : stationAdded
@@ -1215,22 +1219,24 @@ export default function PowerCalculator() {
                     </div>
 
                     <div className="flex-1 min-w-0 flex flex-col py-0.5 sm:py-1">
-                      <div className="flex-1 flex flex-col justify-center gap-1.5 sm:gap-1.5 lg:gap-2 my-1.5 sm:my-2 lg:my-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Güç</span>
-                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.totalWattage} W</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Üretim</span>
-                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.dailyProduction} Wh</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Şarj</span>
-                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.chargeHours ? formatHours(result.solarPanel.chargeHours, 'tr') : '-'}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Panel</span>
-                          <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.panelCount}×{result.solarPanel.singlePanelWattage}W</span>
+                      <div className="flex-1 flex flex-col justify-center my-1.5 sm:my-2 lg:my-3">
+                        <div className="divide-y divide-border">
+                          <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Güç</span>
+                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.totalWattage} W</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Üretim</span>
+                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.dailyProduction} Wh</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Şarj</span>
+                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.chargeHours ? formatHours(result.solarPanel.chargeHours, 'tr') : '-'}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                            <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Panel</span>
+                            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{result.solarPanel.panelCount}×{result.solarPanel.singlePanelWattage}W</span>
+                          </div>
                         </div>
                       </div>
 
@@ -1261,7 +1267,7 @@ export default function PowerCalculator() {
                             panelAddedTimeoutRef.current = window.setTimeout(() => setPanelAdded(false), 1200);
                           }
                         }}
-                        className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
+                        className={`pc-cta-btn w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
                           panelStockOut
                             ? 'bg-amber-500/10 border border-amber-500/55 text-foreground cursor-not-allowed'
                             : panelAdded
@@ -1354,27 +1360,29 @@ export default function PowerCalculator() {
                             </div>
 
                             <div className="flex-1 min-w-0 flex flex-col py-0.5 sm:py-1">
-                              <div className="flex-1 flex flex-col justify-center gap-1.5 sm:gap-1.5 lg:gap-2 my-1.5 sm:my-2 lg:my-3">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">İçerik</span>
-                                  <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{bundle.itemCount} ürün</span>
+                              <div className="flex-1 flex flex-col justify-center my-1.5 sm:my-2 lg:my-3">
+                                <div className="divide-y divide-border">
+                                  <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                                    <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">İçerik</span>
+                                    <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{bundle.itemCount} ürün</span>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                                    <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Paket Fiyatı</span>
+                                    <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{formatPrice(bundle.price)}</span>
+                                  </div>
+                                  {bundle.totalValue > bundle.price && (
+                                    <>
+                                      <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                                        <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Tek Tek Alım</span>
+                                        <span className="text-[11px] sm:text-xs lg:text-sm font-semibold text-foreground-muted tabular-nums line-through">{formatPrice(bundle.totalValue)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between gap-2 py-1.5 lg:py-2">
+                                        <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Kazanç</span>
+                                        <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-emerald-500 tabular-nums">{formatPrice(bundle.savings)}</span>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Paket Fiyatı</span>
-                                  <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-foreground tabular-nums">{formatPrice(bundle.price)}</span>
-                                </div>
-                                {bundle.totalValue > bundle.price && (
-                                  <>
-                                    <div className="flex items-center justify-between gap-2">
-                                      <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Tek Tek Alım</span>
-                                      <span className="text-[11px] sm:text-xs lg:text-sm font-semibold text-foreground-muted tabular-nums line-through">{formatPrice(bundle.totalValue)}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-2">
-                                      <span className="text-[10px] sm:text-[10px] lg:text-[11px] uppercase tracking-wider text-foreground-muted font-semibold">Kazanç</span>
-                                      <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-emerald-500 tabular-nums">{formatPrice(bundle.savings)}</span>
-                                    </div>
-                                  </>
-                                )}
                               </div>
 
                               <button
@@ -1396,7 +1404,7 @@ export default function PowerCalculator() {
                                 }}
                                 disabled={bundle.stock <= 0}
                                 title={bundle.stock <= 0 ? 'Yakında stoklarda' : undefined}
-                                className={`w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
+                                className={`pc-cta-btn w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
                                   bundle.stock <= 0
                                     ? 'bg-amber-500/10 border border-amber-500/55 text-foreground cursor-not-allowed'
                                     : 'bg-glass-bg hover:bg-glass-bg-hover border border-glass-border text-foreground'
@@ -1421,12 +1429,12 @@ export default function PowerCalculator() {
         )}
       </div>
 
-      {/* Navigation Buttons - Modern Style */}
-      <div className="flex justify-between mt-8">
+      {/* Navigation Buttons - Modern Style (mobilde alta sabit) */}
+      <div className="flex justify-between gap-3 mt-8 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:z-40 max-md:mt-0 max-md:px-4 max-md:py-3 max-md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] max-md:bg-[var(--background)] max-md:border-t max-md:border-border max-md:shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.25)]">
         {currentStep !== 'scenario' ? (
           <button
             onClick={goPrev}
-            className="pc-nav-button px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
+            className="pc-nav-button px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300 max-md:flex-none"
           >
             Geri
           </button>
@@ -1438,9 +1446,9 @@ export default function PowerCalculator() {
           <button
             onClick={goNext}
             disabled={!canGoNext}
-            className={`pc-nav-button px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all duration-300 ${
+            className={`pc-nav-button px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all duration-300 max-md:flex-1 ${
               canGoNext
-                ? 'bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground'
+                ? 'bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground max-md:bg-emerald-500 max-md:border-emerald-500 max-md:text-white max-md:active:bg-emerald-600'
                 : 'bg-glass-bg text-foreground-muted cursor-not-allowed border border-transparent'
             }`}
           >
@@ -1451,7 +1459,7 @@ export default function PowerCalculator() {
         {currentStep === 'results' && (
           <button
             onClick={handleReset}
-            className="pc-nav-button px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300"
+            className="pc-nav-button px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl bg-surface-secondary border border-border text-foreground-secondary hover:bg-background-hover hover:text-foreground transition-all duration-300 max-md:flex-1"
           >
             Yeniden Başla
           </button>

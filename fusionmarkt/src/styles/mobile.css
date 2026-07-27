@@ -2400,7 +2400,7 @@
 /* Politika Sayfaları - Özel Düzenlemeler */
 @media (max-width: 1023px) {
   /* Alert/Warning box'lar - küçük badge/chip'leri muaf tut */
-  [class*="bg-"][class*="/10"][class*="border"]:not(.pc-result-badge):not([class*="rounded-full"]):not([class*="inline-flex"]) {
+  [class*="bg-"][class*="/10"][class*="border"]:not(.pc-result-badge):not(.pc-cta-btn):not([class*="rounded-full"]):not([class*="inline-flex"]) {
     padding: 0.875rem !important;
   }
   

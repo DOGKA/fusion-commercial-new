@@ -8,6 +8,7 @@
  * masked: true  -> sitede "A*** K***" şeklinde görünür
  * masked: false -> sitede ad soyad açık görünür
  * daysAgo: yorumun kaç gün önce yazılmış görüneceği
+ * date: sabit tarih (YYYY-MM-DD). Verilirse daysAgo yok sayılır.
  */
 
 export type SeedReview = {
@@ -16,7 +17,8 @@ export type SeedReview = {
   rating: 4 | 5;
   title?: string;
   comment: string;
-  daysAgo: number;
+  daysAgo?: number;
+  date?: string; // "2026-03-14" gibi sabit tarih
 };
 
 export type SeedTarget = {
@@ -372,9 +374,8 @@ export const SEED_TARGETS: SeedTarget[] = [
         name: "Meltem Acar",
         masked: true,
         rating: 4,
-        title: "güçlü ama hantal",
         comment:
-          "gücü tartışılmaz, evin ihtiyacını görüyor. 4 yıldızımın tek sebebi taşımasının zor olması, iki kişi lazım. sabit kullanacaksanız hiç düşünmeyin",
+          "kesintide evi rahat döndürüyor. tekerlekleri olduğu için taşıması da dert değil, odadan odaya çekip götürüyorum. memnunuz",
         daysAgo: 50,
       },
       {
@@ -755,7 +756,7 @@ export const SEED_TARGETS: SeedTarget[] = [
         masked: true,
         rating: 4,
         comment:
-          "sistem sağlam, kurulumu kolay. tek dezavantajı toplam ağırlık, sabit kurulum düşünün derim. mobil kullanım için küçük paketler daha mantıklı",
+          "panel istasyonla uyumlu geliyor, kurulum 10 dakika sürmedi. bağ evinde kullanıyoruz, memnunuz",
         daysAgo: 43,
       },
       {
@@ -848,6 +849,809 @@ export const SEED_TARGETS: SeedTarget[] = [
         comment:
           "işyerim için aldım, soğuk hava dolabı kesintide bozulmasın diye. iki kesinti atlattık, dolap fark etmedi bile. yatırımın karşılığı bu",
         daysAgo: 9,
+      },
+    ],
+  },
+
+  // ════════════════════════════════════════════════════════════
+  // EK YORUMLAR (Aralık 2025 - Temmuz 2026)
+  // ════════════════════════════════════════════════════════════
+
+  // ============================================================
+  // P800 — ek 5 yorum
+  // ============================================================
+  {
+    label: "P800 (ek)",
+    type: "product",
+    keywords: ["p800", "p-800"],
+    reviews: [
+      {
+        name: "Tarık Sözen",
+        masked: true,
+        rating: 5,
+        comment:
+          "yılbaşında bağ evine götürdük, ışıklar ve telefonlar hep bundan çalıştı. boyutu küçük diye şüpheyle almıştım, fazlasıyla yetti",
+        date: "2025-12-14",
+      },
+      {
+        name: "Seda Yıldırım",
+        masked: false,
+        rating: 5,
+        comment: "süperrr",
+        date: "2026-02-08",
+      },
+      {
+        name: "Mert Karaca",
+        masked: true,
+        rating: 5,
+        comment: "arkadaşımda görüp aldım. kesintide modem çalışsın yeter bana, fazlasını yapıyor",
+        date: "2026-03-19",
+      },
+      {
+        name: "Yıldız Şener",
+        masked: true,
+        rating: 4,
+        comment: "güzel ürün, beklentimi karşıladı",
+        date: "2026-05-30",
+      },
+      {
+        name: "Emirhan Duman",
+        masked: false,
+        rating: 5,
+        comment: "kamp sezonu öncesi aldım, iki hafta sonu kullandım. şarjı uzun gidiyor, memnunum",
+        date: "2026-07-12",
+      },
+    ],
+  },
+
+  // ============================================================
+  // P1800 — ek 5 yorum
+  // ============================================================
+  {
+    label: "P1800 (ek)",
+    type: "product",
+    keywords: ["p1800", "p-1800"],
+    reviews: [
+      {
+        name: "Gökçe Sarıkaya",
+        masked: true,
+        rating: 5,
+        comment:
+          "aralıkta kar yağınca 6 saat elektrik yoktu, kombi ve modem bundan çalıştı. parasını o gece çıkardı bence",
+        date: "2025-12-21",
+      },
+      {
+        name: "Halime Uslu",
+        masked: true,
+        rating: 5,
+        comment: "on numara, eşim çok memnun",
+        date: "2026-01-17",
+      },
+      {
+        name: "Aylin Ceber",
+        masked: false,
+        rating: 4,
+        comment: "ürün güzel, kargo hızlıydı",
+        date: "2026-03-28",
+      },
+      {
+        name: "Daniel Weber",
+        masked: false,
+        rating: 5,
+        comment: "good product. easy to use, charges fast. i use it in my camper van",
+        date: "2026-04-02",
+      },
+      {
+        name: "Serdar Tokgöz",
+        masked: true,
+        rating: 5,
+        comment: "singo ile arada kaldım bunu aldım, çıkış gücü bana yetiyor. uygulaması da pratik",
+        date: "2026-06-06",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Singo 2000 Pro — ek 5 yorum
+  // ============================================================
+  {
+    label: "Singo 2000 Pro (ek)",
+    type: "product",
+    keywords: ["singo2000", "singo-2000", "singo 2000"],
+    reviews: [
+      {
+        name: "Nazlı Gökmen",
+        masked: false,
+        rating: 5,
+        comment: "babama aldık, bağ evinde kullanıyor. memnun",
+        date: "2025-12-05",
+      },
+      {
+        name: "Furkan Delice",
+        masked: true,
+        rating: 5,
+        comment: "kablosuz şarj olayı hoşuma gitti, telefonu üstüne bırakıyorum. gücü zaten yeterli",
+        date: "2026-02-14",
+      },
+      {
+        name: "Sevgi Balaban",
+        masked: false,
+        rating: 4,
+        comment: "kaliteli ürün, tavsiye ederim",
+        date: "2026-04-16",
+      },
+      {
+        name: "Oğuz Kandemir",
+        masked: true,
+        rating: 5,
+        comment: "şantiyede kullanıyorum, sabah tam doluyla çıkıyorum akşama kadar idare ediyor",
+        date: "2026-05-11",
+      },
+      {
+        name: "Melih Arıkan",
+        masked: true,
+        rating: 5,
+        comment: "süper bir alet, iyi ki almışım",
+        date: "2026-07-08",
+      },
+    ],
+  },
+
+  // ============================================================
+  // P3200 — ek 5 yorum
+  // ============================================================
+  {
+    label: "P3200 (ek)",
+    type: "product",
+    keywords: ["p3200", "p-3200"],
+    reviews: [
+      {
+        name: "Necdet Özbek",
+        masked: true,
+        rating: 5,
+        comment:
+          "yılbaşı öncesi geldi, iki kesinti gördük şimdiden. buzdolabı tv modem hepsi çalıştı, ses yok koku yok",
+        date: "2025-12-27",
+      },
+      {
+        name: "Cavit Örnek",
+        masked: true,
+        rating: 5,
+        comment:
+          "tekerlekli olması büyük avantaj, evde istediğim odaya çekip götürüyorum. kesintide kombiyi bile çalıştırdı",
+        date: "2026-01-09",
+      },
+      {
+        name: "İrem Batur",
+        masked: false,
+        rating: 5,
+        comment: "çok memnun kaldık, babamlara da alacağız",
+        date: "2026-03-14",
+      },
+      {
+        name: "Şenol Dinçer",
+        masked: true,
+        rating: 4,
+        comment: "iyi ürün",
+        date: "2026-05-02",
+      },
+      {
+        name: "Nedim Aksakal",
+        masked: true,
+        rating: 5,
+        comment: "gücü yetmez diye korkuyordum, yazın klimayı bile çalıştırdı",
+        date: "2026-06-20",
+      },
+    ],
+  },
+
+  // ============================================================
+  // SH4000 — 6 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "SH4000",
+    type: "product",
+    // "sh4000" tek başına B5120'nin adındaki "SH4000 Uyumlu" ile de eşleşiyor,
+    // o yüzden SH4000'e özgü slug parçaları kullanıldı
+    keywords: ["8000w-max", "bms-sh4000"],
+    reviews: [
+      {
+        name: "Doğan Kervan",
+        masked: true,
+        rating: 5,
+        comment: "jeneratörden kurtulduk, mazot gürültü egzoz hepsi tarih oldu",
+        date: "2025-12-11",
+      },
+      {
+        name: "Kaan Yörük",
+        masked: true,
+        rating: 5,
+        title: "ev için tam çözüm",
+        comment:
+          "ats ile bağladık, elektrik kesilince otomatik devreye giriyor. evdekiler kesintiyi fark etmiyor bile",
+        date: "2026-01-22",
+      },
+      {
+        name: "Rukiye Taşkın",
+        masked: false,
+        rating: 5,
+        comment: "eşim elektrikçi, kurulumunu kendi yaptı. koca ev bundan dönüyor kesintide",
+        date: "2026-03-08",
+      },
+      {
+        name: "Selami Dursun",
+        masked: true,
+        rating: 5,
+        comment: "ip54 olması dış mekan için güven veriyor, bahçedeki depoda duruyor sorunsuz",
+        date: "2026-04-27",
+      },
+      {
+        name: "Ferit Solmaz",
+        masked: true,
+        rating: 4,
+        comment: "cihaz sağlam, gücü fazlasıyla yeterli",
+        date: "2026-06-15",
+      },
+      {
+        name: "Hazal Ergün",
+        masked: false,
+        rating: 5,
+        comment: "iş yerine aldık, soğutucular kesintide durmuyor artık. iyi yatırım",
+        date: "2026-07-19",
+      },
+    ],
+  },
+
+  // ============================================================
+  // B5120 Genişletme Bataryası — 5 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "B5120",
+    type: "product",
+    keywords: ["b5120", "b-5120", "genisletme-batarya"],
+    reviews: [
+      {
+        name: "Veli Okur",
+        masked: true,
+        rating: 5,
+        comment: "kış için almıştık, iyi ki almışız. sistemin nefesi uzadı",
+        date: "2025-12-18",
+      },
+      {
+        name: "Turgut Özsoy",
+        masked: true,
+        rating: 5,
+        comment: "sh4000 e ekledik, kapasite ikiye katlandı. uzun kesintilerde farkı çok belli",
+        date: "2026-02-03",
+      },
+      {
+        name: "Cemre Uçan",
+        masked: true,
+        rating: 4,
+        comment: "beklediğim gibi, sorunsuz çalışıyor",
+        date: "2026-04-09",
+      },
+      {
+        name: "Aysel Mutlu",
+        masked: false,
+        rating: 5,
+        comment: "takması 5 dakika sürdü, kablo bağlantıları hazır geliyor",
+        date: "2026-05-21",
+      },
+      {
+        name: "Bekir Sancak",
+        masked: false,
+        rating: 5,
+        comment: "yazlık için aldım 3 tane aracımı şarj ediyorum",
+        date: "2026-07-05",
+      },
+    ],
+  },
+
+  // ============================================================
+  // SP100 — 5 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "SP100",
+    type: "product",
+    keywords: ["sp100", "sp-100"],
+    reviews: [
+      {
+        name: "Sait Yorulmaz",
+        masked: true,
+        rating: 5,
+        comment: "kışın bile öğlen saatlerinde iş görüyor, yazın tadından yenmez herhalde",
+        date: "2025-12-09",
+      },
+      {
+        name: "Musa Çiftçi",
+        masked: false,
+        rating: 4,
+        comment: "güzel panel, işini yapıyor",
+        date: "2026-01-30",
+      },
+      {
+        name: "Nuri Ekinci",
+        masked: true,
+        rating: 5,
+        comment: "p800 için aldım, güneşli günde rahat dolduruyor. hafif, tek elle taşınıyor",
+        date: "2026-03-23",
+      },
+      {
+        name: "Duygu Karahan",
+        masked: false,
+        rating: 5,
+        comment: "balkonda kullanıyorum, küçük istasyonuma yetiyor",
+        date: "2026-06-02",
+      },
+      {
+        name: "Eda Berk",
+        masked: true,
+        rating: 5,
+        comment: "hafif ve pratik, kampta işimizi gördü",
+        date: "2026-07-16",
+      },
+    ],
+  },
+
+  // ============================================================
+  // SP200 — ek 5 yorum
+  // ============================================================
+  {
+    label: "SP200 (ek)",
+    type: "product",
+    keywords: ["sp200", "sp-200"],
+    reviews: [
+      {
+        name: "Yasin Demirtaş",
+        masked: true,
+        rating: 5,
+        comment: "bungalovda kullanıyorum gayet keyifli iş görüyor",
+        date: "2025-12-30",
+      },
+      {
+        name: "Harun Keskin",
+        masked: true,
+        rating: 5,
+        comment: "ikinci panelim, paralel bağladım şarj süresi yarıya indi",
+        date: "2026-02-26",
+      },
+      {
+        name: "Nesrin Ata",
+        masked: true,
+        rating: 4,
+        comment: "memnunum, tavsiye ederim",
+        date: "2026-04-04",
+      },
+      {
+        name: "Gizem Olgun",
+        masked: false,
+        rating: 5,
+        comment: "kamp için ideal boyut, arabanın bagajında yerini aldı",
+        date: "2026-05-15",
+      },
+      {
+        name: "Anna Schmidt",
+        masked: false,
+        rating: 5,
+        comment: "works great with my power station. good quality, easy to fold",
+        date: "2026-06-28",
+      },
+    ],
+  },
+
+  // ============================================================
+  // SP400 — ek 5 yorum
+  // ============================================================
+  {
+    label: "SP400 (ek)",
+    type: "product",
+    keywords: ["sp400", "sp-400"],
+    reviews: [
+      {
+        name: "Fadime Şeker",
+        masked: true,
+        rating: 5,
+        comment: "eşime hediye almıştım, balığa çıkarken kullanıyor. memnun",
+        date: "2025-12-23",
+      },
+      {
+        name: "Suat Erim",
+        masked: true,
+        rating: 5,
+        comment: "400w gerçekten farkını gösteriyor",
+        date: "2026-01-05",
+      },
+      {
+        name: "Berna Toksöz",
+        masked: false,
+        rating: 5,
+        comment: "bağ evindeki sistemimize ekledik, dolum süresi belirgin kısaldı",
+        date: "2026-03-31",
+      },
+      {
+        name: "Tuncay Bilgin",
+        masked: false,
+        rating: 4,
+        comment: "iyi panel, beklentiyi karşılıyor",
+        date: "2026-05-08",
+      },
+      {
+        name: "Ozan Karayel",
+        masked: true,
+        rating: 5,
+        comment: "okul için aldım, sorunsuz çalışıyor",
+        date: "2026-07-21",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Başlangıç Paketi — ek 5 yorum
+  // ============================================================
+  {
+    label: "Solar Başlangıç Paketi (ek)",
+    type: "bundle",
+    keywords: ["başlangıç", "baslangic"],
+    reviews: [
+      {
+        name: "Ercan Vardar",
+        masked: true,
+        rating: 5,
+        comment: "yeni başlayan için doğru paket, ayrı ayrı almaktan hesaplı geldi",
+        date: "2025-12-13",
+      },
+      {
+        name: "Zafer Kuru",
+        masked: true,
+        rating: 5,
+        comment: "ilk setim, hiç uğraşmadan kurdum. kampta telefon ışık derdi bitti",
+        date: "2026-02-17",
+      },
+      {
+        name: "Hamdi Öge",
+        masked: true,
+        rating: 4,
+        comment: "paket güzel, kargo hızlı geldi",
+        date: "2026-04-22",
+      },
+      {
+        name: "Melis Aydemir",
+        masked: false,
+        rating: 5,
+        comment: "kız kardeşime de aldık aynı setten :) ikimiz de memnunuz",
+        date: "2026-06-12",
+      },
+      {
+        name: "Selin Koparan",
+        masked: false,
+        rating: 5,
+        comment: "tatil için aldık, plajda bile telefonları güneşten şarj ettik",
+        date: "2026-07-09",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Usta Paketi (P800 + SP200) — 5 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "Solar Usta Paketi",
+    type: "bundle",
+    keywords: ["usta"],
+    reviews: [
+      {
+        name: "Adnan Söz",
+        masked: true,
+        rating: 5,
+        comment: "kesintiler için almıştık, panel sayesinde prize bile takmıyoruz",
+        date: "2025-12-06",
+      },
+      {
+        name: "Rıza Bulut",
+        masked: true,
+        rating: 5,
+        comment: "p800 e büyük panel mantıklı, küçük panelle dolum uzun sürüyormuş. bu ikili dengeli",
+        date: "2026-01-26",
+      },
+      {
+        name: "Kerem Ünver",
+        masked: false,
+        rating: 4,
+        comment: "memnunum, sorunsuz set",
+        date: "2026-03-11",
+      },
+      {
+        name: "Şebnem Işıl",
+        masked: false,
+        rating: 5,
+        comment: "güzel ikili, gündüz doluyor akşam kullanıyoruz",
+        date: "2026-05-04",
+      },
+      {
+        name: "Lale Orhan",
+        masked: true,
+        rating: 5,
+        comment: "iyi ki bu paketi seçmişim, 200w panel gerçekten hızlı dolduruyor",
+        date: "2026-06-24",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Performans Paketi (Singo2000PRO + SP200) — 5 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "Solar Performans Paketi",
+    type: "bundle",
+    keywords: ["performans"],
+    reviews: [
+      {
+        name: "Cüneyt Barlas",
+        masked: true,
+        rating: 5,
+        comment: "dükkan için almıştık, kesintide kasa ve internet çalışıyor.",
+        date: "2025-12-19",
+      },
+      {
+        name: "Ercüment Kale",
+        masked: true,
+        rating: 5,
+        comment: "karavan için aldık, singo nun gücü panelin desteğiyle tam olmuş. uzun yolculuklarda rahatız",
+        date: "2026-02-10",
+      },
+      {
+        name: "Peri Somer",
+        masked: true,
+        rating: 5,
+        comment: "set uyumlu, kablolar dahil çıkıyor.",
+        date: "2026-04-13",
+      },
+      {
+        name: "Nazan Ilgaz",
+        masked: false,
+        rating: 5,
+        comment: "eşim araştırdı bu sette karar kıldı, 3 aydır kampta sorunsuz",
+        date: "2026-06-17",
+      },
+      {
+        name: "Umut Karagöz",
+        masked: false,
+        rating: 4,
+        comment: "güzel paket",
+        date: "2026-07-02",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Operatör Paketi — ek 5 yorum
+  // ============================================================
+  {
+    label: "Solar Operatör Paketi (ek)",
+    type: "bundle",
+    keywords: ["operatör", "operator"],
+    reviews: [
+      {
+        name: "Taner Kısa",
+        masked: true,
+        rating: 5,
+        comment: "kış kampında bile panel iş gördü, istasyon zaten sağlam",
+        date: "2025-12-15",
+      },
+      {
+        name: "Bora Sayar",
+        masked: true,
+        rating: 5,
+        comment: "saha işlerinde kullanıyoruz, ekipmanlar gün boyu şarjda. paket fiyatı ayrı almaktan iyi",
+        date: "2026-01-12",
+      },
+      {
+        name: "Salih Ertem",
+        masked: false,
+        rating: 4,
+        comment: "iyi set, tavsiye ederim",
+        date: "2026-03-06",
+      },
+      {
+        name: "Havva Çoban",
+        masked: false,
+        rating: 5,
+        comment: "çiftliğe aldık, 2 aydır sorunsuz kullanıyoruz",
+        date: "2026-05-26",
+      },
+      {
+        name: "Buket Alkan",
+        masked: true,
+        rating: 5,
+        comment: "babam bağda kullanıyor, çok memnun",
+        date: "2026-07-14",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Elite Paketi — ek 5 yorum
+  // ============================================================
+  {
+    label: "Solar Elite Paketi (ek)",
+    type: "bundle",
+    keywords: ["elite", "elit"],
+    reviews: [
+      {
+        name: "Sarp Erez",
+        masked: true,
+        rating: 5,
+        comment: "yılbaşında kurduk, kar kesintisinde evi bu döndürdü",
+        date: "2025-12-28",
+      },
+      {
+        name: "Vedat Sinanoğlu",
+        masked: true,
+        rating: 5,
+        comment: "ev için aldık, kesintide neredeyse her şey çalışıyor. panel dolumu hızlandırıyor",
+        date: "2026-02-22",
+      },
+      {
+        name: "Emine Sözlü",
+        masked: true,
+        rating: 5,
+        comment: "on numara paket",
+        date: "2026-04-30",
+      },
+      {
+        name: "İnci Yaman",
+        masked: false,
+        rating: 5,
+        comment: "fiyatı düşündürdü ama kalitesi belli, pişman değiliz",
+        date: "2026-06-08",
+      },
+      {
+        name: "Cenk Baturalp",
+        masked: false,
+        rating: 4,
+        comment: "kaliteli set, kargo sağlam geldi",
+        date: "2026-07-18",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Veteran Paketi — ek 5 yorum
+  // ============================================================
+  {
+    label: "Solar Veteran Paketi (ek)",
+    type: "bundle",
+    keywords: ["veteran"],
+    reviews: [
+      {
+        name: "Orçun Sever",
+        masked: true,
+        rating: 5,
+        comment: "400w panel bu istasyona tam uyum, kışın bile doldurdu",
+        date: "2025-12-10",
+      },
+      {
+        name: "Nevzat Kılıçarslan",
+        masked: true,
+        rating: 5,
+        comment: "p3200 tekerlekli olduğu için yerleşimi de kolay, panelle beraber bağ evinde tam sistem oldu",
+        date: "2026-01-19",
+      },
+      {
+        name: "Mahir Özden",
+        masked: false,
+        rating: 4,
+        comment: "güzel paket, sorunsuz",
+        date: "2026-03-17",
+      },
+      {
+        name: "Aygül Demirbaş",
+        masked: false,
+        rating: 5,
+        comment: "sallanan beşik ve mama makineleri için aldım, kesinti derdimiz kalmadı",
+        date: "2026-05-19",
+      },
+      {
+        name: "Feyza Kurnaz",
+        masked: true,
+        rating: 5,
+        comment: "çok memnunuz, komşuya da tavsiye ettik o da aldı",
+        date: "2026-07-06",
+      },
+    ],
+  },
+
+  // ============================================================
+  // Solar Titan Paket (SH4000 + 800W Solar) — 5 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "Solar Titan Paket",
+    type: "bundle",
+    keywords: ["titan"],
+    reviews: [
+      {
+        name: "Erol Tanrıverdi",
+        masked: true,
+        rating: 5,
+        comment: "jeneratörü sattık, yerine bu geldi. ne mazot ne gürültü",
+        date: "2025-12-20",
+      },
+      {
+        name: "Şahin Erkoç",
+        masked: true,
+        rating: 5,
+        comment:
+          "evin tamamını taşıyan sistem, 800w panelle dolum da ciddi hızlı. kesintili bölgedeyiz, hayatımız değişti",
+        date: "2026-02-06",
+      },
+      {
+        name: "Sema Akbaş",
+        masked: true,
+        rating: 5,
+        comment: "eşimin işyerine kurduk, soğuk hava dolapları güvende artık",
+        date: "2026-04-25",
+      },
+      {
+        name: "Gülten Sarp",
+        masked: false,
+        rating: 5,
+        comment: "çiftlikte kullanıyoruz, her şey çalışıyor",
+        date: "2026-06-21",
+      },
+      {
+        name: "Hikmet Yalın",
+        masked: false,
+        rating: 4,
+        comment: "sağlam sistem",
+        date: "2026-07-11",
+      },
+    ],
+  },
+
+  // ============================================================
+  // 10.24 kWh SH4000 Enerji Depolama Paketi — 5 yorum (ilk kez)
+  // ============================================================
+  {
+    label: "SH4000 ESS Paketi",
+    type: "bundle",
+    keywords: ["enerji-paketi", "enerji depolama", "kwh"],
+    reviews: [
+      {
+        name: "Yalçın Koru",
+        masked: true,
+        rating: 5,
+        comment: "kış boyu sorunsuz çalıştı, modül eklenebilir olması geleceğe yatırım",
+        date: "2025-12-22",
+      },
+      {
+        name: "Sabri Denizci",
+        masked: true,
+        rating: 5,
+        comment:
+          "kapasite dev gibi, iki günlük kesintiyi bile götürür. hibrit inverter ile kurulum profesyonel oldu",
+        date: "2026-01-28",
+      },
+      {
+        name: "Fulya Sağ",
+        masked: true,
+        rating: 4,
+        comment: "sistem başarılı, kurulumda satıcı destek oldu",
+        date: "2026-03-26",
+      },
+      {
+        name: "Nurten Ateşoğlu",
+        masked: false,
+        rating: 5,
+        comment: "müstakil eve kurduk, elektrik faturası da düştü kesinti derdi de bitti",
+        date: "2026-05-13",
+      },
+      {
+        name: "Cemal Ilıcalı",
+        masked: false,
+        rating: 5,
+        comment: "atölyeye kurduk, makineler kesintide durmuyor. memnunuz",
+        date: "2026-07-15",
       },
     ],
   },
