@@ -1,27 +1,40 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BlogHeader, BlogContent, BlogShare, BlogCard } from "@/components/blog";
+import { BlogHeader, BlogContent, BlogShare } from "@/components/blog";
 import BlogViewTracker from "@/components/blog/BlogViewTracker";
-import BlogSidebar from "@/components/blog/BlogSidebar";
+import BlogToc from "@/components/blog/BlogToc";
+import BlogReadingProgress from "@/components/blog/BlogReadingProgress";
+import BlogPostNav, { type AdjacentPost } from "@/components/blog/BlogPostNav";
+import BlogPostRow from "@/components/blog/BlogPostRow";
+import BlogPopularList from "@/components/blog/BlogPopularList";
 import { JsonLd } from "@/components/seo";
-import { generateBlogMetadata, generateArticleSchema, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
+import {
+  generateBlogMetadata,
+  generateArticleSchema,
+  generateBreadcrumbSchema,
+  siteConfig,
+} from "@/lib/seo";
+import {
+  prepareBlogContent,
+  calculateReadingTime,
+  createExcerpt,
+} from "@/lib/blog/content";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Blog post types
 interface BlogPostFull {
   id: string;
   slug: string;
   title: string;
   content: string;
   excerpt: string | null;
-  featuredImage: string | null;
   publishedAt: Date | null;
   updatedAt: Date | null;
   category: string | null;
   status: string;
+  viewCount: number;
 }
 
 interface BlogPostSummary {
@@ -30,62 +43,41 @@ interface BlogPostSummary {
   title: string;
   content: string;
   excerpt: string | null;
-  featuredImage: string | null;
   publishedAt: Date | null;
   category: string | null;
+  viewCount: number;
 }
 
-// Calculate reading time from content
-function calculateReadingTime(content: string): number {
-  const wordsPerMinute = 200;
-  const wordCount = content.replace(/<[^>]+>/g, "").split(/\s+/).length;
-  return Math.ceil(wordCount / wordsPerMinute);
-}
+const SUMMARY_SELECT = {
+  id: true,
+  slug: true,
+  title: true,
+  content: true,
+  excerpt: true,
+  publishedAt: true,
+  category: true,
+  viewCount: true,
+} as const;
 
-// Strip HTML tags and clean content for excerpt
-function createExcerpt(content: string, maxLength: number = 140): string {
-  const text = content
-    .replace(/<[^>]+>/g, "")           // Remove HTML tags
-    .replace(/\\r\\n|\\n|\\r/g, " ")   // Remove escaped newlines
-    .replace(/\r\n|\n|\r/g, " ")       // Remove actual newlines
-    .replace(/\s+/g, " ")              // Normalize whitespace
-    .trim();
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength).trim() + "...";
-}
-
-// Fetch a single blog post
 async function getBlogPost(slug: string): Promise<BlogPostFull | null> {
   try {
     const { prisma } = await import("@/lib/prisma");
-    
-    if (typeof prisma.blogPost === "undefined") {
-      return null;
-    }
-    
-    const post = await prisma.blogPost.findUnique({
-      where: { slug },
-    });
-    
-    return post;
+    if (typeof prisma.blogPost === "undefined") return null;
+    return await prisma.blogPost.findUnique({ where: { slug } });
   } catch (error) {
     console.error("Error fetching blog post:", error);
     return null;
   }
 }
 
-// Fetch related posts
 async function getRelatedPosts(
   postId: string,
   category: string | null
 ): Promise<BlogPostSummary[]> {
   try {
     const { prisma } = await import("@/lib/prisma");
-    
-    if (typeof prisma.blogPost === "undefined") {
-      return [];
-    }
-    
+    if (typeof prisma.blogPost === "undefined") return [];
+
     let relatedPosts = await prisma.blogPost.findMany({
       where: {
         status: "PUBLISHED",
@@ -94,39 +86,19 @@ async function getRelatedPosts(
       },
       orderBy: { publishedAt: "desc" },
       take: 3,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        content: true,
-        excerpt: true,
-        featuredImage: true,
-        publishedAt: true,
-        category: true,
-      },
+      select: SUMMARY_SELECT,
     });
 
-    // If not enough related posts in same category, get recent posts
+    // Aynı kategoride yeterli yazı yoksa en yeni yazılarla tamamla.
     if (relatedPosts.length < 3) {
       const additionalPosts = await prisma.blogPost.findMany({
         where: {
           status: "PUBLISHED",
-          id: {
-            notIn: [postId, ...relatedPosts.map((p: BlogPostSummary) => p.id)],
-          },
+          id: { notIn: [postId, ...relatedPosts.map((p: BlogPostSummary) => p.id)] },
         },
         orderBy: { publishedAt: "desc" },
         take: 3 - relatedPosts.length,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          content: true,
-          excerpt: true,
-          featuredImage: true,
-          publishedAt: true,
-          category: true,
-        },
+        select: SUMMARY_SELECT,
       });
       relatedPosts = [...relatedPosts, ...additionalPosts];
     }
@@ -138,40 +110,51 @@ async function getRelatedPosts(
   }
 }
 
-async function getBlogSidebarData(): Promise<{
-  categories: { name: string; count: number }[];
-  sidebarPosts: { slug: string; title: string; category: string | null; viewCount: number }[];
+/** Yayın tarihine göre komşu yazılar ve en çok okunanlar. */
+async function getNavigationData(
+  slug: string,
+  publishedAt: Date | null
+): Promise<{
+  previous: AdjacentPost | null;
+  next: AdjacentPost | null;
+  popular: { slug: string; title: string; category: string | null; viewCount: number }[];
 }> {
+  const empty = { previous: null, next: null, popular: [] };
   try {
     const { prisma } = await import("@/lib/prisma");
-    if (typeof prisma.blogPost === "undefined") {
-      return { categories: [], sidebarPosts: [] };
-    }
-    const posts = await prisma.blogPost.findMany({
-      where: { status: "PUBLISHED" },
-      select: { slug: true, title: true, category: true, viewCount: true },
-    });
-    const categoryMap = new Map<string, number>();
-    posts.forEach((p: { category: string | null }) => {
-      if (p.category) categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1);
-    });
-    const categories = Array.from(categoryMap.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-    const sidebarPosts = posts.map((p: { slug: string; title: string; category: string | null; viewCount: number }) => ({
-      slug: p.slug,
-      title: p.title,
-      category: p.category,
-      viewCount: p.viewCount,
-    }));
-    return { categories, sidebarPosts };
+    if (typeof prisma.blogPost === "undefined") return empty;
+
+    const adjacentSelect = { slug: true, title: true, category: true } as const;
+    const [previous, next, popular] = await Promise.all([
+      publishedAt
+        ? prisma.blogPost.findFirst({
+            where: { status: "PUBLISHED", slug: { not: slug }, publishedAt: { lt: publishedAt } },
+            orderBy: { publishedAt: "desc" },
+            select: adjacentSelect,
+          })
+        : null,
+      publishedAt
+        ? prisma.blogPost.findFirst({
+            where: { status: "PUBLISHED", slug: { not: slug }, publishedAt: { gt: publishedAt } },
+            orderBy: { publishedAt: "asc" },
+            select: adjacentSelect,
+          })
+        : null,
+      prisma.blogPost.findMany({
+        where: { status: "PUBLISHED", slug: { not: slug } },
+        orderBy: { viewCount: "desc" },
+        take: 5,
+        select: { slug: true, title: true, category: true, viewCount: true },
+      }),
+    ]);
+
+    return { previous, next, popular };
   } catch (error) {
-    console.log("Error fetching blog sidebar data:", error);
-    return { categories: [], sidebarPosts: [] };
+    console.log("Error fetching blog navigation data:", error);
+    return empty;
   }
 }
 
-// Generate metadata for SEO
 export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
@@ -181,46 +164,35 @@ export async function generateMetadata({
     const post = await getBlogPost(slug);
 
     if (!post) {
-      return {
-        title: "Blog Yazısı Bulunamadı | FusionMarkt",
-      };
+      return { title: "Blog Yazısı Bulunamadı | FusionMarkt" };
     }
-
-    const description = post.excerpt || createExcerpt(post.content);
 
     return generateBlogMetadata({
       title: post.title,
-      excerpt: description,
+      excerpt: post.excerpt || createExcerpt(post.content, 155),
       slug: post.slug,
-      image: post.featuredImage || undefined,
+      // Yazılarda görsel kullanılmadığından paylaşım kartı başlıktan üretilir.
+      image: `${siteConfig.url}/blog/${slug}/opengraph-image`,
       publishedAt: post.publishedAt?.toISOString(),
       updatedAt: post.updatedAt?.toISOString(),
       tags: post.category ? [post.category] : undefined,
     });
   } catch {
-    return {
-      title: "Blog | FusionMarkt",
-    };
+    return { title: "Blog | FusionMarkt" };
   }
 }
 
-// Generate static paths for all blog posts
 export async function generateStaticParams() {
   try {
     const { prisma } = await import("@/lib/prisma");
-    
-    if (typeof prisma.blogPost === "undefined") {
-      return [];
-    }
-    
+    if (typeof prisma.blogPost === "undefined") return [];
+
     const posts = await prisma.blogPost.findMany({
       where: { status: "PUBLISHED" },
       select: { slug: true },
     });
 
-    return posts.map((post: { slug: string }) => ({
-      slug: post.slug,
-    }));
+    return posts.map((post: { slug: string }) => ({ slug: post.slug }));
   } catch {
     return [];
   }
@@ -229,33 +201,30 @@ export async function generateStaticParams() {
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
 
-  // Fetch the blog post
   const post = await getBlogPost(slug);
 
   if (!post || post.status !== "PUBLISHED") {
     notFound();
   }
 
-  // Fetch related posts + listing sidebar (kategoriler / en çok okunanlar)
-  const [relatedPosts, sidebarData] = await Promise.all([
+  const [relatedPosts, navigation] = await Promise.all([
     getRelatedPosts(post.id, post.category),
-    getBlogSidebarData(),
+    getNavigationData(post.slug, post.publishedAt),
   ]);
 
+  const { html, headings } = prepareBlogContent(post.content, post.title);
   const readingTime = calculateReadingTime(post.content);
+  const publishedAt = post.publishedAt?.toISOString() || new Date().toISOString();
   const pageUrl = `${siteConfig.url}/blog/${slug}`;
 
-  // JSON-LD Article Schema
   const articleSchema = generateArticleSchema({
     title: post.title,
-    description: post.excerpt || createExcerpt(post.content),
-    image: post.featuredImage || undefined,
-    publishedAt: post.publishedAt?.toISOString() || new Date().toISOString(),
+    description: post.excerpt || createExcerpt(post.content, 155),
+    publishedAt,
     updatedAt: post.updatedAt?.toISOString(),
     url: `/blog/${slug}`,
   });
 
-  // Breadcrumb Schema
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Ana Sayfa", url: "/" },
     { name: "Blog", url: "/blog" },
@@ -264,67 +233,71 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <>
-      {/* View Counter */}
       <BlogViewTracker slug={post.slug} />
-
-      {/* JSON-LD Structured Data */}
       <JsonLd data={[articleSchema, breadcrumbSchema]} />
-      
+
       <main className="min-h-screen bg-[var(--background)]">
-        <div className="container px-4 md:px-6 lg:px-8 pt-[120px] pb-12 md:pb-16">
-          <div className="blog-layout">
-            <div className="blog-layout__main">
-              <article className="blog-article">
-                {/* Header */}
-                <BlogHeader
-                  title={post.title}
-                  publishedAt={post.publishedAt?.toISOString() || new Date().toISOString()}
-                  updatedAt={post.updatedAt?.toISOString()}
-                  category={post.category || undefined}
-                  readingTime={readingTime}
-                />
+        <div className="container px-4 md:px-6 lg:px-8 pt-[110px] pb-16 md:pb-24">
+          <div className="blog-detail">
+            <article className="blog-article">
+              <BlogHeader
+                title={post.title}
+                publishedAt={publishedAt}
+                updatedAt={post.updatedAt?.toISOString()}
+                category={post.category || undefined}
+                readingTime={readingTime}
+                viewCount={post.viewCount}
+              />
 
-                {/* Content */}
-                <BlogContent content={post.content} title={post.title} />
+              {/* İçindekiler rayı gövdeyle aynı satırda: masaüstünde metnin
+                  başladığı hizada, mobilde başlığın hemen altında görünür. */}
+              <div className="blog-article__layout">
+                <div className="blog-article__body">
+                  <BlogContent html={html} />
 
-                {/* Share */}
-                <BlogShare title={post.title} url={pageUrl} />
-              </article>
+                  <BlogShare title={post.title} url={pageUrl} />
+                </div>
 
-              {/* Related Posts */}
-              {relatedPosts.length > 0 && (
-                <section className="blog-related">
-                  <h2 className="blog-related__title">İlgili Yazılar</h2>
-                  <div className="blog-grid">
-                    {relatedPosts.map((relatedPost) => (
-                      <BlogCard
-                        key={relatedPost.id}
-                        slug={relatedPost.slug}
-                        title={relatedPost.title}
-                        excerpt={
-                          relatedPost.excerpt || createExcerpt(relatedPost.content)
-                        }
-                        publishedAt={relatedPost.publishedAt?.toISOString() || new Date().toISOString()}
-                        category={relatedPost.category || undefined}
-                        readingTime={calculateReadingTime(relatedPost.content)}
-                      />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
+                <aside className="blog-article__rail">
+                  <BlogToc headings={headings} />
+                </aside>
+              </div>
+            </article>
 
-            <BlogSidebar
-              categories={sidebarData.categories}
-              allPosts={sidebarData.sidebarPosts}
-              activeCategory={null}
-              useCategoryLinks
-              emphasizedCategory={post.category}
-              excludeSlug={post.slug}
+            <BlogPostNav previous={navigation.previous} next={navigation.next} />
+
+            {relatedPosts.length > 0 && (
+              <section className="blog-related">
+                <h2 className="blog-related__title">İlgili Yazılar</h2>
+                <div className="blog-rows blog-rows--compact">
+                  {relatedPosts.map((relatedPost) => (
+                    <BlogPostRow
+                      key={relatedPost.id}
+                      slug={relatedPost.slug}
+                      title={relatedPost.title}
+                      excerpt={relatedPost.excerpt || createExcerpt(relatedPost.content, 140)}
+                      publishedAt={
+                        relatedPost.publishedAt?.toISOString() || new Date().toISOString()
+                      }
+                      category={relatedPost.category}
+                      readingTime={calculateReadingTime(relatedPost.content)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <BlogPopularList
+              posts={navigation.popular}
+              className="blog-detail__popular"
             />
           </div>
         </div>
       </main>
+
+      {/* Fixed konumlu olduğu için en sonda: Next.js'in auto-scroll'u segmentin
+          ilk elemanını hedeflediğinden başta durursa uyarı üretiyor. */}
+      <BlogReadingProgress />
     </>
   );
 }

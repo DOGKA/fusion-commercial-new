@@ -1,0 +1,124 @@
+"use client";
+
+import Link from "next/link";
+import { Fragment, useMemo } from "react";
+import { ArrowRight, Clock, Eye } from "lucide-react";
+import { categoryAccentStyle } from "@/lib/blog/accent";
+
+type RowVariant = "default" | "featured" | "compact";
+
+interface BlogPostRowProps {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  publishedAt: string;
+  category?: string | null;
+  readingTime?: number;
+  viewCount?: number;
+  variant?: RowVariant;
+  /** Arama terimi verilirse başlık ve özette eşleşen parça vurgulanır. */
+  query?: string;
+}
+
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+};
+
+/** Türkçe büyük/küçük harf farklarını yok sayan, aksansız karşılaştırma anahtarı. */
+function foldForSearch(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function highlight(text: string, query?: string) {
+  const term = query?.trim();
+  if (!term) return text;
+
+  const haystack = foldForSearch(text);
+  const needle = foldForSearch(term);
+  if (!needle || !haystack.includes(needle)) return text;
+
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  let match = haystack.indexOf(needle);
+
+  while (match !== -1) {
+    if (match > cursor) parts.push(text.slice(cursor, match));
+    parts.push(
+      <mark key={`${match}-${parts.length}`} className="blog-mark">
+        {text.slice(match, match + needle.length)}
+      </mark>
+    );
+    cursor = match + needle.length;
+    match = haystack.indexOf(needle, cursor);
+  }
+
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return parts.map((part, i) => <Fragment key={i}>{part}</Fragment>);
+}
+
+export default function BlogPostRow({
+  slug,
+  title,
+  excerpt,
+  publishedAt,
+  category,
+  readingTime,
+  viewCount = 0,
+  variant = "default",
+  query,
+}: BlogPostRowProps) {
+  const formattedDate = useMemo(
+    () => new Date(publishedAt).toLocaleDateString("tr-TR", DATE_FORMAT),
+    [publishedAt]
+  );
+
+  const showExcerpt = variant !== "compact" && !!excerpt;
+
+  return (
+    <article
+      className={`blog-row blog-row--${variant}`}
+      style={categoryAccentStyle(category)}
+    >
+      <Link href={`/blog/${slug}`} className="blog-row__link">
+        <div className="blog-row__head">
+          {category && <span className="blog-row__category">{category}</span>}
+          <time className="blog-row__date" dateTime={publishedAt}>
+            {formattedDate}
+          </time>
+        </div>
+
+        <h2 className="blog-row__title">{highlight(title, query)}</h2>
+
+        {showExcerpt && (
+          <p className="blog-row__excerpt">{highlight(excerpt!, query)}</p>
+        )}
+
+        <div className="blog-row__meta">
+          {readingTime ? (
+            <span className="blog-row__meta-item">
+              <Clock aria-hidden="true" />
+              {readingTime} dk okuma
+            </span>
+          ) : null}
+
+          {viewCount > 0 && (
+            <span className="blog-row__meta-item">
+              <Eye aria-hidden="true" />
+              {viewCount.toLocaleString("tr-TR")}
+            </span>
+          )}
+
+          <span className="blog-row__cta">
+            Oku
+            <ArrowRight aria-hidden="true" />
+          </span>
+        </div>
+      </Link>
+    </article>
+  );
+}

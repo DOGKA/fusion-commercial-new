@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import BlogCard from "./BlogCard";
-import BlogSidebar from "./BlogSidebar";
+import { SearchX } from "lucide-react";
+import BlogPostRow from "./BlogPostRow";
+import BlogPopularList from "./BlogPopularList";
+import BlogFilterBar, { type BlogSort } from "./BlogFilterBar";
+import BlogPagination from "./BlogPagination";
+
+const POSTS_PER_PAGE = 12;
 
 interface BlogPost {
   id: string;
@@ -21,96 +26,259 @@ interface BlogPageClientProps {
   categories: { name: string; count: number }[];
   /** `/blog?cat=` ile gelen filtre (sunucu doğrular) */
   initialCategory?: string | null;
+  /** `/blog?q=` ile gelen arama terimi */
+  initialQuery?: string;
+  /** `/blog?sort=` ile gelen sıralama */
+  initialSort?: BlogSort;
+  /** `/blog?page=` ile gelen sayfa (sunucu doğrular) */
+  initialPage?: number;
+}
+
+/** Türkçe büyük/küçük ve aksan farklarını yok sayan arama anahtarı. */
+function foldForSearch(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 export default function BlogPageClient({
   posts,
   categories,
   initialCategory = null,
+  initialQuery = "",
+  initialSort = "recent",
+  initialPage = 1,
 }: BlogPageClientProps) {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string | null>(initialCategory);
+  const [query, setQuery] = useState(initialQuery);
+  const [sort, setSort] = useState<BlogSort>(initialSort);
+  const [page, setPage] = useState(initialPage);
+  const listRef = useRef<HTMLDivElement>(null);
+  const shouldScrollRef = useRef(false);
 
-  useEffect(() => {
+  // Geri/ileri gezinmede URL yeniden kaynak olur. Arama kutusu bilinçli olarak
+  // dışarıda: kullanıcı yazarken gecikmeli URL yazımı metni geri alabilirdi.
+  const [urlState, setUrlState] = useState({
+    category: initialCategory,
+    sort: initialSort,
+    page: initialPage,
+  });
+
+  if (
+    urlState.category !== initialCategory ||
+    urlState.sort !== initialSort ||
+    urlState.page !== initialPage
+  ) {
+    setUrlState({ category: initialCategory, sort: initialSort, page: initialPage });
     setActiveCategory(initialCategory);
-  }, [initialCategory]);
+    setSort(initialSort);
+    setPage(initialPage);
+  }
+
+  const hrefFor = useCallback(
+    (next: { cat?: string | null; q?: string; sort?: BlogSort; page?: number }) => {
+      const params = new URLSearchParams();
+      const cat = next.cat !== undefined ? next.cat : activeCategory;
+      const q = next.q !== undefined ? next.q : query;
+      const sortValue = next.sort !== undefined ? next.sort : sort;
+      const targetPage = next.page !== undefined ? next.page : page;
+
+      if (cat) params.set("cat", cat);
+      if (q.trim()) params.set("q", q.trim());
+      if (sortValue !== "recent") params.set("sort", sortValue);
+      if (targetPage > 1) params.set("page", String(targetPage));
+
+      const search = params.toString();
+      return search ? `/blog?${search}` : "/blog";
+    },
+    [activeCategory, query, sort, page]
+  );
 
   const setCategory = useCallback(
     (cat: string | null) => {
       setActiveCategory(cat);
-      if (cat) {
-        router.replace(`/blog?cat=${encodeURIComponent(cat)}`, { scroll: false });
-      } else {
-        router.replace("/blog", { scroll: false });
-      }
+      setPage(1);
+      router.replace(hrefFor({ cat, page: 1 }), { scroll: false });
     },
-    [router]
+    [router, hrefFor]
   );
+
+  const setSortValue = useCallback(
+    (value: BlogSort) => {
+      setSort(value);
+      setPage(1);
+      router.replace(hrefFor({ sort: value, page: 1 }), { scroll: false });
+    },
+    [router, hrefFor]
+  );
+
+  const setQueryValue = useCallback((value: string) => {
+    setQuery(value);
+    setPage(1);
+  }, []);
+
+  // Yazarken her tuşta URL yazmamak için arama terimi geciktirilerek senkronlanır.
+  useEffect(() => {
+    if (query === initialQuery) return;
+    const timeout = setTimeout(() => {
+      router.replace(hrefFor({ q: query, page: 1 }), { scroll: false });
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [query, initialQuery, router, hrefFor]);
 
   const filteredPosts = useMemo(() => {
-    if (!activeCategory) return posts;
-    return posts.filter((p) => p.category === activeCategory);
-  }, [posts, activeCategory]);
+    const term = foldForSearch(query.trim());
+    const byCategory = activeCategory
+      ? posts.filter((post) => post.category === activeCategory)
+      : posts;
 
-  const sidebarPosts = useMemo(() =>
-    posts.map((p) => ({
-      slug: p.slug,
-      title: p.title,
-      category: p.category,
-      viewCount: p.viewCount,
-    })),
-    [posts]
+    const bySearch = term
+      ? byCategory.filter(
+          (post) =>
+            foldForSearch(post.title).includes(term) ||
+            foldForSearch(post.excerpt).includes(term) ||
+            foldForSearch(post.category ?? "").includes(term)
+        )
+      : byCategory;
+
+    if (sort === "popular") {
+      return [...bySearch].sort((a, b) => b.viewCount - a.viewCount);
+    }
+    return bySearch;
+  }, [posts, activeCategory, query, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
+  // Filtre daralınca mevcut sayfa aralık dışında kalabilir.
+  const currentPage = Math.min(page, totalPages);
+
+  const visiblePosts = useMemo(() => {
+    const start = (currentPage - 1) * POSTS_PER_PAGE;
+    return filteredPosts.slice(start, start + POSTS_PER_PAGE);
+  }, [filteredPosts, currentPage]);
+
+  const hasQuery = query.trim().length > 0;
+  // Öne çıkan yazı, seçili kategori ve sıralamanın ilk yazısıdır. Aramada
+  // sonuçların hepsi eşit ağırlıkta olduğu için düz liste gösterilir.
+  const featuredPost = !hasQuery && currentPage === 1 ? visiblePosts[0] : undefined;
+  const restPosts = featuredPost ? visiblePosts.slice(1) : visiblePosts;
+  const featuredLabel = sort === "popular" ? "En çok okunan" : "Son yazı";
+
+  const goToPage = useCallback(
+    (targetPage: number) => {
+      shouldScrollRef.current = true;
+      setPage(targetPage);
+      router.push(hrefFor({ page: targetPage }), { scroll: false });
+    },
+    [router, hrefFor]
   );
 
+  // Sayfa değişince listenin başına dön; sayfanın en tepesine değil.
+  useEffect(() => {
+    if (!shouldScrollRef.current) return;
+    shouldScrollRef.current = false;
+    listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [currentPage]);
+
+  // En çok okunanlar da seçili kategoriyi izler; arama terimi burayı etkilemez.
+  const popularPosts = useMemo(() => {
+    const scope = activeCategory
+      ? posts.filter((post) => post.category === activeCategory)
+      : posts;
+
+    return scope.map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      category: post.category,
+      viewCount: post.viewCount,
+    }));
+  }, [posts, activeCategory]);
+
   return (
-    <div className="blog-layout">
-      {/* Main Content */}
-      <div className="blog-layout__main">
-        {/* Active filter indicator */}
-        {activeCategory && (
-          <div className="blog-filter-badge">
-            <span>{activeCategory}</span>
-            <button onClick={() => setCategory(null)} aria-label="Filtreyi kaldır">
-              &times;
+    <div className="blog-index">
+      {/* Masaüstünde sağ sütun; dar ekranda `display: contents` ile parçalanıp
+          filtreler listenin üstüne, popüler liste altına düşer. */}
+      <aside className="blog-index__aside">
+        <BlogFilterBar
+          categories={categories}
+          totalCount={posts.length}
+          activeCategory={activeCategory}
+          onCategoryChange={setCategory}
+          query={query}
+          onQueryChange={setQueryValue}
+          sort={sort}
+          onSortChange={setSortValue}
+          resultCount={filteredPosts.length}
+        />
+
+        <BlogPopularList posts={popularPosts} className="blog-index__popular" />
+      </aside>
+
+      <div className="blog-index__list" ref={listRef}>
+        {filteredPosts.length === 0 ? (
+          <div className="blog-empty">
+            <SearchX className="blog-empty__icon" aria-hidden="true" />
+            <h2 className="blog-empty__title">
+              {query.trim() ? `"${query.trim()}" için sonuç yok` : "Bu kategoride yazı yok"}
+            </h2>
+            <p className="blog-empty__text">
+              Farklı bir arama deneyin veya tüm yazılara dönün.
+            </p>
+            <button
+              type="button"
+              className="blog-empty__reset"
+              onClick={() => {
+                setQuery("");
+                setCategory(null);
+              }}
+            >
+              Tüm yazılar
             </button>
           </div>
-        )}
-
-        {filteredPosts.length > 0 ? (
-          <div className="blog-grid">
-            {filteredPosts.map((post) => (
-              <BlogCard
-                key={post.id}
-                slug={post.slug}
-                title={post.title}
-                excerpt={post.excerpt}
-                publishedAt={post.publishedAt}
-                category={post.category || undefined}
-                readingTime={post.readingTime}
-              />
-            ))}
-          </div>
         ) : (
-          <div className="blog-empty">
-            <svg className="blog-empty__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            <h2 className="blog-empty__title">Bu kategoride yazı yok</h2>
-            <p className="blog-empty__text">
-              Başka bir kategori seçin veya tüm yazılara göz atın.
-            </p>
-          </div>
+          <>
+            {featuredPost && (
+              <div className="blog-index__featured">
+                <span className="blog-index__featured-label">{featuredLabel}</span>
+                <BlogPostRow
+                  slug={featuredPost.slug}
+                  title={featuredPost.title}
+                  excerpt={featuredPost.excerpt}
+                  publishedAt={featuredPost.publishedAt}
+                  category={featuredPost.category}
+                  readingTime={featuredPost.readingTime}
+                  viewCount={featuredPost.viewCount}
+                  variant="featured"
+                />
+              </div>
+            )}
+
+            <div className="blog-rows">
+              {restPosts.map((post) => (
+                <BlogPostRow
+                  key={post.id}
+                  slug={post.slug}
+                  title={post.title}
+                  excerpt={post.excerpt}
+                  publishedAt={post.publishedAt}
+                  category={post.category}
+                  readingTime={post.readingTime}
+                  viewCount={post.viewCount}
+                  query={query}
+                />
+              ))}
+            </div>
+
+            <BlogPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hrefFor={(target) => hrefFor({ page: target })}
+              onPageChange={goToPage}
+            />
+          </>
         )}
       </div>
-
-      {/* Sidebar */}
-      <BlogSidebar
-        categories={categories}
-        allPosts={sidebarPosts}
-        activeCategory={activeCategory}
-        onCategoryChange={setCategory}
-      />
     </div>
   );
 }

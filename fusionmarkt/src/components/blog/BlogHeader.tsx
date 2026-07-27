@@ -1,17 +1,22 @@
-"use client";
-
 import Link from "next/link";
-import { Clock, Calendar } from "lucide-react";
+import { Clock, Eye } from "lucide-react";
+import { categoryAccentStyle } from "@/lib/blog/accent";
 
 interface BlogHeaderProps {
   title: string;
   publishedAt: string;
   updatedAt?: string;
-  featuredImage?: string;
   category?: string;
   readingTime?: number;
+  viewCount?: number;
   author?: string;
 }
+
+const LONG_DATE: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+};
 
 export default function BlogHeader({
   title,
@@ -19,74 +24,73 @@ export default function BlogHeader({
   updatedAt,
   category,
   readingTime,
+  viewCount = 0,
   author = "FusionMarkt",
 }: BlogHeaderProps) {
-  // Format dates in Turkish
-  const formattedDate = new Date(publishedAt).toLocaleDateString("tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
+  const formattedDate = new Date(publishedAt).toLocaleDateString("tr-TR", LONG_DATE);
   const formattedUpdateDate = updatedAt
-    ? new Date(updatedAt).toLocaleDateString("tr-TR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
+    ? new Date(updatedAt).toLocaleDateString("tr-TR", LONG_DATE)
     : null;
+  const showUpdate = formattedUpdateDate && formattedUpdateDate !== formattedDate;
 
   return (
-    <header className="blog-article__header">
-      {/* Breadcrumb */}
-      <p style={{ fontSize: '14px', color: 'var(--foreground-muted)', marginBottom: '20px' }}>
-        <Link href="/" style={{ color: 'var(--foreground-tertiary)' }}>Ana Sayfa</Link>
-        <span style={{ opacity: 0.4, margin: '0 6px' }}>/</span>
-        <Link href="/blog" style={{ color: 'var(--foreground-tertiary)' }}>Blog</Link>
+    <header className="blog-article__header" style={categoryAccentStyle(category)}>
+      <nav className="blog-crumbs" aria-label="Breadcrumb">
+        <Link href="/">Ana Sayfa</Link>
+        <span aria-hidden="true">/</span>
+        <Link href="/blog">Blog</Link>
         {category && (
           <>
-            <span style={{ opacity: 0.4, margin: '0 6px' }}>/</span>
-            <span>{category}</span>
+            <span aria-hidden="true">/</span>
+            <Link href={`/blog?cat=${encodeURIComponent(category)}`}>{category}</Link>
           </>
         )}
-      </p>
+      </nav>
 
-      {/* Title */}
+      {category && (
+        <Link
+          href={`/blog?cat=${encodeURIComponent(category)}`}
+          className="blog-article__category"
+        >
+          {category}
+        </Link>
+      )}
+
       <h1 className="blog-article__title">{title}</h1>
 
-      {/* Meta */}
       <div className="blog-article__meta">
-        {/* Author */}
-        <div className="blog-article__meta-item">
-          <span className="blog-article__author">{author}</span>
-        </div>
+        <span className="blog-article__author">{author}</span>
+        <span className="blog-article__meta-divider" aria-hidden="true" />
+        <time className="blog-article__meta-item" dateTime={publishedAt}>
+          {formattedDate}
+        </time>
 
-        <div className="blog-article__meta-divider" />
-
-        {/* Date */}
-        <div className="blog-article__meta-item">
-          <Calendar className="w-4 h-4" />
-          <span>{formattedDate}</span>
-        </div>
-
-        {/* Reading Time */}
-        {readingTime && (
+        {readingTime ? (
           <>
-            <div className="blog-article__meta-divider" />
-            <div className="blog-article__meta-item">
-              <Clock className="w-4 h-4" />
-              <span>{readingTime} dakika okuma</span>
-            </div>
+            <span className="blog-article__meta-divider" aria-hidden="true" />
+            <span className="blog-article__meta-item">
+              <Clock aria-hidden="true" />
+              {readingTime} dakika okuma
+            </span>
+          </>
+        ) : null}
+
+        {viewCount > 0 && (
+          <>
+            <span className="blog-article__meta-divider" aria-hidden="true" />
+            <span className="blog-article__meta-item">
+              <Eye aria-hidden="true" />
+              {viewCount.toLocaleString("tr-TR")} görüntülenme
+            </span>
           </>
         )}
 
-        {/* Updated Date */}
-        {formattedUpdateDate && formattedUpdateDate !== formattedDate && (
+        {showUpdate && (
           <>
-            <div className="blog-article__meta-divider" />
-            <div className="blog-article__meta-item" style={{ color: 'var(--foreground-tertiary)' }}>
-              <span>Güncelleme: {formattedUpdateDate}</span>
-            </div>
+            <span className="blog-article__meta-divider" aria-hidden="true" />
+            <span className="blog-article__meta-item blog-article__meta-item--muted">
+              Güncelleme: {formattedUpdateDate}
+            </span>
           </>
         )}
       </div>

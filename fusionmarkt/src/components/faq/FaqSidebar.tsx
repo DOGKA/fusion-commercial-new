@@ -126,9 +126,10 @@ export default function FaqSidebar({
       <button
         className="blog-sidebar-toggle"
         onClick={() => setIsOpen(true)}
-        aria-label="SSS menüsünü aç"
+        aria-label="SSS kategorilerini aç"
       >
         <Layers className="w-4 h-4" />
+        <span className="blog-sidebar-toggle__label">Kategoriler</span>
       </button>
 
       {isOpen && (

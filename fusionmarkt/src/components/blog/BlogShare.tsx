@@ -1,15 +1,24 @@
 "use client";
 
-import { Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { Copy, Check, Share2 } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
 
 interface BlogShareProps {
   title: string;
   url: string;
 }
 
+/** Yetenek sunucuda bilinemez; hidrasyon uyuşmazlığı olmadan istemcide okunur. */
+const subscribeToNothing = () => () => {};
+const readNativeShare = () => typeof navigator !== "undefined" && !!navigator.share;
+
 export default function BlogShare({ title, url }: BlogShareProps) {
   const [copied, setCopied] = useState(false);
+  const canUseNativeShare = useSyncExternalStore(
+    subscribeToNothing,
+    readNativeShare,
+    () => false
+  );
 
   const handleCopyLink = async () => {
     try {
@@ -18,6 +27,14 @@ export default function BlogShare({ title, url }: BlogShareProps) {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Link kopyalanamadı:", err);
+    }
+  };
+
+  const handleNativeShare = async () => {
+    try {
+      await navigator.share({ title, url });
+    } catch {
+      // Kullanıcı paylaşım sayfasını kapattıysa sessizce geç.
     }
   };
 
@@ -34,8 +51,18 @@ export default function BlogShare({ title, url }: BlogShareProps) {
 
   return (
     <div className="blog-share">
-      <span className="blog-share__label">Paylaş:</span>
+      <span className="blog-share__label">Bu yazıyı paylaş</span>
       <div className="blog-share__buttons">
+        {canUseNativeShare && (
+          <button
+            onClick={handleNativeShare}
+            className="blog-share__button blog-share__button--native"
+            aria-label="Paylaş"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Twitter/X */}
         <a
           href={shareLinks.twitter}

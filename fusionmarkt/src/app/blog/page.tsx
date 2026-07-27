@@ -1,6 +1,7 @@
 import BlogPageClient from "@/components/blog/BlogPageClient";
 import { staticPageMetadata, generateBreadcrumbSchema, generateItemListSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
+import { calculateReadingTime, createExcerpt } from "@/lib/blog/content";
 
 export const metadata = staticPageMetadata.blog;
 
@@ -10,44 +11,22 @@ interface BlogPost {
   title: string;
   content: string;
   excerpt: string | null;
-  featuredImage: string | null;
   publishedAt: Date | null;
   category: string | null;
   viewCount: number;
-}
-
-function calculateReadingTime(content: string): number {
-  const wordsPerMinute = 200;
-  const wordCount = content.replace(/<[^>]+>/g, "").split(/\s+/).length;
-  return Math.ceil(wordCount / wordsPerMinute);
-}
-
-function createExcerpt(content: string, maxLength: number = 200): string {
-  const text = content
-    .replace(/<[^>]+>/g, "")
-    .replace(/&[a-z]+;/gi, " ")
-    .replace(/\\r\\n|\\n|\\r/g, " ")
-    .replace(/\r\n|\n|\r/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (text.length <= maxLength) return text;
-  const truncated = text.substring(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(" ");
-  return (lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated) + "...";
 }
 
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
     const { prisma } = await import("@/lib/prisma");
     if (typeof prisma.blogPost === "undefined") return [];
-    
+
     const posts = await prisma.blogPost.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { publishedAt: "desc" },
       select: {
         id: true, slug: true, title: true, content: true,
-        excerpt: true, featuredImage: true, publishedAt: true,
-        category: true, viewCount: true,
+        excerpt: true, publishedAt: true, category: true, viewCount: true,
       },
     }) as unknown as BlogPost[];
     return posts;
@@ -58,7 +37,7 @@ async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 type BlogPageProps = {
-  searchParams: Promise<{ cat?: string }>;
+  searchParams: Promise<{ cat?: string; page?: string; q?: string; sort?: string }>;
 };
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
@@ -78,6 +57,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const decodedCat = rawCat ? decodeURIComponent(rawCat) : null;
   const initialCategory =
     decodedCat && categories.some((c) => c.name === decodedCat) ? decodedCat : null;
+
+  const initialQuery = typeof sp.q === "string" ? sp.q.slice(0, 80) : "";
+  const initialSort = sp.sort === "popular" ? "popular" : "recent";
+
+  const parsedPage = Number.parseInt(sp.page ?? "", 10);
+  const initialPage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
   // Serialize posts for client
   const clientPosts = posts.map((p) => ({
@@ -104,7 +89,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       items: posts.map((post) => ({
         name: post.title,
         url: `/blog/${post.slug}`,
-        image: post.featuredImage || undefined,
       })),
     }));
   }
@@ -112,21 +96,25 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <main className="min-h-screen bg-[var(--background)]">
       <JsonLd data={schemas} />
-      <div className="container px-4 md:px-6 lg:px-8 pt-[120px] pb-12 md:pb-16">
-        {/* Page Header */}
-        <header className="blog-page-header">
-          <h1 className="blog-page-header__title">Blog</h1>
-          <p className="blog-page-header__description">
-            Endüstriyel ekipmanlar, taşınabilir enerji çözümleri, iş güvenliği
-            ve sektörel gelişmeler hakkında güncel içerikler.
+      <div className="container px-4 md:px-6 lg:px-8 pt-[110px] pb-16 md:pb-24">
+        <header className="blog-masthead">
+          <span className="blog-masthead__eyebrow">FusionMarkt Blog</span>
+          <h1 className="blog-masthead__title">
+            Enerji, ekipman ve saha bilgisi
+          </h1>
+          <p className="blog-masthead__description">
+            Taşınabilir enerji çözümleri, endüstriyel ekipmanlar ve iş güvenliği
+            üzerine uygulamaya dönük yazılar.
           </p>
         </header>
 
-        {/* Blog Content + Sidebar */}
         <BlogPageClient
           posts={clientPosts}
           categories={categories}
           initialCategory={initialCategory}
+          initialQuery={initialQuery}
+          initialSort={initialSort}
+          initialPage={initialPage}
         />
       </div>
     </main>
