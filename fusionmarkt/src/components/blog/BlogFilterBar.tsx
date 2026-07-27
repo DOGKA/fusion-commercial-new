@@ -41,8 +41,12 @@ export default function BlogFilterBar({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-  const closeSheet = useCallback(() => setSheetOpen(false), []);
+  const closeSheet = useCallback(() => {
+    setSheetOpen(false);
+    setPickerOpen(false);
+  }, []);
 
   // "/" ile aramaya odaklan — metin ağırlıklı sayfada en sık kullanılan aksiyon.
   useEffect(() => {
@@ -66,9 +70,12 @@ export default function BlogFilterBar({
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      setSheetOpen(false);
+      closeSheet();
     }
 
+    // Tetikleyici hiç sökülmüyor; temizlikte okumak yerine burada yakalamak
+    // effect'in kendi anlık görüntüsüyle çalışmasını sağlıyor.
+    const trigger = triggerRef.current;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
@@ -77,24 +84,21 @@ export default function BlogFilterBar({
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
-      triggerRef.current?.focus();
+      trigger?.focus();
     };
-  }, [sheetOpen]);
+  }, [sheetOpen, closeSheet]);
 
   // Masaüstü genişliğinde panel zaten satır içi; açık kalması odağı tuzaklardı.
+  // Panel yalnızca dar ekranda görünen tetikleyiciyle açıldığı için başlangıç
+  // durumunu kontrol etmek gerekmiyor, sadece geçişi dinlemek yeterli.
   useEffect(() => {
-    if (!sheetOpen) return;
     const media = window.matchMedia(SHEET_QUERY);
-    if (!media.matches) {
-      setSheetOpen(false);
-      return;
-    }
     const onChange = (event: MediaQueryListEvent) => {
-      if (!event.matches) setSheetOpen(false);
+      if (!event.matches) closeSheet();
     };
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [sheetOpen]);
+  }, [closeSheet]);
 
   const trimmedQuery = query.trim();
   const isFiltered = !!activeCategory || trimmedQuery.length > 0;
@@ -132,7 +136,6 @@ export default function BlogFilterBar({
 
   // Liste bir katman olarak değil, yerinde açılıyor: hem bottom sheet hem de
   // yapışkan sağ sütun kaydırılabilir kaplar, mutlak konumlu menü kırpılırdı.
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(selectedIndex);
   const pickerRef = useRef<HTMLDivElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -209,11 +212,6 @@ export default function BlogFilterBar({
       ?.querySelector<HTMLElement>("[data-highlighted='true']")
       ?.scrollIntoView({ block: "nearest" });
   }, [pickerOpen, highlightIndex]);
-
-  // Panel kapanınca liste açık kalmasın.
-  useEffect(() => {
-    if (!sheetOpen) setPickerOpen(false);
-  }, [sheetOpen]);
 
   return (
     <div className={`blog-filters ${sheetOpen ? "blog-filters--sheet-open" : ""}`}>
