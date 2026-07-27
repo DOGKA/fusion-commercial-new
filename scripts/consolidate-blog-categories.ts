@@ -12,16 +12,50 @@
  *   İş Güvenliği   → eldiven, yalıtkan merdiven, saha güvenliği
  *
  * Kullanım (repo kökünden):
- *   node --env-file=fusionmarkt/.env.local --import tsx scripts/consolidate-blog-categories.ts
- *   node --env-file=fusionmarkt/.env.local --import tsx scripts/consolidate-blog-categories.ts --apply
+ *   npx tsx scripts/consolidate-blog-categories.ts
+ *   npx tsx scripts/consolidate-blog-categories.ts --apply
  *
  * `--apply` verilmeden yalnızca rapor basar. Yazmadan önce mevcut eşleşmeyi
  * scripts/.blog-category-backup.json dosyasına kaydeder.
  */
 
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
+
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = dirname(SCRIPT_DIR);
+
+/**
+ * Prisma Client .env okumaz; ortam dosyası yerel ve sunucuda farklı yerlerde
+ * durduğu için import'tan önce yükleniyor.
+ */
+function loadDatabaseEnv() {
+  if (process.env.DATABASE_URL) return;
+
+  const candidates = [
+    "fusionmarkt/.env",
+    "fusionmarkt/.env.local",
+    "packages/db/.env",
+    ".env",
+  ].map((relative) => join(REPO_ROOT, relative));
+
+  for (const candidate of candidates) {
+    if (!existsSync(candidate)) continue;
+    process.loadEnvFile(candidate);
+    if (process.env.DATABASE_URL) return;
+  }
+
+  console.error(
+    "DATABASE_URL bulunamadı. Aranan dosyalar:\n" +
+      candidates.map((path) => `  ${path}`).join("\n")
+  );
+  process.exit(1);
+}
+
+// Prisma bağlantı dizesini ilk sorguda okuyor; istemciyi kurmadan önce yeterli.
+loadDatabaseEnv();
 
 const prisma = new PrismaClient();
 
@@ -155,7 +189,8 @@ async function main() {
     return;
   }
 
-  const backupPath = join(process.cwd(), "scripts/.blog-category-backup.json");
+  // Script hangi dizinden çağrılırsa çağrılsın yedek yanına düşsün.
+  const backupPath = join(SCRIPT_DIR, ".blog-category-backup.json");
   writeFileSync(
     backupPath,
     JSON.stringify(
