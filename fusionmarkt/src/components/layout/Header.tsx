@@ -152,7 +152,7 @@ export default function Header() {
       >
 
         <div className="container px-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div className="flex items-center justify-between" style={{ gap: '30px' }}>
+          <div className="flex items-center justify-between gap-4 lg:gap-[30px]">
             {/* Left: Logo */}
             <Link href="/" className="flex-shrink-0 relative group">
               <svg 
@@ -260,8 +260,10 @@ export default function Header() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-0.5 lg:gap-1">
-              {/* Theme Toggle - tüm ekranlarda aynı stil (icon inside thumb) */}
-              <MobileThemeToggle />
+              {/* Theme Toggle - sadece desktop; mobilde menü panelinde yer alıyor */}
+              <div className="hidden lg:flex items-center">
+                <MobileThemeToggle />
+              </div>
 
               {/* Wishlist / Favorites - Desktop */}
               <Link
@@ -298,11 +300,11 @@ export default function Header() {
                 <User className="w-5 h-5 relative z-10" />
               </Link>
 
-              {/* Cart */}
+              {/* Cart - mobilde ikon + "Sepet" etiketi (dikey), desktop'ta sadece ikon */}
               <button
                 onClick={openCart}
                 className={cn(
-                  "relative flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "relative flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-0 px-2 py-1.5 lg:p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
                   isAnimating && "animate-wiggle"
@@ -313,6 +315,9 @@ export default function Header() {
                   "w-5 h-5 relative z-10 transition-transform duration-300",
                   badgeAnimating && "scale-110"
                 )} />
+                <span className="lg:hidden relative z-10 text-[10px] font-medium leading-none tracking-tight">
+                  Sepet
+                </span>
                 {itemCount > 0 && (
                   <span 
                     className={cn(
@@ -332,7 +337,7 @@ export default function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className={cn(
-                  "relative hidden max-lg:flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]"
                 )}
@@ -343,6 +348,9 @@ export default function Header() {
                 ) : (
                   <Menu className="w-5 h-5 relative z-10" />
                 )}
+                <span className="relative z-10 text-[10px] font-medium leading-none tracking-tight">
+                  {isMobileMenuOpen ? "Kapat" : "Menü"}
+                </span>
               </button>
             </div>
           </div>

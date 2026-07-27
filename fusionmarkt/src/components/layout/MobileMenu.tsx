@@ -17,6 +17,9 @@ import {
   LayoutGrid,
   Sparkles,
   ArrowRight,
+  Newspaper,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
@@ -82,6 +85,15 @@ const menuItems: MenuEntry[] = [
         "text-[var(--fusion-primary)] border border-[var(--fusion-primary)]/25",
     },
   },
+  {
+    name: "Blog",
+    href: "/blog",
+    icon: <Newspaper className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+    badge: {
+      label: "Rehber",
+      className: "text-cyan-400 border border-cyan-500/25",
+    },
+  },
 ];
 
 interface MobileMenuProps {
@@ -97,7 +109,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const { itemCount, subtotal, openCart } = useCart();
   const { itemCount: favoritesCount } = useFavorites();
 
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
   const isDark = mounted && resolvedTheme === "dark";
 
@@ -403,6 +415,61 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 <span className="text-[13px] font-medium text-foreground">Hesabım</span>
               </Link>
             </div>
+
+            {/* Tema anahtarı - mobilde header'dan buraya taşındı */}
+            <button
+              type="button"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              aria-label={isDark ? "Açık temaya geç" : "Koyu temaya geç"}
+              className="w-full flex items-center gap-3 p-3 bg-glass-bg border border-border hover:border-border-hover hover:bg-glass-bg-hover transition-colors duration-200 animate-in fade-in slide-in-from-right-4 fill-mode-backwards"
+              style={{
+                borderRadius: "14px",
+                animationDelay: `${(menuItems.length + 1) * 50}ms`,
+                animationDuration: "400ms",
+              }}
+            >
+              <span
+                className={cn(
+                  "w-10 h-10 flex-shrink-0 flex items-center justify-center border transition-colors duration-200",
+                  isDark ? "border-blue-500/25 text-blue-400" : "border-amber-500/30 text-amber-500"
+                )}
+                style={{ borderRadius: "12px" }}
+              >
+                {isDark ? (
+                  <Moon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                ) : (
+                  <Sun className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                )}
+              </span>
+
+              <span className="flex-1 min-w-0 text-left">
+                <span className="block text-[15px] font-medium text-foreground leading-tight">Tema</span>
+                <span className="block text-[12px] text-foreground-muted leading-tight mt-0.5">
+                  {isDark ? "Koyu mod" : "Açık mod"}
+                </span>
+              </span>
+
+              {/* Toggle Track - header'daki anahtarla aynı görsel dil */}
+              <span
+                className="relative w-[46px] h-6 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 flex-shrink-0"
+                style={{ boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)" }}
+              >
+                <span
+                  className="absolute top-[3px] w-[18px] h-[18px] rounded-full bg-white transition-all duration-200 ease-out flex items-center justify-center"
+                  style={{
+                    left: isDark ? "auto" : "3px",
+                    right: isDark ? "3px" : "auto",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  {isDark ? (
+                    <Moon className="w-2.5 h-2.5 text-blue-500" />
+                  ) : (
+                    <Sun className="w-2.5 h-2.5 text-amber-500" />
+                  )}
+                </span>
+              </span>
+            </button>
           </nav>
         </div>
 
