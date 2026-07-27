@@ -9,8 +9,8 @@ const CATEGORY_LABEL_ID = "blog-filter-category-label";
 const CATEGORY_BUTTON_ID = "blog-filter-category-button";
 const CATEGORY_LIST_ID = "blog-filter-category-list";
 const categoryOptionId = (index: number) => `blog-filter-category-option-${index}`;
-/** Mobil sayfalayıcı ile CSS'teki bottom sheet kırılımı aynı olmalı. */
-const MOBILE_QUERY = "(max-width: 767px)";
+/** blog.css'teki bottom sheet kırılımıyla birebir aynı kalmalı. */
+const SHEET_QUERY = "(max-width: 1023px)";
 
 export type BlogSort = "recent" | "popular";
 
@@ -84,7 +84,7 @@ export default function BlogFilterBar({
   // Masaüstü genişliğinde panel zaten satır içi; açık kalması odağı tuzaklardı.
   useEffect(() => {
     if (!sheetOpen) return;
-    const media = window.matchMedia(MOBILE_QUERY);
+    const media = window.matchMedia(SHEET_QUERY);
     if (!media.matches) {
       setSheetOpen(false);
       return;
