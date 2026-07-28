@@ -240,7 +240,6 @@ export default function BlogPageClient({
           <>
             {featuredPost && (
               <div className="blog-index__featured">
-                <span className="blog-index__featured-label">{featuredLabel}</span>
                 <BlogPostRow
                   slug={featuredPost.slug}
                   title={featuredPost.title}
@@ -250,6 +249,7 @@ export default function BlogPageClient({
                   readingTime={featuredPost.readingTime}
                   viewCount={featuredPost.viewCount}
                   variant="featured"
+                  flag={featuredLabel}
                 />
               </div>
             )}

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Fragment, useMemo } from "react";
 import { ArrowRight, Clock, Eye } from "lucide-react";
-import { categoryAccentStyle } from "@/lib/blog/accent";
 
 type RowVariant = "default" | "featured" | "compact";
 
@@ -16,6 +15,8 @@ interface BlogPostRowProps {
   readingTime?: number;
   viewCount?: number;
   variant?: RowVariant;
+  /** Kategori ve tarihin önünde duran bağlam etiketi ("Son yazı" gibi). */
+  flag?: string;
   /** Arama terimi verilirse başlık ve özette eşleşen parça vurgulanır. */
   query?: string;
 }
@@ -70,6 +71,7 @@ export default function BlogPostRow({
   readingTime,
   viewCount = 0,
   variant = "default",
+  flag,
   query,
 }: BlogPostRowProps) {
   const formattedDate = useMemo(
@@ -80,16 +82,18 @@ export default function BlogPostRow({
   const showExcerpt = variant !== "compact" && !!excerpt;
 
   return (
-    <article
-      className={`blog-row blog-row--${variant}`}
-      style={categoryAccentStyle(category)}
-    >
+    <article className={`blog-row blog-row--${variant}`}>
       <Link href={`/blog/${slug}`} className="blog-row__link">
         <div className="blog-row__head">
-          {category && <span className="blog-row__category">{category}</span>}
-          <time className="blog-row__date" dateTime={publishedAt}>
-            {formattedDate}
-          </time>
+          {flag && <span className="blog-row__flag">{flag}</span>}
+          {variant !== "featured" && category && (
+            <span className="blog-row__category">{category}</span>
+          )}
+          {variant !== "featured" && (
+            <time className="blog-row__date" dateTime={publishedAt}>
+              {formattedDate}
+            </time>
+          )}
         </div>
 
         <h2 className="blog-row__title">{highlight(title, query)}</h2>
@@ -114,7 +118,7 @@ export default function BlogPostRow({
           )}
 
           <span className="blog-row__cta">
-            Oku
+            {variant === "featured" ? "Yazıyı oku" : "Oku"}
             <ArrowRight aria-hidden="true" />
           </span>
         </div>

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Clock, Eye } from "lucide-react";
-import { categoryAccentStyle } from "@/lib/blog/accent";
 
 interface BlogHeaderProps {
   title: string;
@@ -34,7 +33,7 @@ export default function BlogHeader({
   const showUpdate = formattedUpdateDate && formattedUpdateDate !== formattedDate;
 
   return (
-    <header className="blog-article__header" style={categoryAccentStyle(category)}>
+    <header className="blog-article__header">
       <nav className="blog-crumbs" aria-label="Breadcrumb">
         <Link href="/">Ana Sayfa</Link>
         <span aria-hidden="true">/</span>

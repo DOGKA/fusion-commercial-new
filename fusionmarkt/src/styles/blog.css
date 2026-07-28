@@ -22,23 +22,15 @@
   }
 }
 
-/* Kategori aksanı: bileşenler inline `--cat-hue` verir, ton burada üretilir. */
-.blog-row,
-.blog-filters__picker-button,
-.blog-filters__picker-option,
-.blog-popular__list > li,
-.blog-article__header {
-  --cat-accent: hsl(var(--cat-hue, 220), 58%, 40%);
-  --cat-soft: hsla(var(--cat-hue, 220), 58%, 40%, 0.1);
+/* Blog aksanı: doygun mavi yerine düşük doygunluklu nötr slate. */
+:root {
+  --cat-accent: hsl(215, 10%, 34%);
+  --cat-soft: hsla(215, 10%, 34%, 0.08);
 }
 
-.dark .blog-row,
-.dark .blog-filters__picker-button,
-.dark .blog-filters__picker-option,
-.dark .blog-popular__list > li,
-.dark .blog-article__header {
-  --cat-accent: hsl(var(--cat-hue, 220), 70%, 68%);
-  --cat-soft: hsla(var(--cat-hue, 220), 70%, 68%, 0.14);
+.dark {
+  --cat-accent: hsl(215, 8%, 72%);
+  --cat-soft: hsla(215, 8%, 72%, 0.12);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -106,27 +98,9 @@
   order: 3;
 }
 
+/* Bağlam etiketi kartın kendi head satırında; buranın işi yalnız aralık. */
 .blog-index__featured {
-  margin-bottom: var(--space-6);
-}
-
-.blog-index__featured-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--foreground-muted);
-  margin-bottom: var(--space-3);
-}
-
-.blog-index__featured-label::before {
-  content: "";
-  width: 18px;
-  height: 1px;
-  background: var(--foreground-muted);
+  margin-bottom: var(--space-8);
 }
 
 .blog-index__popular {
@@ -161,6 +135,7 @@
 /* Tetikleyici + bottom sheet parçaları yalnız dar ekranda, sağ sütun başlığı
    yalnız masaüstünde açılır. */
 .blog-filters__trigger,
+.blog-filters__count,
 .blog-filters__overlay,
 .blog-filters__sheet-head,
 .blog-filters__sheet-foot,
@@ -168,10 +143,34 @@
   display: none;
 }
 
-.blog-filters__row {
+/* Yapışkan satır: dar ekranda tetikleyici + arama + sonuç sayısı, masaüstünde
+   yalnızca arama kalır. */
+.blog-filters__bar {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
+}
+
+.blog-filters__sheet-body,
+.blog-filters__group {
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-filters__sheet-body {
+  gap: var(--space-4);
+}
+
+.blog-filters__group {
+  gap: var(--space-2);
+}
+
+.blog-filters__group-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--foreground-muted);
 }
 
 .blog-filters__search {
@@ -258,7 +257,7 @@
 
 .blog-filters__sort {
   display: flex;
-  flex-shrink: 0;
+  width: 100%;
   gap: 2px;
   padding: 3px;
   background: var(--background-secondary);
@@ -267,6 +266,7 @@
 }
 
 .blog-filters__sort-option {
+  flex: 1;
   height: 34px;
   min-height: 34px;
   min-width: auto;
@@ -293,21 +293,6 @@
 }
 
 /* Kategori seçimi - onbirden fazla kategori çip olarak dört satır yer kaplıyordu */
-.blog-filters__picker {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-}
-
-.blog-filters__picker-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--foreground-muted);
-}
-
 .blog-filters__picker-button {
   display: flex;
   align-items: center;
@@ -452,10 +437,11 @@
   .blog-filters__trigger {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    width: 100%;
+    gap: 6px;
+    flex-shrink: 0;
     height: 46px;
     min-height: 46px;
+    min-width: 0;
     padding: 0 var(--space-3);
     background: var(--background-secondary);
     border: 1px solid var(--glass-border);
@@ -499,27 +485,21 @@
     background: var(--fusion-primary);
   }
 
-  .blog-filters__trigger-summary {
-    flex: 1;
-    min-width: 0;
-    padding-left: var(--space-2);
-    border-left: 1px solid var(--glass-border);
-    color: var(--foreground-tertiary);
-    font-size: 0.8125rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .blog-filters__trigger-count {
+  .blog-filters__count {
+    display: block;
     flex-shrink: 0;
-    padding: 3px var(--space-2);
+    padding: 4px var(--space-2);
     border-radius: var(--radius-full);
     background: var(--background-tertiary);
     color: var(--foreground-secondary);
     font-size: 0.6875rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Arama kutusu tetikleyiciyle aynı hizada dursun */
+  .blog-filters__input {
+    height: 46px;
   }
 
   .blog-filters__overlay {
@@ -548,16 +528,14 @@
     z-index: 1001;
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0;
     max-height: min(82vh, 640px);
-    padding: var(--space-3) var(--space-4)
-      calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    padding: var(--space-3) var(--space-4) 0;
     background: var(--background);
     border-top: 1px solid var(--glass-border);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.28);
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    overflow: hidden;
     visibility: hidden;
     transform: translateY(100%);
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
@@ -575,9 +553,8 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    position: relative;
+    flex-shrink: 0;
     margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1) 0;
     padding: var(--space-3) var(--space-4) var(--space-2);
     background: var(--background);
@@ -624,18 +601,14 @@
     height: 16px;
   }
 
-  /* Panelde yatay kaydırma yerine hepsi görünsün */
-  .blog-filters__row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .blog-filters__sort {
-    width: 100%;
-  }
-
-  .blog-filters__sort-option {
+  /* Kaydırma yalnızca gövdede: alt şerit artık içeriğin üstüne binmiyor, o
+     yüzden kategori butonunun alt kenarı şeride değmiyor. */
+  .blog-filters__sheet-body {
     flex: 1;
+    min-height: 0;
+    padding-block: var(--space-2) var(--space-5);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   /* Dokunma hedefleri panelde biraz daha yüksek */
@@ -652,9 +625,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    position: sticky;
-    bottom: 0;
-    margin: 0 calc(var(--space-4) * -1) calc(var(--space-4) * -1);
+    flex-shrink: 0;
+    margin: 0 calc(var(--space-4) * -1);
     padding: var(--space-3) var(--space-4)
       calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
     background: var(--background);
@@ -731,10 +703,14 @@
     scrollbar-width: thin;
   }
 
-  /* Sütunun kendisi yapıştığı için filtre bloğunun kendi yapışkanlığı kalkar */
+  /* Sütunun kendisi yapıştığı için filtre bloğunun kendi yapışkanlığı kalkar.
+     288px'lik sütunda başlık, arama, sıralama ve kategori alt alta durur. */
   .blog-index .blog-filters {
     position: static;
     z-index: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
     padding: 0;
     margin-bottom: 0;
     border-bottom: 0;
@@ -748,7 +724,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    margin: 0 0 var(--space-4);
+    margin: 0;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -759,20 +735,6 @@
   .blog-filters__aside-heading svg {
     width: 14px;
     height: 14px;
-  }
-
-  /* 288px'lik sütunda arama, sıralama ve kategori alt alta durur */
-  .blog-index .blog-filters__row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .blog-index .blog-filters__sort {
-    width: 100%;
-  }
-
-  .blog-index .blog-filters__sort-option {
-    flex: 1;
   }
 
   .blog-index .blog-index__popular {
@@ -828,6 +790,15 @@
   flex-wrap: wrap;
   gap: var(--space-2) var(--space-3);
   margin-bottom: var(--space-2);
+}
+
+/* Kategorinin başındaki nokta ayraç görevi de görüyor, ek işaret gerekmiyor. */
+.blog-row__flag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--foreground);
 }
 
 .blog-row__category {
@@ -918,29 +889,71 @@
   gap: 8px;
 }
 
-/* Öne çıkan yazı */
+/* Öne çıkan yazı - listenin geri kalanı hairline satırlarken bu bir kart:
+   büyük başlık, ayrılmış meta satırı ve dolu CTA. */
 .blog-row--featured .blog-row__link {
-  padding: var(--space-6);
+  padding: var(--space-8);
   margin-inline: 0;
   background: var(--background-secondary);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .blog-row--featured .blog-row__link:hover {
-  background: var(--background-tertiary);
+  background: var(--background-secondary);
+  border-color: var(--cat-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .blog-row--featured .blog-row__link:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.blog-row--featured .blog-row__head {
+  margin-bottom: var(--space-3);
+}
+
+.blog-row--featured .blog-row__flag {
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
 }
 
 .blog-row--featured .blog-row__title {
-  font-size: clamp(1.5rem, 3.5vw, 1.875rem);
-  line-height: 1.2;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.75rem, 4.5vw, 2.375rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-3);
 }
 
 .blog-row--featured .blog-row__excerpt {
-  font-size: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--foreground-secondary);
   -webkit-line-clamp: 3;
   line-clamp: 3;
+  margin-bottom: var(--space-5);
+}
+
+.blog-row--featured .blog-row__meta {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--glass-border);
+}
+
+.blog-row--featured .blog-row__cta {
+  padding: 8px var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--cat-accent);
+  color: var(--background);
+  font-size: 0.8125rem;
+}
+
+.blog-row--featured .blog-row__link:hover .blog-row__cta {
+  color: var(--background);
 }
 
 /* İlgili yazılar gibi yoğun listeler */
@@ -981,8 +994,16 @@
   }
 
   .blog-row--featured .blog-row__link {
-    padding: var(--space-5);
+    padding: var(--space-6);
     margin-inline: 0;
+  }
+
+  .blog-row--featured .blog-row__title {
+    font-size: clamp(1.5rem, 7vw, 1.875rem);
+  }
+
+  .blog-row--featured .blog-row__excerpt {
+    font-size: 1rem;
   }
 }
 
@@ -1177,9 +1198,30 @@
   min-width: 0;
 }
 
-/* Küçük ekranlarda içindekiler gövdenin üstünde, başlığın hemen altında */
+/* Küçük ekranlarda içindekiler gövdenin üstünde yapışkan bir şerit olur;
+   makale boyunca ekranın tepesinde kalması için ray da yapışkan. */
 .blog-article__rail {
   order: -1;
+  position: sticky;
+  top: var(--blog-sticky-top);
+  z-index: 20;
+  padding: var(--space-2) 0;
+  background: var(--background);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* Kapsayıcının yan boşluğundan metin sızmasın */
+.blog-article__rail::before {
+  content: "";
+  position: absolute;
+  inset: 0 -24px;
+  background: var(--background);
+  z-index: -1;
+}
+
+/* Sheet açıkken header (z-50) ve okuma çubuğunun altında kalmamalı. */
+.blog-article__rail:has(.blog-toc--sheet-open) {
+  z-index: 1000;
 }
 
 @media (min-width: 1200px) {
@@ -1204,10 +1246,16 @@
 
   .blog-article__rail {
     order: 0;
-    position: sticky;
     top: calc(var(--blog-sticky-top) + var(--space-4));
     max-height: calc(100vh - var(--blog-sticky-top) - var(--space-8));
+    padding: 0;
+    background: none;
+    border-bottom: 0;
     overflow-y: auto;
+  }
+
+  .blog-article__rail::before {
+    display: none;
   }
 }
 
@@ -1220,48 +1268,165 @@
 /* ─────────────────────────────────────────────────────────────────────────
    TABLE OF CONTENTS
 ───────────────────────────────────────────────────────────────────────── */
-.blog-toc {
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  background: var(--background-secondary);
-  overflow: hidden;
-}
-
+/* Dar ekran: yapışkan şeritte tek satır durur, liste bottom sheet'e iner —
+   blog listesindeki "Keşfet" kalıbının aynısı. */
 .blog-toc__toggle {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 6px;
   width: 100%;
-  padding: var(--space-3) var(--space-4);
-  border: none;
-  background: none;
+  height: 44px;
+  padding: 0 var(--space-3);
+  background: var(--background-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
   color: var(--foreground);
-  font-size: 0.875rem;
-  font-weight: 600;
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.blog-toc__toggle svg {
-  width: 16px;
-  height: 16px;
+.blog-toc__toggle:active {
+  background: var(--background-tertiary);
+}
+
+.blog-toc--sheet-open .blog-toc__toggle {
+  border-color: var(--fusion-primary);
+}
+
+.blog-toc__toggle-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: var(--fusion-primary);
+}
+
+.blog-toc__toggle-label {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.blog-toc__toggle-summary {
+  flex: 1;
+  min-width: 0;
+  padding-left: var(--space-2);
+  margin-left: var(--space-1);
+  border-left: 1px solid var(--glass-border);
   color: var(--foreground-tertiary);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .blog-toc__count {
-  margin-left: auto;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--foreground-muted);
+  flex-shrink: 0;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--background-tertiary);
+  color: var(--foreground-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.blog-toc__chevron {
-  transition: transform 0.2s ease;
+.blog-toc__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
 
-.blog-toc__toggle[aria-expanded="true"] .blog-toc__chevron {
-  transform: rotate(180deg);
+.blog-toc--sheet-open .blog-toc__overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Kapalıyken `visibility` ile gizlenir; `display` kaydırma animasyonunu bozardı. */
+.blog-toc__panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  max-height: min(82vh, 640px);
+  padding: var(--space-3) var(--space-4) 0;
+  background: var(--background);
+  border-top: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  visibility: hidden;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.28s;
+}
+
+.blog-toc--sheet-open .blog-toc__panel {
+  visibility: visible;
+  transform: translateY(0);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+}
+
+.blog-toc__sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  position: relative;
+  flex-shrink: 0;
+  margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1) 0;
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  background: var(--background);
+}
+
+/* Sürükleme çentiği - panelin kaydırılabilir olduğunu sezdirir */
+.blog-toc__sheet-head::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  transform: translateX(-50%);
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+}
+
+.blog-toc__sheet-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+.blog-toc__sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--background-secondary);
+  color: var(--foreground-secondary);
+  cursor: pointer;
+}
+
+.blog-toc__sheet-close svg {
+  width: 16px;
+  height: 16px;
 }
 
 .blog-toc__heading {
@@ -1269,23 +1434,20 @@
 }
 
 .blog-toc__list {
-  display: none;
   list-style: none;
   margin: 0;
-  padding: 0 var(--space-3) var(--space-3);
-}
-
-.blog-toc__list.is-open {
-  display: block;
+  padding: 0 0 calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .blog-toc__link {
   display: block;
   min-height: 0;
   min-width: 0;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3);
   border-radius: var(--radius-sm);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.45;
   color: var(--foreground-tertiary);
   text-decoration: none;
@@ -1305,19 +1467,40 @@
 
 .blog-toc__item--h3 .blog-toc__link {
   padding-left: var(--space-5);
-  font-size: 0.78125rem;
 }
 
+@media (max-width: 1199px) and (prefers-reduced-motion: reduce) {
+  .blog-toc__panel,
+  .blog-toc__overlay {
+    transition: none;
+  }
+}
+
+/* ── Masaüstü: sheet çözülür, liste yapışkan rayda satır içi durur ────────── */
 @media (min-width: 1200px) {
   .blog-toc {
-    border: none;
     border-left: 1px solid var(--glass-border);
-    border-radius: 0;
-    background: none;
   }
 
-  .blog-toc__toggle {
+  .blog-toc__toggle,
+  .blog-toc__overlay,
+  .blog-toc__sheet-head {
     display: none;
+  }
+
+  .blog-toc__panel {
+    position: static;
+    z-index: auto;
+    max-height: none;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    visibility: visible;
+    transform: none;
+    transition: none;
   }
 
   .blog-toc__heading {
@@ -1331,8 +1514,18 @@
   }
 
   .blog-toc__list {
-    display: block;
     padding: 0;
+    overflow: visible;
+  }
+
+  .blog-toc__link {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.8125rem;
+  }
+
+  .blog-toc__item--h3 .blog-toc__link {
+    padding-left: var(--space-5);
+    font-size: 0.78125rem;
   }
 
   .blog-toc__link.is-active {
@@ -2146,7 +2339,9 @@
 .blog-share__button:focus-visible,
 .blog-empty__reset:focus-visible,
 .blog-filters__picker-button:focus-visible,
-.blog-filters__sort-option:focus-visible {
+.blog-filters__sort-option:focus-visible,
+.blog-filters__trigger:focus-visible,
+.blog-toc__toggle:focus-visible {
   outline: 2px solid var(--fusion-primary);
   outline-offset: 2px;
 }
@@ -2155,7 +2350,6 @@
   .blog-row__link,
   .blog-row__title,
   .blog-row__cta,
-  .blog-toc__chevron,
   .blog-progress__bar {
     transition: none;
   }

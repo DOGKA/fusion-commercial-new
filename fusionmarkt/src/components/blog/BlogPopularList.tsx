@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Eye, TrendingUp } from "lucide-react";
-import { categoryAccentStyle } from "@/lib/blog/accent";
 
 export interface PopularPost {
   slug: string;
@@ -39,7 +38,7 @@ export default function BlogPopularList({
       </h2>
       <ol className="blog-popular__list">
         {ranked.map((post, index) => (
-          <li key={post.slug} style={categoryAccentStyle(post.category)}>
+          <li key={post.slug}>
             <Link href={`/blog/${post.slug}`} className="blog-popular__item">
               <span className="blog-popular__rank">{index + 1}</span>
               <span className="blog-popular__body">

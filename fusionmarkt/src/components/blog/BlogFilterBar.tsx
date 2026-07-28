@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
-import { categoryAccentStyle } from "@/lib/blog/accent";
 
 const SHEET_ID = "blog-filter-sheet";
 const CATEGORY_LABEL_ID = "blog-filter-category-label";
@@ -215,24 +214,71 @@ export default function BlogFilterBar({
 
   return (
     <div className={`blog-filters ${sheetOpen ? "blog-filters--sheet-open" : ""}`}>
-      {/* Mobilde yapışkan alanda yalnızca bu satır durur; gerisi panele iner. */}
-      <button
-        ref={triggerRef}
-        type="button"
-        className="blog-filters__trigger"
-        onClick={() => setSheetOpen(true)}
-        aria-expanded={sheetOpen}
-        aria-controls={SHEET_ID}
-        aria-label={`Keşfet: ${triggerSummary}, ${resultCount} yazı`}
-      >
-        <SlidersHorizontal className="blog-filters__trigger-icon" aria-hidden="true" />
-        <span className="blog-filters__trigger-label">
-          Keşfet
-          {hasActiveFilters && <span className="blog-filters__trigger-dot" aria-hidden="true" />}
+      {/* Sağ sütunda "En Çok Okunanlar" ile aynı başlık ritmini kurar. */}
+      <h2 className="blog-filters__aside-heading">
+        <SlidersHorizontal aria-hidden="true" />
+        Keşfet
+      </h2>
+
+      {/* Mobilde yapışkan alanda yalnızca bu satır durur; sıralama ve kategori
+          panele iner, arama ise en sık kullanılan aksiyon olduğu için burada
+          kalır ve masaüstünde de sütunun tepesinde durur. */}
+      <div className="blog-filters__bar">
+        <button
+          ref={triggerRef}
+          type="button"
+          className="blog-filters__trigger"
+          onClick={() => setSheetOpen(true)}
+          aria-expanded={sheetOpen}
+          aria-controls={SHEET_ID}
+          aria-label={`Keşfet: ${triggerSummary}, ${resultCount} yazı`}
+        >
+          <SlidersHorizontal className="blog-filters__trigger-icon" aria-hidden="true" />
+          <span className="blog-filters__trigger-label">
+            Keşfet
+            {hasActiveFilters && (
+              <span className="blog-filters__trigger-dot" aria-hidden="true" />
+            )}
+          </span>
+        </button>
+
+        <div className="blog-filters__search">
+          <Search className="blog-filters__search-icon" aria-hidden="true" />
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && query) {
+                event.preventDefault();
+                onQueryChange("");
+              }
+            }}
+            placeholder="Yazılarda ara"
+            aria-label="Blog yazılarında ara"
+            className="blog-filters__input"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                onQueryChange("");
+                inputRef.current?.focus();
+              }}
+              className="blog-filters__clear"
+              aria-label="Aramayı temizle"
+            >
+              <X aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {/* Sayı aşağıdaki canlı bölgede duyuruluyor; burada yalnızca görsel. */}
+        <span className="blog-filters__count" aria-hidden="true">
+          {resultCount}
         </span>
-        <span className="blog-filters__trigger-summary">{triggerSummary}</span>
-        <span className="blog-filters__trigger-count">{resultCount}</span>
-      </button>
+      </div>
 
       <div
         className="blog-filters__overlay"
@@ -247,12 +293,6 @@ export default function BlogFilterBar({
         aria-modal={sheetOpen ? true : undefined}
         aria-label={sheetOpen ? "Keşfet" : undefined}
       >
-        {/* Sağ sütunda "En Çok Okunanlar" ile aynı başlık ritmini kurar. */}
-        <h2 className="blog-filters__aside-heading">
-          <SlidersHorizontal aria-hidden="true" />
-          Keşfet
-        </h2>
-
         <div className="blog-filters__sheet-head">
           <span className="blog-filters__sheet-title">Keşfet</span>
           <button
@@ -266,120 +306,90 @@ export default function BlogFilterBar({
           </button>
         </div>
 
-        <div className="blog-filters__row">
-          <div className="blog-filters__search">
-            <Search className="blog-filters__search-icon" aria-hidden="true" />
-            <input
-              ref={inputRef}
-              type="search"
-              value={query}
-              onChange={(event) => onQueryChange(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Escape" && query) {
-                  event.preventDefault();
-                  onQueryChange("");
-                }
-              }}
-              placeholder="Yazılarda ara"
-              aria-label="Blog yazılarında ara"
-              className="blog-filters__input"
-            />
-            {query && (
+        {/* Kaydırma yalnızca burada: yapışkan alt şerit picker'ın kenarını ezmesin. */}
+        <div className="blog-filters__sheet-body">
+          <div className="blog-filters__group">
+            <span className="blog-filters__group-label">Sıralama</span>
+            <div className="blog-filters__sort" role="group" aria-label="Sıralama">
               <button
                 type="button"
-                onClick={() => {
-                  onQueryChange("");
-                  inputRef.current?.focus();
-                }}
-                className="blog-filters__clear"
-                aria-label="Aramayı temizle"
+                className={`blog-filters__sort-option ${sort === "recent" ? "is-active" : ""}`}
+                onClick={() => onSortChange("recent")}
+                aria-pressed={sort === "recent"}
               >
-                <X aria-hidden="true" />
+                En yeni
               </button>
+              <button
+                type="button"
+                className={`blog-filters__sort-option ${sort === "popular" ? "is-active" : ""}`}
+                onClick={() => onSortChange("popular")}
+                aria-pressed={sort === "popular"}
+              >
+                En çok okunan
+              </button>
+            </div>
+          </div>
+
+          {/* Onbirden fazla kategori çip olarak dört satıra taşıyordu; kapalıyken
+              tek satır kalan bu liste hem yerden kazandırıyor hem de sayıları
+              koruyor. */}
+          <div className="blog-filters__group blog-filters__picker" ref={pickerRef}>
+            <span className="blog-filters__group-label" id={CATEGORY_LABEL_ID}>
+              Kategori
+            </span>
+
+            <button
+              type="button"
+              id={CATEGORY_BUTTON_ID}
+              className="blog-filters__picker-button"
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-expanded={pickerOpen}
+              aria-controls={CATEGORY_LIST_ID}
+              aria-labelledby={`${CATEGORY_LABEL_ID} ${CATEGORY_BUTTON_ID}`}
+              aria-activedescendant={
+                pickerOpen ? categoryOptionId(highlightIndex) : undefined
+              }
+              data-active={activeCategory !== null}
+              onClick={() => (pickerOpen ? setPickerOpen(false) : openPicker(selectedIndex))}
+              onKeyDown={onPickerKeyDown}
+            >
+              <span className="blog-filters__picker-dot" aria-hidden="true" />
+              <span className="blog-filters__picker-value">{selectedOption.label}</span>
+              <span className="blog-filters__picker-count">{selectedOption.count}</span>
+              <ChevronDown className="blog-filters__picker-chevron" aria-hidden="true" />
+            </button>
+
+            {pickerOpen && (
+              <div
+                id={CATEGORY_LIST_ID}
+                ref={optionsRef}
+                role="listbox"
+                aria-labelledby={CATEGORY_LABEL_ID}
+                className="blog-filters__picker-list"
+                // Seçenekler odaklanamaz; tıklarken odak butonda kalmalı.
+                onMouseDown={(event) => event.preventDefault()}
+              >
+                {categoryOptions.map((option, index) => (
+                  <div
+                    key={option.value ?? "__all"}
+                    id={categoryOptionId(index)}
+                    role="option"
+                    aria-selected={index === selectedIndex}
+                    data-highlighted={index === highlightIndex}
+                    className="blog-filters__picker-option"
+                    onClick={() => chooseCategory(index)}
+                    onMouseMove={() => setHighlightIndex(index)}
+                  >
+                    <span className="blog-filters__picker-dot" aria-hidden="true" />
+                    <span className="blog-filters__picker-value">{option.label}</span>
+                    <span className="blog-filters__picker-count">{option.count}</span>
+                    <Check className="blog-filters__picker-check" aria-hidden="true" />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-
-          <div className="blog-filters__sort" role="group" aria-label="Sıralama">
-            <button
-              type="button"
-              className={`blog-filters__sort-option ${sort === "recent" ? "is-active" : ""}`}
-              onClick={() => onSortChange("recent")}
-              aria-pressed={sort === "recent"}
-            >
-              En yeni
-            </button>
-            <button
-              type="button"
-              className={`blog-filters__sort-option ${sort === "popular" ? "is-active" : ""}`}
-              onClick={() => onSortChange("popular")}
-              aria-pressed={sort === "popular"}
-            >
-              En çok okunan
-            </button>
-          </div>
-        </div>
-
-        {/* Onbirden fazla kategori çip olarak dört satıra taşıyordu; kapalıyken
-            tek satır kalan bu liste hem yerden kazandırıyor hem de sayıları
-            ve kategori aksanını koruyor. */}
-        <div className="blog-filters__picker" ref={pickerRef}>
-          <span className="blog-filters__picker-label" id={CATEGORY_LABEL_ID}>
-            Kategori
-          </span>
-
-          <button
-            type="button"
-            id={CATEGORY_BUTTON_ID}
-            className="blog-filters__picker-button"
-            role="combobox"
-            aria-haspopup="listbox"
-            aria-expanded={pickerOpen}
-            aria-controls={CATEGORY_LIST_ID}
-            aria-labelledby={`${CATEGORY_LABEL_ID} ${CATEGORY_BUTTON_ID}`}
-            aria-activedescendant={
-              pickerOpen ? categoryOptionId(highlightIndex) : undefined
-            }
-            data-active={activeCategory !== null}
-            style={categoryAccentStyle(activeCategory)}
-            onClick={() => (pickerOpen ? setPickerOpen(false) : openPicker(selectedIndex))}
-            onKeyDown={onPickerKeyDown}
-          >
-            <span className="blog-filters__picker-dot" aria-hidden="true" />
-            <span className="blog-filters__picker-value">{selectedOption.label}</span>
-            <span className="blog-filters__picker-count">{selectedOption.count}</span>
-            <ChevronDown className="blog-filters__picker-chevron" aria-hidden="true" />
-          </button>
-
-          {pickerOpen && (
-            <div
-              id={CATEGORY_LIST_ID}
-              ref={optionsRef}
-              role="listbox"
-              aria-labelledby={CATEGORY_LABEL_ID}
-              className="blog-filters__picker-list"
-              // Seçenekler odaklanamaz; tıklarken odak butonda kalmalı.
-              onMouseDown={(event) => event.preventDefault()}
-            >
-              {categoryOptions.map((option, index) => (
-                <div
-                  key={option.value ?? "__all"}
-                  id={categoryOptionId(index)}
-                  role="option"
-                  aria-selected={index === selectedIndex}
-                  data-highlighted={index === highlightIndex}
-                  className="blog-filters__picker-option"
-                  style={categoryAccentStyle(option.value)}
-                  onClick={() => chooseCategory(index)}
-                  onMouseMove={() => setHighlightIndex(index)}
-                >
-                  <span className="blog-filters__picker-dot" aria-hidden="true" />
-                  <span className="blog-filters__picker-value">{option.label}</span>
-                  <span className="blog-filters__picker-count">{option.count}</span>
-                  <Check className="blog-filters__picker-check" aria-hidden="true" />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="blog-filters__sheet-foot">

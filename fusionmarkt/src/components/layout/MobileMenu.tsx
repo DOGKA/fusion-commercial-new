@@ -355,16 +355,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               );
             })}
 
-            {/* Divider */}
-            <div className="py-2">
-              <div
-                className={cn(
-                  "h-px bg-gradient-to-r from-transparent to-transparent",
-                  isDark ? "via-white/[0.06]" : "via-black/[0.08]"
-                )}
-              />
-            </div>
-
             {/* Quick Actions: Favoriler + Hesabım */}
             <div
               className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-right-4 fill-mode-backwards"

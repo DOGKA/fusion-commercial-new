@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BlogHeader, BlogContent, BlogShare } from "@/components/blog";
+import BlogHeader from "@/components/blog/BlogHeader";
+import BlogContent from "@/components/blog/BlogContent";
+import BlogShare from "@/components/blog/BlogShare";
 import BlogViewTracker from "@/components/blog/BlogViewTracker";
 import BlogToc from "@/components/blog/BlogToc";
 import BlogReadingProgress from "@/components/blog/BlogReadingProgress";

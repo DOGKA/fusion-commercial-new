@@ -8,7 +8,7 @@
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 import { siteConfig } from "@/lib/seo";
-import { categoryHue } from "@/lib/blog/accent";
+import { BLOG_ACCENT_HUE } from "@/lib/blog/accent";
 import { calculateReadingTime } from "@/lib/blog/content";
 
 export const runtime = "nodejs";
@@ -50,8 +50,8 @@ export default async function Image({ params }: Props) {
     console.error("OG Image blog fetch error:", error);
   }
 
-  const hue = categoryHue(category);
-  const accent = `hsl(${hue}, 72%, 62%)`;
+  const hue = BLOG_ACCENT_HUE;
+  const accent = `hsl(${hue}, 12%, 68%)`;
   const displayTitle = title.length > 110 ? `${title.slice(0, 110)}…` : title;
   const fontSize = displayTitle.length > 70 ? 52 : displayTitle.length > 40 ? 62 : 72;
 
@@ -64,22 +64,11 @@ export default async function Image({ params }: Props) {
           display: "flex",
           flexDirection: "column",
           backgroundColor: "#0a0a0a",
-          backgroundImage: `radial-gradient(circle at 12% 8%, hsla(${hue}, 70%, 45%, 0.35) 0%, transparent 55%), radial-gradient(circle at 92% 96%, rgba(227, 30, 36, 0.28) 0%, transparent 50%)`,
+          backgroundImage: `radial-gradient(circle at 12% 8%, hsla(${hue}, 10%, 50%, 0.28) 0%, transparent 55%), radial-gradient(circle at 92% 96%, rgba(227, 30, 36, 0.28) 0%, transparent 50%)`,
           padding: 72,
           position: "relative",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: 1200,
-            height: 8,
-            backgroundColor: accent,
-          }}
-        />
-
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div
             style={{
@@ -88,7 +77,7 @@ export default async function Image({ params }: Props) {
               fontWeight: 700,
               letterSpacing: 2,
               textTransform: "uppercase",
-              color: accent,
+              color: "#ffffff",
               border: `2px solid ${accent}`,
               borderRadius: 999,
               padding: "8px 20px",

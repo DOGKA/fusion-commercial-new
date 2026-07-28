@@ -10,7 +10,7 @@ NODE_ENV=production
 # =====================================================
 # DATABASE
 # =====================================================
-DATABASE_URL="postgresql://shopuser:!L6=+QohUFD=3W<N@127.0.0.1:5432/shopdb?schema=public"
+DATABASE_URL="postgresql://shopuser:!L6=+QohUFD=3W<N@127.0.0.1:5432/shopdb?schema=public&connection_limit=5&pool_timeout=30"
 
 # =====================================================
 # NEXTAUTH (Her iki uygulama için de gerekli)
