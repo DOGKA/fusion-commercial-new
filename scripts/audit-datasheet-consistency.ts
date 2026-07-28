@@ -4,7 +4,10 @@
  * Aynı teknik değerler dört ayrı yerde tutuluyor ve birbirinden bağımsız
  * güncelleniyor; bu da zamanla birbirinden ayrışmalarına yol açıyor:
  *
- *   1. Veritabanı  → technical_specs tablosu (ürün sayfasında görünen tablo)
+ *   1. Veritabanı  → product_feature_values (ürün sayfasında görünen tablo) ve
+ *                    technical_specs (yalnızca feature değeri olmayan ürünlerde
+ *                    devreye giren yedek). Denetim ekrana geleni esas alır,
+ *                    ikisi çeliştiğinde ayrıca uyarır.
  *   2. Kod         → fusionmarkt/src/lib/power-calculator/products.ts
  *                    (güç hesaplayıcının panel önerisi bu değerlerden çıkıyor)
  *   3. Dokümantasyon → packages/db/prisma/products-reference.md
@@ -31,6 +34,7 @@ import {
   checkCompatibility,
   vocAtTemperature,
   type PowerStationSpec,
+  type SolarPanelSpec,
 } from "./datasheet-reference.js";
 import {
   POWER_STATIONS as SITE_STATIONS,
@@ -285,28 +289,179 @@ function auditProductsTs() {
 // 2) Veritabanı: technical_specs
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** DB'deki Türkçe etiket → datasheet alanı. */
-function stationSpecChecks(ds: PowerStationSpec): { label: string; expected: string | number }[] {
+/**
+ * Aynı teknik değer veritabanında iki tabloda tutuluyor ve etiketleri farklı:
+ * ürün sayfası `product_feature_values`'ı gösteriyor ("Max. Solar Şarj"),
+ * `technical_specs` ise yalnızca feature değeri olmayan ürünlerde yedek olarak
+ * devreye giriyor ("Max Solar Giriş"). Bu yüzden her kontrol birden çok etiket
+ * adayı taşıyor; ilk eşleşen kullanılır.
+ */
+type SpecCheck = {
+  field: string;
+  labels: string[];
+  expected: string | number;
+  /** Değer hiç bulunamazsa bildirilsin mi. Panel uyumluluğunu belirleyen alanlar. */
+  critical?: boolean;
+  /** İki girişli cihazlarda değer birleşik yazılıyor: "70–450 V (HV) / 12–50 V (LV)". */
+  contains?: boolean;
+};
+
+function stationSpecChecks(ds: PowerStationSpec): SpecCheck[] {
   return [
-    { label: "Batarya Kapasitesi", expected: ds.batteryWh },
-    { label: "Batarya Voltajı", expected: ds.batteryNominalV },
-    { label: "AC Şarj Gücü", expected: ds.acChargingW },
-    { label: "Araç Şarj Gücü", expected: ds.carChargingW },
-    { label: "Max Solar Giriş", expected: ds.hvSolarMaxW ?? ds.solarMaxW },
-    { label: "DC Giriş Voltaj Aralığı", expected: ds.hvInputRangeV ?? ds.dcInputRangeV },
-    { label: "Sürekli Çıkış Gücü", expected: ds.continuousW },
-    { label: "Tepe Güç", expected: ds.surgeW },
-    { label: "Ağırlık", expected: ds.weightKg },
-    { label: "Boyutlar", expected: ds.dimensionsMm },
-    { label: "IP Koruma", expected: ds.ipRating },
+    {
+      field: "Batarya Kapasitesi",
+      labels: ["Batarya Kapasitesi", "Kapasite"],
+      expected: ds.batteryWh,
+    },
+    { field: "Batarya Voltajı", labels: ["Batarya Voltajı"], expected: ds.batteryNominalV },
+    { field: "AC Şarj Gücü", labels: ["AC Şarj Gücü"], expected: ds.acChargingW },
+    { field: "Araç Şarj Gücü", labels: ["Araç Şarj Gücü"], expected: ds.carChargingW },
+    {
+      field: "Max Solar Giriş",
+      labels: ["Max Solar Giriş", "Max. Solar Şarj"],
+      expected: ds.hvSolarMaxW ?? ds.solarMaxW,
+      critical: true,
+    },
+    {
+      field: "DC Giriş Voltaj Aralığı",
+      labels: ["DC Giriş Voltaj Aralığı", "Solar Giriş Voltajı"],
+      expected: ds.hvInputRangeV ?? ds.dcInputRangeV,
+      critical: true,
+      contains: true,
+    },
+    {
+      field: "Max DC/PV Giriş Akımı",
+      labels: ["Max Solar Giriş Akımı", "Max. DC PV Akımı"],
+      expected: ds.hvMaxPvCurrentA ?? ds.maxPvCurrentA,
+      critical: true,
+    },
+    {
+      field: "Sürekli Çıkış Gücü",
+      labels: ["Sürekli Çıkış Gücü", "Çıkış Gücü"],
+      expected: ds.continuousW,
+    },
+    { field: "Tepe Güç", labels: ["Tepe Güç", "Max. Çıkış Gücü"], expected: ds.surgeW },
+    { field: "Ağırlık", labels: ["Ağırlık"], expected: ds.weightKg },
+    {
+      field: "Boyutlar",
+      labels: ["Boyutlar"],
+      expected: ds.dimensionsMm,
+      contains: true,
+    },
+    { field: "IP Koruma", labels: ["IP Koruma"], expected: ds.ipRating },
+    { field: "Ses Seviyesi", labels: ["Ses Seviyesi"], expected: ds.noiseDb },
+    { field: "Batarya Tipi", labels: ["Batarya Tipi", "Hücre Tipi"], expected: ds.cellType },
+    { field: "USB-C Port", labels: ["USB-C Port"], expected: ds.usbCPorts },
+    { field: "USB-A Port", labels: ["USB-A Port"], expected: ds.usbAPorts },
+    {
+      field: "Kablosuz Şarj",
+      labels: ["Kablosuz Şarj"],
+      expected: ds.wirelessChargerW ? "Evet" : "Hayır",
+    },
   ];
 }
+
+function panelSpecChecks(ds: SolarPanelSpec): SpecCheck[] {
+  return [
+    { field: "Panel Gücü", labels: ["Çıkış Gücü", "Panel Gücü"], expected: ds.watt },
+    {
+      field: "Açık Devre Voltajı (Voc)",
+      labels: ["Açık Devre Voltajı", "Açık Devre Gerilimi"],
+      expected: ds.vocV,
+      critical: true,
+    },
+    {
+      field: "Çalışma Voltajı (Vmp)",
+      labels: ["Çalışma Voltajı"],
+      expected: ds.vmpV,
+      critical: true,
+    },
+    {
+      field: "Kısa Devre Akımı (Isc)",
+      labels: ["Kısa Devre Akımı"],
+      expected: ds.iscA,
+      critical: true,
+    },
+    { field: "Çalışma Akımı (Imp)", labels: ["Çalışma Akımı"], expected: ds.impA },
+    { field: "Ağırlık", labels: ["Ağırlık"], expected: ds.weightKg },
+    { field: "IP Koruma", labels: ["IP Koruma"], expected: ds.ipRating },
+    { field: "Hücre Tipi", labels: ["Hücre Tipi"], expected: ds.cellType },
+    {
+      field: "Katlanmış Boyutlar",
+      labels: ["Katlanmış Boyutlar"],
+      expected: ds.foldedMm,
+    },
+    {
+      field: "Açılmış Boyutlar",
+      labels: ["Açılmış Boyutlar"],
+      expected: ds.unfoldedMm,
+    },
+    { field: "Katlanma Tipi", labels: ["Katlanma Tipi"], expected: ds.foldType },
+    {
+      field: "Çalışma Sıcaklığı",
+      labels: ["Çalışma Sıcaklığı"],
+      expected: ds.workingTempC,
+      contains: true,
+    },
+    {
+      field: "Panel Konfigürasyonu",
+      labels: ["Panel Konfigürasyonu"],
+      expected: ds.panelConfig,
+    },
+    { field: "MC4 Nominal Voltaj", labels: ["MC4 Nominal Voltaj"], expected: ds.vmpV },
+    { field: "MC4 Nominal Akım", labels: ["MC4 Nominal Akım"], expected: ds.impA },
+  ];
+}
+
+type FeatureValueRow = {
+  valueText: string | null;
+  valueNumber: unknown;
+  unit: string | null;
+  feature: { name: string } | null;
+};
 
 type DbProduct = {
   name: string;
   slug: string;
   technicalSpecs: { label: string; value: string }[];
+  productFeatureValues: FeatureValueRow[];
 };
+
+/** Değer özelliğe göre ya metin alanında ya da sayı + birim ikilisinde duruyor. */
+function renderFeatureValue(row: FeatureValueRow): string {
+  if (row.valueText !== null) return row.valueText;
+  if (row.valueNumber === null || row.valueNumber === undefined) return "";
+  return `${String(row.valueNumber)}${row.unit ?? ""}`;
+}
+
+function featureMap(product: DbProduct): Map<string, string> {
+  return new Map(
+    product.productFeatureValues
+      .filter((v) => v.feature)
+      .map((v) => [v.feature!.name.trim(), renderFeatureValue(v)])
+  );
+}
+
+function techSpecMap(product: DbProduct): Map<string, string> {
+  return new Map(product.technicalSpecs.map((s) => [s.label.trim(), s.value]));
+}
+
+function findByLabels(map: Map<string, string>, labels: string[]): string | undefined {
+  for (const label of labels) {
+    const found = findSpec(map, label);
+    if (found !== undefined) return found;
+  }
+  return undefined;
+}
+
+function valueMatches(found: string, check: SpecCheck): boolean {
+  if (typeof check.expected === "number") {
+    return numbersMatch(num(found), check.expected);
+  }
+  const f = norm(found);
+  const e = norm(String(check.expected));
+  return check.contains ? f.includes(e) : f === e;
+}
 
 /**
  * Model anahtarı birden fazla üründe geçebiliyor: B5120 genişletme bataryasının
@@ -324,23 +479,39 @@ function matchProduct(products: DbProduct[], key: string): DbProduct | undefined
 }
 
 async function auditDatabase() {
-  const products = await prisma.product.findMany({
+  const products: DbProduct[] = await prisma.product.findMany({
     select: {
       name: true,
       slug: true,
       technicalSpecs: { select: { label: true, value: true } },
+      productFeatureValues: {
+        select: {
+          valueText: true,
+          valueNumber: true,
+          unit: true,
+          feature: { select: { name: true } },
+        },
+      },
     },
   });
 
-  for (const ds of DS_STATIONS) {
-    if (ds.key === "singo2000") continue; // katalogda yok
+  const targets = [
+    ...DS_STATIONS.filter((ds) => ds.key !== "singo2000") // katalogda yok
+      .map((ds) => ({ model: ds.model, key: ds.key, checks: stationSpecChecks(ds) })),
+    ...DS_PANELS.map((ds) => ({
+      model: ds.model,
+      key: ds.key,
+      checks: panelSpecChecks(ds),
+    })),
+  ];
 
-    const product = matchProduct(products, ds.key);
+  for (const target of targets) {
+    const product = matchProduct(products, target.key);
     if (!product) {
       report({
         severity: "eksik",
         source: "veritabanı",
-        model: ds.model,
+        model: target.model,
         field: "ürün kaydı",
         expected: "tanımlı olmalı",
         found: "yok",
@@ -348,95 +519,55 @@ async function auditDatabase() {
       continue;
     }
 
-    const byLabel = new Map(product.technicalSpecs.map((s) => [s.label.trim(), s.value]));
+    const shown = featureMap(product);
+    const fallback = techSpecMap(product);
 
-    for (const check of stationSpecChecks(ds)) {
-      const found = findSpec(byLabel, check.label);
+    // SingleProductView.tsx ile aynı seçim: feature değerleri varsa tablo
+    // onlardan render ediliyor, technical_specs hiç ekrana gelmiyor.
+    const displayed = shown.size > 0 ? shown : fallback;
+    const source =
+      shown.size > 0
+        ? "ürün sayfası · product_feature_values"
+        : "ürün sayfası · technical_specs (yedek)";
+
+    for (const check of target.checks) {
+      const found = findByLabels(displayed, check.labels);
+
       if (found === undefined) {
-        report({
-          severity: "eksik",
-          source: "veritabanı",
-          model: ds.model,
-          field: check.label,
-          expected: String(check.expected),
-          found: "spec satırı yok",
-        });
-        continue;
-      }
-
-      const expectedNum = num(check.expected);
-      const foundNum = num(found);
-      const isNumeric = typeof check.expected === "number";
-
-      const matches = isNumeric
-        ? numbersMatch(foundNum, expectedNum)
-        : norm(found) === norm(String(check.expected));
-
-      if (!matches) {
+        if (check.critical) {
+          report({
+            severity: "eksik",
+            source,
+            model: target.model,
+            field: check.field,
+            expected: String(check.expected),
+            found: "satır yok",
+          });
+        }
+      } else if (!valueMatches(found, check)) {
         report({
           severity: "hata",
-          source: "veritabanı",
-          model: ds.model,
-          field: check.label,
+          source,
+          model: target.model,
+          field: check.field,
           expected: String(check.expected),
           found,
         });
       }
-    }
 
-    // Panel uyumluluğunu belirleyen değer; ürün sayfasında hiç yoksa müşteri
-    // yanlış panel seçebilir.
-    if (![...byLabel.keys()].some((label) => /giriş akımı|pv akım|dc akım/i.test(label))) {
-      report({
-        severity: "eksik",
-        source: "veritabanı",
-        model: ds.model,
-        field: "Max DC/PV Giriş Akımı",
-        expected: `${ds.hvMaxPvCurrentA ?? ds.maxPvCurrentA}A`,
-        found: "spec satırı yok",
-      });
-    }
-  }
-
-  for (const ds of DS_PANELS) {
-    const product = matchProduct(products, ds.key);
-    if (!product) continue;
-
-    const byLabel = new Map(product.technicalSpecs.map((s) => [s.label.trim(), s.value]));
-    const checks: { label: string; expected: number | string }[] = [
-      { label: "Çıkış Gücü", expected: ds.watt },
-      { label: "Açık Devre Voltajı (Voc)", expected: ds.vocV },
-      { label: "Çalışma Voltajı (Vmp)", expected: ds.vmpV },
-      { label: "Kısa Devre Akımı (Isc)", expected: ds.iscA },
-      { label: "Ağırlık", expected: ds.weightKg },
-      { label: "IP Koruma", expected: ds.ipRating },
-    ];
-
-    for (const check of checks) {
-      const found = findSpec(byLabel, check.label);
-      if (found === undefined) {
+      // İki tablo aynı alanı farklı yazıyorsa hatalı olan sessizce yayında
+      // kalabiliyor: P3200'ün solar giriş limiti yedekte doğruydu, yayındaki
+      // kopyaya surge gücü yazılmıştı.
+      if (shown.size === 0 || fallback.size === 0) continue;
+      const backup = findByLabels(fallback, check.labels);
+      if (found !== undefined && backup !== undefined && norm(found) !== norm(backup)) {
         report({
-          severity: "eksik",
-          source: "veritabanı",
-          model: ds.model,
-          field: check.label,
-          expected: String(check.expected),
-          found: "spec satırı yok",
-        });
-        continue;
-      }
-      const matches =
-        typeof check.expected === "number"
-          ? numbersMatch(num(found), check.expected)
-          : norm(found) === norm(String(check.expected));
-      if (!matches) {
-        report({
-          severity: "hata",
-          source: "veritabanı",
-          model: ds.model,
-          field: check.label,
-          expected: String(check.expected),
-          found,
+          severity: "not",
+          source: "veritabanı · iki tablo çelişiyor",
+          model: target.model,
+          field: check.field,
+          expected: `${backup} (yedek tablo)`,
+          found: `${found} (yayında)`,
         });
       }
     }
@@ -697,8 +828,8 @@ async function main() {
       console.log("─".repeat(78));
     }
     console.log(`  [${issue.severity}] ${issue.model} · ${issue.field}`);
-    console.log(`         datasheet: ${issue.expected}`);
-    console.log(`         sitede:    ${issue.found}`);
+    console.log(`         beklenen: ${issue.expected}`);
+    console.log(`         bulunan:  ${issue.found}`);
   }
 
   printCompatibilityMatrix();

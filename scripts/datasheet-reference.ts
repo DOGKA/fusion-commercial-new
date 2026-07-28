@@ -17,6 +17,7 @@ export type PowerStationSpec = {
   model: string;
   /** Ürün slug'ında ve blog metinlerinde arama için kullanılan anahtar. */
   key: string;
+  cellType: string;
   batteryWh: number;
   batteryNominalV: number;
   batteryRangeV: string;
@@ -44,11 +45,20 @@ export type PowerStationSpec = {
   weightKg: number;
   ipRating: string;
   noiseDb: string;
+  /**
+   * Datasheet'in DC Output bölümündeki port sayıları. Singo serisinde QC3.0
+   * portları da fiziksel olarak A tipi olduğu için usbAPorts'a dahildir.
+   */
+  usbCPorts: number;
+  usbAPorts: number;
+  /** Yalnızca kablosuz şarj pedi olan modellerde. */
+  wirelessChargerW?: number;
 };
 
 export type SolarPanelSpec = {
   model: string;
   key: string;
+  cellType: string;
   watt: number;
   /** Açık devre voltajı — MPPT uyumluluğunu belirleyen değer. */
   vocV: number;
@@ -60,12 +70,17 @@ export type SolarPanelSpec = {
   foldedMm: string;
   unfoldedMm: string;
   weightKg: number;
+  workingTempC: string;
+  foldType: string;
+  /** Datasheet'te çıkış gücünün yanında verilen hücre grubu: "50W*4". */
+  panelConfig: string;
 };
 
 export const POWER_STATIONS: PowerStationSpec[] = [
   {
     model: "P800",
     key: "p800",
+    cellType: "LiFePO4",
     batteryWh: 512,
     batteryNominalV: 25.6,
     batteryRangeV: "40~60",
@@ -86,10 +101,14 @@ export const POWER_STATIONS: PowerStationSpec[] = [
     weightKg: 6.55,
     ipRating: "IP20",
     noiseDb: "<60",
+    // TYPE-C1 (100W) + TYPE-C2/C3 (30W); USB-A1/A2 (30W)
+    usbCPorts: 3,
+    usbAPorts: 2,
   },
   {
     model: "P1800",
     key: "p1800",
+    cellType: "LiFePO4",
     batteryWh: 1024,
     batteryNominalV: 51.2,
     batteryRangeV: "40~60",
@@ -110,10 +129,14 @@ export const POWER_STATIONS: PowerStationSpec[] = [
     weightKg: 12.7,
     ipRating: "IP20",
     noiseDb: "<65",
+    // TYPE-C1 (100W) + TYPE-C2/C3 (30W); USB-A1/A2/A3 (30W)
+    usbCPorts: 3,
+    usbAPorts: 3,
   },
   {
     model: "Singo2000",
     key: "singo2000",
+    cellType: "LiFePO4",
     batteryWh: 1440,
     batteryNominalV: 48,
     batteryRangeV: "40~60",
@@ -134,10 +157,15 @@ export const POWER_STATIONS: PowerStationSpec[] = [
     weightKg: 17.2,
     ipRating: "IP20",
     noiseDb: "<65",
+    // USB-TypeC (x2); USB-A (x1) + QC3.0 (x2) — QC3.0 portları da A tipi
+    usbCPorts: 2,
+    usbAPorts: 3,
+    wirelessChargerW: 10,
   },
   {
     model: "Singo2000Pro",
     key: "singo2000pro",
+    cellType: "LiFePO4",
     batteryWh: 1920,
     batteryNominalV: 48,
     batteryRangeV: "40~60",
@@ -158,10 +186,14 @@ export const POWER_STATIONS: PowerStationSpec[] = [
     weightKg: 20.5,
     ipRating: "IP20",
     noiseDb: "<65",
+    usbCPorts: 2,
+    usbAPorts: 3,
+    wirelessChargerW: 10,
   },
   {
     model: "P3200",
     key: "p3200",
+    cellType: "LiFePO4",
     batteryWh: 2048,
     batteryNominalV: 51.2,
     batteryRangeV: "40~60",
@@ -182,10 +214,14 @@ export const POWER_STATIONS: PowerStationSpec[] = [
     weightKg: 24.35,
     ipRating: "IP20",
     noiseDb: "<65",
+    // TYPE-C1/C2 + TYPE-C3/C4; USB-A1/A2/A3/A4
+    usbCPorts: 4,
+    usbAPorts: 4,
   },
   {
     model: "SH4000",
     key: "sh4000",
+    cellType: "LiFePO4",
     batteryWh: 5120,
     batteryNominalV: 51.2,
     batteryRangeV: "40~60",
@@ -209,10 +245,15 @@ export const POWER_STATIONS: PowerStationSpec[] = [
     surgeW: 8000,
     batteryToAcPct: 93.0,
     acToBatteryPct: 93.0,
+    // Toplam ölçü; datasheet ayrıca inverter 510*216*208, batarya 510*375*198,
+    // kaide 510*82*256 olarak parçalıyor.
     dimensionsMm: "510*673*266",
     weightKg: 65,
     ipRating: "IP54",
     noiseDb: "<40",
+    // Yalnızca USB-TypeC (x2); A tipi port yok.
+    usbCPorts: 2,
+    usbAPorts: 0,
   },
 ];
 
@@ -220,6 +261,7 @@ export const SOLAR_PANELS: SolarPanelSpec[] = [
   {
     model: "SP100",
     key: "sp100",
+    cellType: "Monocrystalline",
     watt: 100,
     vocV: 21.6,
     vmpV: 18,
@@ -230,10 +272,14 @@ export const SOLAR_PANELS: SolarPanelSpec[] = [
     foldedMm: "387*609*30",
     unfoldedMm: "1250*609*10",
     weightKg: 5,
+    workingTempC: "-20~+70",
+    foldType: "4 Fold",
+    panelConfig: "25W*4",
   },
   {
     model: "SP200",
     key: "sp200",
+    cellType: "Monocrystalline",
     watt: 200,
     vocV: 28.8,
     vmpV: 24,
@@ -244,10 +290,14 @@ export const SOLAR_PANELS: SolarPanelSpec[] = [
     foldedMm: "610*608*45",
     unfoldedMm: "2074*608*30",
     weightKg: 8,
+    workingTempC: "-20~+70",
+    foldType: "4 Fold",
+    panelConfig: "50W*4",
   },
   {
     model: "SP400",
     key: "sp400",
+    cellType: "Monocrystalline",
     watt: 400,
     vocV: 52.8,
     vmpV: 44,
@@ -258,6 +308,9 @@ export const SOLAR_PANELS: SolarPanelSpec[] = [
     foldedMm: "725*990*45",
     unfoldedMm: "2617*990*30",
     weightKg: 16.3,
+    workingTempC: "-20~+70",
+    foldType: "4 Fold",
+    panelConfig: "100W*4",
   },
 ];
 
