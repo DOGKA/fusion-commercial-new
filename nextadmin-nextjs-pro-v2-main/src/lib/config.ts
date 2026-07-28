@@ -25,12 +25,13 @@ export const UPLOAD_CONFIG = {
   AVATAR_QUALITY: 85,
 } as const;
 
-// S3 Configuration
+// Cloudflare R2 Configuration (S3 uyumlu API)
 export const S3_CONFIG = {
-  REGION: process.env.AWS_REGION || "eu-central-1",
-  BUCKET: process.env.AWS_S3_BUCKET || "fusionmarkt",
+  REGION: process.env.AWS_REGION || "auto",
+  BUCKET: process.env.AWS_S3_BUCKET,
   PREFIX: process.env.S3_PREFIX || "fusionmarkt",
-  PUBLIC_BASE_URL: process.env.S3_PUBLIC_BASE_URL || process.env.AWS_CLOUDFRONT_URL,
+  ENDPOINT: process.env.S3_ENDPOINT,
+  PUBLIC_BASE_URL: process.env.S3_PUBLIC_BASE_URL,
   PRESIGN_EXPIRY: 300, // 5 minutes
 } as const;
 

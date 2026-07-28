@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
   // IMAGE OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════════════════
   images: {
-    // Disable image optimization in development if S3 images timeout
+    // Disable image optimization in development if CDN images timeout
     unoptimized: process.env.NODE_ENV === 'development',
     minimumCacheTTL: 86400,
     remotePatterns: [
@@ -32,18 +32,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "cdn.fusionmarkt.com",
-        pathname: "/**",
-      },
-      // AWS S3 - Frankfurt (eu-central-1)
-      {
-        protocol: "https",
-        hostname: "fusionmarkt.s3.eu-central-1.amazonaws.com",
-        pathname: "/**",
-      },
-      // AWS S3 - Stockholm (eu-north-1) - mybucketajax
-      {
-        protocol: "https",
-        hostname: "mybucketajax.s3.eu-north-1.amazonaws.com",
         pathname: "/**",
       },
       // Cloudflare CDN (if using Cloudflare Images or R2)

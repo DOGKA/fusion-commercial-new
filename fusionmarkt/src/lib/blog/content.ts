@@ -98,13 +98,25 @@ function normalizeMarkup(html: string): string {
     .replace(/^(<p>\s*<br\s*\/?>\s*<\/p>\s*)+/gi, "");
 }
 
-const S3_PREFIX = "https://fusionmarkt.s3.eu-central-1.amazonaws.com/";
+/**
+ * Optimizer'a yönlendirilebilecek görsel kaynakları. Buradaki adresler
+ * next.config.ts'teki `images.remotePatterns` listesiyle aynı kalmalı;
+ * izin verilmeyen bir host'a yönlendirilen istek optimizer'dan 400 döner.
+ */
+const OPTIMIZABLE_IMAGE_PREFIXES = ["https://cdn.fusionmarkt.com/"];
+
+const OPTIMIZABLE_IMAGE_PATTERN = new RegExp(
+  `<img([^>]*)src="((?:${OPTIMIZABLE_IMAGE_PREFIXES.map((prefix) =>
+    prefix.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")
+  ).join("|")})[^"]+)"([^>]*)>`,
+  "gi"
+);
 
 /** Gövdede görsel geçerse Next image optimizer'a yönlendirir. */
 function optimizeImages(html: string): string {
   let index = 0;
   let output = html.replace(
-    new RegExp(`<img([^>]*)src="(${S3_PREFIX.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}[^"]+)"([^>]*)>`, "gi"),
+    OPTIMIZABLE_IMAGE_PATTERN,
     (_match, before, url, after) => {
       const optimizedSrc = `/_next/image?url=${encodeURIComponent(url)}&w=1200&q=75`;
       index++;

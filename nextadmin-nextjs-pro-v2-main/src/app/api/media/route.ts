@@ -2,24 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
 import { PrismaClient } from "@prisma/client";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getClient, getPublicUrl, STORAGE_BUCKET } from "@/lib/s3";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
 
 const prisma = new PrismaClient();
-
-// S3 Client - S3_ENDPOINT tanımlıysa (örn. Cloudflare R2) o adrese bağlanır.
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "eu-central-1",
-  ...(process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT } : {}),
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-  },
-});
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || "fusionmarkt";
-const CDN_URL = process.env.AWS_CLOUDFRONT_URL || `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || "eu-central-1"}.amazonaws.com`;
 
 // KVKK gereği yerel sunucuda saklanacak klasörler
 const LOCAL_STORAGE_FOLDERS = ["USERS"];
@@ -176,7 +164,7 @@ export async function POST(request: NextRequest) {
         key = `${folderPath}/${timestamp}-${randomId}-${cleanName}`;
 
         const command = new PutObjectCommand({
-          Bucket: BUCKET_NAME,
+          Bucket: STORAGE_BUCKET,
           Key: key,
           Body: buffer,
           ContentType: file.type,
@@ -189,8 +177,8 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        await s3Client.send(command);
-        url = `${CDN_URL}/${key}`;
+        await getClient().send(command);
+        url = getPublicUrl(key);
       }
 
       // Veritabanına kaydet
@@ -264,10 +252,10 @@ export async function DELETE(request: NextRequest) {
       // S3'ten sil
       try {
         const command = new DeleteObjectCommand({
-          Bucket: BUCKET_NAME,
+          Bucket: STORAGE_BUCKET,
           Key: media.key,
         });
-        await s3Client.send(command);
+        await getClient().send(command);
       } catch (s3Error) {
         console.error("S3 delete error:", s3Error);
         // S3'ten silme başarısız olsa bile veritabanından sil

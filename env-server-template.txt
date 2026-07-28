@@ -42,15 +42,20 @@ EMAIL_FROM="FusionMarkt <noreply@fusionmarkt.com>"
 ADMIN_EMAIL="fusionmarktofficial@gmail.com"
 
 # =====================================================
-# AWS S3 (Görsel Depolama)
+# CLOUDFLARE R2 (Görsel Depolama)
 # =====================================================
-AWS_REGION="eu-central-1"
-AWS_ACCESS_KEY_ID="AKIAXXXXXXXXXXXXXXXX"
-AWS_SECRET_ACCESS_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-AWS_S3_BUCKET="fusionmarkt"
+# R2, S3 uyumlu bir API sunar; istemci @aws-sdk/client-s3 paketinden gelir.
+# Bu yüzden değişken adları AWS_* olarak kaldı, bağlanılan yer AWS değil.
+#
+# S3_ENDPOINT zorunludur: verilmezse SDK varsayılan olarak AWS'ye bağlanmaya
+# çalışır. Kod bu durumda hata verip yüklemeyi durdurur.
+AWS_REGION="auto"
+AWS_ACCESS_KEY_ID="<R2 access key id>"
+AWS_SECRET_ACCESS_KEY="<R2 secret access key>"
+AWS_S3_BUCKET="fusionmarkt-media"
 S3_PREFIX="fusionmarkt"
-AWS_CLOUDFRONT_URL="https://d1xxxxxxxx.cloudfront.net"
-S3_PUBLIC_BASE_URL="https://d1xxxxxxxx.cloudfront.net"
+S3_ENDPOINT="https://<hesap-id>.r2.cloudflarestorage.com"
+S3_PUBLIC_BASE_URL="https://cdn.fusionmarkt.com"
 
 # =====================================================
 # SITE URL (Callback için gerekli)

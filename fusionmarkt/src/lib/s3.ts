@@ -1,25 +1,42 @@
 /**
- * S3 Utility Functions for Frontend
- * AWS SDK v3 wrapper for review image uploads
+ * Depolama yardımcıları — yorum görselleri, iade ve servis formu dosyaları.
+ *
+ * Depolama Cloudflare R2'de. R2, S3 uyumlu bir API sunduğu için istemci
+ * @aws-sdk/client-s3 paketinden geliyor; bağlanılan yer AWS değil, S3_ENDPOINT
+ * ile verilen R2 uç noktası.
  */
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 
-// S3 Client (singleton)
-// S3_ENDPOINT tanımlıysa (örn. Cloudflare R2) o adrese bağlanır, yoksa AWS S3'e.
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "eu-central-1",
-  ...(process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT } : {}),
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || "fusionmarkt";
+const S3_ENDPOINT = process.env.S3_ENDPOINT;
+const BUCKET_NAME = process.env.AWS_S3_BUCKET;
 const S3_PREFIX = process.env.S3_PREFIX || "fusionmarkt";
-const S3_PUBLIC_BASE_URL = process.env.S3_PUBLIC_BASE_URL || process.env.AWS_CLOUDFRONT_URL;
+const S3_PUBLIC_BASE_URL = process.env.S3_PUBLIC_BASE_URL;
+
+let cachedClient: S3Client | null = null;
+
+/**
+ * Endpoint verilmezse SDK varsayılan olarak AWS'ye bağlanır. Sessizce yanlış
+ * yere yazmak yerine hata veriyoruz.
+ */
+function getClient(): S3Client {
+  if (cachedClient) return cachedClient;
+  if (!S3_ENDPOINT) {
+    throw new Error(
+      "S3_ENDPOINT tanımlı değil. R2 uç noktası olmadan dosya yüklenemez."
+    );
+  }
+  cachedClient = new S3Client({
+    region: process.env.AWS_REGION || "auto",
+    endpoint: S3_ENDPOINT,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
+  });
+  return cachedClient;
+}
 
 /**
  * Generate S3 key for review image
@@ -58,15 +75,19 @@ export function generateReturnImageKey(orderNumber: string, filename: string): s
 }
 
 /**
- * Generate public URL for S3 object
+ * Yüklenen dosyanın CDN üzerindeki genel adresi.
+ *
+ * Adres veritabanına kaydedildiği için tahmin yürütmüyoruz: taban adres yoksa
+ * hata veriyoruz. Aksi halde yanlış bir host kayıtlara yazılır ve sonradan
+ * tek tek düzeltmek gerekir.
  */
 export function getS3PublicUrl(key: string): string {
-  if (S3_PUBLIC_BASE_URL) {
-    // CDN (Cloudflare R2 custom domain / CloudFront)
-    return `${S3_PUBLIC_BASE_URL}/${key}`;
+  if (!S3_PUBLIC_BASE_URL) {
+    throw new Error(
+      "S3_PUBLIC_BASE_URL tanımlı değil. Genel adres üretilemez."
+    );
   }
-  const region = process.env.AWS_REGION || "eu-central-1";
-  return `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${key}`;
+  return `${S3_PUBLIC_BASE_URL}/${key}`;
 }
 
 /**
@@ -85,8 +106,8 @@ export async function uploadToS3(
     CacheControl: "public, max-age=31536000", // 1 yıl cache
   });
 
-  await s3Client.send(command);
-  
+  await getClient().send(command);
+
   return getS3PublicUrl(key);
 }
 
@@ -109,14 +130,15 @@ export function generateServiceFormKey(filename: string): string {
 }
 
 /**
- * Check if S3 credentials are configured
+ * Check if storage credentials are configured
  */
 export function isS3Configured(): boolean {
   return !!(
-    process.env.AWS_REGION &&
+    S3_ENDPOINT &&
+    S3_PUBLIC_BASE_URL &&
+    BUCKET_NAME &&
     process.env.AWS_ACCESS_KEY_ID &&
-    process.env.AWS_SECRET_ACCESS_KEY &&
-    process.env.AWS_S3_BUCKET
+    process.env.AWS_SECRET_ACCESS_KEY
   );
 }
 
