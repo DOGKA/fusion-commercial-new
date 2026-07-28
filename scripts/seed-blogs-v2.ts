@@ -42,7 +42,7 @@ const blogs: BlogInput[] = [
 <h2>Güneş Panellerinde VOC</h2>
 
 <h3>VOC Değeri Ne Anlama Gelir?</h3>
-<p>Bir güneş panelinin etiketi üzerinde gördüğünüz <strong>VOC</strong> değeri, o panelin üretebileceği maksimum voltajı gösterir. Örneğin IEETek SP200 güneş panelinin VOC değeri yaklaşık <strong>24V</strong>'dur. Bu, panelin en parlak güneş altında, hiçbir cihaza bağlı değilken üretebileceği en yüksek gerilimdir.</p>
+<p>Bir güneş panelinin etiketi üzerinde gördüğünüz <strong>VOC</strong> değeri, o panelin üretebileceği maksimum voltajı gösterir. Örneğin IEETek SP200 güneş panelinin VOC değeri <strong>28.8V</strong>'tur; aynı panelin çalışma voltajı (Vmp) ise 24V'tur. Etiketteki bu iki değeri karıştırmamak önemli, çünkü cihazın giriş limitiyle karşılaştırılması gereken VOC'dir. Bu, panelin en parlak güneş altında, hiçbir cihaza bağlı değilken üretebileceği en yüksek gerilimdir.</p>
 
 <p>Güneş paneli bir güç istasyonuna bağlandığında ise <strong>Vmp (Maximum Power Point Voltage)</strong> yani çalışma voltajında çalışır. Vmp her zaman VOC'den düşüktür (genellikle VOC'nin %75-85'i civarında).</p>
 
@@ -50,7 +50,7 @@ const blogs: BlogInput[] = [
 <p>Güneş panelinin VOC değeri şu koşullarda normalden <strong>yükselebilir</strong>:</p>
 
 <ul>
-<li><strong>Düşük sıcaklık:</strong> Bu en önemli faktördür. Güneş paneli hücreleri soğudukça voltaj artar. Kışın güneşli ama soğuk bir günde (-5°C ile +5°C arası) panel VOC'si etiket değerinin <strong>%10-20 üzerine</strong> çıkabilir. Örneğin etiket VOC'si 24V olan panel, soğukta 27-28V üretebilir.</li>
+<li><strong>Düşük sıcaklık:</strong> Bu en önemli faktördür. Güneş paneli hücreleri soğudukça voltaj artar. Kışın güneşli ama soğuk bir günde (-5°C ile +5°C arası) panel VOC'si etiket değerinin <strong>%10-20 üzerine</strong> çıkabilir. Örneğin etiket VOC'si 28.8V olan SP200, soğukta 32-35V üretebilir.</li>
 <li><strong>Yüksek ışınım (irradiance):</strong> Güneş ışığının yoğunluğu arttığında VOC da hafif yükselir, ancak sıcaklık etkisi kadar belirgin değildir.</li>
 <li><strong>Yüksek rakım:</strong> Dağ kamplarında atmosfer daha ince olduğundan güneş ışınımı daha yoğundur ve VOC biraz artabilir.</li>
 </ul>
@@ -72,6 +72,8 @@ const blogs: BlogInput[] = [
 <tr><td>IEETek P1800</td><td>52V</td></tr>
 <tr><td>IEETek P2400</td><td>60V</td></tr>
 <tr><td>IEETek P3200</td><td>80V</td></tr>
+<tr><td>IEETek Singo 2000 Pro</td><td>50V</td></tr>
+<tr><td>IEETek SH4000</td><td>LV girişi 50V · HV girişi 450V (alt sınır 70V)</td></tr>
 </table>
 
 <p><strong>Eğer güneş panelinin VOC değeri, güç istasyonunun maksimum giriş voltajını aşarsa, güç istasyonunun MPPT kontrolcüsü veya giriş devresi zarar görebilir!</strong> Bu yüzden panel seçerken, özellikle soğuk havadaki VOC artışını hesaba katmanız gerekir.</p>
@@ -80,7 +82,9 @@ const blogs: BlogInput[] = [
 <p>Güvenli panel seçimi için şu formül kullanılır:</p>
 <p><strong>Maks. VOC (soğukta) = Etiket VOC × 1.20</strong></p>
 <p>Bu değerin, güç istasyonunuzun maksimum giriş voltajından <strong>düşük</strong> olması gerekir.</p>
-<p>Örnek: SP200 panelin etiket VOC'si 24V → Soğukta tahmini maks: 24 × 1.20 = <strong>28.8V</strong>. Bu, P1800'ün 52V limitinin çok altındadır, güvenlidir. P800'ün 60V limitinin de çok altındadır, güvenlidir.</p>
+<p>Örnek: SP200 panelin etiket VOC'si 28.8V → Soğukta tahmini maks: 28.8 × 1.20 = <strong>34.6V</strong>. Bu değer hem P1800'ün 52V hem de P800'ün 60V limitinin altında kaldığı için güvenlidir.</p>
+
+<p>Karşı örnek: SP400'ün etiket VOC'si <strong>52.8V</strong>. Soğuk hava payı hesaba katılmadan bile P1800'ün 52V ve Singo 2000 Pro'nun 50V limitinin üzerindedir; bu panel o cihazlara bağlanmaz. P3200'ün 80V limiti içinse rahatça uygundur.</p>
 
 <h2>Bataryalarda VOC</h2>
 
@@ -113,13 +117,13 @@ const blogs: BlogInput[] = [
 <ul>
 <li>Güneş paneli alırken, panelin VOC değerini güç istasyonunuzun maksimum solar giriş voltajıyla karşılaştırın</li>
 <li>Soğuk iklimde kamp yapacaksanız VOC'nin %20 yükselebileceğini hesaba katın</li>
-<li>Birden fazla paneli <strong>seri</strong> bağladığınızda VOC değerleri toplanır! 2× 24V VOC panel seri bağlanırsa toplam VOC 48V olur</li>
+<li>Birden fazla paneli <strong>seri</strong> bağladığınızda VOC değerleri toplanır! 2× SP200 (28.8V VOC) seri bağlanırsa toplam VOC 57.6V olur — bu değer P1800'ün 52V limitini aşar</li>
 <li>Birden fazla paneli <strong>paralel</strong> bağladığınızda VOC değişmez, sadece akım (amper) artar</li>
 <li>Güç istasyonunuzun ekranında "Over Voltage" veya "Aşırı Voltaj" hatası görürseniz, paneli hemen çıkarın ve uyumluluğu kontrol edin</li>
 </ul>
 
 <h2>Sonuç</h2>
-<p>VOC (Açık Devre Gerilimi), güneş paneli ve batarya sistemlerinde performans ve güvenlik açısından en önemli parametrelerden biridir. Özellikle güneş paneli + güç istasyonu kombinasyonlarında, soğuk hava koşullarındaki VOC artışını hesaba katmak ekipmanınızı korumanın anahtarıdır. IEETek güneş panelleri, IEETek güç istasyonlarıyla tam uyumlu VOC aralığında tasarlanmıştır. <a href="/kategori/solar-panel">FusionMarkt güneş paneli koleksiyonu</a>'nu inceleyin.</p>`,
+<p>VOC (Açık Devre Gerilimi), güneş paneli ve batarya sistemlerinde performans ve güvenlik açısından en önemli parametrelerden biridir. Özellikle güneş paneli + güç istasyonu kombinasyonlarında, soğuk hava koşullarındaki VOC artışını hesaba katmak ekipmanınızı korumanın anahtarıdır. IEETek panelleri IEETek güç istasyonlarıyla birlikte kullanılmak üzere tasarlanmıştır, ancak her panel her modele uymaz: SP400'ün 52.8V VOC değeri P1800 (52V), Singo 2000 Pro (50V) ve SH4000'in LV girişi (50V) için fazla yüksektir. Satın almadan önce panelin VOC değerini cihazınızın giriş limitiyle karşılaştırın. <a href="/kategori/solar-panel">FusionMarkt güneş paneli koleksiyonu</a>'nu inceleyin.</p>`,
   },
 
   // ─── 2. DC5525 ÇIKIŞI ─────────────────────────────────────────────────

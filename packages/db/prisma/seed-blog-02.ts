@@ -241,7 +241,7 @@ const blogs: BlogInput[] = [
 <p>Bu yazıda SP100 (100W), SP200 (200W) ve SP400 (400W) modellerini teknik parametreler, kullanım senaryoları, güç kaynağı uyumluluğu ve bağlantı tipi açısından detaylı olarak karşılaştırıyoruz. Taşınabilirlik önceliği olan bir kamp çözümü mü arıyorsunuz, yoksa yazlık veya kalıcı bir off-grid kurulum mu planlıyorsunuz — bu iki senaryonun doğru cevapları farklıdır.</p>
 
 <blockquote>
-<strong>Hızlı Cevap:</strong> Kamp çantası ve P800 için <strong>SP100</strong> (5 kg, katlanmış 38×61 cm). Karavan ve P1800 için <strong>SP200</strong> (8 kg, dengeli bir tercih). Ev/yazlık ve P3200/SH4000 için <strong>SP400</strong> (16.3 kg, iki taneye kadar paralel bağlanabilir). Türkiye yazında gerçek üretim tipik olarak etiketin %75–85'i kadardır.
+<strong>Hızlı Cevap:</strong> Kamp çantası ve P800 için <strong>SP100</strong> (5 kg, katlanmış 38×61 cm). Karavan ve P1800 için <strong>SP200</strong> (8 kg, dengeli bir tercih). Ev/yazlık ve P3200/SH4000 için <strong>SP400</strong> (16.3 kg; P3200'de tek veya iki panel paralel, SH4000'de HV girişine en az iki panel seri). Türkiye yazında gerçek üretim tipik olarak etiketin %75–85'i kadardır.
 </blockquote>
 
 <h2>Üç Modelin Teknik Farkı</h2>
@@ -280,10 +280,10 @@ const blogs: BlogInput[] = [
 <p>Uyumluluk özeti:</p>
 
 <ul>
-  <li><strong>P800 (DC giriş 10–30V):</strong> SP100 ✅, SP200 — Voc 28.8V sınırda, öğle güneşinde dikkatli; <strong>SP400 bağlanmaz</strong> (52.8V limit aşımı).</li>
-  <li><strong>P1800 (DC giriş 10–52V):</strong> SP100 ✅, SP200 ✅, <strong>SP400 sınırda</strong> (52.8V ≈ 52V limiti).</li>
-  <li><strong>P3200 (DC giriş 12–80V):</strong> SP100 ✅, SP200 ✅, <strong>SP400 ideal</strong> ve iki adet <em>paralel</em> bağlanabilir.</li>
-  <li><strong>SH4000 (LV XT60 12–50V, HV MC4 70–450V):</strong> SP100–200 XT60 girişine, <strong>SP400 paralel 2–3 adet HV MC4 girişine</strong> (seri bağlamak kaçınılmaz).</li>
+  <li><strong>P800 (DC giriş 12–60V, max 10A / 300W):</strong> SP100 ✅, SP200 ✅.</li>
+  <li><strong>P1800 (DC giriş 10–52V, max 11A / 500W):</strong> SP100 ✅, SP200 ✅.</li>
+  <li><strong>P3200 (DC giriş 12–80V, max 16A / 1000W):</strong> SP100 ✅, SP200 ✅, <strong>SP400 ideal</strong> — tek panel veya iki panel <em>paralel</em>. Seri bağlamayın; 2× SP400 seri 105.6V yapar ve 80V tavanını aşar.</li>
+  <li><strong>SH4000 (LV XT60 12–50V / 600W, HV MC4 70–450V / 3000W):</strong> SP100–SP200 LV XT60 girişine. <strong>SP400 yalnızca HV MC4 girişine ve mutlaka seri bağlanır</strong> — tek panel 52.8V ile HV girişinin 70V alt sınırına ulaşmaz, paralel bağlamak voltajı yükseltmediği için çözüm değildir; en az 2 panel seri (105.6V) gerekir. SP400, LV XT60 girişine bağlanmaz (52.8V > 50V).</li>
 </ul>
 
 <p>Bu nedenle panel ve güç kaynağının birlikte seçilmesini ve satın alma öncesinde uyumluluğun birlikte kontrol edilmesini öneriyoruz. Yanlış eşleşmeler, kurulum aşamasında zaman ve ek kablo/dönüştürücü maliyetine yol açabilir.</p>

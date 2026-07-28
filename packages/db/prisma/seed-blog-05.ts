@@ -162,7 +162,7 @@ const blogs: BlogInput[] = [
 
 <p><a href="/urun/5120wh-8000w-max-lifepo4-tasinabilir-guc-kaynagi-hibrid-invertor-ip54-koruma-ats-ile-uyum-4000-ustu-dongu-99-99-bms-sh4000">SH4000</a>, hibrid invertör mimarisi ve 5120Wh başlangıç kapasitesi ile klima içeren tam ev yedeklemesi için uygundur. Başlangıç kapasitesi tek başına 9000 BTU klimayı 5–6 saat, 12000 BTU klimayı 4 saat, 18000 BTU klimayı 2.5 saat çalıştırır. B5120 batarya modülleriyle kapasite 10–25 kWh aralığına genişletilebilir ve uzun süreli (gece boyunca) klima kullanımı mümkün hale gelir.</p>
 
-<p>SH4000'in HV MC4 solar girişine (3000W) paralel bağlanacak 6–8 adet SP400 paneli, yaz aylarında günlük klima tüketiminin çoğunu üretim tarafında karşılar ve evin tamamen off-grid çalışmasını destekler.</p>
+<p>SH4000'in HV MC4 solar girişine (3000W) <strong>seri</strong> bağlanacak 6–7 adet SP400 paneli, yaz aylarında günlük klima tüketiminin çoğunu üretim tarafında karşılar ve evin tamamen off-grid çalışmasını destekler. HV girişi 70–450V arasında çalıştığı için paneller paralel değil seri bağlanmalıdır; paralel bağlantı 52.8V'ta kaldığı için giriş hiç devreye girmez.</p>
 
 <h2>Pratik Kullanım Senaryoları</h2>
 

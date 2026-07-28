@@ -471,13 +471,6 @@ const blogs: BlogInput[] = [
       <td>4,0 gün</td>
     </tr>
     <tr>
-      <td>P1800 (1024Wh) + SP400</td>
-      <td>0,4 gün</td>
-      <td>0,5 gün</td>
-      <td>1,5 gün</td>
-      <td>2,0 gün</td>
-    </tr>
-    <tr>
       <td>P3200 (2048Wh) + SP400</td>
       <td>0,9 gün</td>
       <td>1,0 gün</td>

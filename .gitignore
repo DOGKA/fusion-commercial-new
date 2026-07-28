@@ -82,6 +82,9 @@ clean_product_images/
 # Development Scripts (One-time use, not for production)
 # ─────────────────────────────────────────────────────────────────────────────
 # scripts/ klasörü artık git'e dahil (seed script'leri için)
+# Düzeltme script'lerinin ürettiği yedek ve denetim çıktıları hariç:
+# blog içeriğinin anlık kopyalarını taşırlar, sürüm geçmişinde yerleri yok.
+scripts/.*.json
 check_*.js
 cleanup-*.js
 update_*.js

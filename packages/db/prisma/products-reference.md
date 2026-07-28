@@ -12,7 +12,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **URL (mağaza / SEO slug):** `/urun/512wh-1600w-max-lifepo4-tasinabilir-guc-kaynagi-dahili-fener-ve-kablo-seti-4000-dongu-99-99-bms-coklu-cikis-p800`
 - **Batarya:** 512Wh, LiFePO4, 25.6V, 4000+ döngü (@25°C, 0.5C, DOD80%)
 - **AC Çıkış:** 800W sürekli, **1200W Smart-Boost**, 220/230/240V, 50/60Hz, saf sinüs
-- **Şarj:** AC 600W (~1.2 sa), Araç 120W, Max Solar 300W, 3-4 sa solar ile tam şarj
+- **Şarj:** AC 600W (~1.2 sa), Araç 120W, Max Solar 300W (12–60V, max 10A), 3-4 sa solar ile tam şarj
 - **Portlar:** 2× AC, 3× USB-C, 2× USB-A, 1× araç çıkışı
 - **Fiziksel:** 299×191×196 mm, **6.55 kg**, IP20, <60 dB
 - **UPS/EPS:** Evet (anlık geçiş) • Dahili LED fener: Evet
@@ -23,7 +23,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **URL (mağaza / SEO slug):** `/urun/1024wh-3600w-max-lifepo4-tasinabilir-guc-kaynagi-ucretsiz-aplikasyon-dahili-fener-ve-kablo-seti-4000-ustu-dongu-99-99-bms-coklu-cikis-p1800`
 - **Batarya:** 1024Wh, LiFePO4, 51.2V, 4000+ döngü
 - **AC Çıkış:** 1800W sürekli, **3600W pik**, 220/230/240V, 50/60Hz
-- **Şarj:** AC 1200W (~1.2 sa), Araç 120W, Max Solar 500W (10–52V)
+- **Şarj:** AC 1200W (~1.2 sa), Araç 120W, Max Solar 500W (10–52V, max 11A)
 - **Portlar:** 2× AC, 2× USB-C (C1=100W PD), 3× USB-A 30W, 1× araç 13.2V/10A
 - **Fiziksel:** 361.5×269.5×232.6 mm, **12.7 kg**, IP20, <65 dB
 - **UPS/EPS:** Evet (10 ms) • Wi-Fi/Bluetooth uygulama
@@ -98,7 +98,8 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Elektriksel:** 44V / 10A, **Voc 52.8V**, Isc 10A
 - **Verimlilik:** %21–23
 - **Fiziksel:** IP67, 4 katlı, katlı 725×990×45 mm / açık 2617×990×30 mm, **16.3 kg**
-- **Kullanım:** P3200 hızlı solar şarj, SH4000 LV solar girişi, yazlık/bağ evi
+- **Kullanım:** P3200 hızlı solar şarj (tek panel veya 2× paralel), SH4000 **HV MC4** girişi (en az 2× seri), yazlık/bağ evi
+- **UYUMSUZ:** P1800 (10–52V), Singo 2000 / 2000 Pro (10–50V), SH4000 LV XT60 (12–50V) — Voc 52.8V bu girişlerin tavanını aşar
 
 ---
 

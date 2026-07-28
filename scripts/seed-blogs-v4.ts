@@ -197,8 +197,8 @@ Panel A (-)                    Panel B (+)
 <h3>Örnek: 2× IEETek SP200 Seri Bağlantı</h3>
 <table>
 <tr><th>Parametre</th><th>Tek Panel</th><th>2 Panel Seri</th></tr>
-<tr><td>VOC</td><td>24V</td><td><strong>48V</strong> (24+24)</td></tr>
-<tr><td>ISC</td><td>11A</td><td><strong>11A</strong> (değişmez)</td></tr>
+<tr><td>VOC</td><td>28.8V</td><td><strong>57.6V</strong> (28.8+28.8)</td></tr>
+<tr><td>ISC</td><td>9.12A</td><td><strong>9.12A</strong> (değişmez)</td></tr>
 <tr><td>Maks. Güç</td><td>200W</td><td><strong>400W</strong></td></tr>
 </table>
 
@@ -243,8 +243,8 @@ Panel B (-) ────┘
 <h3>Örnek: 2× IEETek SP200 Paralel Bağlantı</h3>
 <table>
 <tr><th>Parametre</th><th>Tek Panel</th><th>2 Panel Paralel</th></tr>
-<tr><td>VOC</td><td>24V</td><td><strong>24V</strong> (değişmez)</td></tr>
-<tr><td>ISC</td><td>11A</td><td><strong>22A</strong> (11+11)</td></tr>
+<tr><td>VOC</td><td>28.8V</td><td><strong>28.8V</strong> (değişmez)</td></tr>
+<tr><td>ISC</td><td>9.12A</td><td><strong>18.24A</strong> (9.12+9.12)</td></tr>
 <tr><td>Maks. Güç</td><td>200W</td><td><strong>400W</strong></td></tr>
 </table>
 
@@ -288,7 +288,12 @@ Panel B (-) ────┘
 <tr><td>P1800</td><td>52V</td><td>11A</td><td>500W</td></tr>
 <tr><td>P2400</td><td>60V</td><td>10A</td><td>500W</td></tr>
 <tr><td>P3200</td><td>80V</td><td>16A</td><td>1000W</td></tr>
+<tr><td>Singo 2000 Pro</td><td>50V</td><td>11A</td><td>500W</td></tr>
+<tr><td>SH4000 — LV (XT60)</td><td>50V</td><td>16A</td><td>600W</td></tr>
+<tr><td>SH4000 — HV (MC4)</td><td>450V</td><td>16A</td><td>3000W</td></tr>
 </table>
+
+<p>SH4000'in HV girişi diğerlerinden farklı olarak bir <strong>alt sınıra</strong> da sahiptir: dizi voltajı 70V'un altındaysa giriş hiç devreye girmez. Bu yüzden HV girişine bağlanan paneller mutlaka seri bağlanır.</p>
 
 <h3>Güvenli Bağlantı Kontrol Listesi</h3>
 <ol>
@@ -301,18 +306,18 @@ Panel B (-) ────┘
 
 <p><strong>P1800 + 2× SP200 Seri:</strong></p>
 <ul>
-<li>Toplam VOC: 24V + 24V = 48V → Soğukta: 48 × 1.20 = 57.6V → P1800 limiti 52V → <strong>RİSKLİ! Seri bağlamayın.</strong></li>
+<li>Toplam VOC: 28.8V + 28.8V = 57.6V → P1800 limiti 52V → <strong>YAPMAYIN.</strong> Dizi, soğuk hava payı hesaba katılmadan bile limitin üzerinde; soğukta 57.6 × 1.20 = 69.1V'a çıkar.</li>
 </ul>
 
 <p><strong>P1800 + 2× SP200 Paralel:</strong></p>
 <ul>
-<li>VOC: 24V (değişmez) → Soğukta: 28.8V → P1800 limiti 52V → <strong>GÜVENLİ</strong></li>
-<li>Toplam akım: 11A + 11A = 22A → P1800 limiti 11A → <strong>AŞIYOR! Güç istasyonu otomatik sınırlayacak.</strong> Güç kaybı olur ama zarar vermez.</li>
+<li>VOC: 28.8V (değişmez) → Soğukta: 28.8 × 1.20 = 34.6V → P1800 limiti 52V → <strong>GÜVENLİ</strong></li>
+<li>Toplam akım: 9.12A + 9.12A = 18.24A → P1800 limiti 11A → <strong>AŞIYOR! Güç istasyonu otomatik sınırlayacak.</strong> Güç kaybı olur ama zarar vermez.</li>
 </ul>
 
 <p><strong>P3200 + 2× SP200 Seri:</strong></p>
 <ul>
-<li>Toplam VOC: 48V → Soğukta: 57.6V → P3200 limiti 80V → <strong>GÜVENLİ (büyük marjla)</strong></li>
+<li>Toplam VOC: 57.6V → Soğukta: 57.6 × 1.20 = 69.1V → P3200 limiti 80V → <strong>GÜVENLİ</strong></li>
 <li>Toplam güç: 400W → P3200 limiti 1000W → <strong>GÜVENLİ</strong></li>
 </ul>
 
@@ -320,11 +325,11 @@ Panel B (-) ────┘
 <p>3 veya daha fazla paneliniz varsa, seri ve paralelin avantajlarını birleştiren hibrit bağlantı yapabilirsiniz:</p>
 
 <pre>
-String 1: Panel A + Panel B (seri) → 48V, 11A
-String 2: Panel C + Panel D (seri) → 48V, 11A
+String 1: Panel A + Panel B (seri) → 57.6V, 9.12A
+String 2: Panel C + Panel D (seri) → 57.6V, 9.12A
 
 String 1 ──┐
-            ├──── Paralel birleştirme → 48V, 22A → Güç İstasyonu
+            ├──── Paralel birleştirme → 57.6V, 18.24A → Güç İstasyonu
 String 2 ──┘
 </pre>
 
