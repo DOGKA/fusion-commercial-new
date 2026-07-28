@@ -28,7 +28,7 @@ Bu dosya `seed-blog-01.ts` … `seed-blog-05.ts` blog seed script'lerinin kullan
 - **Fiziksel:** 361.5×269.5×232.6 mm, **12.7 kg**, IP20, <65 dB
 - **UPS/EPS:** Evet (10 ms) • Wi-Fi/Bluetooth uygulama
 - **Kullanım:** Hafta sonu kamp/karavan, ev kısmi yedekleme (modem + buzdolabı + aydınlatma), elektrikli alet
-- **Verimlilik:** Batarya→AC %99, AC→Batarya %99
+- **Verimlilik:** Batarya→AC %96, AC→Batarya %96 (datasheet, 230Vac sütunu)
 
 ### Singo 2000 Pro — Outdoor Orta Segment
 - **URL (mağaza / SEO slug):** `/urun/1920wh-4000w-max-lifepo4-tasinabilir-guc-kaynagi-aplikasyon-kablosuz-sarj-operasyonel-kullanim-4000-ustu-dongu-99-99-bms-coklu-cikis-singo2000pro`
