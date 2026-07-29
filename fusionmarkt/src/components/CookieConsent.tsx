@@ -189,6 +189,7 @@ export default function CookieConsent() {
                   <button
                     onClick={() => setShowBanner(false)}
                     className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center text-foreground-muted hover:text-foreground transition-all z-10"
+                    aria-label="Çerez bildirimini kapat"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -212,7 +213,7 @@ export default function CookieConsent() {
                         {(bannerConfig?.text || "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.")} Detaylı bilgi için{" "}
                         <Link
                           href="/cerez-politikasi"
-                          className="text-amber-400 hover:text-amber-300 underline underline-offset-2"
+                          className="text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 underline underline-offset-2"
                         >
                           Çerez Politikası
                         </Link>
@@ -224,6 +225,7 @@ export default function CookieConsent() {
                         <button
                           onClick={() => setShowSettings(true)}
                           className="flex items-center justify-center gap-1 px-2.5 py-2.5 rounded-xl border border-border text-foreground-secondary hover:text-foreground hover:bg-foreground/5 hover:border-border-hover transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+                          aria-label="Çerez ayarları"
                         >
                           <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span className="hidden sm:inline">Ayarlar</span>
@@ -256,6 +258,7 @@ export default function CookieConsent() {
                           <button
                             onClick={() => setShowSettings(false)}
                             className="w-8 h-8 rounded-lg bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center text-foreground-secondary hover:text-foreground transition-colors"
+                            aria-label="Geri dön"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

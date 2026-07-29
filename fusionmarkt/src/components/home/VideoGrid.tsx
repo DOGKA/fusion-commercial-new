@@ -68,7 +68,8 @@ function VideoCard({ video }: { video: VideoData }) {
             {thumb && (
               <Image
                 src={thumb}
-                alt={video.title}
+                // Başlık hemen altında h3 olarak görünüyor
+                alt=""
                 fill
                 sizes="(max-width: 768px) 50vw, 300px"
                 className="video-grid-thumb-img"

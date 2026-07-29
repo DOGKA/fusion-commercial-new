@@ -76,8 +76,12 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
   } = useTransformCarousel({ friction: 0.95 });
 
   return (
-    <section className="pt-10 lg:pt-12 pb-6 lg:pb-8">
+    <section className="pt-10 lg:pt-12 pb-6 lg:pb-8" aria-labelledby="trending-heading">
       <div className="container">
+        {/* Kartlardaki h3'ler h1'den sonra geliyordu; bölüm başlığı hiyerarşiyi tamamlıyor */}
+        <h2 id="trending-heading" className="sr-only">
+          Öne Çıkan Ürünler
+        </h2>
         <div className="flex justify-end mb-3">
           <CarouselNavButtons
             scrollBy={scrollBy}
@@ -108,7 +112,9 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                     {product.image && (
                       <Image
                         src={product.image}
-                        alt={product.title}
+                        // Link'in erişilebilir adını h3 veriyor; alt'ta tekrarlamak
+                        // ekran okuyucuda başlığı iki kez okutuyordu
+                        alt=""
                         fill
                         sizes="(max-width: 768px) 280px, 370px"
                         className="product-card-image"

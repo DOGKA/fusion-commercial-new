@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   images: {
     // Disable image optimization in development if CDN images timeout
     unoptimized: process.env.NODE_ENV === 'development',
-    minimumCacheTTL: 86400,
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       // Cloudflare R2 CDN (birincil medya kaynağı)
       {
@@ -106,6 +106,28 @@ const nextConfig: NextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000",
+          },
+          // Origin isolation. `same-origin` yerine `-allow-popups`: iyzico 3DS ve
+          // olası OAuth popup akışlarının window.opener bağını koparmamak için.
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
+          },
+          // CSP - yalnızca script dışı direktifler zorunlu kılınıyor.
+          // NOT: `script-src` BİLEREK yok. Next.js RSC payload'ını satır içi
+          // <script> ile stream ediyor; bunu engellememek için ya 'unsafe-inline'
+          // (CSP'yi anlamsız kılar) ya da nonce gerekir. Nonce middleware'de
+          // üretilir ve layout'ta headers() okumak tüm sayfaları dinamik render'a
+          // düşürerek ISR'ı (revalidate = 60) iptal eder. Aşağıdaki direktifler
+          // ISR'ı bozmadan base-tag injection, plugin ve clickjacking'i kapatır.
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "base-uri 'self'",
+              "object-src 'none'",
+              "frame-ancestors 'none'",
+              "upgrade-insecure-requests",
+            ].join("; "),
           },
         ],
       },
@@ -191,6 +213,16 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Slider görselleri - içerik değişirse dosya adı da değişiyor, 30 gün güvenli
+      {
+        source: "/sliders/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000, stale-while-revalidate=86400",
+          },
+        ],
+      },
     ];
   },
 
@@ -198,6 +230,18 @@ const nextConfig: NextConfig = {
   // PERFORMANCE
   // ═══════════════════════════════════════════════════════════════════════════
   
+  // Barrel dosyalarını tek tek modüllere çevirir; lucide-react ve Radix
+  // paketleri aksi halde kullanılmayan export'larıyla ortak chunk'a giriyor.
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "framer-motion",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-navigation-menu",
+    ],
+  },
+
   // Enable React strict mode for better debugging
   reactStrictMode: true,
   

@@ -118,30 +118,31 @@ function GoogleAnalyticsInner() {
       {/* GA4 - Consent Mode v2 defaults are set in layout.tsx, safe to load always.
           We disable the auto page_view emitted by gtag('config', ...) and instead
           fire page_view manually so consent transitions and route changes are
-          handled deterministically. */}
+          handled deterministically.
+
+          gtag/js BİLEREK yüklenmiyor: GTM container'ındaki GA4 Configuration
+          tag'i aynı ölçüm kimliği için gtag/js'i zaten çekiyordu, yani 182 KiB
+          iki kez iniyordu. gtag() stub'ı layout.tsx head'inde tanımlı olduğu
+          için aşağıdaki config çağrısı dataLayer'a kuyruklanır ve container
+          gtag/js'i yükleyince işlenir.
+          BAĞIMLILIK: GTM container'ından GA4 tag'i kaldırılırsa GA4 ölçümü
+          tamamen durur — o durumda buraya <Script src="...gtag/js"> geri gelmeli. */}
       {googleAnalyticsId && (
-        <>
-          <Script
-            id="google-analytics-src"
-            strategy="afterInteractive"
-            src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-          />
-          <Script
-            id="google-analytics"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.dataLayer = window.dataLayer || [];
-                if(!window.gtag){function gtag(){dataLayer.push(arguments);} window.gtag = gtag;}
-                gtag('js', new Date());
-                gtag('config', '${googleAnalyticsId}', {
-                  send_page_view: false,
-                  anonymize_ip: true
-                });
-              `,
-            }}
-          />
-        </>
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              if(!window.gtag){function gtag(){dataLayer.push(arguments);} window.gtag = gtag;}
+              gtag('js', new Date());
+              gtag('config', '${googleAnalyticsId}', {
+                send_page_view: false,
+                anonymize_ip: true
+              });
+            `,
+          }}
+        />
       )}
 
       {/* Facebook Pixel - marketing consent required */}

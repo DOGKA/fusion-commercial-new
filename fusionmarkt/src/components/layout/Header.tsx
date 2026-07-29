@@ -154,7 +154,7 @@ export default function Header() {
         <div className="container px-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div className="flex items-center justify-between gap-4 lg:gap-[30px]">
             {/* Left: Logo */}
-            <Link href="/" className="flex-shrink-0 relative group">
+            <Link href="/" className="flex-shrink-0 relative group" aria-label="FusionMarkt ana sayfa">
               <svg 
                 width="170"
                 height="34"

@@ -136,7 +136,7 @@ export default function Footer() {
           <div className="flex gap-12 justify-between">
             {/* Brand Column */}
             <div className="min-w-[200px] max-w-[280px]">
-              <Link href="/" className="relative inline-block mb-6 group">
+              <Link href="/" className="relative inline-block mb-6 group" aria-label="FusionMarkt ana sayfa">
                 <div className="absolute -inset-1 bg-gradient-to-r from-white/5 via-white/8 to-white/5 rounded-lg blur-sm opacity-50 group-hover:opacity-70 transition-opacity duration-300 hidden dark:block" />
                 <svg width="180" height="36" viewBox="20 220 890 150" xmlns="http://www.w3.org/2000/svg" className="relative z-10" style={{ color: logoMainColor }}>
                   <g id="MAIN-LOGO">
@@ -205,6 +205,7 @@ export default function Footer() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:opacity-80 transition-opacity"
+                    aria-label="JustStack"
                   >
                     <svg width="70" height="12" viewBox="0 0 560 79" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect x="34.2227" y="1" width="97.8963" height="18.4593" fill="#00FF77"/>
@@ -269,7 +270,7 @@ export default function Footer() {
       <div className="lg:hidden">
         {/* Bölüm 1: Marka Kimliği */}
         <div className="py-8 px-4 text-center border-b border-[var(--glass-border)]">
-          <Link href="/" className="inline-block mb-4">
+          <Link href="/" className="inline-block mb-4" aria-label="FusionMarkt ana sayfa">
             <svg width="160" height="32" viewBox="20 220 890 150" xmlns="http://www.w3.org/2000/svg" style={{ color: logoMainColor }}>
               <g id="MAIN-LOGO">
                 <path d="M389.574 274.948C388.319 278.012 387.068 280.622 385.693 283.165C385.3 283.892 384.545 284.426 385.122 283.815C371.257 272.447 358.15 260.623 343.897 250.365C333.004 242.526 320.509 237.084 306.435 237.094C293.475 237.105 286.449 244.313 286.914 257.173C286.986 259.164 287.081 261.282 287.793 263.101C290.844 270.906 289.198 277.361 282.496 282.374C272.264 266.957 270.774 236.288 291.356 227.88C300.932 223.969 310.881 224.317 320.466 226.957C348.969 234.806 371.002 252.206 389.574 274.948Z" fill="#dd0000" />
@@ -385,6 +386,7 @@ export default function Footer() {
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:opacity-80 transition-opacity inline-flex items-center h-[10px]"
+              aria-label="JustStack"
             >
               <svg width="55" height="10" viewBox="0 0 560 79" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="34.2227" y="1" width="97.8963" height="18.4593" fill="#00FF77"/>

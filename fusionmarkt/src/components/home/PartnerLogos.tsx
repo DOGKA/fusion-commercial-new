@@ -130,14 +130,16 @@ function PartnerCard({ partner }: { partner: Partner }) {
               <div className="absolute inset-[-1px] rounded-2xl bg-gradient-to-r from-emerald-500/50 via-cyan-500/50 to-emerald-500/50 animate-gradient-x" />
             </div>
             
-            {/* Glow Effect */}
+            {/* Glow Effect - box-shadow sabit, sadece opacity animate ediliyor.
+                box-shadow'u animate etmek her karede repaint tetikliyordu. */}
             <motion.div 
               className="absolute inset-0 rounded-2xl"
-              animate={{ 
-                boxShadow: isFlipped 
-                  ? "0 0 40px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.1)" 
-                  : "0 0 0px rgba(16, 185, 129, 0), inset 0 0 0px rgba(16, 185, 129, 0)"
+              style={{
+                boxShadow:
+                  "0 0 40px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.1)",
               }}
+              animate={{ opacity: isFlipped ? 1 : 0 }}
+              initial={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             />
             

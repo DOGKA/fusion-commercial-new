@@ -125,9 +125,12 @@
   
   /* FOREGROUND SYSTEM - Light Theme */
   --foreground: #0A0A0A;
-  --foreground-secondary: rgba(10, 10, 10, 0.75);
-  --foreground-tertiary: rgba(10, 10, 10, 0.55);
-  --foreground-muted: rgba(10, 10, 10, 0.4);
+  --foreground-secondary: rgba(10, 10, 10, 0.78);
+  /* tertiary/muted opaklıkları WCAG AA (4.5:1) için yükseltildi; eski 0.55/0.40
+     değerleri açık zeminde sırasıyla ~4.2:1 ve ~2.5:1 veriyordu. Hiyerarşi
+     korunuyor: ~6.7:1 / ~4.6:1. */
+  --foreground-tertiary: rgba(10, 10, 10, 0.68);
+  --foreground-muted: rgba(10, 10, 10, 0.58);
   --foreground-disabled: rgba(10, 10, 10, 0.25);
 
   /* Metin üzerinde kullanılacak semantik renkler. --fusion-success gibi ham
@@ -230,8 +233,9 @@
   /* FOREGROUND SYSTEM - Dark Theme */
   --foreground: #FAFAFA;
   --foreground-secondary: rgba(250, 250, 250, 0.75);
-  --foreground-tertiary: rgba(250, 250, 250, 0.5);
-  --foreground-muted: rgba(250, 250, 250, 0.3);
+  /* Açık tema ile aynı gerekçe: 0.5/0.3 koyu zeminde ~5.0:1 ve ~2.5:1 veriyordu. */
+  --foreground-tertiary: rgba(250, 250, 250, 0.6);
+  --foreground-muted: rgba(250, 250, 250, 0.48);
   --foreground-disabled: rgba(250, 250, 250, 0.15);
 
   --fusion-success-text: #4ADE80;

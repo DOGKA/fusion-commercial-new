@@ -146,7 +146,7 @@ export default function CategoryShowcase({ index = 0, initialSection }: Category
                 <div className="showcase-product-image">
                   {product.badge && <span className="showcase-product-badge-top">{product.badge}</span>}
                   {product.image ? (
-                    <Image src={product.image} alt={product.title} fill sizes="(max-width: 768px) 50vw, 200px" style={{ objectFit: "cover" }} />
+                    <Image src={product.image} alt="" fill sizes="(max-width: 768px) 50vw, 200px" style={{ objectFit: "cover" }} />
                   ) : (
                     <>
                       <ImagePlaceholderIcon size={32} />

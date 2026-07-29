@@ -234,10 +234,10 @@
 
 @keyframes shine {
   0% {
-    left: -100%;
+    transform: translateX(-100%);
   }
   100% {
-    left: 200%;
+    transform: translateX(200%);
   }
 }
 
@@ -444,11 +444,12 @@
   overflow: hidden;
 }
 
+/* `left` yerine translateX: kompozit edilebilir, layout tetiklemiyor. */
 .shine-effect::after {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
+  left: 0;
   width: 50%;
   height: 100%;
   background: linear-gradient(
@@ -457,11 +458,12 @@
     rgba(255, 255, 255, 0.1),
     transparent
   );
-  transition: left 0.5s ease;
+  transform: translateX(-200%);
+  transition: transform 0.5s ease;
 }
 
 .shine-effect:hover::after {
-  left: 100%;
+  transform: translateX(200%);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -711,9 +713,18 @@
   }
 }
 
+/* background-position kompozit edilemez, her karede repaint gerektirir.
+   Bu gradyanlar sadece hover'da görünen dekoratif kenarlıklar olduğu için
+   varsayılan olarak duraklatılıyor; görünmezken CPU harcamıyorlar. */
 .animate-gradient-x {
   background-size: 200% 200%;
   animation: gradient-x 3s ease infinite;
+  animation-play-state: paused;
+}
+
+.group:hover .animate-gradient-x,
+.animate-gradient-x:hover {
+  animation-play-state: running;
 }
 
 .animate-gradient-y {

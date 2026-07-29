@@ -27,7 +27,7 @@ export default function HomeSeoContent() {
             </p>
 
             <p>
-              <Link href="/marka/ieetek" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+              <Link href="/marka/ieetek" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
                 IEETek
               </Link>{" "}
               yetkili distribütörü olarak sunduğumuz{" "}
@@ -40,12 +40,12 @@ export default function HomeSeoContent() {
 
             <p>
               Ürün yelpazemiz sadece enerji çözümleriyle sınırlı değildir.{" "}
-              <Link href="/marka/telesteps" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+              <Link href="/marka/telesteps" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
                 Telesteps
               </Link>{" "}
               marka <strong className="text-foreground/80">yalıtkan merdivenler</strong> ile elektrik 
               sektöründe güvenli çalışma imkanı,{" "}
-              <Link href="/marka/traffi" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+              <Link href="/marka/traffi" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
                 Traffi
               </Link>{" "}
               marka <strong className="text-foreground/80">iş güvenliği eldivenleri</strong> ile 
@@ -56,11 +56,11 @@ export default function HomeSeoContent() {
               Tüm ürünlerimiz <strong className="text-foreground/80">2 yıl garanti</strong>,{" "}
               <strong className="text-foreground/80">ücretsiz kargo</strong> ve 14 gün koşulsuz iade 
               hakkı ile gönderilmektedir. Hangi güç kaynağının size uygun olduğunu bulmak için{" "}
-              <Link href="/guc-hesaplayici" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+              <Link href="/guc-hesaplayici" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
                 Güç Hesaplayıcı
               </Link>{" "}
               aracımızı kullanabilir, sorularınız için{" "}
-              <Link href="/sikca-sorulan-sorular" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+              <Link href="/sikca-sorulan-sorular" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
                 SSS
               </Link>{" "}
               sayfamızı ziyaret edebilirsiniz.
@@ -79,7 +79,7 @@ export default function HomeSeoContent() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-2 lg:px-4 lg:py-2 text-xs lg:text-sm text-center rounded-full border border-foreground/15 text-foreground/50 hover:text-foreground hover:border-foreground/30 transition-all ${'className' in link ? link.className : ''}`}
+                className={`px-3 py-2 lg:px-4 lg:py-2 text-xs lg:text-sm text-center rounded-full border border-foreground/25 text-foreground/75 hover:text-foreground hover:border-foreground/40 transition-all ${'className' in link ? link.className : ''}`}
               >
                 {link.label}
               </Link>

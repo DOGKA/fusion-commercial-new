@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PromoData {
   title: string | null;
@@ -47,11 +48,19 @@ export default function PromoBanner({ initialPromo }: PromoBannerProps) {
         <div className="promo-banner-wrapper">
           <div
             className="promo-banner-section"
-            style={promo?.image
-              ? { backgroundImage: `url('${promo.image}')` }
-              : { backgroundColor: "var(--background-tertiary)" }
-            }
+            style={promo?.image ? undefined : { backgroundColor: "var(--background-tertiary)" }}
           >
+            {promo?.image && (
+              <Image
+                src={promo.image}
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="(max-width: 1024px) 100vw, 1440px"
+                quality={70}
+                className="object-cover object-center"
+              />
+            )}
             <div className="banner-content">
               {promo?.image ? (
                 <>

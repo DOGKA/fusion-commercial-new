@@ -353,15 +353,18 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
         <div className="absolute inset-0">
           <Image 
             src={backgroundImage} 
-            alt={slide.title} 
+            // Başlık/alt başlık zaten metin olarak render ediliyor; görsel dekoratif
+            alt=""
+            aria-hidden="true"
             fill 
             sizes="100vw"
             // Dekoratif arka plan: q=60 LCP baytlarını ~%25 azaltır, görsel fark algılanmaz
             quality={60}
             className="object-cover object-center"
-            {...(currentSlide === 0
-              ? { priority: true }
-              : { loading: "eager" as const })}
+            // Görünen slayt her zaman LCP adayı: sadece ilk slayta öncelik vermek
+            // autoplay sonrası gelen slaytları önceliksiz bırakıyordu
+            priority
+            fetchPriority="high"
           />
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && overlayOpacity > 0 && (
@@ -544,14 +547,16 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       {/* Slide Indicators */}
       {slides.length > 1 && (
         <div className="absolute bottom-3 md:bottom-8 left-1/2 -translate-x-1/2 z-20">
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-center">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 disabled={isTransitioning}
-                className="p-0"
-                aria-label={`Slide ${index + 1}`}
+                // Nokta 6px kalıyor, buton 24x24 dokunma hedefi minimumunu karşılıyor
+                className="flex h-6 min-w-6 items-center justify-center px-1.5"
+                aria-label={`Slayt ${index + 1}`}
+                aria-current={index === currentSlide ? "true" : undefined}
               >
                 <div
                   className={cn(

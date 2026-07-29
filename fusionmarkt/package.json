@@ -13,6 +13,15 @@
     "prisma:studio": "prisma studio --schema=../packages/db/prisma/schema.prisma",
     "___comment___": "Migration disabled - admin owns DB schema. Use admin project for migrations."
   },
+  "___browserslist_comment___": "SWC bu hedeflere göre transpile eder. Tanımsız bırakılınca Array.prototype.at/flat, Object.hasOwn, String.trimStart gibi Baseline özellikler için gereksiz polyfill üretiliyordu.",
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4",
+    "ios_saf >= 16.4",
+    "not dead"
+  ],
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
     "@prisma/client": "^6.0.1",

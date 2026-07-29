@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 import Header from "@/components/layout/Header";
@@ -117,21 +116,29 @@ export default function RootLayout({
   // SiteSettings DB row via <GoogleTagManagerScript /> below so
   // a single admin-managed value drives both GA Data API and the
   // tag injected into the public site.
-  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
   return (
     <html lang="tr" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        {/* Medya ve tag origin'leri için erken bağlantı kurulumu */}
+        <link rel="preconnect" href="https://cdn.fusionmarkt.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.fusionmarkt.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                // Varsayılan ThemeProvider'daki defaultTheme ile aynı olmalı.
+                // 'dark' iken ilk boyama koyu, hydration sonrası açık temaya
+                // atlıyordu.
                 try {
-                  var theme = localStorage.getItem('fusionmarkt-theme') || 'dark';
+                  var theme = localStorage.getItem('fusionmarkt-theme') || 'light';
                   document.documentElement.classList.remove('light', 'dark');
                   document.documentElement.classList.add(theme);
                 } catch (e) {
-                  document.documentElement.classList.add('dark');
+                  document.documentElement.classList.add('light');
                 }
               })();
             `,
@@ -161,29 +168,12 @@ export default function RootLayout({
           }}
         />
 
-        {/* GTM init script — DB-driven, runs only when admin has configured a GTM ID */}
+        {/* GTM init script — DB-driven, runs only when admin has configured a GTM ID.
+            Google Ads tag'i buradan KALDIRILDI: GTM container'ı AW- tag'ini zaten
+            yüklüyor ve buradaki blok beforeInteractive olduğu için tanımlandığı anda
+            181 KiB'lık scripti hydration'ın önüne koyuyordu. Ads doğrulaması gerekirse
+            GTM panelinden yapılmalı, buraya geri eklenmemeli. */}
         <GoogleTagManagerScript />
-
-        {/* Google Ads direct tag — belt-and-suspenders for Ads verification */}
-        {googleAdsId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}
-              strategy="beforeInteractive"
-            />
-            <Script
-              id="google-ads-config"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  if(!window.gtag){function gtag(){dataLayer.push(arguments);} window.gtag = gtag;}
-                  gtag('config', '${googleAdsId}');
-                `,
-              }}
-            />
-          </>
-        )}
 
         <link rel="help" href={siteConfig.resources.appManual.url} title={siteConfig.resources.appManual.name} />
         <JsonLd data={[organizationSchema, webSiteSchema]} />

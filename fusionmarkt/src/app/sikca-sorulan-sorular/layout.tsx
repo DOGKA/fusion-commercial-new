@@ -3,6 +3,8 @@
  * FAQ verisi server-side çekilerek Google'ın görebileceği şekilde JSON-LD eklenir
  */
 
+// FAQ sidebar'ı blog-sidebar__* sınıflarını paylaşıyor
+import "@/styles/blog.css";
 import { staticPageMetadata, generateBreadcrumbSchema, generateFAQSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
 import { prisma } from "@/lib/prisma";
