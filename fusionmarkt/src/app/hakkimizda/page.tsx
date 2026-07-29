@@ -4,7 +4,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, type CSSProperties } from "react";
 import { 
   Target, 
   Heart,
@@ -13,7 +13,6 @@ import {
   Sparkles,
   Globe,
   Shield,
-  Zap,
   MessageCircle,
   Instagram,
   Twitter,
@@ -36,6 +35,21 @@ const asciiLines = [
   " ██║     ╚██████╔╝███████║██║╚██████╔╝██║ ╚████║",
   " ╚═╝      ╚═════╝ ╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝",
 ];
+
+// Terminal penceresi başlık çubuğu dahil her iki temada da koyu kalır. Palet
+// değişkenleri burada yerel olarak ezilmezse light temada başlık yazısı koyu
+// zeminde koyu, altın ASCII ve yeşil prompt ise beyaz zeminde okunmaz oluyor.
+const TERMINAL_PALETTE = {
+  backgroundColor: "#121212",
+  "--foreground": "#FAFAFA",
+  "--foreground-secondary": "rgba(250, 250, 250, 0.78)",
+  "--foreground-tertiary": "rgba(250, 250, 250, 0.55)",
+  "--fusion-primary": "#FF4449",
+  "--fusion-success": "#4ADE80",
+  "--glass-bg": "rgba(255, 255, 255, 0.06)",
+  "--glass-bg-hover": "rgba(255, 255, 255, 0.12)",
+  "--glass-border": "rgba(255, 255, 255, 0.12)",
+} as CSSProperties;
 
 // Interactive Terminal Component
 function InteractiveTerminal() {
@@ -94,7 +108,7 @@ function InteractiveTerminal() {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto"
         >
-          <div className="glass-card rounded-3xl overflow-hidden">
+          <div className="glass-card rounded-3xl overflow-hidden" style={TERMINAL_PALETTE}>
             {/* Terminal Header */}
             <div className="flex items-center gap-2 px-4 py-3 bg-[#1a1a1a] border-b border-[var(--glass-border)]">
               <div className="flex gap-1.5">
@@ -317,9 +331,13 @@ export default function HakkimizdaPage() {
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1440px"
             quality={75}
           />
-          {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[var(--background)]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
+          {/* Gradient Overlays — üzerindeki metin her iki temada da beyaz olduğu
+              için karartma tema değişkenine bağlanamaz; --background ile biten bir
+              gradient light temada metnin arkasını aydınlatıp okunmaz hale getiriyor. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+          {/* Sayfa arka planına geçiş yalnızca metnin bittiği en alt şeritte */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[var(--background)]" />
         </motion.div>
 
         {/* Hero Content */}
@@ -349,7 +367,10 @@ export default function HakkimizdaPage() {
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8">
+            {/* typography.css'teki katmansız `p` kuralı Tailwind utility'lerini
+                ezdiği için burada `!` gerekiyor; aksi halde fotoğrafın üzerinde
+                koyu metin kalıyor. */}
+            <p className="text-lg md:text-xl text-white/90! max-w-2xl mx-auto mb-8">
               FusionMarkt, benzersiz ürünleri ve müşteri odaklı hizmetleriyle 
               bir alışveriş platformundan daha fazlasını sunar.
             </p>
@@ -364,7 +385,7 @@ export default function HakkimizdaPage() {
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-white">{stat.value}</div>
-                  <div className="text-sm text-white/60">{stat.label}</div>
+                  <div className="text-sm text-white/85">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -421,10 +442,10 @@ export default function HakkimizdaPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="glass-card p-8 md:p-12 rounded-3xl"
             >
-              <div className="prose prose-invert max-w-none">
+              <div className="prose max-w-none">
                 <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed mb-6">
                   FusionMarkt'ta alışveriş yapmak, sadece bir ürün satın almak anlamına gelmez. 
-                  <span className="text-white font-medium"> Her parça, bir hikâyeyi, bir kültürü ve zanaatkârlığın zarafetini taşır.</span> 
+                  <span className="text-[var(--foreground)] font-medium"> Her parça, bir hikâyeyi, bir kültürü ve zanaatkârlığın zarafetini taşır.</span> 
                   Her alışveriş deneyimi, küresel anlatıya bir bağlantı kurmanızı sağlar.
                 </p>
                 <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed mb-6">
@@ -448,24 +469,6 @@ export default function HakkimizdaPage() {
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-12 md:py-20">
         <div className="container px-4 md:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--fusion-secondary)]/10 mb-6">
-              <Zap className="w-8 h-8 text-[var(--fusion-secondary)]" />
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              Vizyon ve Değerlerimiz
-            </h2>
-            <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
-              FusionMarkt olarak, müşterilerimize sadece bir pazar yeri değil, 
-              aynı zamanda unutulmaz bir alışveriş deneyimi sunmayı hedefliyoruz.
-            </p>
-          </motion.div>
-
           {/* Values Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {values.map((value, index) => (
@@ -500,7 +503,7 @@ export default function HakkimizdaPage() {
             <p className="text-lg text-[var(--foreground-secondary)] max-w-3xl mx-auto leading-relaxed">
               Kalitemizi her zaman ön planda tutarak, titizlikle seçilmiş ürünleri sunarken 
               uluslararası markalarla iş birliği yapıyoruz. Bu sayede müşterilerimize bir ürün değil, 
-              <span className="text-white font-medium"> bir deneyim sunmayı garanti ediyoruz.</span>
+              <span className="text-[var(--foreground)] font-medium"> bir deneyim sunmayı garanti ediyoruz.</span>
             </p>
           </motion.div>
         </div>
@@ -575,7 +578,7 @@ export default function HakkimizdaPage() {
               </p>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                FusionMarkt olarak, sürdürülebilir bir gelecek için <span className="text-[var(--fusion-success)] font-semibold">teknoloji ve inovasyonu 
+                FusionMarkt olarak, sürdürülebilir bir gelecek için <span className="text-[var(--fusion-success-text)] font-semibold">teknoloji ve inovasyonu 
                 birleştirerek</span>, çevresel sorumluluklarımızı yerine getirmeye ve toplumsal değer 
                 yaratmaya devam edeceğiz.
               </p>
