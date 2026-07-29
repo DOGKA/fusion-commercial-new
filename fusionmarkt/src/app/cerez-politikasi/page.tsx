@@ -5,7 +5,7 @@ import { Cookie, Shield, BarChart3, Megaphone, Settings, Mail, Phone, MapPin, Gl
 
 export default function CerezPolitikasiPage() {
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div data-page-root className="min-h-screen bg-[var(--background)]">
       {/* Hero Section */}
       <section className="relative pb-16 md:pb-24 overflow-hidden" style={{ paddingTop: "120px" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--fusion-primary)]/5 via-transparent to-transparent" />

@@ -2216,42 +2216,47 @@
 ───────────────────────────────────────────────────────────────────────── */
 
 /* Hero Section Mobile
-   NOT: Her seçicide `main > X` ve `main > div > X` birlikte listeleniyor. Sayfalar
-   eskiden layout'un <main>'i içinde kendi <main>'ini render ediyordu (iç içe
-   landmark); o <main>'ler <div>'e çevrildi ve section'lar bir seviye derine indi.
-   İki derinlik de tutuluyor çünkü bazı sayfalar section'ları hâlâ doğrudan
-   layout <main>'inin altına koyuyor. Yeni bir sarmalayıcı eklenirse burası da
-   güncellenmeli. */
+   NOT: Her seçicide `main > X` ve `main > [data-page-root] > X` birlikte
+   listeleniyor. Bu sayfalar eskiden layout'un <main>'i içinde kendi <main>'ini
+   render ediyordu (iç içe landmark); o <main>'ler <div>'e çevrildi ve
+   section'lar bir seviye derine indi.
+
+   Ara katman `div` DEĞİL `[data-page-root]` ile eşleniyor: `main > div` yazmak
+   bu !important kurallarını, kendi sarmalayıcı div'i olan her sayfaya sızdırıyor.
+   /hakkimizda tam olarak böyle kırıldı — h-[70vh] hero'suna 120px padding, h1'ine
+   1.75rem, rozet pilinin kutusuna 3.5rem kare zorlanıyordu. data-page-root
+   yalnızca eski <main>'lerin yerine geçen sarmalayıcılarda var, dolayısıyla
+   kural kümesi dönüşümden önceki haliyle birebir aynı kalıyor. */
 @media (max-width: 1023px) {
   /* Hero padding - 120px sabit (inline style ile aynı) */
   main > section:first-child,
-  main > div > section:first-child {
+  main > [data-page-root] > section:first-child {
     padding-top: 120px !important;
     padding-bottom: 3rem !important;
   }
   
   /* Hero başlık */
   main > section:first-child h1,
-  main > div > section:first-child h1 {
+  main > [data-page-root] > section:first-child h1 {
     font-size: 1.75rem !important;
     line-height: 1.2 !important;
   }
   
   /* Hero açıklama */
   main > section:first-child p,
-  main > div > section:first-child p {
+  main > [data-page-root] > section:first-child p {
     font-size: 0.95rem !important;
   }
   
   /* Hero ikon */
   main > section:first-child > div > div > div:first-child,
-  main > div > section:first-child > div > div > div:first-child {
+  main > [data-page-root] > section:first-child > div > div > div:first-child {
     width: 3.5rem !important;
     height: 3.5rem !important;
   }
   
   main > section:first-child > div > div > div:first-child svg,
-  main > div > section:first-child > div > div > div:first-child svg {
+  main > [data-page-root] > section:first-child > div > div > div:first-child svg {
     width: 1.75rem !important;
     height: 1.75rem !important;
   }
@@ -2261,7 +2266,7 @@
 @media (max-width: 1023px) {
   /* Section padding */
   main > section:nth-child(2),
-  main > div > section:nth-child(2) {
+  main > [data-page-root] > section:nth-child(2) {
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
   }
@@ -2347,13 +2352,13 @@
 /* Tablet & Mobile (<1024px) */
 @media (max-width: 1023px) {
   main > section:first-child,
-  main > div > section:first-child {
+  main > [data-page-root] > section:first-child {
     padding-top: 120px !important;
     padding-bottom: 4rem !important;
   }
   
   main > section:first-child h1,
-  main > div > section:first-child h1 {
+  main > [data-page-root] > section:first-child h1 {
     font-size: 2.25rem !important;
   }
   
@@ -2532,12 +2537,12 @@
 /* Son Güncelleme Tarihi */
 @media (max-width: 1023px) {
   main > section:last-child > div > div:last-child,
-  main > div > section:last-child > div > div:last-child {
+  main > [data-page-root] > section:last-child > div > div:last-child {
     margin-top: 2rem !important;
   }
   
   main > section:last-child > div > div:last-child p,
-  main > div > section:last-child > div > div:last-child p {
+  main > [data-page-root] > section:last-child > div > div:last-child p {
     font-size: 0.75rem !important;
   }
 }

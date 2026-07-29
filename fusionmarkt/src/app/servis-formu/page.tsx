@@ -211,7 +211,7 @@ export default function ServisFormuPage() {
   // Success state
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
+      <div data-page-root className="min-h-screen bg-[var(--background)]">
         <div className="container px-4 md:px-6" style={{ paddingTop: "140px", paddingBottom: "80px" }}>
           <div
             className="max-w-lg mx-auto text-center glass-card p-12 rounded-3xl animate-[scaleIn_0.4s_ease-out_both]"
@@ -246,7 +246,7 @@ export default function ServisFormuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] overflow-x-hidden">
+    <div data-page-root className="min-h-screen bg-[var(--background)] overflow-x-hidden">
       {/* Hero */}
       <section className="relative pb-8 md:pb-12 overflow-hidden" style={{ paddingTop: "120px" }}>
         <div className="absolute inset-0 overflow-hidden">

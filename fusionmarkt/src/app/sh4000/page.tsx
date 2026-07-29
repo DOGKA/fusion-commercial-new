@@ -21,7 +21,7 @@ const frames = Array.from({ length: 12 }, (_, i) =>
 
 export default function SH4000Page() {
   return (
-    <div className="bg-background text-foreground">
+    <div data-page-root className="bg-background text-foreground">
       {/* 1. Hero - Ürün Görseli + Temel Özellikler */}
       <Hero360Canvas frames={frames} />
 

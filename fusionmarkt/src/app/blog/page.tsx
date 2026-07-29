@@ -94,7 +94,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div data-page-root className="min-h-screen bg-[var(--background)]">
       <JsonLd data={schemas} />
       <div className="container px-4 md:px-6 lg:px-8 pt-[110px] pb-16 md:pb-24">
         <header className="blog-masthead">

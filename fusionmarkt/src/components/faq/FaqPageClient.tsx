@@ -185,7 +185,7 @@ export default function FaqPageClient({
   );
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div data-page-root className="min-h-screen bg-[var(--background)]">
       <section
         className="relative pb-8 md:pb-14 overflow-hidden"
         style={{ paddingTop: "120px" }}

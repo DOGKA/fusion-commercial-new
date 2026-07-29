@@ -202,7 +202,7 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="flex flex-col">
+    <div data-page-root className="flex flex-col">
       <h1 className="sr-only">
         Taşınabilir Güç Kaynağı, Solar Panel ve Portable Power Station - FusionMarkt
       </h1>
