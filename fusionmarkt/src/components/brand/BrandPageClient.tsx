@@ -45,7 +45,7 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
   const logoFilter = isDark ? "brightness-0 invert" : "brightness-0";
 
   return (
-    <main className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative">
       {/* Full Page Particle Background - Theme-aware */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <ParticleField className="opacity-20" particleCount={50} color={particleColor} />
@@ -315,6 +315,6 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

@@ -185,7 +185,7 @@ export default function FaqPageClient({
   );
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-[var(--background)]">
       <section
         className="relative pb-8 md:pb-14 overflow-hidden"
         style={{ paddingTop: "120px" }}
@@ -412,6 +412,6 @@ export default function FaqPageClient({
           </motion.div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

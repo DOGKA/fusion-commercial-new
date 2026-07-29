@@ -20,6 +20,14 @@
    import ediliyor: app/blog/layout.tsx ve app/sikca-sorulan-sorular/layout.tsx.
    Buradan import edilirse her sayfanın render-blocking CSS'ine geri girer. */
 
+/* Tailwind v4'ün `dark:` varyantı varsayılan olarak @media (prefers-color-scheme)
+   kullanır, .dark class'ını DEĞİL. Bu tanım olmadan tema iki yönlü bozuktu:
+   işletim sistemi açık + site koyu iken dark: stilleri hiç uygulanmıyor, işletim
+   sistemi koyu + site açık iken ise yanlışlıkla uygulanıyordu (koyu zemin için
+   yazılmış beyaz metinler açık temada görünmez hale geliyordu).
+   ThemeProvider <html>'e .light/.dark yazdığı için varyantı ona bağlıyoruz. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Tailwind Theme Inline - Token Mapping */
 @theme inline {
   /* ===========================================================================

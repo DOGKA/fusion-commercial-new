@@ -20,7 +20,7 @@ import {
 
 export default function KullaniciSozlesmesiPage() {
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Hero Section */}
       <section className="relative pb-16 md:pb-24 overflow-hidden" style={{ paddingTop: "120px" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--fusion-primary)]/5 via-transparent to-transparent" />
@@ -325,7 +325,7 @@ export default function KullaniciSozlesmesiPage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

@@ -21,7 +21,7 @@ const frames = Array.from({ length: 12 }, (_, i) =>
 
 export default function SH4000Page() {
   return (
-    <main className="bg-background text-foreground">
+    <div className="bg-background text-foreground">
       {/* 1. Hero - Ürün Görseli + Temel Özellikler */}
       <Hero360Canvas frames={frames} />
 
@@ -44,6 +44,6 @@ export default function SH4000Page() {
       <UseGallery />
 
       <StickyCta />
-    </main>
+    </div>
   );
 }

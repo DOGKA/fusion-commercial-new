@@ -285,7 +285,7 @@ export default function HesabimPage() {
             </aside>
 
             {/* ═══════════════════ RIGHT CONTENT ═══════════════════ */}
-            <main className="account-content-area flex-1 min-w-0">
+            <div className="account-content-area flex-1 min-w-0">
               <div 
                 className="account-content-card bg-background border border-border rounded-2xl p-6"
                 style={{ height: `${CONTAINER_HEIGHT}px` }}
@@ -351,7 +351,7 @@ export default function HesabimPage() {
                   }
                 `}</style>
               </div>
-            </main>
+            </div>
           </div>
         </div>
       </div>

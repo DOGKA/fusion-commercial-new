@@ -238,7 +238,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <BlogViewTracker slug={post.slug} />
       <JsonLd data={[articleSchema, breadcrumbSchema]} />
 
-      <main className="min-h-screen bg-[var(--background)]">
+      <div className="min-h-screen bg-[var(--background)]">
         <div className="container px-4 md:px-6 lg:px-8 pt-[110px] pb-16 md:pb-24">
           <div className="blog-detail">
             <article className="blog-article">
@@ -295,7 +295,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             />
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Fixed konumlu olduğu için en sonda: Next.js'in auto-scroll'u segmentin
           ilk elemanını hedeflediğinden başta durursa uyarı üretiyor. */}

@@ -2215,32 +2215,43 @@
    Ücretlendirme, Mesafeli Satış, Ödeme Seçenekleri, Gönderim, İade
 ───────────────────────────────────────────────────────────────────────── */
 
-/* Hero Section Mobile */
+/* Hero Section Mobile
+   NOT: Her seçicide `main > X` ve `main > div > X` birlikte listeleniyor. Sayfalar
+   eskiden layout'un <main>'i içinde kendi <main>'ini render ediyordu (iç içe
+   landmark); o <main>'ler <div>'e çevrildi ve section'lar bir seviye derine indi.
+   İki derinlik de tutuluyor çünkü bazı sayfalar section'ları hâlâ doğrudan
+   layout <main>'inin altına koyuyor. Yeni bir sarmalayıcı eklenirse burası da
+   güncellenmeli. */
 @media (max-width: 1023px) {
   /* Hero padding - 120px sabit (inline style ile aynı) */
-  main > section:first-child {
+  main > section:first-child,
+  main > div > section:first-child {
     padding-top: 120px !important;
     padding-bottom: 3rem !important;
   }
   
   /* Hero başlık */
-  main > section:first-child h1 {
+  main > section:first-child h1,
+  main > div > section:first-child h1 {
     font-size: 1.75rem !important;
     line-height: 1.2 !important;
   }
   
   /* Hero açıklama */
-  main > section:first-child p {
+  main > section:first-child p,
+  main > div > section:first-child p {
     font-size: 0.95rem !important;
   }
   
   /* Hero ikon */
-  main > section:first-child > div > div > div:first-child {
+  main > section:first-child > div > div > div:first-child,
+  main > div > section:first-child > div > div > div:first-child {
     width: 3.5rem !important;
     height: 3.5rem !important;
   }
   
-  main > section:first-child > div > div > div:first-child svg {
+  main > section:first-child > div > div > div:first-child svg,
+  main > div > section:first-child > div > div > div:first-child svg {
     width: 1.75rem !important;
     height: 1.75rem !important;
   }
@@ -2249,7 +2260,8 @@
 /* Content Section Mobile */
 @media (max-width: 1023px) {
   /* Section padding */
-  main > section:nth-child(2) {
+  main > section:nth-child(2),
+  main > div > section:nth-child(2) {
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
   }
@@ -2334,12 +2346,14 @@
 
 /* Tablet & Mobile (<1024px) */
 @media (max-width: 1023px) {
-  main > section:first-child {
+  main > section:first-child,
+  main > div > section:first-child {
     padding-top: 120px !important;
     padding-bottom: 4rem !important;
   }
   
-  main > section:first-child h1 {
+  main > section:first-child h1,
+  main > div > section:first-child h1 {
     font-size: 2.25rem !important;
   }
   
@@ -2517,11 +2531,13 @@
 
 /* Son Güncelleme Tarihi */
 @media (max-width: 1023px) {
-  main > section:last-child > div > div:last-child {
+  main > section:last-child > div > div:last-child,
+  main > div > section:last-child > div > div:last-child {
     margin-top: 2rem !important;
   }
   
-  main > section:last-child > div > div:last-child p {
+  main > section:last-child > div > div:last-child p,
+  main > div > section:last-child > div > div:last-child p {
     font-size: 0.75rem !important;
   }
 }

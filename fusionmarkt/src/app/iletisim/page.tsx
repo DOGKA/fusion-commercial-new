@@ -192,7 +192,7 @@ export default function IletisimPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* ═══════════════════════════════════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════════════════════════════════ */}
@@ -491,7 +491,7 @@ export default function IletisimPage() {
         </div>
       </section>
 
-    </main>
+    </div>
   );
 }
 
