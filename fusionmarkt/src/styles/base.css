@@ -100,8 +100,15 @@ img, video, svg {
 /* ─────────────────────────────────────────────────────────────────────────
    LINKS
 ───────────────────────────────────────────────────────────────────────── */
-a {
-  text-decoration: none;
+/* @layer base ZORUNLU: bu dosya katmansız (unlayered) yüklendiği için kural
+   Tailwind'in @layer utilities içindeki `underline`ını cascade'de yeniyordu ve
+   sitedeki hiçbir <a> altı çizili olamıyordu. Bu, gövde metni içindeki linkleri
+   yalnızca renkle ayırt edilebilir bırakıyor (WCAG 1.4.1 / axe link-in-text-block).
+   base katmanına alınınca reset korunur ama açık `underline` utility'si kazanır. */
+@layer base {
+  a {
+    text-decoration: none;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

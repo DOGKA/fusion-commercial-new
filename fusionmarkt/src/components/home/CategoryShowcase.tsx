@@ -173,8 +173,10 @@ export default function CategoryShowcase({ index = 0, initialSection }: Category
           <div className="showcase-see-more-wrapper">
             <Link href={section.seeMoreLink || "#"} className="showcase-see-more-card showcase-see-more-primary" style={{ textDecoration: "none" }}>
               <div className="showcase-see-more-image">
+                {/* alt="": link'in metni zaten "Tümünü Gör", alt'ta tekrarlamak
+                    ekran okuyucuda aynı ifadeyi iki kez okutuyordu */}
                 {section.seeMoreImage ? (
-                  <Image src={section.seeMoreImage} alt="Tümünü Gör" fill sizes="200px" style={{ objectFit: "cover" }} />
+                  <Image src={section.seeMoreImage} alt="" fill sizes="200px" style={{ objectFit: "cover" }} />
                 ) : (
                   <>
                     <ImagePlaceholderIcon size={28} />

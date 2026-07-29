@@ -4,6 +4,12 @@ import Link from "next/link";
  * HomeSeoContent - Ana sayfa SEO metin bölümü
  * Google'ın sayfayı anlaması için keyword-rich, doğal okunur metin
  * Tasarım sitenin dark temasına uygun, minimal ve şık
+ *
+ * Gövde içi linkler renk için `dark:` varyantı YERİNE --fusion-success-text
+ * token'ını kullanıyor: projede `@custom-variant dark` tanımlı olmadığından
+ * Tailwind v4'ün `dark:` varyantı .dark class'ına değil prefers-color-scheme'e
+ * bağlı. `dark:text-emerald-400` hiç uygulanmıyor, link koyu temada emerald-700
+ * kalıp 3.65:1 kontrastta kalıyordu. Token .dark ile kendisi dönüyor.
  */
 export default function HomeSeoContent() {
   return (
@@ -27,7 +33,7 @@ export default function HomeSeoContent() {
             </p>
 
             <p>
-              <Link href="/marka/ieetek" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
+              <Link href="/marka/ieetek" className="text-[var(--fusion-success-text)] underline underline-offset-2 transition-opacity hover:opacity-80">
                 IEETek
               </Link>{" "}
               yetkili distribütörü olarak sunduğumuz{" "}
@@ -40,12 +46,12 @@ export default function HomeSeoContent() {
 
             <p>
               Ürün yelpazemiz sadece enerji çözümleriyle sınırlı değildir.{" "}
-              <Link href="/marka/telesteps" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
+              <Link href="/marka/telesteps" className="text-[var(--fusion-success-text)] underline underline-offset-2 transition-opacity hover:opacity-80">
                 Telesteps
               </Link>{" "}
               marka <strong className="text-foreground/80">yalıtkan merdivenler</strong> ile elektrik 
               sektöründe güvenli çalışma imkanı,{" "}
-              <Link href="/marka/traffi" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
+              <Link href="/marka/traffi" className="text-[var(--fusion-success-text)] underline underline-offset-2 transition-opacity hover:opacity-80">
                 Traffi
               </Link>{" "}
               marka <strong className="text-foreground/80">iş güvenliği eldivenleri</strong> ile 
@@ -56,11 +62,11 @@ export default function HomeSeoContent() {
               Tüm ürünlerimiz <strong className="text-foreground/80">2 yıl garanti</strong>,{" "}
               <strong className="text-foreground/80">ücretsiz kargo</strong> ve 14 gün koşulsuz iade 
               hakkı ile gönderilmektedir. Hangi güç kaynağının size uygun olduğunu bulmak için{" "}
-              <Link href="/guc-hesaplayici" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
+              <Link href="/guc-hesaplayici" className="text-[var(--fusion-success-text)] underline underline-offset-2 transition-opacity hover:opacity-80">
                 Güç Hesaplayıcı
               </Link>{" "}
               aracımızı kullanabilir, sorularınız için{" "}
-              <Link href="/sikca-sorulan-sorular" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors">
+              <Link href="/sikca-sorulan-sorular" className="text-[var(--fusion-success-text)] underline underline-offset-2 transition-opacity hover:opacity-80">
                 SSS
               </Link>{" "}
               sayfamızı ziyaret edebilirsiniz.

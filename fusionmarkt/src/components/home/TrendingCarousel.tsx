@@ -118,10 +118,16 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                         fill
                         sizes="(max-width: 768px) 280px, 370px"
                         className="product-card-image"
-                        priority={index < 3}
                         // Lazy YOK: carousel görselleri sayfa açılınca arka planda
                         // topluca iner; hızlı kaydırmada beyaz kart görünmez.
-                        loading={index < 3 ? undefined : "eager"}
+                        loading="eager"
+                        // Bu bölüm hero'nun (md:h-screen) altında, yani hiçbir kart
+                        // LCP adayı değil. `priority` KULLANILMAMALI: Next eager ve
+                        // priority görsellerin ikisi için de head'e <link rel=preload
+                        // as=image> basıyor, 10 kart hero görseliyle aynı anda High
+                        // öncelikte yarışıp LCP'yi 0.7s -> 1.3s'ye çıkarmıştı.
+                        // fetchPriority="low" preload'u korur ama hero'nun arkasına atar.
+                        fetchPriority="low"
                         draggable={false}
                       />
                     )}

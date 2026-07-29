@@ -553,8 +553,12 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
                 key={index}
                 onClick={() => goToSlide(index)}
                 disabled={isTransitioning}
-                // Nokta 6px kalıyor, buton 24x24 dokunma hedefi minimumunu karşılıyor
-                className="flex h-6 min-w-6 items-center justify-center px-1.5"
+                // Nokta 6px kalıyor, buton 24x24 dokunma hedefi minimumunu karşılıyor.
+                // Genişlik min-w/w ile DEĞİL padding ile veriliyor: mobile.css'teki
+                // `.hero-slider-mobile button { min-width: unset !important }` min-w-6'yı
+                // eziyordu (buton 18px kalıyordu), sabit w-6 ise aktif noktayı
+                // (w-6 md:w-8) kırpardı. 6px nokta + 2*9px = 24px.
+                className="flex h-6 items-center justify-center px-[9px]"
                 aria-label={`Slayt ${index + 1}`}
                 aria-current={index === currentSlide ? "true" : undefined}
               >

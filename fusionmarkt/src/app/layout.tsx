@@ -120,8 +120,10 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        {/* Medya ve tag origin'leri için erken bağlantı kurulumu */}
-        <link rel="preconnect" href="https://cdn.fusionmarkt.com" crossOrigin="anonymous" />
+        {/* CDN'e preconnect BİLEREK yok: görsellerin tamamı /_next/image üzerinden
+            sunucu tarafında çekiliyor, tarayıcı bu origin'e yalnızca sayfa altındaki
+            birkaç SVG için ve geç bağlanıyor. preconnect boşa TLS el sıkışması
+            yapıyordu (Lighthouse "Unused preconnect"). dns-prefetch yeterli. */}
         <link rel="dns-prefetch" href="https://cdn.fusionmarkt.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />

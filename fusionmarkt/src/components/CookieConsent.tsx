@@ -211,9 +211,13 @@ export default function CookieConsent() {
 
                       <p className="text-sm text-foreground-secondary leading-relaxed mb-5">
                         {(bannerConfig?.text || "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.")} Detaylı bilgi için{" "}
+                        {/* Renk `dark:` varyantı yerine token ile veriliyor: projede
+                            @custom-variant dark tanımlı olmadığı için dark:text-amber-400
+                            .dark class'ıyla tetiklenmiyordu ve link koyu temada
+                            amber-700 kalıp 3.26:1 kontrastta kalıyordu. */}
                         <Link
                           href="/cerez-politikasi"
-                          className="text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 underline underline-offset-2"
+                          className="text-[var(--badge-warning-text)] underline underline-offset-2 transition-opacity hover:opacity-80"
                         >
                           Çerez Politikası
                         </Link>
