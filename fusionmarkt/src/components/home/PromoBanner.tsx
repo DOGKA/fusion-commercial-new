@@ -57,7 +57,9 @@ export default function PromoBanner({ initialPromo }: PromoBannerProps) {
                 aria-hidden="true"
                 fill
                 sizes="(max-width: 1024px) 100vw, 1440px"
-                quality={70}
+                // next.config.ts images.qualities allowlist'inde olmalı, aksi
+                // halde optimizer 400 döner
+                quality={75}
                 className="object-cover object-center"
               />
             )}
