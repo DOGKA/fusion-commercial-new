@@ -45,6 +45,7 @@ import { ACCOUNT_NAV } from "@/app/hesabim/_lib/account-nav";
  * göndermek bir adım fazla.
  */
 const HIDDEN_HREFS = new Set(["/hesabim"]);
+const FAVORITES_HREFS = new Set(["/favori", "/hesabim/favorilerim"]);
 
 interface DrawerRow {
   key: string;
@@ -86,9 +87,14 @@ function useIsMounted() {
 interface AccountDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onFavoritesSeen: () => void;
 }
 
-export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
+export default function AccountDrawer({
+  isOpen,
+  onClose,
+  onFavoritesSeen,
+}: AccountDrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -343,7 +349,12 @@ export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                           key={row.key}
                           href={row.href}
                           prefetch={false}
-                          onClick={onClose}
+                          onClick={() => {
+                            if (FAVORITES_HREFS.has(row.href)) {
+                              onFavoritesSeen();
+                            }
+                            onClose();
+                          }}
                           className={rowClass(active)}
                           style={style}
                         >

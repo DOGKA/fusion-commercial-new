@@ -35,6 +35,8 @@ const AccountDrawer = dynamic(() => import("@/components/layout/AccountDrawer"),
   ssr: false,
 });
 
+const FAVORITES_SEEN_AT_KEY = "fusionmarkt-favorites-seen-at";
+
 // Hydration-safe mounted check
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
@@ -89,6 +91,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [favoritesSeenAt, setFavoritesSeenAt] = useState<number | null>(null);
   const [badgeAnimating, setBadgeAnimating] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [sliderTheme, setSliderTheme] = useState<string | null>(null);
@@ -99,7 +102,11 @@ export default function Header() {
   const isHomePage = pathname === "/";
   
   const { itemCount, openCart, isAnimating } = useCart();
-  const { itemCount: favoritesCount, isAnimating: favoritesAnimating } = useFavorites();
+  const { items: favoriteItems, isAnimating: favoritesAnimating } = useFavorites();
+  const unseenFavoritesCount =
+    favoritesSeenAt === null
+      ? 0
+      : favoriteItems.filter((item) => item.addedAt > favoritesSeenAt).length;
   
   // Theme detection for logo color
   const { resolvedTheme } = useTheme();
@@ -113,6 +120,21 @@ export default function Header() {
   const logoMainColor = useSliderMode
     ? (sliderIsDark ? "#ffffff" : "#1a1a1a")
     : (isDark ? "#ffffff" : "#1a1a1a");
+
+  /** İlk okumaya kadar rozeti gizli tutar; aksi halde localStorage değeri
+      okunmadan önce eski favoriler bir kare "yeni" gibi görünebilirdi. */
+  useEffect(() => {
+    const stored = Number(localStorage.getItem(FAVORITES_SEEN_AT_KEY));
+    queueMicrotask(() => {
+      setFavoritesSeenAt(Number.isFinite(stored) && stored > 0 ? stored : 0);
+    });
+  }, []);
+
+  const markFavoritesSeen = () => {
+    const now = Date.now();
+    localStorage.setItem(FAVORITES_SEEN_AT_KEY, String(now));
+    setFavoritesSeenAt(now);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -290,17 +312,17 @@ export default function Header() {
                   "relative hidden lg:flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
-                  favoritesCount > 0 ? "text-emerald-400" : "text-foreground/60 hover:text-foreground",
-                  favoritesAnimating && "animate-wiggle"
+                  unseenFavoritesCount > 0 ? "text-emerald-400" : "text-foreground/60 hover:text-foreground",
+                  favoritesAnimating && unseenFavoritesCount > 0 && "animate-wiggle"
                 )}
                 aria-label="Hesabım"
                 aria-expanded={isAccountOpen}
               >
                 <User className="w-5 h-5 relative z-10" />
                 <span className="relative z-10 text-sm font-medium">Hesabım</span>
-                {favoritesCount > 0 && (
+                {unseenFavoritesCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30">
-                    {favoritesCount > 99 ? "99+" : favoritesCount}
+                    {unseenFavoritesCount > 99 ? "99+" : unseenFavoritesCount}
                   </span>
                 )}
               </button>
@@ -317,8 +339,8 @@ export default function Header() {
                   "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
-                  favoritesCount > 0 && "text-emerald-400",
-                  favoritesAnimating && "animate-wiggle"
+                  unseenFavoritesCount > 0 && "text-emerald-400",
+                  favoritesAnimating && unseenFavoritesCount > 0 && "animate-wiggle"
                 )}
                 aria-label="Hesabım"
                 aria-expanded={isAccountOpen}
@@ -327,9 +349,9 @@ export default function Header() {
                 <span className="relative z-10 text-[10px] font-medium leading-none tracking-tight">
                   Hesabım
                 </span>
-                {favoritesCount > 0 && (
+                {unseenFavoritesCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30">
-                    {favoritesCount > 99 ? "99+" : favoritesCount}
+                    {unseenFavoritesCount > 99 ? "99+" : unseenFavoritesCount}
                   </span>
                 )}
               </button>
@@ -412,7 +434,11 @@ export default function Header() {
 
       {/* Hesap çekmecesi - mobil menüyle aynı montaj kalıbı */}
       {isAccountOpen && (
-        <AccountDrawer isOpen onClose={() => setIsAccountOpen(false)} />
+        <AccountDrawer
+          isOpen
+          onClose={() => setIsAccountOpen(false)}
+          onFavoritesSeen={markFavoritesSeen}
+        />
       )}
     </>
   );
