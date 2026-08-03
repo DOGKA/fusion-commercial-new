@@ -69,6 +69,7 @@ fusionmarkt.com__2025-12-09T10_48_22+0300/
 database-backup/
 *.dump
 *.sql
+!packages/db/prisma/migrations/**/migration.sql
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Image Processing / Temporary Files

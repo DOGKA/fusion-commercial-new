@@ -23,7 +23,10 @@ const FOCUSABLE =
 
 /**
  * Yıkıcı işlemler için onay modalı. `window.confirm` yerine bunu kullanın.
- * Mobilde tam ekran görünümü mevcut `.modal-content` kuralından gelir.
+ *
+ * Bilinçli olarak `.modal-content` kullanmıyor: o sınıfın tek kuralı mobilde
+ * `min-height: 100vh` dayatmak ve bu, iki satırlık bir onay kutusunu ekranı
+ * kaplayan bir sayfaya çeviriyordu.
  */
 export default function AccountConfirmDialog({
   open,
@@ -109,7 +112,7 @@ export default function AccountConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
-        className="modal-content account-dialog"
+        className="account-dialog"
       >
         <h2 id={titleId} className="account-dialog__title">
           {title}

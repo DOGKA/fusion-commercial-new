@@ -25,6 +25,8 @@ export default async function FavorilerimPage() {
     ? (await getWishlistItems(user.id)).map((item) => ({
         id: item.id,
         productId: item.productId,
+        bundleId: item.bundleId ?? undefined,
+        isBundle: item.isBundle,
         slug: item.slug,
         title: item.title,
         brand: item.brand,

@@ -44,10 +44,37 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => ({}));
     const productId = typeof body.productId === "string" ? body.productId : "";
+    const bundleId = typeof body.bundleId === "string" ? body.bundleId : "";
     const variantId = typeof body.variantId === "string" && body.variantId ? body.variantId : null;
 
-    if (!productId) {
-      return NextResponse.json({ error: "Ürün belirtilmedi" }, { status: 400 });
+    if ((!productId && !bundleId) || (productId && bundleId)) {
+      return NextResponse.json({ error: "Ürün veya paket belirtilmeli" }, { status: 400 });
+    }
+
+    const wishlistId = await ensureWishlist(session.user.id);
+
+    if (bundleId) {
+      const bundle = await prisma.bundle.findUnique({
+        where: { id: bundleId },
+        select: { id: true, price: true, isActive: true },
+      });
+      if (!bundle || !bundle.isActive) {
+        return NextResponse.json({ error: "Paket bulunamadı" }, { status: 404 });
+      }
+
+      await prisma.wishlistItem.upsert({
+        where: { wishlistId_bundleId: { wishlistId, bundleId } },
+        create: {
+          wishlistId,
+          bundleId,
+          productId: null,
+          variantId: null,
+          priceAtAdd: Number(bundle.price),
+        },
+        update: {},
+      });
+
+      return NextResponse.json({ items: await getWishlistItems(session.user.id) });
     }
 
     const product = await prisma.product.findUnique({
@@ -76,8 +103,6 @@ export async function POST(request: NextRequest) {
             ? Number(variant.price)
             : Number(product.price);
     }
-
-    const wishlistId = await ensureWishlist(session.user.id);
 
     // Tekillik kısıtı `variantId` NULL olduğunda devreye girmediği için
     // (PostgreSQL NULL'ları eşit saymaz) varyantsız kalemde kontrol burada.
@@ -111,12 +136,13 @@ export async function DELETE(request: NextRequest) {
 
     const url = new URL(request.url);
     const productId = url.searchParams.get("productId") || "";
+    const bundleId = url.searchParams.get("bundleId") || "";
     const variantId = url.searchParams.get("variantId") || null;
     // "Tümünü temizle" — arayüzde onay diyaloğunun arkasında.
     const clearAll = url.searchParams.get("all") === "1";
 
-    if (!productId && !clearAll) {
-      return NextResponse.json({ error: "Ürün belirtilmedi" }, { status: 400 });
+    if (!productId && !bundleId && !clearAll) {
+      return NextResponse.json({ error: "Ürün veya paket belirtilmedi" }, { status: 400 });
     }
 
     const wishlist = await prisma.wishlist.findUnique({
@@ -128,7 +154,9 @@ export async function DELETE(request: NextRequest) {
       await prisma.wishlistItem.deleteMany({
         where: clearAll
           ? { wishlistId: wishlist.id }
-          : { wishlistId: wishlist.id, productId, variantId },
+          : bundleId
+            ? { wishlistId: wishlist.id, bundleId }
+            : { wishlistId: wishlist.id, productId, variantId },
       });
     }
 

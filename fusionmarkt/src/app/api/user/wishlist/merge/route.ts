@@ -24,16 +24,19 @@ import { ensureWishlist, getWishlistItems } from "@/lib/wishlist";
 
 interface IncomingItem {
   productId?: unknown;
+  bundleId?: unknown;
   variantId?: unknown;
   addedAt?: unknown;
   priceAtAdd?: unknown;
 }
 
 /** Aynı ürünün aynı varyantı gelen listede iki kez varsa tekilleştirir. */
-function dedupe(items: { productId: string; variantId: string | null; addedAt: Date; priceAtAdd: number | null }[]) {
+function dedupe(items: { productId: string | null; bundleId: string | null; variantId: string | null; addedAt: Date; priceAtAdd: number | null }[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    const key = `${item.productId}::${item.variantId ?? ""}`;
+    const key = item.bundleId
+      ? `bundle::${item.bundleId}`
+      : `product::${item.productId}::${item.variantId ?? ""}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -57,14 +60,17 @@ export async function POST(request: NextRequest) {
 
     const parsed = dedupe(
       incoming
-        .filter((item): item is IncomingItem & { productId: string } =>
-          typeof item.productId === "string" && item.productId.length > 0
-        )
+        .filter((item) => {
+          const hasProduct = typeof item.productId === "string" && item.productId.length > 0;
+          const hasBundle = typeof item.bundleId === "string" && item.bundleId.length > 0;
+          return hasProduct !== hasBundle;
+        })
         .map((item) => {
           const timestamp =
             typeof item.addedAt === "number" ? new Date(item.addedAt) : new Date();
           return {
-            productId: item.productId,
+            productId: typeof item.productId === "string" ? item.productId : null,
+            bundleId: typeof item.bundleId === "string" ? item.bundleId : null,
             variantId: typeof item.variantId === "string" && item.variantId ? item.variantId : null,
             addedAt: Number.isNaN(timestamp.getTime()) ? new Date() : timestamp,
             priceAtAdd: typeof item.priceAtAdd === "number" ? item.priceAtAdd : null,
@@ -82,9 +88,23 @@ export async function POST(request: NextRequest) {
 
     // Silinmiş / pasif ürünler ve artık var olmayan varyantlar ayıklanır;
     // aksi halde tek bir geçersiz kalem FK hatasıyla tüm göçü bloke eder.
-    const [products, variants] = await Promise.all([
+    const [products, bundles, variants] = await Promise.all([
       prisma.product.findMany({
-        where: { id: { in: parsed.map((i) => i.productId) }, isActive: true },
+        where: {
+          id: {
+            in: parsed.map((item) => item.productId).filter((id): id is string => id !== null),
+          },
+          isActive: true,
+        },
+        select: { id: true },
+      }),
+      prisma.bundle.findMany({
+        where: {
+          id: {
+            in: parsed.map((item) => item.bundleId).filter((id): id is string => id !== null),
+          },
+          isActive: true,
+        },
         select: { id: true },
       }),
       prisma.productVariant.findMany({
@@ -96,28 +116,57 @@ export async function POST(request: NextRequest) {
     ]);
 
     const activeProducts = new Set(products.map((p) => p.id));
+    const activeBundles = new Set(bundles.map((bundle) => bundle.id));
     const variantOwner = new Map(variants.map((v) => [v.id, v.productId]));
 
     const wishlistId = await ensureWishlist(session.user.id);
     const existing = await prisma.wishlistItem.findMany({
       where: { wishlistId },
-      select: { productId: true, variantId: true },
+      select: { productId: true, bundleId: true, variantId: true },
     });
     const existingKeys = new Set(
-      existing.map((item) => `${item.productId}::${item.variantId ?? ""}`)
+      existing.map((item) =>
+        item.bundleId
+          ? `bundle::${item.bundleId}`
+          : `product::${item.productId}::${item.variantId ?? ""}`
+      )
     );
 
     let skipped = 0;
     const toCreate: {
       wishlistId: string;
-      productId: string;
+      productId: string | null;
+      bundleId: string | null;
       variantId: string | null;
       priceAtAdd: number | null;
       createdAt: Date;
     }[] = [];
 
     for (const item of parsed) {
-      if (!activeProducts.has(item.productId)) {
+      if (item.bundleId) {
+        if (!activeBundles.has(item.bundleId)) {
+          skipped++;
+          continue;
+        }
+
+        const key = `bundle::${item.bundleId}`;
+        if (existingKeys.has(key)) {
+          skipped++;
+          continue;
+        }
+        existingKeys.add(key);
+        toCreate.push({
+          wishlistId,
+          productId: null,
+          bundleId: item.bundleId,
+          variantId: null,
+          priceAtAdd: item.priceAtAdd,
+          createdAt: item.addedAt,
+        });
+        continue;
+      }
+
+      if (!item.productId || !activeProducts.has(item.productId)) {
         skipped++;
         continue;
       }
@@ -128,15 +177,17 @@ export async function POST(request: NextRequest) {
           ? item.variantId
           : null;
 
-      if (existingKeys.has(`${item.productId}::${variantId ?? ""}`)) {
+      const key = `product::${item.productId}::${variantId ?? ""}`;
+      if (existingKeys.has(key)) {
         skipped++;
         continue;
       }
-      existingKeys.add(`${item.productId}::${variantId ?? ""}`);
+      existingKeys.add(key);
 
       toCreate.push({
         wishlistId,
         productId: item.productId,
+        bundleId: null,
         variantId,
         priceAtAdd: item.priceAtAdd,
         createdAt: item.addedAt,

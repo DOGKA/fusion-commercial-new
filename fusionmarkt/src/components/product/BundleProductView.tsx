@@ -1657,7 +1657,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                       {/* Favorite Button */}
                       {(() => {
                         const productId = productData?.id || product.id || '';
-                        const isProductFavorite = isFavorite(String(productId), selectedVariant?.id);
+                        const isProductFavorite = isFavorite(String(productId));
                         
                         return (
                           <button
@@ -1665,6 +1665,8 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             onClick={() => {
                               toggleItem({
                                 productId: String(productId),
+                                bundleId: String(productId),
+                                isBundle: true,
                                 slug: productData?.slug || slug || '',
                                 title: productData?.name || product.name || '',
                                 // Brand boşsa "FusionMarkt" gibi mock fallback basma
@@ -1672,12 +1674,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                                 price: displayPrice,
                                 originalPrice: displayComparePrice,
                                 image: productData?.thumbnail || productData?.images?.[0] || product.images?.[0] || '',
-                                variant: selectedVariant ? {
-                                  id: selectedVariant.id,
-                                  name: selectedVariant.name || '',
-                                  type: selectedVariant.type || 'size',
-                                  value: selectedVariant.value || '',
-                                } : undefined,
                               });
                             }}
                             title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}

@@ -26,7 +26,15 @@ function getStoredFavorites(): FavoriteItem[] {
   if (typeof window === 'undefined') return [];
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
+    const parsed: FavoriteItem[] = saved ? JSON.parse(saved) : [];
+    return parsed.map((item) => {
+      const prefixedBundle = item.productId.startsWith("bundle-");
+      const isBundle = item.isBundle === true || prefixedBundle || item.brand === "Paket";
+      if (!isBundle) return item;
+
+      const bundleId = item.bundleId || (prefixedBundle ? item.productId.slice(7) : item.productId);
+      return { ...item, productId: bundleId, bundleId, isBundle: true };
+    });
   } catch {
     return [];
   }
@@ -45,6 +53,8 @@ export interface FavoriteItem {
   price: number;
   originalPrice?: number | null;
   image?: string;
+  isBundle?: boolean;
+  bundleId?: string;
   variant?: {
     id: string;
     name: string;
@@ -69,6 +79,8 @@ export interface FavoriteItem {
 interface WishlistItemResponse {
   id: string;
   productId: string;
+  bundleId: string | null;
+  isBundle: boolean;
   slug: string;
   title: string;
   brand: string;
@@ -90,6 +102,8 @@ function fromResponse(item: WishlistItemResponse): FavoriteItem {
   return {
     id: item.id,
     productId: item.productId,
+    bundleId: item.bundleId ?? undefined,
+    isBundle: item.isBundle,
     slug: item.slug,
     title: item.title,
     brand: item.brand,
@@ -203,7 +217,8 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               items: stored.map((item) => ({
-                productId: item.productId,
+                productId: item.isBundle ? undefined : item.productId,
+                bundleId: item.isBundle ? (item.bundleId || item.productId) : undefined,
                 variantId: item.variant?.id,
                 addedAt: item.addedAt,
                 priceAtAdd: item.priceAtAdd ?? undefined,
@@ -310,7 +325,8 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            productId: newItem.productId,
+            productId: newItem.isBundle ? undefined : newItem.productId,
+            bundleId: newItem.isBundle ? (newItem.bundleId || newItem.productId) : undefined,
             variantId: newItem.variant?.id,
           }),
         });
@@ -337,6 +353,10 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     void (async () => {
       try {
         const query = new URLSearchParams({ productId });
+        if (items.find((item) => item.productId === productId && item.isBundle)) {
+          query.delete("productId");
+          query.set("bundleId", productId);
+        }
         if (variantId) query.set("variantId", variantId);
         const res = await fetch(`/api/user/wishlist?${query.toString()}`, {
           method: "DELETE",
@@ -349,7 +369,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
         void reload();
       }
     })();
-  }, [isSynced, reload]);
+  }, [items, isSynced, reload]);
 
   // Toggle item in favorites
   const toggleItem = useCallback((item: Omit<FavoriteItem, "id" | "addedAt">) => {
@@ -394,6 +414,8 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
         originalPrice: item.originalPrice,
         image: item.image,
         variant: item.variant,
+        isBundle: item.isBundle,
+        bundleId: item.bundleId,
       });
 
       openCart();

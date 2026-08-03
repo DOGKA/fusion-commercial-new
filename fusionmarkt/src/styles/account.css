@@ -1191,6 +1191,61 @@
   background: var(--acc-danger-bg-hover);
 }
 
+/* Mobilde onay kutusu tam ekran modal değil, alttan açılan bottom sheet'tir. */
+@media (max-width: 767px) {
+  .account-dialog-overlay {
+    align-items: flex-end;
+    padding: 0;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+
+  .account-dialog {
+    max-width: none;
+    max-height: calc(100dvh - max(16px, env(safe-area-inset-top)));
+    overflow-y: auto;
+    border-width: 1px 0 0;
+    border-radius: 22px 22px 0 0;
+    padding: 28px 20px calc(20px + env(safe-area-inset-bottom));
+    animation: account-dialog-sheet-in 180ms ease-out;
+  }
+
+  .account-dialog::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: -16px auto 18px;
+    border-radius: 999px;
+    background: var(--border-hover);
+  }
+
+  .account-dialog__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .account-dialog__cancel,
+  .account-dialog__confirm {
+    min-height: 46px;
+    justify-content: center;
+  }
+}
+
+@keyframes account-dialog-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-dialog {
+    animation: none;
+  }
+}
+
 /* Pasif hâl `opacity` ile değil ayrı bir paletle: opaklık metni ve zemini
    birlikte soldurup kontrastı AA'nın altına indiriyordu. Aynı kural JSX
    tarafında `DISABLED_TONE` olarak duruyor (hesabim/_lib/action-classes.ts);

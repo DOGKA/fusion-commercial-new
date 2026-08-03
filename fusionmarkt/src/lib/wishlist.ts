@@ -13,7 +13,10 @@ import { prisma, type Prisma } from "@repo/db";
 export interface WishlistItemDTO {
   /** WishlistItem kaydının kimliği */
   id: string;
+  /** Arayüzde ürün ve paket aynı kart modelini paylaşır. */
   productId: string;
+  bundleId: string | null;
+  isBundle: boolean;
   slug: string;
   title: string;
   brand: string;
@@ -64,6 +67,33 @@ const ITEM_INCLUDE = {
       image: true,
     },
   },
+  bundle: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      price: true,
+      comparePrice: true,
+      thumbnail: true,
+      images: true,
+      brand: true,
+      isActive: true,
+      categories: {
+        orderBy: { sortOrder: "asc" as const },
+        take: 1,
+        select: {
+          categoryId: true,
+          category: { select: { name: true } },
+        },
+      },
+      items: {
+        select: {
+          quantity: true,
+          product: { select: { stock: true } },
+        },
+      },
+    },
+  },
 } satisfies Prisma.WishlistItemInclude;
 
 type ItemWithRelations = Prisma.WishlistItemGetPayload<{ include: typeof ITEM_INCLUDE }>;
@@ -74,7 +104,46 @@ function toDto(
   item: ItemWithRelations,
   ratings: Map<string, { average: number; count: number }>
 ): WishlistItemDTO {
-  const { product, variant } = item;
+  const { product, variant, bundle } = item;
+
+  if (bundle) {
+    const category = bundle.categories[0];
+    const stock =
+      bundle.items.length > 0
+        ? Math.min(
+            ...bundle.items.map((bundleItem) =>
+              Math.floor(bundleItem.product.stock / bundleItem.quantity)
+            )
+          )
+        : 0;
+
+    return {
+      id: item.id,
+      productId: bundle.id,
+      bundleId: bundle.id,
+      isBundle: true,
+      slug: bundle.slug,
+      title: bundle.name,
+      brand: bundle.brand ?? "Paket",
+      price: Number(bundle.price),
+      originalPrice: num(bundle.comparePrice),
+      image: bundle.thumbnail || bundle.images[0] || null,
+      stock,
+      isActive: bundle.isActive,
+      categoryId: category?.categoryId ?? "",
+      categoryName: category?.category.name ?? "Paketler",
+      ratingAverage: null,
+      ratingCount: 0,
+      variant: null,
+      addedAt: item.createdAt.toISOString(),
+      priceAtAdd: num(item.priceAtAdd),
+    };
+  }
+
+  // Veritabanı CHECK constraint'i hedeflerden tam birini zorunlu tutar.
+  if (!product) {
+    throw new Error(`Wishlist item ${item.id} has no product or bundle`);
+  }
 
   // Fiyat kuralı ürün sayfası ve `checkout/validate` ile aynı:
   // variant.salePrice → variant.price → product.price.
@@ -88,6 +157,8 @@ function toDto(
   return {
     id: item.id,
     productId: product.id,
+    bundleId: null,
+    isBundle: false,
     slug: product.slug,
     title: product.name,
     brand: product.brand ?? "",
@@ -157,7 +228,11 @@ export async function getWishlistItems(userId: string): Promise<WishlistItemDTO[
 
   if (!wishlist) return [];
 
-  const ratings = await fetchRatings(wishlist.items.map((i) => i.productId));
+  const ratings = await fetchRatings(
+    wishlist.items
+      .map((item) => item.productId)
+      .filter((productId): productId is string => productId !== null)
+  );
   return wishlist.items.map((item) => toDto(item, ratings));
 }
 

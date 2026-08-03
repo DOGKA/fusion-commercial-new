@@ -70,7 +70,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
   
   const { isFavorite, toggleItem } = useFavorites();
   
-  const favoriteId = `bundle-${bundle.id}`;
+  const favoriteId = String(bundle.id);
   const isProductFavorite = isFavorite(favoriteId);
 
   const {
@@ -239,6 +239,8 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 e.stopPropagation();
                 toggleItem({
                   productId: favoriteId,
+                  bundleId: favoriteId,
+                  isBundle: true,
                   slug: slug,
                   title: name,
                   brand: "Paket",
