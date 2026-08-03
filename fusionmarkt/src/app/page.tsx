@@ -2,10 +2,12 @@ import dynamic from "next/dynamic";
 import HeroSlider from "@/components/home/HeroSlider";
 import TrendingCarousel from "@/components/home/TrendingCarousel";
 import HomeSeoContent from "@/components/home/HomeSeoContent";
+// PromoBanner artık sunucu bileşeni: istemciye hiç JS göndermiyor, dolayısıyla
+// aşağıdaki `dynamic()` listesinde olmasının bir karşılığı yoktu.
+import PromoBanner from "@/components/home/PromoBanner";
 
 // Ekran altı bölümler ayrı chunk'lara bölünür (SSR açık kalır):
 // tek seferde inen JS/hydration yükünü azaltarak INP'yi iyileştirir.
-const PromoBanner = dynamic(() => import("@/components/home/PromoBanner"));
 const VideoBanner = dynamic(() => import("@/components/home/VideoBanner"));
 const VideoGrid = dynamic(() => import("@/components/home/VideoGrid"));
 const CategoryShowcase = dynamic(() => import("@/components/home/CategoryShowcase"));
@@ -213,7 +215,7 @@ export default async function Home() {
 
       <TrendingCarousel initialProducts={initialTrending} />
 
-      <PromoBanner initialPromo={initialPromo} />
+      <PromoBanner promo={initialPromo} />
 
       <VideoBanner initialItem={initialVideoBanner} />
 

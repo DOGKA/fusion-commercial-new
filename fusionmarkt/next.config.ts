@@ -193,6 +193,20 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Pazaryeri logoları - 30 gün. Dosya adları sabit ve içerikleri yılda bir
+      // bile değişmiyor; Cloudflare varsayılanı bunlara 1 gün veriyordu ve
+      // Lighthouse "efficient cache lifetimes" bulgusu buradan geliyordu.
+      // Cloudflare tarafında Browser Cache TTL "Respect Existing Headers"
+      // olmadıkça bu başlık ezilir.
+      {
+        source: "/pazaryerleri/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000, stale-while-revalidate=86400",
+          },
+        ],
+      },
       // Statik dosyalar (fonts, icons) - 1 yıl cache
       {
         source: "/fonts/:path*",

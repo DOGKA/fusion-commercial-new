@@ -7,9 +7,9 @@ import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
-import MiniCart from "@/components/cart/MiniCart";
+import MiniCartLazy from "@/components/cart/MiniCartLazy";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
-import CookieConsent from "@/components/CookieConsent";
+import CookieConsentLazy from "@/components/CookieConsentLazy";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import {
   GoogleTagManagerScript,
@@ -51,8 +51,14 @@ export const metadata: Metadata = {
   
   // Icons
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    // SVG önce geliyor ki destekleyen tarayıcı onu seçsin; .ico ise hem eski
+    // tarayıcılar hem de tarayıcıların bildirimden bağımsız olarak istediği
+    // /favicon.ico için duruyor.
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/favicon.svg",
   },
   
@@ -200,8 +206,8 @@ export default function RootLayout({
                     {children}
                   </main>
                   <Footer />
-                  <MiniCart />
-                  <CookieConsent />
+                  <MiniCartLazy />
+                  <CookieConsentLazy />
                 </FavoritesProvider>
               </CartProvider>
             </AuthProvider>

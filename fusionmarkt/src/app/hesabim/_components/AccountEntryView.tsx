@@ -1,13 +1,22 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useAuth } from "@/context/AuthContext";
 import { useAccountSummary } from "../_lib/useAccountSummary";
 import type { AccountSummaryFetched, UserType } from "../_lib/types";
 import type { ServerAccountUser } from "../_lib/server-user";
-import AuthPanels from "./AuthPanels";
 import DashboardPane from "./DashboardPane";
 import AccountMobileMenu from "./AccountMobileMenu";
 import { AccountCard } from "./shared";
+
+/**
+ * Giriş/kayıt panelleri ayrı chunk'ta: 800 satırlık bu bileşen yalnızca
+ * OTURUMSUZ dalda görünüyor, statik import edildiğinde ise oturumu olan
+ * kullanıcı da her hesap sayfası açılışında indiriyordu.
+ *
+ * SSR kapatılmadı — oturumsuz kullanıcı formu ilk HTML'de görmeye devam ediyor.
+ */
+const AuthPanels = dynamic(() => import("./AuthPanels"));
 
 /**
  * Oturumlu kök içeriği.

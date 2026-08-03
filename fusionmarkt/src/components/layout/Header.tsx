@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -18,8 +19,17 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { MobileThemeToggle } from "@/components/ThemeToggle";
-import MobileMenu from "@/components/layout/MobileMenu";
 import { useTheme } from "next-themes";
+
+/**
+ * Mobil menü ilk açılışa kadar indirilmiyor. 520 satırlık bileşen kapalıyken
+ * `return null` yapıyordu, yani her sayfada boşuna inip ayrıştırılıyordu — ne
+ * sunucu HTML'ine ne de ekrana bir katkısı vardı. `ssr: false` bu yüzden
+ * güvenli: kaldırılan çıktı zaten boştu.
+ */
+const MobileMenu = dynamic(() => import("@/components/layout/MobileMenu"), {
+  ssr: false,
+});
 
 // Hydration-safe mounted check
 const emptySubscribe = () => () => {};
@@ -357,8 +367,13 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu - MiniCart tarzı sağdan açılan panel */}
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      {/* Mobile Menu - MiniCart tarzı sağdan açılan panel.
+          Yalnızca açıkken monte ediliyor: bileşen kapalıyken kendisi de null
+          döndürüyordu, çıkış animasyonu yok, gövde scroll kilidini de effect
+          temizliği geri alıyor. */}
+      {isMobileMenuOpen && (
+        <MobileMenu isOpen onClose={() => setIsMobileMenuOpen(false)} />
+      )}
     </>
   );
 }

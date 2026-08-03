@@ -16,10 +16,15 @@
 @import "../styles/layout.css";
 @import "../styles/effects.css";
 @import "../styles/mobile.css";
-@import "../styles/account.css";
 /* blog.css BİLEREK burada değil (~68 KB). Yalnızca kullanıldığı rotalarda
    import ediliyor: app/blog/layout.tsx ve app/sikca-sorulan-sorular/layout.tsx.
-   Buradan import edilirse her sayfanın render-blocking CSS'ine geri girer. */
+   Buradan import edilirse her sayfanın render-blocking CSS'ine geri girer.
+
+   account.css + account-mobile.css (~58 KB) aynı sebeple burada değil. Yalnızca
+   app/hesabim/layout.tsx ve app/sozlesmeler/layout.tsx'ten import ediliyor;
+   bu iki rota dışında hiçbir sayfa `.account-*` / `.acc-*` sınıflarını
+   kullanmıyor. Buraya geri eklenirse ana sayfanın render-blocking CSS'i
+   ~45 KiB'a çıkar ve mobil FCP ~120 ms geriler — bir kez oldu. */
 
 /* Tailwind v4'ün `dark:` varyantı varsayılan olarak @media (prefers-color-scheme)
    kullanır, .dark class'ını DEĞİL. Bu tanım olmadan tema iki yönlü bozuktu:

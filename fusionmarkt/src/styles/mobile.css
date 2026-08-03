@@ -621,42 +621,6 @@
     padding: 8px !important;
   }
   
-  /* ===========================================================================
-     SQUIRCLE BUTTONS - iOS tarzı yumuşak köşeli butonlar
-  =========================================================================== */
-  
-  /* Filtre butonu - sol üst, squircle */
-  .store-filter-button {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    padding: 0 12px !important;
-    height: 36px !important;
-    min-width: auto !important;
-    border-radius: 12px !important;
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-  }
-  
-  /* Sıralama dropdown - orta üst, squircle */
-  .store-sort-button {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    padding: 0 10px !important;
-    height: 36px !important;
-    justify-self: start !important;
-    border-radius: 12px !important;
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-  }
-  
-  .store-sort-button span {
-    max-width: 70px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    font-size: 12px !important;
-  }
-  
   /* Arama - tam genişlik, alt satır, squircle */
   .store-search-container {
     grid-column: 1 / -1 !important;
@@ -686,18 +650,6 @@
     grid-template-rows: auto auto auto !important;
   }
   
-  .store-filter-button {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    border-radius: 14px !important;
-  }
-  
-  .store-sort-button {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    border-radius: 14px !important;
-  }
-  
   .store-search-container {
     grid-column: 1 / -1 !important;
     grid-row: 3 !important;
@@ -725,26 +677,6 @@
   span.related-main-price {
     font-size: 20px !important;
   }
-}
-
-/* ===========================================================================
-   STORE TOOLBAR - SQUIRCLE GLOBAL (Web + Mobile)
-   iOS tarzı yumuşak köşeli butonlar
-=========================================================================== */
-
-.store-filter-button,
-.store-sort-button {
-  border-radius: 16px !important;
-  background: var(--glass-bg) !important;
-  border: 1px solid var(--glass-border) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-.store-filter-button:hover,
-.store-sort-button:hover {
-  background: var(--glass-bg-hover) !important;
-  border-color: var(--glass-border-hover) !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1234,321 +1166,19 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   AUTH FORMS - Login/Register Grid
-   Desktop: 2 kolon yan yana
-   Mobile: Tek kolon dikey
+   HESABIM mobil blokları BURADAN TAŞINDI → styles/account-mobile.css
+
+   Auth form ızgarası, sipariş kartı, hesap sidebar/içerik yerleşimi ve hesap
+   buton ölçekleri (~300 satır) yalnızca `/hesabim/*` rotasında kullanılıyordu
+   ama bu dosya globals.css'ten geldiği için her sayfanın render-blocking
+   CSS'ine giriyorlardı. Artık app/hesabim/layout.tsx'ten import ediliyorlar.
+
+   `.favorites-item-row` / `.favorites-toolbar` blokları taşınmadı, SİLİNDİ:
+   iki sınıfın da hiçbir bileşende tüketicisi yoktu.
+
+   Hesap alanına DEĞEN ama burada KALAN tek şey aşağıdaki dokunma hedefi
+   bloğu — kapsamı tüm site, hesap alanını yalnızca istisna olarak anıyor.
 ───────────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 1023px) {
-  .auth-forms-grid {
-    grid-template-columns: 1fr !important;
-    gap: 24px !important;
-  }
-  
-  .auth-forms-grid > div {
-    padding: 24px !important;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   HESABIM SİPARİŞLER - Order Cards Mobile Layout
-   Desktop: Horizontal order header with timeline
-   Mobile: Stacked layout with scrollable timeline
-───────────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 1023px) {
-  /* ===========================================================================
-     SİPARİŞ KARTI - Order Card Mobile Layout
-  =========================================================================== */
-  
-  /* Order Card Header - tam dikey akış:
-     1) ortalanmış ürün görselleri, 2) durum + meta, 3) fiyat. */
-  .order-card-header {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: auto auto auto !important;
-    gap: 10px !important;
-    padding: 14px !important;
-    align-items: center !important;
-  }
-
-  /* Altı ürünlü siparişte ilk üç görsel ve +N rozeti aynı ortalanmış,
-     üst üste binen şeritte kalır. */
-  .order-card-header > .order-thumbs {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    justify-self: center !important;
-  }
-
-  .order-card-header > .order-thumbs > div {
-    width: 56px !important;
-    height: 56px !important;
-  }
-
-  /* Görseli olmayan siparişte aynı yeri durum ikonu alıyor. */
-  .order-card-header > .order-status-icon {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    justify-self: center !important;
-    width: 48px !important;
-    height: 48px !important;
-  }
-  
-  /* Durum + meta: ikinci katman, tamamen ortalı. */
-  .order-card-header > .order-info {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    padding-left: 0 !important;
-    width: 100% !important;
-    text-align: center !important;
-  }
-  
-  .order-card-header .order-info > div:first-child {
-    justify-content: center !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-    margin-bottom: 2px !important;
-  }
-  
-  /* Meta bilgiler (tarih, ürün sayısı, ödeme durumu). Artık tam genişlikte
-     olduğu için kırpma yok, gerekirse alt satıra sarıyor. */
-  .order-card-header .order-info > div:last-child {
-    justify-content: center !important;
-    gap: 2px 6px !important;
-    font-size: 11px !important;
-    min-width: 0 !important;
-  }
-  
-  /* Fiyat: üçüncü katmanda, ayırıcı çizginin altında ortalı. Ok sağ kenarda
-     mutlak konumda olduğu için fiyatın görsel merkezini bozmaz. */
-  .order-card-header > .order-total {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    width: 100% !important;
-    padding-top: 10px !important;
-    border-top: 1px solid var(--border) !important;
-    text-align: center !important;
-  }
-  
-  .order-card-header > .order-total > p:first-child {
-    font-size: 16px !important;
-    margin-bottom: 0 !important;
-  }
-
-  .order-card-header > .order-total > svg {
-    position: absolute !important;
-    right: 0 !important;
-    margin-left: 0 !important;
-  }
-
-  /* Çizelgenin altındaki takip / iptal / iade aksiyonları mobilde ayrı küçük
-     kartlar gibi yüzmesin. Aynı akış içinde tam genişlikte, sonraki aksiyon
-     ince bir ayırıcıyla devam etsin. */
-  .order-flow-action {
-    width: 100% !important;
-    max-width: none !important;
-  }
-
-  .order-flow-action + .order-flow-action {
-    border-top: 1px solid var(--border);
-    padding-top: 12px;
-  }
-
-  .order-flow-action > .account-btn {
-    width: 100% !important;
-  }
-  
-  /* Sipariş numarası - Mobil uyumlu */
-  .order-number-text {
-    font-size: 13px !important;
-  }
-  
-  /* Not: Buradaki `.order-timeline*` / `.order-step-*` blokları kaldırıldı.
-     Yatay ve dikey olmak üzere iki ayrı çizelge bileşeni tek bir duyarlı
-     bileşende birleşti (plan 07 M-15); yeni bileşen `.order-flow` sınıflarını
-     ve Tailwind `lg:` varyantlarını kullanıyor, yerleşimi `!important` yığınıyla
-     değil kırılım noktasıyla çözüyor. Eski kuralları hiçbir bileşen
-     seçmiyordu. */
-  
-  /* ===========================================================================
-     EXPANDED CONTENT
-  =========================================================================== */
-  
-  .order-expanded-content {
-    padding: 12px !important;
-  }
-  
-  .order-expanded-content .order-items-list {
-    gap: 8px !important;
-  }
-  
-  /* Order item row */
-  .order-item-row {
-    padding: 10px !important;
-    gap: 10px !important;
-  }
-  
-  .order-item-row .order-item-image {
-    width: 40px !important;
-    height: 40px !important;
-  }
-  
-  /* Not: `.order-item-info` ve `.order-item-price` için buradaki `font-size`
-     kuralları kaldırıldı. İkisi de KAPSAYICIYA yazıyordu, oysa içindeki her
-     metnin kendi punto sınıfı var (`text-[13px]`, `text-[11px]`). Bir öğenin
-     kendi bildirimi kalıtımla gelen değeri her zaman yener — ebeveyndeki
-     `!important` bunu değiştirmiyor. Yani kurallar yalnızca sınıfsız bir
-     çocuğu etkileyebilirdi, gerçek işaretlemede öyle bir çocuk yok: ölüydüler.
-     Ölçüldü (390px): ad 13px, varyant 11px; kural varken de aynıydı.
-
-     Bırakılsalardı ileride eklenecek sınıfsız bir metni sessizce küçültecek
-     bir tuzak olarak kalırlardı. Kalem ölçüsü bileşende duruyor. */
-  
-  /* Order Summary */
-  .order-summary-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-  
-  .order-summary-card {
-    padding: 12px !important;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   HESABIM / ACCOUNT PAGE - Sidebar + Content Layout
-   Desktop: Sidebar (300px) + Content
-   Mobile: Sidebar gizli, content tam genişlik (gezinme kabuğun üst barında)
-
-   `.account-mobile-nav*` kuralları buradan kalktı: tek sekme dili artık
-   `.account-tabbar` (account.css §7b) ve o sınıfın hiçbir tüketicisi kalmadı.
-───────────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 1023px) {
-  .account-page-layout {
-    flex-direction: column !important;
-    gap: 0 !important;
-  }
-  
-  /* Desktop sidebar gizle */
-  .account-sidebar-desktop {
-    display: none !important;
-  }
-  
-  /* Content tam genişlik */
-  .account-content-area {
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 1023px) {
-  .account-page-container {
-    padding: 0 16px !important;
-  }
-  
-  /* İç container'lar için padding ayarları */
-  .account-content-card {
-    padding: 16px !important;
-    height: auto !important;
-    min-height: auto !important;
-  }
-  
-  /* Mobile'da page layout düzeltmeleri */
-  .account-page-layout {
-    min-height: auto !important;
-  }
-  
-  /* ===========================================================================
-     HESAP DETAYLARI FORMU - Account Details Form Mobile
-  =========================================================================== */
-  
-  /* Form container */
-  .account-details-form {
-    padding: 0 !important;
-  }
-  
-  /* Form section başlıkları */
-  .account-details-form .space-y-3 > span:first-child {
-    font-size: 13px !important;
-  }
-  
-  /* Input alanları ve etiketler: ölçü bileşende (h-11, text-[15px], etiket
-     13px). Buradaki `label { font-size: 12px !important }` kuralı kaldırıldı —
-     bileşenin 13px ölçeğini yalnızca mobilde küçültüyordu, yani aynı form iki
-     kırılımda iki farklı tipografiye sahipti (plan 07 D-5). */
-  
-  /* ===========================================================================
-     HESABIM - AKSİYON BUTONLARI (mobil ölçek)
-
-     Burada YALNIZCA dokunma hedefi zorlanır. Eskiden bu kural `padding`,
-     `font-size`, `gap`, `border-radius` ve ikon boyutunu da `!important` ile
-     dayatıyordu; sonuç olarak kart içindeki küçük haplar ("Tekrar al",
-     "Siparişi iptal et", "Yeni adres") mobilde 11-12px yerine 13px metin ve
-     14px iç boşlukla çizilip kaba/şişkin görünüyordu — aynı buton iki
-     kırılımda iki farklı tipografiye sahipti.
-
-     Ölçüyü artık bileşen belirler; buradan sadece 44px taban geçer
-     (plan 07 K-4). Dikey padding yerine `min-height`: padding'le sabit hedef
-     tutturulamaz, içerik yüksekliği metne göre oynar. `line-height` metni bu
-     44px kutunun içinde dikeyde ortalı tutmak için kalıyor.
-
-     Köşe yarıçapı kaldırıldı: `.account-btn` kullanan bileşenlerin hepsi
-     zaten `rounded-full` yazıyor, kural yalnız kendini tekrar ediyordu.
-  =========================================================================== */
-  
-  .account-btn {
-    min-height: 44px !important;
-    line-height: 1.3 !important;
-  }
-  
-  .account-btn svg {
-    flex-shrink: 0 !important;
-  }
-  
-  /* Kaydet butonu - mobilde full width (M-12'nin bilinçli istisnası) */
-  .account-save-btn {
-    width: 100% !important;
-    justify-content: center !important;
-  }
-  
-  /* Icon-only butonlar. Ölçü account.css §11'de (32px + ::after ile 44px etkin
-     alan); burada yalnız iç boşluk ve köşe var ki ikon kutuya sığsın. */
-  .account-icon-btn {
-    padding: 6px !important;
-    border-radius: 6px !important;
-  }
-  
-  .account-icon-btn svg {
-    width: 14px !important;
-    height: 14px !important;
-  }
-  
-  /* Not: Buradaki `.account-addr-actions` kuralı kaldırıldı — hiçbir bileşende
-     geçmiyordu. Adres kartında yan yana iki buton kalmadı; düzenleme bir ikon
-     butonu, "varsayılan yap" ise kart altında tam genişlikte tek aksiyon. */
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   FAVORİ PAGE - Favori Ürünler Listesi
-   Desktop: Grid satır (image + info + fiyat)
-   Mobile: Basitleştirilmiş card layout
-───────────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 639px) {
-  .favorites-item-row {
-    padding: 10px !important;
-    border-radius: 12px !important;
-  }
-
-  .favorites-toolbar {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
 
 /* ─────────────────────────────────────────────────────────────────────────
    GLOBAL MOBILE ADJUSTMENTS
@@ -1968,26 +1598,6 @@
   
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   MOBILE HEADER & DROPDOWN MENU
-───────────────────────────────────────────────────────────────────────── */
-
-/* Mobile dropdown menu - header altında açılır */
-.mobile-dropdown-menu {
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 

@@ -11,6 +11,16 @@
  */
 
 import { Suspense } from "react";
+
+/**
+ * Hesap CSS'i BURADA import ediliyor, globals.css'te değil: ~58 KB'lık bu iki
+ * dosya oradayken ana sayfa dahil her rotanın render-blocking CSS'ine giriyordu.
+ * Sıra korunmalı — account.css mobil override'ları ezmek için mobile
+ * kurallarından SONRA gelmek zorunda.
+ */
+import "@/styles/account-mobile.css";
+import "@/styles/account.css";
+
 import { staticPageMetadata } from "@/lib/seo";
 import { getServerAccountUser } from "./_lib/server-user";
 import AccountShellGate from "./_components/AccountShellGate";

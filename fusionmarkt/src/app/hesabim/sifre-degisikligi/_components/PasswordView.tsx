@@ -140,6 +140,18 @@ export default function PasswordView({ initialHasPassword }: PasswordViewProps) 
             void handleSubmit();
           }}
         >
+          {/* Şifre yöneticileri kaydı hangi hesaba bağlayacaklarını formdaki
+              kullanıcı adı alanından çözer; alan yoksa Chrome konsola uyarı
+              düşürüp kaydı hesapla eşleştiremez. Görünmesine gerek yok. */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            value={profile?.email ?? ""}
+            readOnly
+            hidden
+          />
+
           <div className="space-y-1.5">
             <label htmlFor="currentPassword" className={labelClass}>
               Mevcut şifre

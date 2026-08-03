@@ -1,8 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    HESABIM — hesap kabuğu stilleri
 
-   globals.css'te mobile.css'ten SONRA import edilir; böylece gerektiğinde
-   mobil override'larını ezebilir. mobile.css bu dosyayla düzenlenmez —
+   globals.css'ten DEĞİL, kullanıldığı iki rotanın layout'undan import edilir:
+   app/hesabim/layout.tsx ve app/sozlesmeler/layout.tsx. Global import her
+   sayfanın render-blocking CSS'ine ~48 KB ekliyordu.
+
+   Sıra: account-mobile.css'ten SONRA gelir; böylece gerektiğinde mobil
+   override'larını ezebilir. account-mobile.css bu dosyayla düzenlenmez —
    tüm ekleme ve override'lar buradan yapılır.
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -173,15 +177,24 @@
 
    `warning`in metin rengi #a16207'den #854d0e'ye koyulaştı: eski renk mevcut
    .08 zeminde bile 4.52:1 ile sınırdaydı, zemin alfası yükselince AA'nın
-   altına düşüyordu. Yedi ton içinde eşiği tutmayan tek tondu. */
+   altına düşüyordu. Yedi ton içinde eşiği tutmayan tek tondu.
+
+   `accent` ve `success` de #047857'den #065f46'ya koyulaştı. Eski renk beyaz
+   kart üstünde 5.9:1 veriyordu ama çipin GERÇEK zemini kart değil, çipin kendi
+   dolgusu: rgba(16,185,129,.14) beyazın üstüne binince efektif zemin #ddf5ed
+   oluyor ve oran 4.5 eşiğinin dibine, `.account-page` kanvası (#f3f5f7)
+   üstünde ise altına iniyordu — Lighthouse mobil hesabım koşusundaki tek
+   erişilebilirlik hatası buydu (`.acc-chip-accent`, mobil kullanıcı kartı).
+   Yeni değer aynı zeminlerde 6.3–6.8:1. Zemin ve kenarlık alfalarına
+   dokunulmadı; kenarlığın ölçütü karta karşı 3:1 ve o zaten tutuyordu. */
 .light .account-page,
 .light .contract-page {
-  --acc-accent-fg: #047857;
+  --acc-accent-fg: #065f46;
   --acc-accent-bg: rgba(16, 185, 129, 0.14);
   --acc-accent-bg-hover: rgba(16, 185, 129, 0.2);
   --acc-accent-border: rgba(4, 120, 87, 0.72);
 
-  --acc-success-fg: #047857;
+  --acc-success-fg: #065f46;
   --acc-success-bg: rgba(16, 185, 129, 0.14);
   --acc-success-bg-hover: rgba(16, 185, 129, 0.2);
   --acc-success-border: rgba(4, 120, 87, 0.72);

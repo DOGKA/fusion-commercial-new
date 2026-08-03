@@ -39,5 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# Yan performans build çıktısı (NEXT_DIST_DIR)
-/.next-perf/
+# Yan build çıktıları (NEXT_DIST_DIR). Ölçüm ve doğrulama build'leri dev
+# sunucusunun .next'ine yazmasın diye ayrı dizine alınıyor; adları serbest.
+/.next-*/
