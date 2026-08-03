@@ -18,23 +18,53 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
+const LOOPBACK_HOST = /^(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::\d+)?$/i;
+
 /**
- * Giriş sayfasına **göreli** yönlendirme üretir.
+ * Yönlendirmelerde kullanılacak **herkese açık** origin'i çözer.
  *
- * `NextResponse.redirect(new URL(..., request.url))` kullanılamaz: `request.url`
- * gelen `Host` başlığından türetiliyor ve nginx paneli `proxy_pass
- * http://localhost:3001` ile beslediği için başlık `localhost:3001` oluyordu.
- * Sonuç: admin.fusionmarkt.com'a giren herkes `https://localhost:3001/auth/signin`
- * adresine atılıyordu. Yalnızca yol içeren bir `Location` başlığı (RFC 7231'de
- * geçerli) tarayıcı tarafından mevcut origin'e göre çözülür, yani ters vekilin
- * başlıklarına hiç bağlı kalmayız.
+ * `request.url` / `request.nextUrl` gelen `Host` başlığından türetiliyor ve
+ * nginx paneli `proxy_pass http://localhost:3001` ile beslerken başlığı
+ * düzeltmiyor. Bu yüzden admin.fusionmarkt.com'a giren herkes
+ * `https://localhost:3001/auth/signin` adresine atılıyordu.
+ *
+ * Göreli bir `Location` başlığı çözüm değil: Next middleware yanıtını
+ * `new NextURL(location)` ile normalize ediyor ve göreli değer orada
+ * "Invalid URL" ile patlayıp her sayfayı 500'e düşürüyor. Yani mutlak URL
+ * zorunlu, sadece host'u doğru kaynaktan almamız gerekiyor.
+ *
+ * Sıra: vekilin ilettiği başlıklar → başlıktaki host loopback ise
+ * `NEXTAUTH_URL` (panelin bilinen tek herkese açık adresi) → son çare istek
+ * URL'si.
  */
-function redirectToSignIn(params: Record<string, string>) {
-  const query = new URLSearchParams(params).toString();
-  return new NextResponse(null, {
-    status: 307,
-    headers: { Location: `/auth/signin${query ? `?${query}` : ""}` },
-  });
+function resolvePublicOrigin(request: NextRequest) {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0].trim();
+  const host = forwardedHost || request.headers.get("host")?.trim();
+  const proto =
+    request.headers.get("x-forwarded-proto")?.split(",")[0].trim() ||
+    request.nextUrl.protocol.replace(":", "");
+
+  if (host && !LOOPBACK_HOST.test(host)) {
+    return `${proto}://${host}`;
+  }
+
+  if (process.env.NEXTAUTH_URL) {
+    try {
+      return new URL(process.env.NEXTAUTH_URL).origin;
+    } catch {
+      // Bozuk NEXTAUTH_URL: aşağıdaki son çareye düş.
+    }
+  }
+
+  return request.nextUrl.origin;
+}
+
+function redirectToSignIn(request: NextRequest, params: Record<string, string>) {
+  const signInUrl = new URL("/auth/signin", resolvePublicOrigin(request));
+  for (const [key, value] of Object.entries(params)) {
+    signInUrl.searchParams.set(key, value);
+  }
+  return NextResponse.redirect(signInUrl);
 }
 
 export async function middleware(request: NextRequest) {
@@ -114,7 +144,7 @@ export async function middleware(request: NextRequest) {
     }
     
     // Sayfa için redirect
-    return redirectToSignIn({ callbackUrl: pathname });
+    return redirectToSignIn(request, { callbackUrl: pathname });
   }
 
   // Rol kontrolü - sadece ADMIN ve SUPER_ADMIN
@@ -132,7 +162,7 @@ export async function middleware(request: NextRequest) {
     }
     
     // Sayfa için redirect
-    const response = redirectToSignIn({
+    const response = redirectToSignIn(request, {
       error: "AccessDenied",
       message: "Bu panele erişim yetkiniz yok. Sadece yöneticiler giriş yapabilir.",
     });

@@ -146,24 +146,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Return default avatar (redirect or serve)
-    // Option 1: Redirect to default image
-    // Göreli Location: `request.url` ters vekilin Host başlığından türediği için
-    // (nginx -> localhost:3001) mutlak URL tarayıcıyı yanlış origin'e gönderiyor.
-    return new NextResponse(null, {
-      status: 307,
-      headers: { Location: "/images/user/default-avatar.png" },
-    });
-
-    // Option 2: Serve default image directly (uncomment if preferred)
-    // const defaultPath = path.join(process.cwd(), "public/images/user/default-avatar.png");
-    // const defaultBuffer = await readFile(defaultPath);
-    // return new NextResponse(defaultBuffer, {
-    //   headers: {
-    //     "Content-Type": "image/png",
-    //     "Cache-Control": "public, max-age=86400",
-    //   },
-    // });
+    // Avatar yok. Eskiden `/images/user/default-avatar.png` adresine
+    // yönlendiriliyordu ama o dosya `public/` altında hiç bulunmuyor (yalnızca
+    // user-01..user-30 var), yani yönlendirmenin sonu her zaman 404'tü. Üstelik
+    // hedef `request.url` üzerinden kurulduğu için ters vekilin arkasında
+    // yanlış origin'e (localhost:3001) çıkıyordu. Doğrudan 404 dönüyoruz;
+    // istemci kendi yer tutucusunu gösterir.
+    return NextResponse.json({ error: "Avatar bulunamadı" }, { status: 404 });
   } catch (error) {
     console.error("❌ [USER PHOTO] Get error:", error);
     return NextResponse.json(
