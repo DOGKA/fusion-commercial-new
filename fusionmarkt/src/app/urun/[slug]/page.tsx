@@ -16,6 +16,7 @@ import {
   siteConfig 
 } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
+import { withImageDimensions } from "@/lib/image-dimensions";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -115,7 +116,10 @@ async function getBundle(slug: string) {
 }
 
 // Prisma product → JSON-safe client data (Decimal → number, Date → string)
-function serializeProductForClient(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>) {
+// Açıklama görsellerine boyut yazılır ki lazy yüklenirken yer ayrılsın (CLS).
+async function serializeProductForClient(product: NonNullable<Awaited<ReturnType<typeof getProduct>>>) {
+  const description = await withImageDimensions(product.description);
+
   return {
     id: product.id,
     name: product.name,
@@ -125,7 +129,7 @@ function serializeProductForClient(product: NonNullable<Awaited<ReturnType<typeo
     images: (product.images as string[]) || [],
     thumbnail: product.thumbnail || undefined,
     brand: product.brand || undefined,
-    description: product.description || undefined,
+    description: description || undefined,
     shortDescription: product.shortDescription || undefined,
     stock: product.stock || 0,
     freeShipping: product.freeShipping || false,
@@ -153,7 +157,9 @@ function serializeProductForClient(product: NonNullable<Awaited<ReturnType<typeo
 }
 
 // Prisma bundle → JSON-safe client data
-function serializeBundleForClient(bundle: NonNullable<Awaited<ReturnType<typeof getBundle>>>) {
+async function serializeBundleForClient(bundle: NonNullable<Awaited<ReturnType<typeof getBundle>>>) {
+  const description = await withImageDimensions(bundle.description);
+
   return {
     id: bundle.id,
     name: bundle.name,
@@ -338,7 +344,7 @@ export default async function ProductPage({ params }: Props) {
         <JsonLd data={[productSchema, breadcrumbSchema]} />
         
         {/* Product View Component */}
-        <SingleProductView slug={slug} initialData={serializeProductForClient(product)} />
+        <SingleProductView slug={slug} initialData={await serializeProductForClient(product)} />
       </>
     );
   }
@@ -396,7 +402,7 @@ export default async function ProductPage({ params }: Props) {
         <JsonLd data={[productSchema, breadcrumbSchema]} />
         
         {/* Bundle View Component */}
-        <BundleProductView slug={slug} initialData={serializeBundleForClient(bundle)} />
+        <BundleProductView slug={slug} initialData={await serializeBundleForClient(bundle)} />
       </>
     );
   }

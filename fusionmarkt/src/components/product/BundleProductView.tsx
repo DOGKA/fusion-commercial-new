@@ -23,6 +23,7 @@ import RelatedProductCard from "@/components/product/RelatedProductCard";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useProductTabDeepLink } from "@/components/product/useProductTabDeepLink";
+import { cleanHtmlContent } from "@/lib/product-description";
 
 // API Response types
 interface ApiReview {
@@ -175,74 +176,6 @@ interface BundleItem {
   } | null;
 }
 
-// HTML içeriğini temizleme ve güvenlik sanitizer fonksiyonu
-function cleanHtmlContent(html: string): string {
-  if (!html) return '';
-  
-  const cleaned = html
-    // ═══════════════════════════════════════════════════════════════════════════
-    // SECURITY: XSS Prevention
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Remove script tags and their content
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // Remove style tags and their content
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    // Remove event handlers (onclick, onerror, onload, etc.)
-    .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
-    // Remove javascript: protocol
-    .replace(/javascript:/gi, '')
-    // Remove data: protocol (can be used for XSS)
-    .replace(/data:/gi, '')
-    // Remove iframe tags
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    // Remove object tags
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-    // Remove embed tags
-    .replace(/<embed[^>]*>/gi, '')
-    // Remove form tags
-    .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '')
-    // Remove input/button tags
-    .replace(/<(input|button|textarea|select)[^>]*>/gi, '')
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Content Cleanup
-    // ═══════════════════════════════════════════════════════════════════════════
-    // 1. &nbsp; karakterlerini normal boşluğa çevir (önce yapılmalı)
-    .replace(/&nbsp;/gi, ' ')
-    // 2. Unicode non-breaking space karakterlerini temizle
-    .replace(/\u00A0/g, ' ')
-    // 3. Soft hyphen karakterlerini kaldır (görünmez tire - kelime kesme noktası)
-    // WordPress/Word'den kopyalanan metinlerde sıkça bulunur
-    .replace(/\u00AD/g, '')
-    .replace(/&shy;/gi, '')
-    // 4. Zero-width karakterleri kaldır (görünmez boşluklar)
-    .replace(/\u200B/g, '') // Zero-width space
-    .replace(/\u200C/g, '') // Zero-width non-joiner
-    .replace(/\u200D/g, '') // Zero-width joiner
-    .replace(/\u2060/g, '') // Word joiner
-    .replace(/\uFEFF/g, '') // BOM (Byte Order Mark)
-    // 5. Kelime ortasındaki <br> taglarını kaldır (WordPress editörden gelen yanlış satır sonları)
-    // Örnek: "taş<br>ınabilir" → "taşınabilir", "şa<br>rj" → "şarj"
-    .replace(/([a-zçğıöşüA-ZÇĞİÖŞÜ0-9])[\s\n\r]*<br\s*\/?>\s*\n?\r?\s*([a-zçğıöşüA-ZÇĞİÖŞÜ])/gi, '$1$2')
-    // 6. Escaped newline karakterlerini kaldır
-    .replace(/\\n/g, '')
-    // 7. Literal \n karakterlerini kaldır  
-    .replace(/\n/g, '')
-    // 8. Kelime ortasındaki tek satır sonlarını temizle (noktalama olmadan)
-    // Örnek: "yükse\nk" → "yüksek"
-    .replace(/([a-zçğıöşüA-ZÇĞİÖŞÜ])\s*\r?\n\s*([a-zçğıöşüA-ZÇĞİÖŞÜ])/gi, '$1$2')
-    // 9. Quill editör UI span'larını kaldır
-    .replace(/<span class="ql-ui"[^>]*>.*?<\/span>/gi, '')
-    // 10. Boş paragrafları temizle
-    .replace(/<p>\s*<\/p>/gi, '')
-    // 11. Ardışık boşlukları tek boşluğa indir
-    .replace(/\s{2,}/g, ' ')
-    // 12. height ve width attribute'larını kaldır (görsellerin responsive olması için)
-    .replace(/\s(height|width)="[^"]*"/gi, '')
-    // 13. img tag'lere lazy loading ve async decoding ekle (aspect-ratio yok: detay görselleri uzun infografik olabilir)
-    .replace(/<img(?![^>]*loading=)/gi, '<img loading="lazy" decoding="async" style="width:100%;height:auto"');
-  
-  return cleaned;
-}
 
 // Varyant tipi
 interface ProductVariant {
@@ -278,6 +211,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
+  const descriptionContentRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   
   // countdown artık KargoTimer component'inden geliyor
@@ -320,11 +254,20 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
 
   // Açıklama yüksekliğini kontrol et - kısa içeriklerde buton gösterme
   // (CLS fix: boyamadan önce ölçülsün diye layout effect)
+  // Görseller yüklendikçe içerik büyüdüğü için ilk ölçüm yetmez, gözlemle.
   useIsomorphicLayoutEffect(() => {
-    if (descriptionRef.current) {
-      const contentHeight = descriptionRef.current.scrollHeight;
-      setShowExpandButton(contentHeight > 400);
-    }
+    const clampEl = descriptionRef.current;
+    if (!clampEl) return;
+
+    const measure = () => setShowExpandButton(clampEl.scrollHeight > 400);
+    measure();
+
+    const contentEl = descriptionContentRef.current;
+    if (!contentEl || typeof ResizeObserver === 'undefined') return;
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(contentEl);
+    return () => observer.disconnect();
   }, [productData?.description, activeTab]);
 
   // Fiyat bölümü viewport'un üstüne çıkınca yapışkan CTA'yı göster,
@@ -2387,6 +2330,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                         }}
                       >
                         <div 
+                          ref={descriptionContentRef}
                           className="product-description-content"
                           style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
                           dangerouslySetInnerHTML={{ __html: cleanedDescriptionHtml }} 

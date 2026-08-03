@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { withImageDimensions } from "@/lib/image-dimensions";
 
 // Bundle için Prisma include tipi
 const bundleInclude = {
@@ -202,7 +203,8 @@ export async function GET(
       id: bundle.id,
       name: bundle.name,
       slug: bundle.slug,
-      description: bundle.description,
+      // Açıklama görsellerine boyut yaz: lazy yüklenirken yer ayrılsın (CLS)
+      description: await withImageDimensions(bundle.description),
       shortDescription: bundle.shortDescription,
       price: bundlePrice,
       comparePrice: bundle.comparePrice ? Number(bundle.comparePrice) : totalValue,

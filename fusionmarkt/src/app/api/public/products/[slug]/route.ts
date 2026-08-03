@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { withImageDimensions } from "@/lib/image-dimensions";
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -219,6 +220,8 @@ export async function GET(
     
     const productData = {
       ...productCopy,
+      // Açıklama görsellerine boyut yaz: lazy yüklenirken yer ayrılsın (CLS)
+      description: await withImageDimensions(product.description),
       variants: sortedVariants,
       price: product.price ? Number(product.price) : 0,
       comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
