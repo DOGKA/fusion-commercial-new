@@ -148,9 +148,12 @@ export async function GET(request: NextRequest) {
 
     // Return default avatar (redirect or serve)
     // Option 1: Redirect to default image
-    return NextResponse.redirect(
-      new URL("/images/user/default-avatar.png", request.url)
-    );
+    // Göreli Location: `request.url` ters vekilin Host başlığından türediği için
+    // (nginx -> localhost:3001) mutlak URL tarayıcıyı yanlış origin'e gönderiyor.
+    return new NextResponse(null, {
+      status: 307,
+      headers: { Location: "/images/user/default-avatar.png" },
+    });
 
     // Option 2: Serve default image directly (uncomment if preferred)
     // const defaultPath = path.join(process.cwd(), "public/images/user/default-avatar.png");

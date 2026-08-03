@@ -18,6 +18,25 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Giriş sayfasına **göreli** yönlendirme üretir.
+ *
+ * `NextResponse.redirect(new URL(..., request.url))` kullanılamaz: `request.url`
+ * gelen `Host` başlığından türetiliyor ve nginx paneli `proxy_pass
+ * http://localhost:3001` ile beslediği için başlık `localhost:3001` oluyordu.
+ * Sonuç: admin.fusionmarkt.com'a giren herkes `https://localhost:3001/auth/signin`
+ * adresine atılıyordu. Yalnızca yol içeren bir `Location` başlığı (RFC 7231'de
+ * geçerli) tarayıcı tarafından mevcut origin'e göre çözülür, yani ters vekilin
+ * başlıklarına hiç bağlı kalmayız.
+ */
+function redirectToSignIn(params: Record<string, string>) {
+  const query = new URLSearchParams(params).toString();
+  return new NextResponse(null, {
+    status: 307,
+    headers: { Location: `/auth/signin${query ? `?${query}` : ""}` },
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
@@ -95,9 +114,7 @@ export async function middleware(request: NextRequest) {
     }
     
     // Sayfa için redirect
-    const signInUrl = new URL("/auth/signin", request.url);
-    signInUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(signInUrl);
+    return redirectToSignIn({ callbackUrl: pathname });
   }
 
   // Rol kontrolü - sadece ADMIN ve SUPER_ADMIN
@@ -115,12 +132,12 @@ export async function middleware(request: NextRequest) {
     }
     
     // Sayfa için redirect
-    const signInUrl = new URL("/auth/signin", request.url);
-    signInUrl.searchParams.set("error", "AccessDenied");
-    signInUrl.searchParams.set("message", "Bu panele erişim yetkiniz yok. Sadece yöneticiler giriş yapabilir.");
-    
+    const response = redirectToSignIn({
+      error: "AccessDenied",
+      message: "Bu panele erişim yetkiniz yok. Sadece yöneticiler giriş yapabilir.",
+    });
+
     // Session'ı temizle
-    const response = NextResponse.redirect(signInUrl);
     response.cookies.delete("admin-session-token");
     response.cookies.delete("__Secure-admin-session-token");
     
