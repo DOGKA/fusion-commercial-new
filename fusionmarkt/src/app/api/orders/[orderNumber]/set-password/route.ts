@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import bcrypt from "bcryptjs";
+import { PASSWORD_TOO_SHORT_ERROR, isPasswordLongEnough } from "@/lib/password-policy";
 
 export async function POST(
   request: NextRequest,
@@ -18,9 +19,10 @@ export async function POST(
     const { orderNumber } = await params;
     const { password } = await request.json();
 
-    if (!password || password.length < 6) {
+    // Kural kayıt ucuyla aynı (F2-74); eskiden 6 karakter kabul ediyordu.
+    if (!password || !isPasswordLongEnough(password)) {
       return NextResponse.json(
-        { error: "Şifre en az 6 karakter olmalıdır" },
+        { error: PASSWORD_TOO_SHORT_ERROR },
         { status: 400 }
       );
     }

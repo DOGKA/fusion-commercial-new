@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Lock, Mail, ArrowLeft, CheckCircle, AlertCircle, Loader2, Shield } from "lucide-react";
-import { isValidEmail, getEmailError } from "@/lib/utils";
+import { getEmailError } from "@/lib/utils";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FORGOT PASSWORD PAGE - /sifremi-unuttum

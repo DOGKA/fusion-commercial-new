@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { motion } from "framer-motion";
@@ -20,6 +19,11 @@ import {
   Phone,
   MapPin
 } from "lucide-react";
+import {
+  DISTANCE_CONTRACT_SELLER,
+  DISTANCE_CONTRACT_TEXT,
+  DISTANCE_CONTRACT_VERSION_LABEL,
+} from "@/lib/distance-contract-content";
 
 export default function MesafeliSatisSozlesmesiPage() {
   return (
@@ -68,14 +72,14 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
               
               <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                <h3 className="font-bold text-lg mb-4">ASDTC MÜHENDİSLİK TİCARET A.Ş. / FUSIONMARKT LLC</h3>
+                <h3 className="font-bold text-lg mb-4">{DISTANCE_CONTRACT_SELLER.title}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium">Genel Merkez Adresi</p>
                       <p className="text-sm text-[var(--foreground-secondary)]">
-                        Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE
+                        {DISTANCE_CONTRACT_SELLER.address}
                       </p>
                     </div>
                   </div>
@@ -84,20 +88,20 @@ export default function MesafeliSatisSozlesmesiPage() {
                     <div>
                       <p className="text-sm font-medium">İade Adresi</p>
                       <p className="text-sm text-[var(--foreground-secondary)]">
-                        Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE
+                        {DISTANCE_CONTRACT_SELLER.returnAddress}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5 text-[var(--fusion-primary)]" />
                     <a href="tel:+908508406160" className="text-sm text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
-                      +90 850 840 6160
+                      {DISTANCE_CONTRACT_SELLER.phone}
                     </a>
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5 text-[var(--fusion-primary)]" />
                     <a href="mailto:sales@fusionmarkt.com" className="text-sm text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
-                      sales@fusionmarkt.com
+                      {DISTANCE_CONTRACT_SELLER.email}
                     </a>
                   </div>
                 </div>
@@ -148,11 +152,11 @@ export default function MesafeliSatisSozlesmesiPage() {
                 <h2 className="text-xl md:text-2xl font-bold">Konu</h2>
               </div>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                İşbu Mesafeli Satış Sözleşmesi'nin konusu, SATICI'ya ait www.fusionmarkt.com ve işbu sözleşme kapsamında ALICI tarafından online olarak verilen siparişe karşılık, satış bedelinin ALICI tarafından ödenmesi, ürünlerin teslimi ve tarafların 27.11.2014 tarihli Resmi Gazete'de yayınlanan Mesafeli Satışlar Yönetmeliği ve 6502 sayılı Tüketicinin Korunması Hakkında Kanun kapsamındaki diğer hak ve yükümlülükleri kapsamaktadır.
+                {DISTANCE_CONTRACT_TEXT.subject}
               </p>
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                 <p className="text-sm text-[var(--foreground-secondary)]">
-                  <strong>Not:</strong> Montaj hizmeti işbu Sözleşme'nin konu ve kapsamı dışında tutulmuş olup, talep edilmesi halinde ayrı bir sözleşme ile düzenlenecektir.
+                  {DISTANCE_CONTRACT_TEXT.montageNote}
                 </p>
               </div>
             </motion.div>
@@ -206,27 +210,27 @@ export default function MesafeliSatisSozlesmesiPage() {
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
                   <p className="text-sm text-[var(--foreground-secondary)]">
-                    <strong>Minimum Sipariş:</strong> İnternet mağazasında minimum sipariş tutarı 150 TL'dir.
+                    {DISTANCE_CONTRACT_TEXT.minimumOrder}
                   </p>
                 </div>
                 
                 <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                  ALICI, işbu Sözleşme kapsamında sipariş verdiği ürün(ler) için KDV dahil satış bedelini ve kargo ücretlerini Sözleşme'de belirtilen ödeme koşullarına uygun olarak ödeyecektir.
+                  {DISTANCE_CONTRACT_TEXT.payment}
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <h4 className="font-semibold mb-2">Kabul Edilen Kartlar</h4>
-                    <p className="text-sm text-[var(--foreground-secondary)]">Visa, Amex, MasterCard kredi kartları</p>
+                    <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.paymentNotes[0].replace("Kabul Edilen Kartlar: ", "")}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <h4 className="font-semibold mb-2">Ön Provizyon</h4>
-                    <p className="text-sm text-[var(--foreground-secondary)]">Siparişler banka onayı sonrası işleme alınır</p>
+                    <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.paymentNotes[1].replace("Ön Provizyon: ", "")}</p>
                   </div>
                 </div>
 
                 <p className="text-sm text-[var(--foreground-tertiary)]">
-                  Promosyonlar ve indirimler, ürünün sipariş tarihinde geçerli ise uygulanacaktır. SATICI, bankaların kesintileri veya ücretlerinden sorumlu değildir.
+                  {DISTANCE_CONTRACT_TEXT.promotions}
                 </p>
               </div>
             </motion.div>
@@ -244,23 +248,23 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                ALICI tarafından internet üzerinden siparişi verilen ürün/ürünler, verilen <strong>30 (otuz) günlük</strong> yasal süre içerisinde SATICI'nın anlaşmalı kargo şirketi tarafından ALICI'ya veya ALICI'nın belirttiği adreste bulunan kişilere teslim edilir.
+                {DISTANCE_CONTRACT_TEXT.delivery}
               </p>
 
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
                 <div className="p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
                   <h4 className="font-semibold mb-2">Aynı Gün Teslimat</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">Ürünler siparişin verildiği gün teslim edilir.</p>
+                  <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.deliveryOptions[0].replace("Aynı Gün Teslimat: ", "")}</p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--fusion-accent)]/10 border border-[var(--fusion-accent)]/20">
                   <h4 className="font-semibold mb-2">Randevulu Teslimat</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">ALICI'nın belirlediği tarihte teslim edilir.</p>
+                  <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.deliveryOptions[1].replace("Randevulu Teslimat: ", "")}</p>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                 <p className="text-sm text-[var(--foreground-secondary)]">
-                  <strong>Not:</strong> ALICI'nın teslimat sırasında adreste bulunmaması halinde dahi SATICI edimini eksiksiz olarak yerine getirmiş sayılacaktır.
+                  {DISTANCE_CONTRACT_TEXT.deliveryNote}
                 </p>
               </div>
             </motion.div>
@@ -279,42 +283,32 @@ export default function MesafeliSatisSozlesmesiPage() {
               
               <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20 mb-6">
                 <p className="text-[var(--foreground-secondary)]">
-                  ALICI, Sözleşme kapsamındaki ürünlerin kendisine veya gösterdiği adresteki kişiye tesliminden itibaren <strong>14 (on dört) gün</strong> içinde cayma hakkını kullanabilir.
+                  {DISTANCE_CONTRACT_TEXT.withdrawal}
                 </p>
               </div>
 
               <h3 className="font-semibold mb-3">Cayma Hakkı Şartları:</h3>
               <div className="space-y-3 mb-6">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-2 h-2 rounded-full bg-[var(--fusion-success)] mt-2" />
-                  <span className="text-sm text-[var(--foreground-secondary)]">Ürünler tekrar satılabilir durumda, hasarsız ve orijinal ambalajında olmalıdır</span>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-2 h-2 rounded-full bg-[var(--fusion-success)] mt-2" />
-                  <span className="text-sm text-[var(--foreground-secondary)]">SATICI'ya yazılı veya müşteri hizmetleri aracılığıyla bildirimde bulunulmalıdır</span>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <div className="w-2 h-2 rounded-full bg-[var(--fusion-success)] mt-2" />
-                  <span className="text-sm text-[var(--foreground-secondary)]">İade masrafları SATICI tarafından karşılanacaktır</span>
-                </div>
+                {DISTANCE_CONTRACT_TEXT.withdrawalConditions.map((condition) => (
+                  <div key={condition} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
+                    <div className="w-2 h-2 rounded-full bg-[var(--fusion-success)] mt-2" />
+                    <span className="text-sm text-[var(--foreground-secondary)]">{condition}</span>
+                  </div>
+                ))}
               </div>
 
               <h3 className="font-semibold mb-3">Cayma Hakkı Kapsamı Dışındaki Ürünler:</h3>
               <div className="space-y-2">
-                <div className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                  <span className="text-sm text-[var(--foreground-secondary)]">Fiyatı finansal piyasalardaki dalgalanmalara bağlı olarak değişen ürünler</span>
-                </div>
-                <div className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                  <span className="text-sm text-[var(--foreground-secondary)]">Sağlık ve hijyen nedenleriyle iade edilemeyen ürünler</span>
-                </div>
-                <div className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
-                  <span className="text-sm text-[var(--foreground-secondary)]">Kişisel ihtiyaçlara göre hazırlanan ürünler</span>
-                </div>
+                {DISTANCE_CONTRACT_TEXT.withdrawalExceptions.map((exception) => (
+                  <div key={exception} className="p-3 rounded-lg bg-[var(--fusion-error)]/5 border border-[var(--fusion-error)]/10">
+                    <span className="text-sm text-[var(--foreground-secondary)]">{exception}</span>
+                  </div>
+                ))}
               </div>
 
               <div className="mt-6 p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
                 <p className="text-sm text-[var(--foreground-secondary)]">
-                  <strong>İade Süresi:</strong> Cayma hakkının kullanılması halinde, ürünlerin iadesi sonrası 14 gün içinde ödenen tutar ALICI'ya iade edilir.
+                  {DISTANCE_CONTRACT_TEXT.refund}
                 </p>
               </div>
             </motion.div>
@@ -334,17 +328,17 @@ export default function MesafeliSatisSozlesmesiPage() {
               <div className="grid lg:grid-cols-2 gap-4 mb-4">
                 <div className="p-5 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
                   <h4 className="font-bold text-2xl mb-1">2 Yıl</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">Garanti süresi, ürünün teslimat tarihinden itibaren geçerlidir.</p>
+                  <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.warranty[0].replace("2 Yıl Garanti süresi, ", "Garanti süresi, ")}</p>
                 </div>
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h4 className="font-semibold mb-2">Değişim Durumu</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">Garanti kapsamında değiştirilen ürünler için süre, ilk ürünün kalan garanti süresi ile sınırlıdır.</p>
+                  <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.warranty[1].replace("Değişim Durumu: ", "")}</p>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
                 <p className="text-sm text-[var(--foreground-secondary)]">
-                  SATICI, garanti koşullarına uymayan veya yetkisiz müdahaleye uğramış ürünler için sorumluluk kabul etmez. ALICI, ürünlerin kullanım talimatlarına uygun olarak kullanılmaması durumunda doğacak zararlardan kendisinin sorumlu olduğunu kabul eder.
+                  {DISTANCE_CONTRACT_TEXT.warranty[2]} {DISTANCE_CONTRACT_TEXT.warranty[3]}
                 </p>
               </div>
             </motion.div>
@@ -362,15 +356,15 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                SATICI, ALICI'ya ait kişisel bilgileri ilgili mevzuat kapsamında işleyebilir ve saklayabilir. ALICI, kişisel verilerinin işlenmesi ile ilgili her türlü talebi SATICI'ya iletebilir.
+                {DISTANCE_CONTRACT_TEXT.privacy}
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                 <h4 className="font-semibold mb-2">KVKK Kapsamında Haklarınız:</h4>
                 <ul className="text-sm text-[var(--foreground-secondary)] space-y-1">
-                  <li>• Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
-                  <li>• Eksik veya hatalı işlenmişse düzeltilmesini isteme</li>
-                  <li>• İşlenme amacının ortadan kalkması durumunda silinmesini talep etme</li>
+                  {DISTANCE_CONTRACT_TEXT.privacyRights.map((right) => (
+                    <li key={right}>• {right}</li>
+                  ))}
                 </ul>
               </div>
             </motion.div>
@@ -388,23 +382,23 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                İşbu Sözleşme'nin uygulanmasından ve yorumlanmasından doğabilecek her türlü uyuşmazlıkların çözümünde Türk Hukuku uygulanacaktır.
+                {DISTANCE_CONTRACT_TEXT.disputes}
               </p>
 
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h4 className="font-semibold mb-2">Tüketici Hakem Heyetleri</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">6502 sayılı Kanun kapsamında başvuru yapılabilir.</p>
+                  <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.disputeOptions[0].replace("Tüketici Hakem Heyetleri: ", "")}</p>
                 </div>
                 <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <h4 className="font-semibold mb-2">Tüketici Mahkemeleri</h4>
-                  <p className="text-sm text-[var(--foreground-secondary)]">Hakem heyeti sınırlarını aşan uyuşmazlıklar için yetkilidir.</p>
+                  <p className="text-sm text-[var(--foreground-secondary)]">{DISTANCE_CONTRACT_TEXT.disputeOptions[1].replace("Tüketici Mahkemeleri: ", "")}</p>
                 </div>
               </div>
 
               <div className="mt-4 p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20">
                 <p className="text-sm text-[var(--foreground-secondary)]">
-                  <strong>Dil:</strong> ALICI ve SATICI arasında farklı dillerde yapılan sözleşmelerde çelişki olması halinde Türkçe versiyon geçerli olacaktır.
+                  {DISTANCE_CONTRACT_TEXT.language}
                 </p>
               </div>
             </motion.div>
@@ -422,12 +416,12 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                Mücbir sebep halleri (doğal afetler, savaş, ayaklanma, grev, salgın hastalıklar vb.) tarafların kontrolü dışında gelişen ve tarafların yükümlülüklerini yerine getirmesini engelleyen durumlardır.
+                {DISTANCE_CONTRACT_TEXT.forceMajeure}
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                 <p className="text-sm text-[var(--foreground-secondary)]">
-                  Mücbir sebep halinde SATICI, ALICI'ya durumu bildirir ve teslimat süresi ertelenebilir veya sipariş iptal edilerek iade yapılabilir.
+                  {DISTANCE_CONTRACT_TEXT.forceMajeureResult}
                 </p>
               </div>
             </motion.div>
@@ -445,13 +439,13 @@ export default function MesafeliSatisSozlesmesiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                Bu sözleşme, ALICI tarafından elektronik ortamda onaylandığı tarihte yürürlüğe girer.
+                {DISTANCE_CONTRACT_TEXT.acceptance}
               </p>
 
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <p className="text-xs text-[var(--foreground-tertiary)] mb-1">SATICI</p>
-                  <p className="font-semibold">ASDTC MÜHENDİSLİK TİCARET A.Ş. | FUSIONMARKT LLC</p>
+                  <p className="font-semibold">{DISTANCE_CONTRACT_SELLER.title}</p>
                 </div>
                 <div className="p-5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                   <p className="text-xs text-[var(--foreground-tertiary)] mb-1">ALICI</p>
@@ -462,7 +456,7 @@ export default function MesafeliSatisSozlesmesiPage() {
 
             {/* Son Güncelleme */}
             <div className="text-center text-sm text-[var(--foreground-muted)]">
-              <p>Son Güncelleme: {new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p>Son Güncelleme: {DISTANCE_CONTRACT_VERSION_LABEL}</p>
             </div>
 
           </div>

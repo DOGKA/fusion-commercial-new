@@ -22,7 +22,7 @@ import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
-import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import { useProductTabDeepLink } from "@/components/product/useProductTabDeepLink";
 
 // API Response types
 interface ApiReview {
@@ -265,12 +265,20 @@ const SQUIRCLE = {
   md: '14px',
 };
 
+/**
+ * Pakette "Teknik Özellikler" sekmesi YOK — tekil ürün görünümünden ayrıştığı
+ * yer burası. `useProductTabDeepLink` bu listeyi görüp `?tab=ozellikler` gibi
+ * bir bağlantıyı yok sayıyor.
+ */
+const BUNDLE_TABS = ['Açıklama', 'Yorumlar'] as const;
+
 export default function BundleProductView({ slug, initialData }: BundleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("Açıklama");
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
   
   // countdown artık KargoTimer component'inden geliyor
   const [productData, setProductData] = useState<ProductData | null>(initialData || null);
@@ -306,6 +314,9 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
     () => productData?.description ? cleanHtmlContent(productData.description) : '',
     [productData?.description]
   );
+
+  // `?tab=yorumlar` / `#yorumlar` ile gelen bağlantıyı doğru sekmeye düşürür.
+  useProductTabDeepLink(setActiveTab, tabsRef, !!productData, BUNDLE_TABS);
 
   // Açıklama yüksekliğini kontrol et - kısa içeriklerde buton gösterme
   // (CLS fix: boyamadan önce ölçülsün diye layout effect)
@@ -534,10 +545,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
     fetchSiblings();
   }, [slug, productData?.category]);
 
-  // CSS Transform carousel - manual scroll only
-  // Not: Bu carousel şu an kullanılmıyor ama ileride key features için lazım olabilir
-  useTransformCarousel({ friction: 0.95 });
-  
   // Yorum state'leri
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewRating, setReviewRating] = useState(0);
@@ -1730,7 +1737,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                                 } : undefined,
                               });
                             }}
-                            title={isProductFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+                            title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
                             style={{
                               width: '48px',
                               height: '48px',
@@ -1768,10 +1775,11 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
           </div>
         </div>
 
-        {/* TABS */}
-        <div style={{ marginTop: '48px' }}>
+        {/* TABS — `id` çapası e-postadaki `/urun/{slug}#yorumlar` bağlantısı
+            için; `?tab=yorumlar` ile birlikte ikisi de bu bölüme iniyor. */}
+        <div id="yorumlar" ref={tabsRef} style={{ marginTop: '48px', scrollMarginTop: '80px' }}>
           <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
-            {['Açıklama', 'Yorumlar'].map((tab, idx) => (
+            {BUNDLE_TABS.map((tab, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveTab(tab)}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import {
   Phone, Mail, ShoppingBag, Check, Lock, Eye, EyeOff, Loader2, Tag
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { PASSWORD_HINT, isPasswordLongEnough } from "@/lib/password-policy";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ORDER CONFIRMATION PAGE - STEP 3
@@ -80,7 +80,7 @@ export default function OrderConfirmationPage() {
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("orderNumber");
-  const { data: session, status: sessionStatus } = useSession();
+  const { status: sessionStatus } = useSession();
   
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,9 +101,9 @@ function OrderConfirmationContent() {
   const showPasswordForm = isGuest && guestAccountCreated && !passwordSaved;
   const showCTAButtons = !isGuest || passwordSaved || !guestAccountCreated;
   
-  // Password validation
-  const password1Valid = password1.length >= 6;
-  const password2Valid = password2.length >= 6 && password1 === password2;
+  // Password validation — kural tek kaynaktan (F2-74)
+  const password1Valid = isPasswordLongEnough(password1);
+  const password2Valid = isPasswordLongEnough(password2) && password1 === password2;
   const canSavePassword = password1Valid && password2Valid;
 
   // Fetch order data
@@ -496,7 +496,7 @@ function OrderConfirmationContent() {
                       type={showPassword1 ? "text" : "password"}
                       value={password1}
                       onChange={(e) => setPassword1(e.target.value)}
-                      placeholder="En az 6 karakter"
+                      placeholder={PASSWORD_HINT}
                       style={{
                         width: "100%",
                         height: "48px",

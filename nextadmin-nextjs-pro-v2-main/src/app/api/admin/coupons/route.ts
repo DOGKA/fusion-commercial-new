@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@repo/db";
+import { prisma, countCouponUsageMany } from "@repo/db";
 
 // GET - Tüm kuponları getir
 export async function GET() {
@@ -8,7 +8,18 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(coupons);
+    // `usageCount` kolonu ARTIK YAZILMIYOR (bkz. @repo/db coupon-usage.ts):
+    // başarısız ödemelerde geri alınmadığı için yanlış sayıyordu. Gerçek sayı
+    // siparişlerden hesaplanıp yanıtta kolonun üzerine yazılıyor; böylece admin
+    // ekranları müşteriye uygulanan limitle aynı sayıyı gösteriyor.
+    const usageByCoupon = await countCouponUsageMany(
+      prisma,
+      coupons.map((c) => c.id)
+    );
+
+    return NextResponse.json(
+      coupons.map((c) => ({ ...c, usageCount: usageByCoupon.get(c.id) ?? 0 }))
+    );
   } catch (error) {
     console.error("Error fetching coupons:", error);
     return NextResponse.json(
@@ -42,6 +53,7 @@ export async function POST(req: Request) {
       excludedProducts,
       excludeSaleItems,
       freeShipping,
+      showInMyCoupons,
     } = body;
 
     // Validasyon
@@ -92,6 +104,9 @@ export async function POST(req: Request) {
         excludedProducts: excludedProducts || [],
         excludeSaleItems: excludeSaleItems || false,
         freeShipping: freeShipping || false,
+        // Varsayılan false: kupon açıkça işaretlenmedikçe kodu müşterilerin
+        // "Kuponlarım" sayfasında duyurulmaz (kupon yine geçerlidir).
+        showInMyCoupons: showInMyCoupons || false,
       },
     });
 

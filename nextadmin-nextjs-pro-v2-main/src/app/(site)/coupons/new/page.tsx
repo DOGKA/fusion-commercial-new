@@ -28,6 +28,7 @@ export default function NewCouponPage() {
   const [discountType, setDiscountType] = useState("percentage");
   const [couponAmount, setCouponAmount] = useState("");
   const [allowFreeShipping, setAllowFreeShipping] = useState(false);
+  const [showInMyCoupons, setShowInMyCoupons] = useState(false);
   const [expiryDate, setExpiryDate] = useState("");
   
   // Usage Restriction
@@ -138,6 +139,7 @@ export default function NewCouponPage() {
           excludedProducts,
           excludeSaleItems,
           freeShipping: allowFreeShipping,
+          showInMyCoupons,
         }),
       });
 
@@ -293,6 +295,30 @@ export default function NewCouponPage() {
                         <span className="font-medium text-dark dark:text-white">Ücretsiz Kargo</span>
                         <p className="text-sm text-gray-500 mt-1">
                           Bu kuponu kullanan müşterilere ücretsiz kargo sağlar.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Kuponlarım'da göster */}
+                  <div className="rounded-lg border border-stroke p-4 dark:border-dark-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showInMyCoupons}
+                        onChange={(e) => setShowInMyCoupons(e.target.checked)}
+                        className="mt-1 h-5 w-5 rounded text-primary"
+                      />
+                      <div>
+                        <span className="font-medium text-dark dark:text-white">
+                          Kuponlarım&apos;da Göster
+                        </span>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Kod, tüm üyelerin Hesabım → Kuponlarım sayfasında koşullarıyla
+                          listelenir. Bu seçenek kuponu <strong>kullanılabilir</strong> yapmıyor
+                          — kupon her hâlükârda geçerlidir; kapalıyken onu yalnızca kodu
+                          bilenler kullanır. Kaç kez kullanılabileceğini &quot;Kullanım
+                          Limitleri&quot; sekmesindeki kişi başı limit belirler.
                         </p>
                       </div>
                     </label>
@@ -509,11 +535,15 @@ export default function NewCouponPage() {
                       type="number"
                       value={usageLimitPerUser}
                       onChange={(e) => setUsageLimitPerUser(e.target.value)}
-                      placeholder="Sınırsız"
+                      placeholder="1"
                       min="0"
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
-                    <p className="mt-1 text-xs text-gray-500">Her kullanıcı bu kuponu kaç kez kullanabilir.</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Her üye bu kuponu kaç kez kullanabilir. Boş bırakılırsa <strong>1</strong>;
+                      sınırsız için <strong>0</strong> yazın. İptal edilen ve ödemesi başarısız
+                      siparişler bu sayıya girmez.
+                    </p>
                   </div>
 
                   {/* Kullanım İstatistikleri */}
@@ -558,8 +588,10 @@ export default function NewCouponPage() {
                 </select>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Görünürlük:</span>
-                <span className="text-dark dark:text-white">Herkese Açık</span>
+                <span className="text-gray-500">Kodun görünürlüğü:</span>
+                <span className="text-dark dark:text-white">
+                  {showInMyCoupons ? "Kuponlarım'da listelenir" : "Sadece kodu bilenler"}
+                </span>
               </div>
             </div>
           </div>

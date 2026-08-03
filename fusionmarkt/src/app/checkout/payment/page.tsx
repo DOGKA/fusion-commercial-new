@@ -318,6 +318,11 @@ export default function PaymentPage() {
   const couponDiscount = appliedCoupon?.discount || 0;
   const total = subtotal + shippingCost - couponDiscount;
 
+  // Özet bloğu için: fatura adresi ayrıldıysa teslimat `shippingAddress`'te,
+  // ayrılmadıysa tek adres `billingAddress`'te durur.
+  const billingIsSeparate = state.useDifferentShippingAddress && !!state.shippingAddress;
+  const deliveryAddress = billingIsSeparate ? state.shippingAddress : state.billingAddress;
+
   // Card number format
   const formatCardNumber = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 16);
@@ -377,7 +382,11 @@ export default function PaymentPage() {
       const otpVerifiedEmail = typeof window !== "undefined" ? sessionStorage.getItem("otpVerifiedEmail") : null;
       const orderData = {
         billingAddress: state.billingAddress,
-        shippingAddress: state.shippingAddress || state.billingAddress,
+        // Ayrı teslimat adresi yoksa alan boş gider. Sunucu boş teslimat
+        // adresini fatura adresine eşitliyor ve anlık görüntüye
+        // `shippingSameAsBilling: true` yazıyor — burada aynı adresi kopyalarsak
+        // o bayrak hiçbir zaman doğru olmuyordu.
+        shippingAddress: state.useDifferentShippingAddress ? state.shippingAddress : undefined,
         shippingMethod: state.shippingMethod,
         paymentMethod: paymentMethod === "card" ? "credit_card" : "bank_transfer",
         items: orderItems,
@@ -445,6 +454,15 @@ export default function PaymentPage() {
           zipCode: shippingAddr?.postalCode || "00000",
         };
 
+        // Fatura adresi ayrı seçilmişse iyzico'ya da ayrı gitmeli; aksi hâlde
+        // sağlayıcıdaki kayıt teslimat adresini fatura adresi sanıyor.
+        const iyzicoBillingAddress = {
+          contactName: `${state.billingAddress?.firstName || ""} ${state.billingAddress?.lastName || ""}`.trim(),
+          city: state.billingAddress?.city || "İstanbul",
+          address: state.billingAddress?.addressLine1 || "",
+          zipCode: state.billingAddress?.postalCode || "00000",
+        };
+
         // Taksitli ödeme tutarı (faiz dahil olabilir)
         const selectedInstOpt = installmentOptions.find(opt => opt.count === selectedInstallment);
         // paidPrice: Taksit varsa taksit toplamı, yoksa normal fiyat
@@ -464,7 +482,7 @@ export default function PaymentPage() {
             cvc: cvv,
             buyer,
             shippingAddress,
-            billingAddress: shippingAddress, // Aynı adres kullan
+            billingAddress: iyzicoBillingAddress,
             basketItems,
             price: roundedIyzicoPrice, // basketItems toplamına eşit olmalı
             paidPrice: finalPrice, // Taksitli ödeme tutarı (faiz dahil)
@@ -646,27 +664,55 @@ export default function PaymentPage() {
               <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                   {/* Yeni adres mi kayıtlı adres mi göster */}
-                  {state.billingAddress?.id ? (
+                  {deliveryAddress?.id ? (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Kayıtlı Adres</span>
                   ) : (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(59,130,246,0.2)", color: "#3b82f6", borderRadius: "999px" }}>Yeni Adres</span>
                   )}
-                  {state.billingAddress?.saveToAddresses && (
+                  {deliveryAddress?.saveToAddresses && (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "var(--border)", color: "var(--foreground-secondary)", borderRadius: "999px" }}>Kaydedilecek</span>
                   )}
                 </div>
                 <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
-                  {state.billingAddress?.firstName} {state.billingAddress?.lastName}
+                  {deliveryAddress?.firstName} {deliveryAddress?.lastName}
                 </p>
                 <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", marginBottom: "4px" }}>
-                  {state.billingAddress?.addressLine1}
-                  {state.billingAddress?.addressLine2 && `, ${state.billingAddress.addressLine2}`}
+                  {deliveryAddress?.addressLine1}
+                  {deliveryAddress?.addressLine2 && `, ${deliveryAddress.addressLine2}`}
                 </p>
                 <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)", marginBottom: "4px" }}>
-                  {state.billingAddress?.district}, {state.billingAddress?.city} {state.billingAddress?.postalCode}
+                  {deliveryAddress?.district}, {deliveryAddress?.city} {deliveryAddress?.postalCode}
                 </p>
-                <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{state.billingAddress?.phone}</p>
+                <p style={{ fontSize: "12px", color: "var(--foreground-muted)" }}>{deliveryAddress?.phone}</p>
               </div>
+            </div>
+
+            {/* Fatura adresi: teslimatla aynıysa tek satır, ayrıysa tam adres */}
+            <div style={{ marginBottom: "24px" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)", marginBottom: "16px" }}>Fatura Adresi</h2>
+              {billingIsSeparate ? (
+                <div style={{ padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  {state.invoiceType === "company" && state.billingAddress?.companyName && (
+                    <p style={{ fontSize: "13px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
+                      {state.billingAddress.companyName}
+                    </p>
+                  )}
+                  <p style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)", marginBottom: "4px" }}>
+                    {state.billingAddress?.firstName} {state.billingAddress?.lastName}
+                  </p>
+                  <p style={{ fontSize: "12px", color: "var(--foreground-secondary)", marginBottom: "4px" }}>
+                    {state.billingAddress?.addressLine1}
+                    {state.billingAddress?.addressLine2 && `, ${state.billingAddress.addressLine2}`}
+                  </p>
+                  <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)" }}>
+                    {state.billingAddress?.district}, {state.billingAddress?.city} {state.billingAddress?.postalCode}
+                  </p>
+                </div>
+              ) : (
+                <div style={{ padding: "14px 16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <span style={{ fontSize: "13px", color: "var(--foreground-secondary)" }}>Teslimat adresiyle aynı</span>
+                </div>
+              )}
             </div>
 
             {/* Payment Methods */}
@@ -987,7 +1033,7 @@ export default function PaymentPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
+                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Beğendiklerime Ekle">
                       <Heart size={18} />
                     </button>
                     <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">

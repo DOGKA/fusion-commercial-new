@@ -13,13 +13,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { threedsInitialize, formatIyzicoPrice, IYZICO_ENABLED } from "@/lib/iyzico";
 import { prisma } from "@/lib/prisma";
 import type { ThreeDSInitializeRequest, BasketItem } from "@/lib/iyzico";
-
-function generateOrderNumber(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const random = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
-  return `FM-${year}-${random}`;
-}
+import {
+  buildIyzicoBasket,
+  claimedTotalIsTooLow,
+  computeOrderPricing,
+  PRICE_MISMATCH_MESSAGE,
+} from "@/lib/order-pricing";
+import { reserveOrderNumber } from "@/lib/order-number";
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,20 +71,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const finalOrderNumber = orderNumber || generateOrderNumber();
+    const finalOrderNumber = orderNumber || (await reserveOrderNumber());
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ÇEKİLECEK TUTAR SUNUCUDA HESAPLANIYOR
+    //
+    // Buraya kadar iyzico'ya gönderilen `price` doğrudan gövdeden geliyordu;
+    // isteği düzenleyen biri istediği tutarı ödeyebiliyordu. Artık sepet
+    // veritabanı fiyatlarıyla yeniden fiyatlandırılıyor.
+    //
+    // Taslak yükü (`payload`) de sunucunun tutarlarıyla güncelleniyor: siparişi
+    // ödeme dönüşünde `callback` bu taslaktan oluşturuyor, dolayısıyla yalnızca
+    // iyzico'ya giden tutarı düzeltmek yetmez — kaydedilen sipariş yine
+    // kurcalanmış rakamları taşırdı.
+    // ─────────────────────────────────────────────────────────────────────────
+    const pricingResult = await computeOrderPricing({
+      items: orderData?.items ?? [],
+      couponId: orderData?.couponId ?? null,
+      claimedDiscount: orderData?.discount ?? 0,
+    });
+
+    if (!pricingResult.ok) {
+      return NextResponse.json(
+        { error: pricingResult.error, code: pricingResult.code },
+        { status: 400 }
+      );
+    }
+
+    const pricing = pricingResult.pricing;
+
+    if (claimedTotalIsTooLow(price, pricing.total)) {
+      console.warn(
+        `[FİYAT UYUŞMAZLIĞI] ödeme reddedildi — istemci: ${price}, sunucu: ${pricing.total}`
+      );
+      return NextResponse.json(
+        { error: PRICE_MISMATCH_MESSAGE, code: "PRICE_MISMATCH" },
+        { status: 409 }
+      );
+    }
 
     if (orderData) {
+      // Kalem fiyatları da düzeltiliyor: `callback` siparişin satırlarını bu
+      // yükteki `item.price` ile yazıyor. Yalnızca toplamı düzeltmek, doğru
+      // toplamı olan ama satırları kurcalanmış bir sipariş bırakırdı.
+      const verifiedPayload = {
+        ...orderData,
+        items: (orderData.items ?? []).map(
+          (item: Record<string, unknown>, index: number) => ({
+            ...item,
+            price: pricing.lines[index]?.unitPrice ?? item.price,
+          })
+        ),
+        subtotal: pricing.subtotal,
+        shippingCost: pricing.shipping,
+        discount: pricing.discount,
+        total: pricing.total,
+      };
+
       await prisma.paymentDraft.upsert({
         where: { order_number: finalOrderNumber },
         update: {
-          payload: orderData,
+          payload: verifiedPayload,
           user_id: userId || null,
           payment_method: "CREDIT_CARD",
           expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
         },
         create: {
           order_number: finalOrderNumber,
-          payload: orderData,
+          payload: verifiedPayload,
           user_id: userId || null,
           payment_method: "CREDIT_CARD",
           expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
@@ -101,18 +155,14 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fusionmarkt.com";
     const callbackUrl = `${baseUrl}/api/payment/callback`;
 
-    // Basket items formatla
-    const formattedBasketItems: BasketItem[] = basketItems.map((item: {
-      id: string;
-      name: string;
-      category: string;
-      price: number;
-      quantity: number;
-    }) => ({
+    // Sepet kalemleri de sunucudan: iyzico `basketItems` toplamının `price` ile
+    // birebir eşit olmasını şart koşuyor, ikisi ayrı kaynaktan gelirse istek
+    // reddedilir.
+    const formattedBasketItems: BasketItem[] = buildIyzicoBasket(pricing).map((item) => ({
       id: item.id,
       name: item.name.substring(0, 50), // Max 50 karakter
-      category1: item.category || "Genel",
-      category2: item.category || "Genel",
+      category1: item.category,
+      category2: item.category,
       itemType: "PHYSICAL" as const,
       price: formatIyzicoPrice(item.price * item.quantity),
     }));
@@ -121,8 +171,10 @@ export async function POST(request: NextRequest) {
     const iyzicoRequest: ThreeDSInitializeRequest = {
       locale: "tr",
       conversationId: finalOrderNumber,
-      price: formatIyzicoPrice(price),
-      paidPrice: formatIyzicoPrice(paidPrice || price),
+      price: formatIyzicoPrice(pricing.total),
+      // Taksitte faiz binebildiği için `paidPrice` tutardan büyük olabilir;
+      // küçük olamaz — küçükse sepet tutarına çekiliyor.
+      paidPrice: formatIyzicoPrice(Math.max(Number(paidPrice) || 0, pricing.total)),
       currency: "TRY",
       installment: String(installment || 1), // Taksit sayısı
       basketId: finalOrderNumber,

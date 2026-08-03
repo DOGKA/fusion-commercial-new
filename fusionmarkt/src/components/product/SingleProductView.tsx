@@ -21,6 +21,7 @@ import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useProductTabDeepLink } from "@/components/product/useProductTabDeepLink";
 
 // API Response types
 interface ApiReview {
@@ -236,12 +237,19 @@ const SQUIRCLE = {
   md: '14px',
 };
 
+/**
+ * Modül düzeyinde: `useProductTabDeepLink` bunu bağımlılık olarak alıyor, her
+ * render'da yeni bir dizi üretmek efekti gereksizce tetiklerdi.
+ */
+const PRODUCT_TABS = ['Açıklama', 'Teknik Özellikler', 'Yorumlar'] as const;
+
 export default function SingleProductView({ slug, initialData }: SingleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("Açıklama");
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
   
   // Teknik Özellikler için expand state
   const [techSpecsExpanded, setTechSpecsExpanded] = useState(false);
@@ -280,6 +288,9 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
     () => productData?.description ? cleanHtmlContent(productData.description) : '',
     [productData?.description]
   );
+
+  // `?tab=yorumlar` / `#yorumlar` ile gelen bağlantıyı doğru sekmeye düşürür.
+  useProductTabDeepLink(setActiveTab, tabsRef, !!productData, PRODUCT_TABS);
 
   // Açıklama yüksekliğini kontrol et - kısa içeriklerde buton gösterme
   // (CLS fix: boyamadan önce ölçülsün diye layout effect)
@@ -1427,7 +1438,7 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                                 } : undefined,
                               });
                             }}
-                            title={isProductFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+                            title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
                             style={{
                               width: '48px',
                               height: '48px',
@@ -1465,10 +1476,11 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
           </div>
         </div>
 
-        {/* TABS */}
-        <div style={{ marginTop: '48px' }}>
+        {/* TABS — `id` çapası e-postadaki `/urun/{slug}#yorumlar` bağlantısı
+            için; `?tab=yorumlar` ile birlikte ikisi de bu bölüme iniyor. */}
+        <div id="yorumlar" ref={tabsRef} style={{ marginTop: '48px', scrollMarginTop: '80px' }}>
           <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
-            {['Açıklama', 'Teknik Özellikler', 'Yorumlar'].map((tab, idx) => (
+            {PRODUCT_TABS.map((tab, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveTab(tab)}

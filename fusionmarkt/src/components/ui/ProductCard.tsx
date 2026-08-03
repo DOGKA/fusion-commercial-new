@@ -282,7 +282,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 }}
                 onMouseEnter={() => setFavoriteHover(true)}
                 onMouseLeave={() => setFavoriteHover(false)}
-                title={isProductFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+                title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
                 style={{
                   width: 36,
                   height: 36,

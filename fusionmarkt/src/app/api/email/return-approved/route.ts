@@ -9,7 +9,7 @@ import { sendReturnApprovedEmail } from "@/lib/email";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { to, orderNumber, name, total, returnAddress, returnInstructions, adminNote } = body;
+    const { to, orderNumber, name, total, returnAddress, returnInstructions, returnCode, adminNote } = body;
 
     if (!to || !orderNumber || !returnAddress) {
       return NextResponse.json(
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       total,
       returnAddress,
       returnInstructions,
+      returnCode,
       adminNote,
     });
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { stripDuplicateHeadings } from "@/lib/contract-html";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -1126,7 +1127,9 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
     ? storedContracts?.distanceSalesContractHTML
     : storedContracts?.termsAndConditionsHTML;
   
-  const storedHTML = fetchedHTML || localStoredHTML;
+  const rawStoredHTML = fetchedHTML || localStoredHTML;
+  // Belge kendi başlığını da taşıyor; modalın başlığıyla üst üste binmesin.
+  const storedHTML = rawStoredHTML ? stripDuplicateHeadings(rawStoredHTML) : rawStoredHTML;
   const hasStoredHTML = !!storedHTML;
 
   // Build buyer info from order (fallback for old orders without stored HTML)

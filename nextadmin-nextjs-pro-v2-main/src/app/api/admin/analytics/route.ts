@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
-import { prisma } from "@repo/db";
+import { prisma, countCouponUsageMany, USED_COUPON_ORDER_FILTER } from "@repo/db";
 
 // GET: Analytics verileri
 export async function GET(request: NextRequest) {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       activeCoupons,
       totalCouponUsage,
       couponStats,
-      topUsedCoupons,
+      activeCouponList,
     ] = await Promise.all([
       // Aktif kupon sayısı
       prisma.coupon.count({
@@ -71,33 +71,34 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      // Toplam kupon kullanımı
-      prisma.coupon.aggregate({
-        _sum: { usageCount: true },
+      // Toplam kupon kullanımı.
+      //
+      // Eskiden `coupon.aggregate({ _sum: { usageCount } })` idi. O kolon
+      // başarısız ödemelerde geri alınmadığı için şişiyordu ve artık hiç
+      // yazılmıyor; sayı siparişlerden geliyor (bkz. @repo/db coupon-usage).
+      prisma.order.count({
+        where: { couponId: { not: null }, ...USED_COUPON_ORDER_FILTER },
       }),
-      // Kuponlarla yapılan toplam indirim
+      // Kuponlarla yapılan toplam indirim. Ödemesi başarısız siparişler de
+      // elendi: para alınmadığı için o indirim hiç gerçekleşmedi.
       prisma.order.aggregate({
-        where: {
-          couponId: { not: null },
-          status: { not: "CANCELLED" },
-        },
+        where: { couponId: { not: null }, ...USED_COUPON_ORDER_FILTER },
         _sum: { discount: true },
         _count: true,
       }),
-      // En çok kullanılan kuponlar (veya tüm aktif kuponlar)
+      // Aktif kuponlar; sıralama aşağıda gerçek kullanım sayısına göre.
+      // Kullanımı sıfır olanlar da listede kalıyor (eski davranış böyleydi),
+      // bu yüzden sıralama siparişler üzerinden `groupBy` ile değil bellekte.
       prisma.coupon.findMany({
         where: {
           isActive: true,
         },
-        orderBy: { usageCount: "desc" },
-        take: 10,
         select: {
           id: true,
           code: true,
           description: true,
           discountType: true,
           discountValue: true,
-          usageCount: true,
           usageLimit: true,
           isActive: true,
           startDate: true,
@@ -105,6 +106,15 @@ export async function GET(request: NextRequest) {
         },
       }),
     ]);
+
+    const couponUsage = await countCouponUsageMany(
+      prisma,
+      activeCouponList.map((c) => c.id)
+    );
+    const topUsedCoupons = activeCouponList
+      .map((c) => ({ ...c, usageCount: couponUsage.get(c.id) ?? 0 }))
+      .sort((a, b) => b.usageCount - a.usageCount)
+      .slice(0, 10);
 
     // GA verilerini çek (eğer yapılandırılmışsa)
     // period=today için Realtime API kullan (Data API'nin 24-48 saat aggregation
@@ -160,7 +170,7 @@ export async function GET(request: NextRequest) {
       // Kupon istatistikleri
       couponStats: {
         activeCoupons,
-        totalUsage: totalCouponUsage._sum.usageCount || 0,
+        totalUsage: totalCouponUsage,
         ordersWithCoupon: couponStats._count || 0,
         totalDiscount: Number(couponStats._sum.discount || 0),
         topCoupons: topUsedCoupons.map((c) => ({

@@ -57,36 +57,75 @@ model ApiKey {
 }
 
 model User {
-  id                    String                @id @default(cuid())
+  id                    String    @id @default(cuid())
   name                  String?
-  email                 String?               @unique
+  email                 String?   @unique
   emailVerified         DateTime?
   image                 String?
   password              String?
-  passwordResetToken    String?               @unique
+  passwordResetToken    String?   @unique
   passwordResetTokenExp DateTime?
-  role                  UserRole              @default(CUSTOMER)
+  role                  UserRole  @default(CUSTOMER)
   phone                 String?
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
   avatarMediaId         String?
   avatarPath            String?
   coverImage            String?
   birthDate             String?
   activationCode        String?
   activationCodeExp     DateTime?
-  accounts              Account[]
-  addresses             Address[]
-  apiKeys               ApiKey[]
-  cart                  Cart?
-  orders                Order[]
-  reviews               Review[]
-  sessions              Session[]
-  wishlist              Wishlist?
-  cancellationRequests  CancellationRequest[]
-  returnRequests        ReturnRequest[]
+  gender                Gender?
+
+  // İYS/KVKK izinleri. Üç durumlu: true = izin verdi, false = reddetti,
+  // null = hiç sorulmadı. @default(false) BİLİNÇLİ OLARAK YOK — mevcut üyelere
+  // "reddetti" yazmak alınmamış bir kullanıcı beyanı kaydetmek olurdu.
+  // Kontroller daima `=== true` ile yapılmalı, `!== false` ile asla.
+  smsConsent             Boolean?
+  emailConsent           Boolean?
+  callConsent            Boolean?
+  personalizationConsent Boolean?
+  consentUpdatedAt       DateTime?
+
+  pendingEmail    String?
+  pendingEmailExp DateTime?
+
+  accounts             Account[]
+  addresses            Address[]
+  apiKeys              ApiKey[]
+  cart                 Cart?
+  orders               Order[]
+  reviews              Review[]
+  sessions             Session[]
+  wishlist             Wishlist?
+  cancellationRequests CancellationRequest[]
+  returnRequests       ReturnRequest[]
+  consentLogs          UserConsentLog[]
 
   @@map("users")
+}
+
+/// İYS/KVKK kanıt kaydı: bir iznin ne zaman, hangi kanalda, hangi metin
+/// sürümüyle alındığını ispatlar. Boolean alanlar yalnızca güncel değeri
+/// tutar; denetimde sorulan "izni ne zaman aldınız" sorusunu bu tablo yanıtlar.
+model UserConsentLog {
+  id             String   @id @default(cuid())
+  userId         String
+  channel        String
+  granted        Boolean
+  previousValue  Boolean?
+  source         String
+  consentTextKey String?
+  consentTextVer String?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([channel])
+  @@index([createdAt])
+  @@map("user_consent_logs")
 }
 
 model Category {
@@ -207,6 +246,7 @@ model ProductVariant {
   weight         Decimal?               @db.Decimal(10, 2)
   variantOptions ProductVariantOption[]
   product        Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  wishlistItems  WishlistItem[]
 
   @@map("product_variants")
 }
@@ -356,14 +396,14 @@ model BundleBadge {
 
 model Review {
   id           String    @id @default(cuid())
-  productId    String?   // Ürün yorumu için (opsiyonel - bundle veya product olabilir)
-  bundleId     String?   // Bundle yorumu için (opsiyonel)
+  productId    String? // Ürün yorumu için (opsiyonel - bundle veya product olabilir)
+  bundleId     String? // Bundle yorumu için (opsiyonel)
   userId       String
   rating       Int
   title        String?
   comment      String
   images       String[]
-  displayName  String?   // Kullanıcının tercih ettiği görünen isim (maskeli veya tam)
+  displayName  String? // Kullanıcının tercih ettiği görünen isim (maskeli veya tam)
   isVerified   Boolean   @default(false)
   isApproved   Boolean   @default(false)
   createdAt    DateTime  @default(now())
@@ -374,6 +414,14 @@ model Review {
   bundle       Bundle?   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  /// Bir kullanıcı bir ürüne/pakete tek yorum yazar. Kural uygulamada da var
+  /// (`POST /api/reviews` mevcut yorumu bulup günceller) ama iki eşzamanlı
+  /// gönderim arasında yarış oluşuyordu; garanti veritabanında.
+  /// İki ayrı kısıt gerekiyor çünkü yorum ya ürüne ya pakete bağlı: PostgreSQL
+  /// `NULL`'ları birbirinden farklı saydığı için paket yorumları
+  /// (`productId IS NULL`) alttaki kısıta takılmıyor, tersi de geçerli.
+  @@unique([userId, productId])
+  @@unique([userId, bundleId])
   @@index([productId])
   @@index([bundleId])
   @@index([userId])
@@ -430,6 +478,17 @@ model Order {
   invoiceNotifiedAt         DateTime?
   preparingAt               DateTime?
   refundedAt                DateTime?
+  /// Bu siparişte bugüne kadar İADE EDİLEN TOPLAM TUTAR.
+  ///
+  /// Neden gerekli: `status = REFUNDED` ya hep ya hiç. Kısmi iadede sipariş
+  /// `DELIVERED` kalıyor (durum enum'una dokunmamak bilinçli karar, bkz.
+  /// `00-KARARLAR.md` §-17) ve "ne kadarı geri ödendi" bilgisi başka hiçbir
+  /// yerde tutulmuyordu. Aynı kalemin ikinci kez iade edilmesini engelleyen
+  /// kontrol de buna dayanıyor.
+  ///
+  /// Kargo bedeli buraya YAZILMAZ: kısmi iadede iade edilmiyor (kalan kalemler
+  /// için gönderi zaten yapıldı).
+  refundedAmount            Decimal              @default(0) @db.Decimal(10, 2)
   statusHistory             Json?                @db.Json
   iyzicoConversationId      String?
   iyzicoPaymentId           String?
@@ -444,22 +503,28 @@ model Order {
   cancellationRequest       CancellationRequest?
   returnRequests            ReturnRequest[]
 
+  /// Kupon kullanım sayımı bu tabloyu sorguluyor (`coupon-usage.ts`): mağaza
+  /// geneli için `couponId`, kişi başı için `couponId + userId`. Bileşik indeks
+  /// ikisine de hizmet ediyor, çünkü `couponId` baştaki kolon.
+  @@index([couponId, userId])
   @@map("orders")
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  productId   String?
-  quantity    Int
-  price       Decimal  @db.Decimal(10, 2)
-  subtotal    Decimal  @db.Decimal(10, 2)
-  variantInfo String?
-  createdAt   DateTime @default(now())
-  bundleId    String?
-  bundle      Bundle?  @relation(fields: [bundleId], references: [id])
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product     Product? @relation(fields: [productId], references: [id])
+  id                 String              @id @default(cuid())
+  orderId            String
+  productId          String?
+  quantity           Int
+  price              Decimal             @db.Decimal(10, 2)
+  subtotal           Decimal             @db.Decimal(10, 2)
+  variantInfo        String?
+  createdAt          DateTime            @default(now())
+  bundleId           String?
+  bundle             Bundle?             @relation(fields: [bundleId], references: [id])
+  order              Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product            Product?            @relation(fields: [productId], references: [id])
+  /// Bu kalemi kapsayan iade/talep kayıtları (bkz. `ReturnRequestItem`).
+  returnRequestItems ReturnRequestItem[]
 
   @@map("order_items")
 }
@@ -469,19 +534,19 @@ model OrderItem {
 // ═══════════════════════════════════════════════════════════════════════════
 
 model CancellationRequest {
-  id          String        @id @default(cuid())
-  orderId     String        @unique
-  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status      RequestStatus @default(PENDING_ADMIN_APPROVAL)
-  requestIp   String?
-  reason      String?
-  adminNote   String?
-  reviewedBy  String?
-  reviewedAt  DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String        @id @default(cuid())
+  orderId    String        @unique
+  order      Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status     RequestStatus @default(PENDING_ADMIN_APPROVAL)
+  requestIp  String?
+  reason     String?
+  adminNote  String?
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -495,24 +560,91 @@ model ReturnRequest {
   order              Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   userId             String
   user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reason             ReturnReason
+  /// Mevcut kayıtların tamamı RETURN; @default sayesinde geriye uyumlu.
+  requestType        RequestType   @default(RETURN)
+  /// `requestType: RETURN` dışındaki taleplerde iade nedeni YOKTUR (fatura
+  /// talebinin "nedeni" olmaz), bu yüzden nullable. Kısıt gevşetiliyor, hiçbir
+  /// mevcut satır etkilenmiyor. ⚠️ Okuyan her yerde `null` ihtimali var:
+  /// sözlükten etiket alırken korumasız index kullanmayın.
+  reason             ReturnReason?
   description        String?
-  images             String[]      // Kullanıcının yüklediği görseller (max 3)
+  images             String[] // Kullanıcının yüklediği görseller (max 3)
   status             RequestStatus @default(PENDING_ADMIN_APPROVAL)
   requestIp          String?
   adminNote          String?
-  returnAddress      String?       // Admin'in belirlediği iade adresi
-  returnInstructions String?       // Admin'in yazdığı iade talimatları
+  returnAddress      String? // Admin'in belirlediği iade adresi
+  returnInstructions String? // Admin'in yazdığı iade talimatları
+  /// İADE KODU — yalnızca talep ONAYLANDIĞINDA üretilir, o yüzden nullable.
+  ///
+  /// Neden var: kod olmadan depoya gelen kolinin hangi talebe ait olduğu
+  /// belirsiz kalıyor. Müşteri kodu paketin üzerine yazar / kargoya bildirir,
+  /// depo koliyi kodla eşleştirir. Onaysız gönderilen kolinin kodu olmadığı
+  /// için de ayırt edilebilir.
+  ///
+  /// Karışabilecek karakterler (0/O, 1/I/L) alfabede YOK: kod elle yazılıp
+  /// elle okunuyor, "0 mı O mu" tartışması destek yükü demek.
+  returnCode         String?       @unique
   reviewedBy         String?
   reviewedAt         DateTime?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  /// Kolinin depoya ulaştığı an (RECEIVED). Cayma hakkında ödemenin en geç 14
+  /// gün içinde yapılması gerektiği için inceleme süresinin sayacı bu alan.
+  receivedAt         DateTime?
+  /// Ödemenin fiilen iade edildiği an (COMPLETED). `Order.refundedAt` sipariş
+  /// tarafındaki karşılığı; buradaki kayıt talebin kendi geçmişi için.
+  refundedAt         DateTime?
+
+  // ── İnceleme olumsuz çıktığında ürünün müşteriye geri gönderilmesi ────────
+  //
+  // `RECEIVED` → `REJECTED` geçişinde müşterinin ürünü bizim depoda kalıyor ve
+  // ona geri gitmesi gerekiyor: parasını almadı, ürün hâlâ onun malı.
+  //
+  // Bu gönderide GÖNDERİCİ BİZİZ, dolayısıyla tanımlayıcı iade kodu değil
+  // kendi takip numaramız. Müşteri karşı ödemeli koliyi teslim almazsa kargo
+  // şirketi onu göndericiye — yani bize — aynı takip numarasıyla döndürür;
+  // depo geleni bulabilsin diye `sendBackTrackingNumber` admin aramasına dahil.
+  sendBackCarrier        String?
+  sendBackTrackingNumber String?
+  /// Koliyi müşteriye gönderdiğimiz an. Boşsa ve talep inceleme sonrası
+  /// reddedilmişse ürün hâlâ depoda bekliyor demektir.
+  sendBackAt             DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  /// Talebin kapsadığı kalemler. **Boşsa talep tüm siparişi kapsar** — bu,
+  /// alan eklenmeden önce açılmış tüm kayıtların anlamı ve varsayılan davranış.
+  items ReturnRequestItem[]
 
   @@index([userId])
   @@index([orderId])
   @@index([status])
   @@index([createdAt])
+  @@index([requestType])
   @@map("return_requests")
+}
+
+/// Bir talebin hangi sipariş kalemlerini, kaç adet kapsadığı.
+///
+/// NEDEN AYRI TABLO: `ReturnRequest.orderItemId` tek bir kalem tutardı; üç
+/// kalemli siparişten ikisini iade etmek isteyen müşteri iki ayrı talep açmak
+/// zorunda kalırdı. Adet de gerekiyor — 5 adet alıp 2'sini iade etmek olağan.
+///
+/// BOŞLUĞUN ANLAMI: Kayıt yoksa talep **tüm siparişi** kapsar. Bu yüzden alan
+/// eklenmesi geriye dönük hiçbir kaydı bozmuyor ve mevcut para iadesi akışı
+/// (tüm sipariş) olduğu gibi çalışmaya devam ediyor.
+model ReturnRequestItem {
+  id              String        @id @default(cuid())
+  returnRequestId String
+  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItemId     String
+  orderItem       OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  /// İade edilmek istenen adet; sipariş kalemindeki adetten büyük olamaz.
+  quantity        Int
+  createdAt       DateTime      @default(now())
+
+  /// Aynı kalem bir talepte iki kez yer alamaz.
+  @@unique([returnRequestId, orderItemId])
+  @@index([orderItemId])
+  @@map("return_request_items")
 }
 
 model IpBan {
@@ -600,38 +732,69 @@ model WishlistItem {
   wishlistId String
   productId  String
   createdAt  DateTime @default(now())
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  /// Varyantlı favori. Varyant silinirse kalem varyantsıza döner (SetNull),
+  /// ürünü tamamen kaybetmek yerine varyantı kaybetmek tercih edildi.
+  variantId  String?
+  /// Favoriye eklendiği andaki satış fiyatı — "fiyatı düşenler" filtresi bunu
+  /// güncel fiyatla karşılaştırır. Taşınan/eski kayıtlarda null olur ve o
+  /// kayıtlar filtreye girmez.
+  priceAtAdd Decimal? @db.Decimal(10, 2)
 
-  @@unique([wishlistId, productId])
+  product  Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  wishlist Wishlist        @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  variant  ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  /// ⚠️ variantId nullable olduğu için PostgreSQL aynı ürünü varyantsız olarak
+  /// iki kez eklemeyi bu kısıtla engelleyemez (NULL'lar eşit sayılmaz);
+  /// varyantsız tekillik uygulama katmanında kontrol edilir.
+  @@unique([wishlistId, productId, variantId])
   @@map("wishlist_items")
 }
 
 model Address {
-  id             String      @id @default(cuid())
-  userId         String
-  firstName      String?
-  lastName       String?
-  company        String?
-  addressLine1   String?
-  addressLine2   String?
-  city           String
-  state          String?
-  postalCode     String?
-  country        String      @default("TR")
-  phone          String
-  isDefault      Boolean     @default(false)
-  type           AddressType @default(BOTH)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  address        String?
-  district       String?
-  fullName       String?
-  title          String?
-  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingOrders  Order[]     @relation("BillingAddress")
-  shippingOrders Order[]     @relation("ShippingAddress")
+  id              String              @id @default(cuid())
+  userId          String
+  firstName       String?
+  lastName        String?
+  company         String?
+  addressLine1    String?
+  addressLine2    String?
+  city            String
+  state           String?
+  postalCode      String?
+  country         String              @default("TR")
+  phone           String
+  isDefault       Boolean             @default(false)
+  type            AddressType         @default(BOTH)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  address         String?
+  district        String?
+  fullName        String?
+  title           String?
+  /// Ev / İş / Diğer. Mevcut kayıtlarda null; arayüz null olanlarda
+  /// "adres türünü tanımla" uyarı bandı gösterir.
+  addressCategory AddressCategory?
+  /// Fatura adresi olarak kullanıldığında bireysel mi kurumsal mı.
+  /// null = hiç belirtilmemiş (eski kayıtlar) ⇒ arayüz bireysel varsayar.
+  invoiceType     AddressInvoiceType?
+  /// Kurumsal fatura alanları. Firma adı için mevcut `company` kolonu
+  /// kullanılıyor, yeni kolon açılmadı.
+  /// TCKN bilinçli olarak burada TUTULMUYOR: ödeme adımında opsiyonel ve
+  /// sipariş anında sözleşme HTML'i içinde zaten saklanıyor; ayrıca profil
+  /// verisi olarak süresiz tutmak gereksiz bir KVKK yükü olurdu.
+  taxNumber       String?
+  taxOffice       String?
+  /// Yumuşak silme. Sipariş bu adrese FK ile bağlı ve ilişki opsiyonel olduğu
+  /// için gerçek DELETE, geçmiş siparişlerin adresini NULL'a çekiyordu.
+  /// Silme artık bu alanı doldurur; liste yalnızca deletedAt = null döner.
+  deletedAt       DateTime?
 
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingOrders  Order[] @relation("BillingAddress")
+  shippingOrders Order[] @relation("ShippingAddress")
+
+  @@index([userId, deletedAt])
   @@map("addresses")
 }
 
@@ -643,15 +806,35 @@ model Coupon {
   discountValue      Decimal      @db.Decimal(10, 2)
   minOrderAmount     Decimal?     @db.Decimal(10, 2)
   maxDiscount        Decimal?     @db.Decimal(10, 2)
+  /// Mağaza geneli kullanım tavanı. null = sınırsız.
   usageLimit         Int?
+  /// ⛔ KULLANIMDAN KALDIRILDI — okumayın, yazmayın.
+  ///
+  /// Sipariş oluşturulurken artıyor, ama iptal veya BAŞARISIZ ÖDEME durumunda
+  /// geri alınmıyordu: 50 kişilik bir kupon 50 başarısız kart denemesiyle
+  /// tükenmiş görünebiliyordu. Gerçek kullanım artık `Order` tablosundan
+  /// hesaplanıyor (`packages/db/src/coupon-usage.ts`), bu kolon hiçbir yerde
+  /// okunmuyor ve artık yazılmıyor. Kolonun kendisi, veri kaybı olmasın diye
+  /// duruyor; değerleri güncel değildir.
   usageCount         Int          @default(0)
+  /// Kişi başı kullanım hakkı. 0 (veya negatif) = sınırsız.
   perUserLimit       Int          @default(1)
   startDate          DateTime     @default(now())
   endDate            DateTime?
   isActive           Boolean      @default(true)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
-  inMysteryBox       Boolean      @default(false)
+  /// Kod, TÜM üyelerin Hesabım → Kuponlarım sayfasında LİSTELENİR.
+  ///
+  /// Bu bayrak kuponun KİMİN KULLANABİLECEĞİNİ değiştirmez — her kupon zaten
+  /// kodunu bilen herkes tarafından kullanılabilir. Tek işi DUYURU: kapalıyken
+  /// kuponu yalnızca kodu bilenler (e-posta, sosyal medya, kampanya) kullanır;
+  /// açıkken kod herkese görünür hale gelir.
+  ///
+  /// Kaç kez kullanılabileceğini `perUserLimit` belirliyor, bu alan değil.
+  ///
+  /// `@default(false)`: mevcut kuponların hiçbiri istemeden duyurulmuyor.
+  showInMyCoupons    Boolean      @default(false)
   allowedCategories  String[]     @default([])
   allowedProducts    String[]     @default([])
   excludeSaleItems   Boolean      @default(false)
@@ -846,24 +1029,6 @@ model Media {
   folder      MediaFolder   @default(GENERAL)
 
   @@map("media")
-}
-
-model MysteryBoxClaim {
-  id          String   @id @default(cuid())
-  userId      String?
-  fingerprint String
-  couponId    String
-  couponCode  String
-  claimedAt   DateTime @default(now())
-  expiresAt   DateTime
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-
-  @@index([fingerprint])
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("mystery_box_claims")
 }
 
 model FeatureDefinition {
@@ -1212,7 +1377,7 @@ model SiteSettings {
   cookieDefaultMarketing   Boolean  @default(false)
   cookieDefaultPreferences Boolean  @default(true)
   // İade Ayarları
-  defaultReturnAddress     String?  // Varsayılan iade depo adresi
+  defaultReturnAddress     String? // Varsayılan iade depo adresi
   returnShippingInfo       String   @default("Kargo ücreti alıcı ödemeli olarak gönderilmelidir.")
 
   @@map("site_settings")
@@ -1279,7 +1444,7 @@ model Bundle {
   bundleBadges     BundleBadge[]
   categories       BundleCategory[]
   items            BundleItem[]
-  reviews          Review[]          // Bundle yorumları
+  reviews          Review[] // Bundle yorumları
   brandRef         Brand?            @relation(fields: [brandId], references: [id])
   cartItems        CartItem[]
   orderItems       OrderItem[]
@@ -1326,6 +1491,12 @@ enum UserRole {
   CUSTOMER
   ADMIN
   SUPER_ADMIN
+}
+
+enum Gender {
+  FEMALE
+  MALE
+  UNSPECIFIED
 }
 
 enum ProductType {
@@ -1379,6 +1550,19 @@ enum AddressType {
   SHIPPING
   BILLING
   BOTH
+}
+
+enum AddressCategory {
+  HOME
+  WORK
+  OTHER
+}
+
+/// Ödeme sayfası bu ayrımı "person" / "company" olarak tutuyor; eşleme
+/// API katmanında yapılıyor (`lib/address-validation.ts`).
+enum AddressInvoiceType {
+  INDIVIDUAL
+  CORPORATE
 }
 
 enum DiscountType {
@@ -1589,9 +1773,21 @@ enum BundlePricingType {
 // CANCELLATION & RETURN REQUEST ENUMS
 // ═══════════════════════════════════════════════════════════════════════════
 
+/// İade talebinin yaşam döngüsü. İki ayrı onay var, çünkü "gönderebilirsin"
+/// ile "paran iade edildi" aynı şey değil:
+///
+///   PENDING_ADMIN_APPROVAL → APPROVED → RECEIVED → COMPLETED
+///                         ↘ REJECTED  ↘ REJECTED (inceleme olumsuz)
+///
+/// APPROVED = inceleme talebi onaylandı, müşteri iade kodunu aldı ve kargoya
+/// verebilir. **Para burada çıkmaz.** RECEIVED = koli depoya ulaştı, kodla
+/// eşleştirildi. COMPLETED = inceleme olumlu, stok geri yüklendi ve ödeme
+/// iade edildi. Para yalnızca bu son adımda hareket eder.
 enum RequestStatus {
   PENDING_ADMIN_APPROVAL
   APPROVED
+  RECEIVED
+  COMPLETED
   REJECTED
 }
 
@@ -1599,6 +1795,23 @@ enum ReturnReason {
   DAMAGED
   WRONG_PRODUCT
   SPECS_MISMATCH
+  // Referanstaki talep listesi için eklenenler. CHANGED_MIND cayma hakkı
+  // (mesafeli satış) karşılığı; MISSING_ITEM ve NOT_RECEIVED teslim
+  // sorunlarıdır ve ürün elde olmadığı için görsel istenmez.
+  CHANGED_MIND
+  MISSING_ITEM
+  NOT_RECEIVED
+}
+
+/// Talebin ne olduğunu ayırır. Fatura talebi veya fazla ürün bildirimi
+/// iade DEĞİLDİR; hepsi `ReturnReason` içine sıkıştırılırsa admin panelinde
+/// iade kuyruğu kirlenir ve iade oranı istatistikleri yanlış çıkar.
+enum RequestType {
+  RETURN
+  INVOICE_REQUEST
+  WRONG_INVOICE
+  EXTRA_ITEM
+  OTHER
 }
 
 enum BanType {
@@ -1658,29 +1871,29 @@ model HomepageVideoBanner {
 }
 
 model HomepageCategorySection {
-  id            String   @id @default(cuid())
+  id            String                           @id @default(cuid())
   sectionTitle  String
   bannerImage   String?
   bannerEyebrow String?
   bannerTitle   String?
   bannerDesc    String?
-  bannerBtnText String?  @default("Daha Fazla")
-  bannerBtnLink String?  @default("#")
+  bannerBtnText String?                          @default("Daha Fazla")
+  bannerBtnLink String?                          @default("#")
   seeMoreImage  String?
-  seeMoreLink   String?  @default("#")
-  accessoryText String?  @default("Hangi Ürün Bana Uygun?")
-  accessoryLink String?  @default("#")
-  order         Int      @default(0)
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  seeMoreLink   String?                          @default("#")
+  accessoryText String?                          @default("Hangi Ürün Bana Uygun?")
+  accessoryLink String?                          @default("#")
+  order         Int                              @default(0)
+  isActive      Boolean                          @default(true)
+  createdAt     DateTime                         @default(now())
+  updatedAt     DateTime                         @updatedAt
   products      HomepageCategorySectionProduct[]
 
   @@map("homepage_category_sections")
 }
 
 model HomepageCategorySectionProduct {
-  id        String   @id @default(cuid())
+  id        String                  @id @default(cuid())
   sectionId String
   title     String
   badge     String?
@@ -1688,24 +1901,24 @@ model HomepageCategorySectionProduct {
   spec2     String?
   price     String?
   image     String?
-  link      String?  @default("#")
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  link      String?                 @default("#")
+  order     Int                     @default(0)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
   section   HomepageCategorySection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   @@map("homepage_category_section_products")
 }
 
 model HomepageVideo {
-  id        String   @id @default(cuid())
-  title     String
+  id         String   @id @default(cuid())
+  title      String
   youtubeUrl String
-  thumbnail String?
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  thumbnail  String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("homepage_videos")
 }

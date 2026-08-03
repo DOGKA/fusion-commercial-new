@@ -37,6 +37,7 @@ interface Coupon {
   excludedProducts: string[];
   excludeSaleItems: boolean;
   freeShipping: boolean;
+  showInMyCoupons: boolean;
 }
 
 export default function EditCouponPage() {
@@ -58,6 +59,7 @@ export default function EditCouponPage() {
   const [discountType, setDiscountType] = useState("percentage");
   const [couponAmount, setCouponAmount] = useState("");
   const [allowFreeShipping, setAllowFreeShipping] = useState(false);
+  const [showInMyCoupons, setShowInMyCoupons] = useState(false);
   const [expiryDate, setExpiryDate] = useState("");
   
   // Usage Restriction
@@ -114,6 +116,7 @@ export default function EditCouponPage() {
         setExcludedProducts(coupon.excludedProducts || []);
         setExcludeSaleItems(coupon.excludeSaleItems || false);
         setAllowFreeShipping(coupon.freeShipping || false);
+        setShowInMyCoupons(coupon.showInMyCoupons || false);
         
         if (coupon.endDate) {
           const date = new Date(coupon.endDate);
@@ -200,6 +203,7 @@ export default function EditCouponPage() {
           excludedProducts,
           excludeSaleItems,
           freeShipping: allowFreeShipping,
+          showInMyCoupons,
         }),
       });
 
@@ -377,6 +381,30 @@ export default function EditCouponPage() {
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
                   </div>
+
+                  {/* Kuponlarım'da göster */}
+                  <div className="rounded-lg border border-stroke p-4 dark:border-dark-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showInMyCoupons}
+                        onChange={(e) => setShowInMyCoupons(e.target.checked)}
+                        className="mt-1 h-5 w-5 rounded text-primary"
+                      />
+                      <div>
+                        <span className="font-medium text-dark dark:text-white">
+                          Kuponlarım&apos;da Göster
+                        </span>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Kod, tüm üyelerin Hesabım → Kuponlarım sayfasında koşullarıyla
+                          listelenir. Bu seçenek kuponu <strong>kullanılabilir</strong> yapmıyor
+                          — kupon her hâlükârda geçerlidir; kapalıyken onu yalnızca kodu
+                          bilenler kullanır. Kaç kez kullanılabileceğini &quot;Kullanım
+                          Limitleri&quot; sekmesindeki kişi başı limit belirler.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
                 </div>
               )}
 
@@ -529,10 +557,15 @@ export default function EditCouponPage() {
                       type="number"
                       value={usageLimitPerUser}
                       onChange={(e) => setUsageLimitPerUser(e.target.value)}
-                      placeholder="Sınırsız"
+                      placeholder="1"
                       min="0"
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 dark:border-dark-3 focus:border-primary focus:outline-none"
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Her üye bu kuponu kaç kez kullanabilir. Boş bırakılırsa <strong>1</strong>;
+                      sınırsız için <strong>0</strong> yazın. İptal edilen ve ödemesi başarısız
+                      siparişler bu sayıya girmez.
+                    </p>
                   </div>
 
                   {/* Kullanım İstatistikleri */}

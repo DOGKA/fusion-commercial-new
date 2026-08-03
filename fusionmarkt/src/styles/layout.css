@@ -22,6 +22,31 @@
 .container-3xl { max-width: var(--container-3xl); }
 .container-full { max-width: 100%; }
 
+/* ===========================================================================
+   BURADAN AŞAĞISI `@layer components` İÇİNDE
+
+   Aşağıdaki sınıfların çoğu Tailwind'in yardımcı sınıflarıyla AYNI ADI
+   taşıyor (`flex-col`, `grid-cols-2`, `gap-3`, `absolute`, `w-full` …).
+   Katmansız bildirimler özgüllükten bağımsız olarak her `@layer`ı yener;
+   dolayısıyla bunlar katman dışındayken Tailwind'in `utilities` katmanındaki
+   DUYARLI VARYANTLARI da eziyordu. Bir elemanda hem `flex-col` hem
+   `lg:flex-row` varsa `lg:flex-row` hiçbir genişlikte uygulanmıyordu —
+   sipariş çizelgesinin masaüstünde dikey kalması, favori araç çubuğunun
+   yığılması, favori ve adres ızgaralarının tek/iki kolonda takılması hep
+   bundandı (sitede ~40 çakışma).
+
+   `components`, `utilities`ten önce geldiği için düz sınıflar aynen çalışır
+   (değerler de birebir aynı: `--space-3` = 0.75rem = Tailwind `gap-3`),
+   yalnız duyarlı varyant artık kazanır. Aynı düzeltme `mobile.css`'te
+   `hide-on-mobile` için de yapılmıştı.
+
+   `.container*` ailesi BİLEREK dışarıda kaldı: `container` aynı zamanda bir
+   Tailwind yardımcısı ve `.container-sm` gibi kardeşleri onu ezmek zorunda.
+   İkisini farklı katmanlara ayırmak `container container-sm` yazan yerlerde
+   dar varyantı öldürürdü.
+=========================================================================== */
+@layer components {
+
 /* ─────────────────────────────────────────────────────────────────────────
    SECTIONS
 ───────────────────────────────────────────────────────────────────────── */
@@ -208,4 +233,7 @@
 .aspect-4-3 { aspect-ratio: 4 / 3; }
 .aspect-3-2 { aspect-ratio: 3 / 2; }
 .aspect-2-3 { aspect-ratio: 2 / 3; }
+
+}
+/* ^ @layer components sonu */
 

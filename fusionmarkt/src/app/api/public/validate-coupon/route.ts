@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
+import {
+  countCouponUsage,
+  countUserCouponUsage,
+  isPerUserLimitReached,
+  isUsageLimitReached,
+  perUserLimitMessage,
+  USAGE_LIMIT_MESSAGE,
+} from "@/lib/coupon-usage";
 
 interface CartItem {
   productId: string;
@@ -58,12 +68,36 @@ export async function POST(req: Request) {
       );
     }
 
-    // Kullanım limiti kontrolü
-    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
-      return NextResponse.json(
-        { valid: false, error: "Bu kupon kullanım limitine ulaşmış" },
-        { status: 400 }
-      );
+    // Mağaza geneli kullanım limiti.
+    //
+    // Sayı `Coupon.usageCount` kolonundan DEĞİL siparişlerden geliyor: kolon
+    // başarısız ödemelerde geri alınmıyordu, yani 50 kişilik bir kupon 50
+    // başarısız kart denemesiyle tükenmiş görünebiliyordu.
+    if (coupon.usageLimit !== null) {
+      const totalUsed = await countCouponUsage(prisma, coupon.id);
+      if (isUsageLimitReached(coupon.usageLimit, totalUsed)) {
+        return NextResponse.json(
+          { valid: false, error: USAGE_LIMIT_MESSAGE },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Kişisel kullanım hakkı (`perUserLimit`).
+    //
+    // Oturum yoksa atlanıyor: misafir için sayacak bir hesap yok. Bu bir boşluk
+    // değil, kaçınılmaz bir sınır — misafir her seferinde yeni e-postayla
+    // gelebilir. Bağlayıcı kontrol yine `POST /api/orders`'ta, orada misafire de
+    // bir hesap açılmış oluyor.
+    const session = await getServerSession(authOptions);
+    if (session?.user?.id) {
+      const used = await countUserCouponUsage(prisma, session.user.id, coupon.id);
+      if (isPerUserLimitReached(coupon.perUserLimit, used)) {
+        return NextResponse.json(
+          { valid: false, error: perUserLimitMessage(coupon.perUserLimit) },
+          { status: 400 }
+        );
+      }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

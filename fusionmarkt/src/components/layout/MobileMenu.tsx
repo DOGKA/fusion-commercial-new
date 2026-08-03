@@ -386,7 +386,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     </span>
                   )}
                 </div>
-                <span className="text-[13px] font-medium text-foreground">Favorilerim</span>
+                <span className="text-[13px] font-medium text-foreground">Beğendiklerim</span>
               </Link>
 
               <Link

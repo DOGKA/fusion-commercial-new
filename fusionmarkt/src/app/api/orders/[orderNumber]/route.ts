@@ -9,7 +9,7 @@ import { prisma } from "@repo/db";
 import { authOptions } from "@/lib/auth";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ orderNumber: string }> }
 ) {
   try {

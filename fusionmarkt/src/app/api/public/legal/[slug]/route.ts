@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 // GET - Tek legal sayfa getir (public)
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {

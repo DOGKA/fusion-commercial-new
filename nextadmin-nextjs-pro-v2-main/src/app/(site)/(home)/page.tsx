@@ -1,4 +1,5 @@
 import { prisma } from "@/libs/prismaDb";
+import { requireAdminPage } from "@/libs/require-admin-page";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -117,6 +118,8 @@ async function getDashboardStats() {
 }
 
 export default async function Home() {
+  await requireAdminPage();
+
   const stats = await getDashboardStats();
 
   return (

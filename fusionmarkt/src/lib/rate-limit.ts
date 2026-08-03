@@ -182,6 +182,18 @@ export const RATE_LIMITS = {
     limit: 8,
     windowSeconds: 3600, // 8 requests per hour
   },
+
+  // Profile update - moderate (per user)
+  profileUpdate: {
+    limit: 20,
+    windowSeconds: 60, // 20 requests per minute
+  },
+
+  // Communication preferences - moderate (per user)
+  preferences: {
+    limit: 30,
+    windowSeconds: 60, // 30 requests per minute
+  },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -18,7 +18,13 @@ interface Coupon {
   startDate: string;
   endDate: string | null;
   isActive: boolean;
-  inMysteryBox: boolean;
+  /**
+   * Kod, tüm üyelerin Hesabım → Kuponlarım sayfasında listeleniyor mu.
+   *
+   * Kullanım hakkıyla ilgisi yok: kapalıyken de kupon geçerli, onu kodu bilenler
+   * kullanır. Kaç kez kullanılabileceğini `perUserLimit` belirliyor.
+   */
+  showInMyCoupons: boolean;
   createdAt: string;
   updatedAt: string;
   _count?: {
@@ -127,6 +133,38 @@ export default function CouponsPage() {
       fetchCoupons();
     } catch (error) {
       console.error("Error toggling active:", error);
+      toast.error("Güncelleme başarısız");
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Kodu müşterilerin Kuponlarım sayfasında duyur / duyurmayı bırak.
+  // Kuponun geçerliliğini değiştirmez, yalnızca kodun görünürlüğünü.
+  const handleToggleMyCoupons = async (couponId: string, currentValue: boolean) => {
+    setUpdating(couponId);
+    try {
+      const res = await fetch(`/api/admin/coupons/${couponId}/toggle-my-coupons`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ showInMyCoupons: !currentValue }),
+      });
+
+      if (!res.ok) throw new Error("Güncelleme başarısız");
+
+      const updated = await res.json();
+      setCoupons((prev) =>
+        prev.map((c) =>
+          c.id === couponId ? { ...c, showInMyCoupons: updated.showInMyCoupons } : c
+        )
+      );
+      toast.success(
+        updated.showInMyCoupons
+          ? "Kod tüm üyelerin Kuponlarım sayfasında görünecek"
+          : "Kod artık Kuponlarım sayfasında duyurulmuyor (kupon hâlâ geçerli)"
+      );
+    } catch (error) {
+      console.error("Error toggling coupon listing:", error);
       toast.error("Güncelleme başarısız");
     } finally {
       setUpdating(null);
@@ -274,6 +312,14 @@ export default function CouponsPage() {
                       Aktif
                     </div>
                   </th>
+                  <th className="px-6 py-4 text-center text-sm font-medium text-gray-500">
+                    <div
+                      className="flex items-center justify-center gap-1"
+                      title="Açıkken kod tüm üyelerin Hesabım → Kuponlarım sayfasında listelenir. Kapalıyken kupon yine geçerlidir; sadece kodu bilenler kullanır."
+                    >
+                      Kuponlarım&apos;da Göster
+                    </div>
+                  </th>
                   <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">İşlemler</th>
                 </tr>
               </thead>
@@ -333,6 +379,22 @@ export default function CouponsPage() {
                             label="Aktif/Pasif"
                             colorClass="bg-green-500"
                           />
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col items-center gap-1">
+                          <Toggle
+                            checked={coupon.showInMyCoupons}
+                            onChange={() =>
+                              handleToggleMyCoupons(coupon.id, coupon.showInMyCoupons)
+                            }
+                            disabled={isUpdatingThis}
+                            label="Kodu Kuponlarım sayfasında duyur"
+                            colorClass="bg-blue-500"
+                          />
+                          {coupon.showInMyCoupons && !coupon.isActive && (
+                            <span className="text-xs text-amber-500">Pasif — görünmez</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">

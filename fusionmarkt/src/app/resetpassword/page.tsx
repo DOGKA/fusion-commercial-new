@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Lock, Loader2, Check, ShieldAlert } from "lucide-react";
+import { MIN_PASSWORD_LENGTH, PASSWORD_HINT } from "@/lib/password-policy";
 
 // Loading fallback
 function ResetPasswordLoading() {
@@ -232,9 +233,9 @@ function ResetPasswordContent() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={MIN_PASSWORD_LENGTH}
                   className="w-full h-12 px-4 pr-12 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 transition-all"
-                  placeholder="En az 6 karakter"
+                  placeholder={PASSWORD_HINT}
                 />
                 <button
                   type="button"
@@ -255,7 +256,7 @@ function ResetPasswordContent() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={MIN_PASSWORD_LENGTH}
                   className="w-full h-12 px-4 pr-12 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder:text-white/20 outline-none focus:border-emerald-500/40 transition-all"
                   placeholder="Yeni şifrenizi tekrar girin"
                 />

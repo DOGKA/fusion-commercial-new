@@ -26,6 +26,10 @@ import { ReviewReminderEmail } from "@/emails/templates/ReviewReminderEmail";
 import { CancellationApprovedEmail } from "@/emails/templates/CancellationApprovedEmail";
 import { CancellationRejectedEmail } from "@/emails/templates/CancellationRejectedEmail";
 import { ReturnApprovedEmail } from "@/emails/templates/ReturnApprovedEmail";
+import {
+  PartialRefundEmail,
+  type PartialRefundEmailItem,
+} from "@/emails/templates/PartialRefundEmail";
 import { ReturnRejectedEmail } from "@/emails/templates/ReturnRejectedEmail";
 import { ServiceFormApprovedEmail } from "@/emails/templates/ServiceFormApprovedEmail";
 import { ServiceFormRejectedEmail } from "@/emails/templates/ServiceFormRejectedEmail";
@@ -713,6 +717,8 @@ export async function sendReturnApprovedEmail(params: {
   total: string;
   returnAddress: string;
   returnInstructions?: string;
+  /** Fiziksel gönderi beklenmeyen talep tiplerinde kod üretilmez. */
+  returnCode?: string | null;
   adminNote?: string;
 }) {
   const html = await render(
@@ -722,12 +728,45 @@ export async function sendReturnApprovedEmail(params: {
       total: params.total,
       returnAddress: params.returnAddress,
       returnInstructions: params.returnInstructions,
+      returnCode: params.returnCode,
       adminNote: params.adminNote,
     })
   );
   return sendEmail({
     to: params.to,
     subject: `FusionMarkt - İade Talebiniz Onaylandı #${params.orderNumber}`,
+    html,
+  });
+}
+
+/**
+ * Kısmi iade tamamlandı e-postası (F2-73).
+ *
+ * Sipariş durumu e-postası burada KULLANILAMAZ: o "siparişiniz iade edildi"
+ * diyor ve kısmi iadede siparişin kalanı müşterinin elinde.
+ */
+export async function sendPartialRefundEmail(params: {
+  to: string;
+  orderNumber: string;
+  name?: string;
+  refundedTotal: string;
+  items: PartialRefundEmailItem[];
+  isCardPayment: boolean;
+  adminNote?: string;
+}) {
+  const html = await render(
+    PartialRefundEmail({
+      orderNumber: params.orderNumber,
+      name: params.name,
+      refundedTotal: params.refundedTotal,
+      items: params.items,
+      isCardPayment: params.isCardPayment,
+      adminNote: params.adminNote,
+    })
+  );
+  return sendEmail({
+    to: params.to,
+    subject: `FusionMarkt - İadeniz Tamamlandı #${params.orderNumber}`,
     html,
   });
 }

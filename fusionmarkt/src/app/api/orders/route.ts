@@ -19,6 +19,21 @@ import {
 import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
 import { generateContractsHTML } from "@/lib/contracts";
 import { isValidEmail } from "@/lib/utils";
+import { invoiceTypeFromCheckout } from "@/lib/address-validation";
+import {
+  countCouponUsage,
+  countUserCouponUsage,
+  isPerUserLimitReached,
+  isUsageLimitReached,
+  perUserLimitMessage,
+} from "@/lib/coupon-usage";
+import { getUserOrders } from "@/lib/user-orders";
+import {
+  claimedTotalIsTooLow,
+  computeOrderPricing,
+  PRICE_MISMATCH_MESSAGE,
+} from "@/lib/order-pricing";
+import { reserveOrderNumber } from "@/lib/order-number";
 
 type AddressSnapshot = {
   fullName: string;
@@ -83,14 +98,6 @@ function buildAddressSnapshot(
   };
 }
 
-// Generate order number
-function generateOrderNumber(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const random = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
-  return `FM-${year}-${random}`;
-}
-
 // POST - Create new order
 export async function POST(request: NextRequest) {
   try {
@@ -129,8 +136,6 @@ export async function POST(request: NextRequest) {
       couponCode,
       couponId: directCouponId,
       totals,
-      subtotal: directSubtotal,
-      shippingCost: directShippingCost,
       discount: directDiscount,
       total: directTotal,
       otpVerified, // OTP ile doğrulanmış e-posta
@@ -146,15 +151,54 @@ export async function POST(request: NextRequest) {
       acceptedAt: new Date().toISOString(),
     };
 
-    // Handle both frontend formats (totals object or direct values)
-    const orderSubtotal = totals?.subtotal ?? directSubtotal ?? 0;
-    const orderShipping = totals?.shipping ?? directShippingCost ?? 0;
-    const orderDiscount = totals?.discount ?? directDiscount ?? 0;
-    const orderTotal = totals?.grandTotal ?? directTotal ?? (orderSubtotal + orderShipping - orderDiscount);
+    // İstemcinin iddiası — yalnızca karşılaştırma için okunuyor, kaydedilmiyor.
+    const claimedDiscount = totals?.discount ?? directDiscount ?? 0;
+    const claimedTotal = totals?.grandTotal ?? directTotal ?? null;
 
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Sepet boş" }, { status: 400 });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TUTAR SUNUCUDA HESAPLANIYOR
+    //
+    // Buraya kadar gövdeden gelen `subtotal`/`shippingCost`/`total` olduğu gibi
+    // kaydediliyordu; isteği düzenleyen biri sepeti 1 ₺'ye sipariş edebiliyordu.
+    // Artık her kalemin fiyatı veritabanından okunuyor. İstemcinin toplamı
+    // yalnızca **daha düşükse** istek durduruluyor: bu ya kurcalama ya da sayfa
+    // açıldıktan sonra gelen zam demek, ikisinde de müşteriden gördüğünden
+    // fazlasını tahsil etmemek gerekiyor.
+    // ─────────────────────────────────────────────────────────────────────────
+    const pricingResult = await computeOrderPricing({
+      items,
+      couponId: directCouponId || null,
+      claimedDiscount,
+    });
+
+    if (!pricingResult.ok) {
+      return NextResponse.json(
+        { error: pricingResult.error, code: pricingResult.code },
+        { status: 400 }
+      );
+    }
+
+    const {
+      subtotal: orderSubtotal,
+      shipping: orderShipping,
+      discount: orderDiscount,
+      total: orderTotal,
+      lines: pricedLines,
+    } = pricingResult.pricing;
+
+    if (claimedTotal !== null && claimedTotalIsTooLow(claimedTotal, orderTotal)) {
+      console.warn(
+        `[FİYAT UYUŞMAZLIĞI] sipariş reddedildi — istemci: ${claimedTotal}, sunucu: ${orderTotal}`
+      );
+      return NextResponse.json(
+        { error: PRICE_MISMATCH_MESSAGE, code: "PRICE_MISMATCH" },
+        { status: 409 }
+      );
     }
 
     if (!billingAddress) {
@@ -228,7 +272,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate order number
-    const orderNumber = generateOrderNumber();
+    const orderNumber = await reserveOrderNumber();
     
     // Handle billing address - use existing if ID provided, else create new only if saveToAddresses is true
     let billingAddressId: string;
@@ -238,6 +282,12 @@ export async function POST(request: NextRequest) {
       billingAddressId = billingAddress.id;
     } else if (billingAddress.saveToAddresses && userId) {
       // Yeni adres ve "Kayıtlı adreslerime ekle" seçilmiş - yeni adres oluştur
+      //
+      // Kurumsal fatura bilgisi de kaydediliyor: aksi halde kullanıcı her
+      // siparişte firma adı / vergi no / vergi dairesini yeniden yazıyordu.
+      // TCKN bilinçli olarak kaydedilmiyor (bkz. Address modeli notu).
+      const savedInvoiceType = invoiceTypeFromCheckout(billingAddress.invoiceType);
+      const isCorporate = savedInvoiceType === "CORPORATE";
       const createdBillingAddress = await prisma.address.create({
         data: {
           userId,
@@ -252,6 +302,10 @@ export async function POST(request: NextRequest) {
           address: billingAddress.addressLine1,
           country: billingAddress.country || "Türkiye",
           type: "BILLING",
+          invoiceType: savedInvoiceType,
+          company: isCorporate ? billingAddress.companyName || null : null,
+          taxNumber: isCorporate ? billingAddress.taxNumber || null : null,
+          taxOffice: isCorporate ? billingAddress.taxOffice || null : null,
           isDefault: false,
         },
       });
@@ -414,13 +468,40 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // 2. Coupon usage increment (race-condition safe)
+      // 2. Kupon kontrolü
+      //
+      // SAYAÇ ARTIRILMIYOR: kupon kullanımı artık `Coupon.usageCount`
+      // kolonundan değil siparişlerden hesaplanıyor (`@repo/db`
+      // `coupon-usage.ts`). Aşağıda oluşturulan siparişin kendisi kayıt
+      // olduğu için ayrıca bir şey yazmak gerekmiyor — ve kolon başarısız
+      // ödemelerde geri alınmadığı için yanlış sayıyordu.
       const finalCouponId = directCouponId || couponId;
       if (finalCouponId && couponCode) {
-        const couponRecord = await tx.coupon.findUnique({ where: { id: finalCouponId }, select: { isActive: true, usageLimit: true, usageCount: true } });
-        if (couponRecord && couponRecord.isActive && (couponRecord.usageLimit === null || couponRecord.usageCount < couponRecord.usageLimit)) {
-          await tx.coupon.update({ where: { id: finalCouponId }, data: { usageCount: { increment: 1 } } });
-        } else {
+        const couponRecord = await tx.coupon.findUnique({ where: { id: finalCouponId }, select: { isActive: true, usageLimit: true, perUserLimit: true } });
+
+        // Kişisel kullanım hakkı — bağlayıcı kontrol burada.
+        //
+        // Diğer geçersizlik hallerinden (pasif kupon, dolan genel limit) farklı
+        // olarak sipariş REDDEDİLİYOR: aşağıdaki dal indirimi yine uygulayıp
+        // sadece uyarı basıyor. Kişisel hak için bu davranış kuralı işlevsiz
+        // bırakırdı — kullanıcı indirimi almaya devam ederdi.
+        if (couponRecord && userId) {
+          const used = await countUserCouponUsage(tx, userId, finalCouponId);
+          if (isPerUserLimitReached(couponRecord.perUserLimit, used)) {
+            throw new Error(`COUPON_PER_USER_LIMIT:${couponRecord.perUserLimit}`);
+          }
+        }
+
+        // Mevcut davranış korunuyor: kupon sipariş anında geçersizse indirim
+        // yine uygulanıyor, yalnızca log düşülüyor. Bunu değiştirmek ödeme
+        // akışının davranışını değiştirmek olur, ayrı bir iş.
+        const totalUsed = couponRecord?.usageLimit != null
+          ? await countCouponUsage(tx, finalCouponId)
+          : 0;
+        const stillValid =
+          couponRecord?.isActive &&
+          !isUsageLimitReached(couponRecord.usageLimit, totalUsed);
+        if (!stillValid) {
           console.warn(`Coupon ${couponCode} invalid at order time, proceeding without discount`);
         }
       }
@@ -446,15 +527,17 @@ export async function POST(request: NextRequest) {
           contractAccessToken,
           statusHistory: initialStatusHistory,
           items: {
+            // Kalem fiyatları da sunucudan: `pricedLines` sırası `items` ile
+            // birebir aynı (bkz. `lib/order-pricing.ts`). İstemcinin gönderdiği
+            // `item.price` hiç kullanılmıyor.
             create: items.map((item: {
               productId: string;
               variant?: { id: string };
-              price: number;
               quantity: number;
               isBundle?: boolean;
               bundleId?: string;
               bundleItemVariants?: Record<string, { variantId: string; variantName: string; variantValue: string; productName: string }>;
-            }) => {
+            }, index: number) => {
               let variantInfo = null;
               if (item.variant || item.bundleItemVariants) {
                 variantInfo = JSON.stringify({
@@ -462,12 +545,13 @@ export async function POST(request: NextRequest) {
                   bundleItemVariants: item.bundleItemVariants || null,
                 });
               }
+              const line = pricedLines[index];
               return {
                 productId: item.productId,
                 bundleId: item.isBundle ? item.bundleId : null,
-                price: item.price,
-                quantity: item.quantity,
-                subtotal: item.price * item.quantity,
+                price: line.unitPrice,
+                quantity: line.quantity,
+                subtotal: line.lineTotal,
                 variantInfo,
               };
             }),
@@ -543,6 +627,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (errorMessage.startsWith("COUPON_PER_USER_LIMIT:")) {
+      const perUserLimit = Number(errorMessage.split(":")[1]) || 1;
+      return NextResponse.json(
+        {
+          error: `${perUserLimitMessage(perUserLimit)} Kuponu kaldırıp siparişinizi tamamlayabilirsiniz.`,
+          code: "COUPON_PER_USER_LIMIT",
+        },
+        { status: 422 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Sipariş oluşturulamadı" },
       { status: 500 }
@@ -550,8 +645,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET - Get user orders with full details
-export async function GET() {
+/**
+ * GET /api/orders?status=&q=&page=&limit=&from=&to=
+ *
+ * Liste sorgusu `lib/user-orders.ts`'te — sayfanın SSR'ı da onu kullanıyor
+ * (F2-45). Bu handler yalnızca oturum + query parse + HTTP sarmalaması.
+ *
+ * ⚠️ `statusHistory` ARTIK DÖNMÜYOR. Geri eklemeyin.
+ */
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -559,84 +661,18 @@ export async function GET() {
       return NextResponse.json({ error: "Yetkilendirme gerekli" }, { status: 401 });
     }
 
-    const orders = await prisma.order.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                thumbnail: true,
-                images: true,
-              },
-            },
-          },
-        },
-        shippingAddress: true,
-        billingAddress: true,
-      },
-    });
+    const params = request.nextUrl.searchParams;
 
-    // Format orders for frontend
-    const formattedOrders = orders.map((order) => ({
-      id: order.id,
-      orderNumber: order.orderNumber,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      paymentMethod: order.paymentMethod,
-      
-      // Totals
-      subtotal: Number(order.subtotal),
-      shippingCost: Number(order.shippingCost),
-      discount: Number(order.discount),
-      tax: Number(order.tax),
-      total: Number(order.total),
-      
-      // Tracking
-      trackingNumber: order.trackingNumber,
-      carrierName: order.carrierName,
-      
-      // Invoice
-      invoiceUrl: order.invoiceUrl,
-      invoiceUploadedAt: order.invoiceUploadedAt,
-      
-      // Dates
-      createdAt: order.createdAt,
-      paidAt: order.paidAt,
-      confirmedAt: order.confirmedAt,
-      preparingAt: order.preparingAt,
-      shippedAt: order.shippedAt,
-      deliveredAt: order.deliveredAt,
-      cancelledAt: order.cancelledAt,
-      
-      // Items
-      items: order.items.map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        price: Number(item.price),
-        subtotal: Number(item.subtotal),
-        variantInfo: item.variantInfo ? JSON.parse(item.variantInfo) : null,
-        product: item.product,
-      })),
-      
-      // Addresses
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      
-      // Notes
-      customerNote: order.customerNote,
-      
-      // Status History (includes contract acceptance)
-      statusHistory: order.statusHistory,
-    }));
-
-    return NextResponse.json(formattedOrders);
-
+    return NextResponse.json(
+      await getUserOrders(session.user.id, {
+        status: params.get("status"),
+        q: params.get("q"),
+        page: parseInt(params.get("page") || "1", 10) || 1,
+        limit: parseInt(params.get("limit") || "10", 10) || 10,
+        from: params.get("from"),
+        to: params.get("to"),
+      })
+    );
   } catch (error) {
     console.error("Get orders error:", error);
     return NextResponse.json(

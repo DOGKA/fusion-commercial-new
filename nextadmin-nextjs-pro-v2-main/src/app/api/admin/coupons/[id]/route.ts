@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@repo/db";
+import { prisma, countCouponUsage } from "@repo/db";
 
 // GET - Tek kupon getir
 export async function GET(
@@ -20,7 +20,11 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(coupon);
+    // Gerçek kullanım siparişlerden hesaplanıyor; `usageCount` kolonu artık
+    // yazılmıyor (başarısız ödemeleri de sayıyordu). Bkz. @repo/db coupon-usage.
+    const usageCount = await countCouponUsage(prisma, coupon.id);
+
+    return NextResponse.json({ ...coupon, usageCount });
   } catch (error) {
     console.error("Error fetching coupon:", error);
     return NextResponse.json(
@@ -58,6 +62,7 @@ export async function PUT(
       excludedProducts,
       excludeSaleItems,
       freeShipping,
+      showInMyCoupons,
     } = body;
 
     // Kupon var mı kontrol et
@@ -108,6 +113,7 @@ export async function PUT(
         excludedProducts: excludedProducts !== undefined ? excludedProducts : undefined,
         excludeSaleItems: excludeSaleItems !== undefined ? excludeSaleItems : undefined,
         freeShipping: freeShipping !== undefined ? freeShipping : undefined,
+        showInMyCoupons: showInMyCoupons !== undefined ? showInMyCoupons : undefined,
       },
     });
 

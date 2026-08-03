@@ -230,15 +230,12 @@ const nextConfig: NextConfig = {
   // PERFORMANCE
   // ═══════════════════════════════════════════════════════════════════════════
   
-  // Barrel dosyalarını tek tek modüllere çevirir; lucide-react ve Radix
-  // paketleri aksi halde kullanılmayan export'larıyla ortak chunk'a giriyor.
+  // Barrel dosyalarını tek tek modüllere çevirir; aksi halde kullanılmayan
+  // export'lar ortak chunk'a girebilir.
   experimental: {
     optimizePackageImports: [
       "lucide-react",
       "framer-motion",
-      "@radix-ui/react-dialog",
-      "@radix-ui/react-dropdown-menu",
-      "@radix-ui/react-navigation-menu",
     ],
   },
 
@@ -254,10 +251,49 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // GÜVENLİK: Eski fatura yolunun kapatılması (F2-70)
+  // ═══════════════════════════════════════════════════════════════════════════
+  //
+  // `public/storage/invoices/` içindeki fatura PDF'leri Next tarafından kimlik
+  // doğrulaması olmadan servis ediliyordu; bu, `/api/invoices/...` ucundaki
+  // oturum + token kapısını (F2-61) tamamen boşa çıkarıyordu.
+  //
+  // `beforeFiles` bilinçli: yeniden yazım **dosya sistemi kontrolünden önce**
+  // çalışan tek aşama. Aynı yolu karşılayan bir route dosyası denendi ve işe
+  // yaramadı, çünkü `public/` içindeki dosya route eşleşmesinden önce servis
+  // ediliyor.
+  //
+  // Yeni faturalar `public/` dışına yazılıyor. Eski dosyalar diskte duruyor
+  // ama bu kanca yollarını kapatıyor; diskten silindiklerinde bu blok da
+  // kaldırılabilir.
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/storage/invoices/:file*",
+          destination: "/api/legacy-invoice-blocked",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // SEO: Redirects (www → non-www canonical)
   // ═══════════════════════════════════════════════════════════════════════════
   async redirects() {
     return [
+      // ReviewReminderEmail bu adrese link veriyor ama route hiç var olmadı —
+      // e-postadaki buton bugüne kadar 404 dönüyordu. Şablona dokunmadan onarım.
+      // 307 (permanent: false) bilinçli: 301 tarayıcıda kalıcı önbelleğe girer
+      // ve ileride bu slug'ı kullanmak istersek geri alamayız.
+      {
+        source: "/hesabim/siparislerim",
+        destination: "/hesabim/siparisler",
+        permanent: false,
+      },
+
       // AI SEO Bot tarafından eklenen redirect'ler (2026-03-17)
       {
         source: "/urunler",

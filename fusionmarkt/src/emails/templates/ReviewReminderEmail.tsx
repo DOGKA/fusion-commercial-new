@@ -151,8 +151,12 @@ export const ReviewReminderEmail = ({
                 }}>
                   {product.name}
                 </span>
+                {/* `?tab=yorumlar` — bazı e-posta istemcileri bağlantıyı kendi
+                    yönlendiricisinden geçirirken hash'i düşürüyor; sorgu
+                    parametresi ise korunuyor. Çapa da destekleniyor ama
+                    dayanıklı olan bu. */}
                 <Link
-                  href={`${siteUrl}/urun/${product.slug}#yorumlar`}
+                  href={`${siteUrl}/urun/${product.slug}?tab=yorumlar`}
                   style={{ 
                     color: theme.colors.primary, 
                     fontSize: "13px", 
@@ -192,10 +196,18 @@ export const ReviewReminderEmail = ({
           </span>
         </div>
 
-        {/* CTA Button */}
+        {/*
+          CTA Button
+
+          Hedef "Değerlendirme Bekleyenler" ekranı; e-postanın konusu bu.
+          Eskiden `/hesabim/siparislerim`'e gidiyordu: o route hiç var olmadı,
+          `next.config.ts`'teki yönlendirme sayesinde 307 ile sipariş listesine
+          düşüyordu. Yani bağlantı kırık değildi ama kullanıcıyı "değerlendir"
+          dedikten sonra sipariş listesinde yalnız bırakıyordu.
+        */}
         <p style={{ textAlign: "center", margin: "0 0 24px 0" }}>
           <a
-            href={`${siteUrl}/hesabim/siparislerim`}
+            href={`${siteUrl}/hesabim/degerlendirmelerim/bekleyenler`}
             style={{
               display: "inline-block",
               backgroundColor: theme.colors.primary,
@@ -208,7 +220,7 @@ export const ReviewReminderEmail = ({
               fontFamily: theme.fonts.sans,
             }}
           >
-            Siparişlerimi Görüntüle
+            Değerlendirme Bekleyenleri Gör
           </a>
         </p>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Star, Heart, BadgeCheck, Truck, Play } from "lucide-react";
@@ -249,7 +249,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
               }}
               onMouseEnter={() => setFavoriteHover(true)}
               onMouseLeave={() => setFavoriteHover(false)}
-              title={isProductFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+              title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
               style={{
                 width: 36,
                 height: 36,

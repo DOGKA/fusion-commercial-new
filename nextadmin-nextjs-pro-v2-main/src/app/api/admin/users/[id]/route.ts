@@ -17,6 +17,20 @@ interface RouteParams {
 // GET - Kullanıcı detayı
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    // Kardeş PATCH/DELETE kendi kontrolünü yapıyor, GET yapmıyordu. Uç bugün
+    // hiçbir yerden çağrılmıyor ama tek koruması middleware'di ve 31 Tem'de
+    // middleware'in hiç yüklenmediği görüldü (F2-71). Okuma için ADMIN yeterli;
+    // rol değiştirme ve silme SUPER_ADMIN istemeye devam ediyor.
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as { role?: string } | undefined)?.role;
+
+    if (!session?.user || (role !== "ADMIN" && role !== "SUPER_ADMIN")) {
+      return NextResponse.json(
+        { error: "Bu işlem için yetkiniz yok" },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
 
     const user = await prisma.user.findUnique({

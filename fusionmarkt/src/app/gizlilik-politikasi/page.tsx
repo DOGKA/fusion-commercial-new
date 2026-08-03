@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unescaped-entities, @typescript-eslint/no-unused-vars */
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { motion } from "framer-motion";
@@ -9,7 +9,6 @@ import {
   Globe, 
   FileCheck, 
   Mail, 
-  Phone, 
   MapPin,
   Cookie,
   Settings,
@@ -64,7 +63,7 @@ export default function GizlilikPolitikasiPage() {
                 ASDTC Mühendislik Ticaret Ltd. Şti veya FusionMarkt LLC (www.fusionmarkt.com), Türkiye'de havacılık ve mühendislik teknolojisinin gelişmesinde, kritik parçaların ve elektrik ara bağlantı çözümlerinin, ağ çözümünün, elektronik bileşen çözümünün tedariki ve üretiminde en son yenilikleri destekleyen kaliteli hizmetler sunma konusunda büyük bir kapasiteye sahiptir.
               </p>
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                Mühendislik parçalarının yanı sıra kozmetik, gıda, giyim ve değerli taşlar üzerine kurulmuş bir online alışveriş platformudur.
+                Mühendislik parçalarının yanı sıra son kullanıcıya yönelik elektronik ürünler, batarya ve güç grupları, LiFePO4 piller, soğutucu sistemler ve taşınabilir buzdolapları üzerine kurulmuş bir online alışveriş platformudur.
               </p>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
                 Perakende ve e-ticaret işinin doğası gereği, FusionMarkt'un başarılı bir şekilde faaliyet gösterebilmesi için genellikle tüketicilerimizden, kurumsal satış müşterilerimizden, bağlı kuruluşlarımızdan ve satıcılarımızdan kişisel bilgiler alması gerekir. FusionMarkt, özel, son derece gizli ve kişisel bilgilerin gizliliğini koruma ihtiyacının farkındadır.

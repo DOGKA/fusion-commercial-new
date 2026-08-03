@@ -21,6 +21,8 @@ interface ReturnApprovedEmailProps {
   total: string;
   returnAddress: string;
   returnInstructions?: string;
+  /** Fiziksel gönderi beklenmeyen talep tiplerinde kod üretilmez. */
+  returnCode?: string | null;
   adminNote?: string;
 }
 
@@ -30,19 +32,84 @@ export const ReturnApprovedEmail = ({
   total,
   returnAddress,
   returnInstructions,
+  returnCode,
   adminNote,
 }: ReturnApprovedEmailProps) => {
   return (
-    <Layout preview={`İade Onaylandı - ${orderNumber}`}>
+    <Layout preview={`İade talebiniz onaylandı - ${orderNumber}`}>
       <Greeting name={name} />
 
-      <StatusBadge label="İade Onaylandı" status="success" />
+      <StatusBadge label="İade Talebi Onaylandı" status="success" />
 
       <Paragraph>
         <strong>#{orderNumber}</strong> numaralı siparişinizin iade talebi onaylandı.
+        Ürünü aşağıdaki adrese gönderebilirsiniz. Ödemeniz, ürün bize ulaşıp
+        incelendikten sonra iade edilecek ve size ayrıca bilgi vereceğiz.
       </Paragraph>
 
-      <InfoCard label="İade Tutarı" value={total} />
+      <InfoCard label="İade Edilecek Tutar" value={total} />
+
+      {/* İade Kodu - kargoyu depoda eşleştirmek için zorunlu */}
+      {returnCode && (
+        <table
+          cellPadding="0"
+          cellSpacing="0"
+          border={0}
+          width="100%"
+          style={{
+            backgroundColor: "#ecfdf5",
+            borderRadius: "8px",
+            border: "2px solid #10b981",
+            marginBottom: "24px",
+          }}
+        >
+          <tbody>
+            <tr>
+              <td style={{ padding: "20px", textAlign: "center" }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "12px",
+                    color: "#047857",
+                    marginBottom: "8px",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  İade Kodunuz
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "26px",
+                    color: "#065f46",
+                    fontWeight: 700,
+                    letterSpacing: "2px",
+                    fontFamily: "Courier New, Courier, monospace",
+                  }}
+                >
+                  {returnCode}
+                </p>
+                <p
+                  style={{
+                    margin: "10px 0 0 0",
+                    fontSize: "13px",
+                    color: "#047857",
+                    lineHeight: "1.6",
+                    fontFamily: theme.fonts.sans,
+                  }}
+                >
+                  Bu kodu kargo paketinin üzerine yazın ve kutunun içine bir not
+                  olarak ekleyin. Kodu taşımayan gönderiler depomuzda
+                  eşleştirilemediği için işleme alınamaz.
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
 
       {/* Return Address - Table based */}
       <table
@@ -142,6 +209,15 @@ export const ReturnApprovedEmail = ({
                       </span>
                     </td>
                   </tr>
+                  {returnCode && (
+                    <tr>
+                      <td style={{ paddingBottom: "6px" }}>
+                        <span style={{ color: "#78350f", fontSize: "14px", fontFamily: theme.fonts.sans }}>
+                          • İade kodunu ({returnCode}) paketin üzerine yazın
+                        </span>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
               {returnInstructions && (

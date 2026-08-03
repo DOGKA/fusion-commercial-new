@@ -20,6 +20,7 @@
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^6.19.1",
     "@repo/db": "file:../packages/db",
+    "@repo/storage": "file:../packages/storage",
     "@tanstack/react-table": "^8.21.2",
     "apexcharts": "3.45.2",
     "axios": "^1.12.0",

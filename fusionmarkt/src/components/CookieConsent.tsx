@@ -101,8 +101,14 @@ export default function CookieConsent() {
   useEffect(() => {
     if (bannerConfig && !bannerConfig.enabled) return;
     if (isLoaded && !hasConsent) {
-      const timer = setTimeout(() => setShowBanner(true), 1000);
-      return () => clearTimeout(timer);
+      try {
+        const stored = window.localStorage.getItem("fusionmarkt-cookie-consent");
+        if (stored && JSON.parse(stored)?.consentVersion === "1.0") return;
+      } catch {
+        // Invalid or unavailable storage should fall through to the banner.
+      }
+      const timer = window.setTimeout(() => setShowBanner(true), 0);
+      return () => window.clearTimeout(timer);
     }
   }, [isLoaded, hasConsent, bannerConfig]);
 
@@ -162,7 +168,7 @@ export default function CookieConsent() {
           COOKIE MODAL
       ═══════════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
-        {showBanner && (
+        {showBanner && (!hasConsent || showSettings) && (
           <>
             {/* Backdrop - sadece koyu overlay, blur yok */}
             <motion.div
@@ -175,7 +181,7 @@ export default function CookieConsent() {
 
             {/* Modal */}
             <motion.div
-              initial={{ x: 100, y: 100, opacity: 0, scale: 0.8 }}
+              initial={false}
               animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
               exit={{ x: 100, y: 100, opacity: 0, scale: 0.8 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}

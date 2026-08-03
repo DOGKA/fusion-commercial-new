@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { calculateShippingCost } from "@/lib/order-pricing";
 
 // ═══════════════════════════════════════════════════════════════
 // SHIPPING CALCULATION API
 // Sepet bazlı kargo seçenekleri hesaplama
 // ═══════════════════════════════════════════════════════════════
+//
+// Bedelin kendisi `lib/order-pricing.ts`'te hesaplanıyor. Sebebi: sipariş
+// oluşturulurken kargo bedeli sunucuda yeniden hesaplanıyor (istemciden gelen
+// tutara güvenilmiyor) ve iki hesabın birbirinden sapması, müşteriye gösterilen
+// bedelle tahsil edilenin farklı olması demek olurdu. Bu uç yalnızca sonucu
+// arayüzün beklediği "seçenek listesi" şekline çeviriyor.
 
-// Varsayılan ayarlar (fallback)
+// Varsayılan ayar (yalnızca sepet boşken dönen eşik için)
 const DEFAULT_FREE_SHIPPING_LIMIT = 2000;
-const DEFAULT_SHIPPING_COST = 100;
-const HEAVY_CLASS_SHIPPING_COST = 1000;
 
 interface CartItem {
   productId: string;
@@ -20,7 +25,14 @@ interface CartItem {
 interface ShippingOption {
   id: string;
   name: string;
-  description: string;
+  /**
+   * Opsiyonel: ödeme sayfası bu alanı **çizmiyor** (kendi yerel tipinde bile
+   * yok). Yalnızca ağır sınıf seçeneğinde, neden farklı bir bedel çıktığını
+   * açıklamak için doldruluyor. Standart/ücretsiz kargoda müşteriye sunulan bir
+   * seçim olmadığı için yazılacak bir şey de yok — kargo firmasını biz
+   * seçiyoruz, teslim süresi beyanı ise `/gonderim-yerleri` sayfasında.
+   */
+  description?: string;
   cost: number;
   isFree: boolean;
   estimatedDays: string;
@@ -75,80 +87,14 @@ export async function POST(req: Request) {
       : 0;
     const cartTotal = providedCartTotal || itemsTotal;
 
-    // Ürünlerin kargo bilgilerini al (items varsa)
     const productIds = hasItems ? items.map(item => item.productId) : [];
-    const products = productIds.length > 0 
-      ? await prisma.product.findMany({
-          where: { id: { in: productIds } },
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            freeShipping: true,
-            shippingClass: true,
-            weight: true,
-          },
-        })
-      : [];
 
-    // Kargo ayarlarını veritabanından al
-    const shippingSettings = await prisma.shippingSettings.findUnique({
-      where: { id: "default" },
-    });
-    
-    // Kargo sınıflarını veritabanından al (cost alanı dahil)
-    const shippingClasses = await prisma.$queryRaw<Array<{slug: string; cost: number}>>`
-      SELECT slug, cost FROM shipping_classes WHERE slug = 'standart-kargo' LIMIT 1
-    `;
-    const standartKargo = shippingClasses[0];
-    
-    // Değerleri ayarla (DB'den veya varsayılan)
-    const freeShippingLimit = shippingSettings?.freeShippingLimit 
-      ? Number(shippingSettings.freeShippingLimit) 
-      : DEFAULT_FREE_SHIPPING_LIMIT;
-    const standardShippingCost = standartKargo?.cost 
-      ? Number(standartKargo.cost) 
-      : DEFAULT_SHIPPING_COST;
-
-    // ═══════════════════════════════════════════════════════════════
-    // KARGO HESAPLAMA MANTIĞI
-    // ═══════════════════════════════════════════════════════════════
-
-    // 1. Ürünlerin kargo sınıflarını analiz et
-    const hasLegacyFreeShipping = products.some(p => p.freeShipping === true);
-    
-    // Ağır sınıf kontrolü - string field ile
-    const hasHeavyClass = products.some(p => 
-      p.shippingClass === "agir-sinif-kargo" || 
-      p.shippingClass?.includes("agir") ||
-      (p.weight && Number(p.weight) >= 20) // 20kg ve üzeri ağır sınıf
-    );
-    
-    // Ücretsiz kargo sınıfı kontrolü
-    const hasFreeShippingClass = products.some(p => 
-      p.shippingClass === "ucretsiz-kargo"
-    );
-
-    // 2. Ücretsiz kargo koşullarını kontrol et
-    let hasFreeShipping = false;
-    
-    // a) Ürünün freeShipping flag'i true ise
-    if (hasLegacyFreeShipping) {
-      hasFreeShipping = true;
-    }
-    
-    // b) Ücretsiz kargo sınıfında ürün varsa
-    if (hasFreeShippingClass) {
-      hasFreeShipping = true;
-    }
-    
-    // c) Sepet toplamı ücretsiz kargo limitini geçtiyse
-    if (cartTotal >= freeShippingLimit) {
-      hasFreeShipping = true;
-    }
-
-    // NOT: Ağır sınıf ürünler ücretsiz kargoya DAHİL DEĞİL!
-    // Ağır sınıf kendi kargo bedeli ile gider
+    const {
+      cost: shippingCost,
+      freeShippingLimit,
+      hasHeavyClass,
+      hasFreeShipping,
+    } = await calculateShippingCost(productIds, cartTotal);
 
     // Ücretsiz kargoya ne kadar kaldı
     const amountToFreeShipping = hasFreeShipping ? 0 : Math.max(0, freeShippingLimit - cartTotal);
@@ -165,7 +111,7 @@ export async function POST(req: Request) {
         id: "heavy-shipping",
         name: "Ağır Sınıf Kargo",
         description: "Büyük/ağır ürünler için özel teslimat",
-        cost: HEAVY_CLASS_SHIPPING_COST,
+        cost: shippingCost,
         isFree: false,
         estimatedDays: "3-5 iş günü",
         type: "FLAT_RATE",
@@ -179,7 +125,6 @@ export async function POST(req: Request) {
         options.push({
           id: "free-shipping",
           name: "Ücretsiz Kargo",
-          description: "", // TODO: Kullanıcı belirleyecek
           cost: 0,
           isFree: true,
           estimatedDays: "",
@@ -190,8 +135,7 @@ export async function POST(req: Request) {
         options.push({
           id: "standard-shipping",
           name: "Standart Kargo",
-          description: "", // TODO: Kullanıcı belirleyecek
-          cost: standardShippingCost,
+          cost: shippingCost,
           isFree: false,
           estimatedDays: "",
           type: "FLAT_RATE",

@@ -8,19 +8,14 @@ import type {
   CheckoutState,
   CheckoutAction,
   CheckoutStep,
-  AuthState,
   AddressFormData,
   ShippingMethod,
   PaymentMethod,
   InvoiceType,
-  AppliedCoupon,
   CardData,
   ContractsAccepted,
   CheckoutItem,
-  CheckoutTotals,
   ValidationResult,
-  FREE_SHIPPING_THRESHOLD,
-  SHIPPING_OPTIONS,
 } from "@/types/checkout";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -310,8 +305,8 @@ interface CheckoutProviderProps {
 
 export function CheckoutProvider({ children }: CheckoutProviderProps) {
   const [state, dispatch] = useReducer(checkoutReducer, initialState);
-  const { isAuthenticated, user } = useAuth();
-  const { items: cartItems, subtotal: cartSubtotal, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { items: cartItems, clearCart } = useCart();
 
   // Sync auth state
   useEffect(() => {
@@ -585,9 +580,12 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
         body: JSON.stringify({
           items: state.items,
           billingAddress: state.billingAddress,
-          shippingAddress: state.useDifferentShippingAddress 
-            ? state.shippingAddress 
-            : state.billingAddress,
+          // Aynı adres kullanılıyorsa alan boş gider: sunucu boş teslimat
+          // adresini fatura adresine eşitliyor. Buraya fatura adresinin kopyası
+          // konursa sunucu onu ayrı bir adres sanıp ikinci bir kayıt açıyor.
+          shippingAddress: state.useDifferentShippingAddress
+            ? state.shippingAddress
+            : undefined,
           invoiceType: state.invoiceType,
           shippingMethod: state.shippingMethod,
           paymentMethod: state.paymentMethod,

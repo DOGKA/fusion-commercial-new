@@ -73,6 +73,25 @@ export default function ServisFormuPage() {
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   // Load reCAPTCHA script
+  /**
+   * Sipariş numarasını URL'den ön-doldurur (Hesabım → talep panelindeki
+   * "Ürünümde arıza var" satırı `?siparis=<numara>` ile buraya geliyor).
+   *
+   * Neden `useSearchParams` değil: bu sayfa statik üretiliyor ve o hook
+   * bileşeni `Suspense` sınırına zorluyor — denendi, formun tamamı önceden
+   * üretilen HTML'den düşüyor ve sayfa hidrasyona kadar boş kalıyordu.
+   * Hidrasyondan sonra okumak statik HTML'i olduğu gibi bırakıyor.
+   */
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search)
+      .get("siparis")
+      ?.trim()
+      .slice(0, 32);
+    if (!fromUrl) return;
+    // Kullanıcı bu arada elle yazdıysa üzerine yazma.
+    setFormData((prev) => (prev.orderNumber ? prev : { ...prev, orderNumber: fromUrl }));
+  }, []);
+
   useEffect(() => {
     if (!RECAPTCHA_SITE_KEY) return;
     const script = document.createElement("script");

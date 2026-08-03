@@ -58,6 +58,20 @@ S3_ENDPOINT="https://<hesap-id>.r2.cloudflarestorage.com"
 S3_PUBLIC_BASE_URL="https://cdn.fusionmarkt.com"
 
 # =====================================================
+# FATURA DEPOSU (F2-70)
+# =====================================================
+# Fatura PDF'lerinin tutulduğu klasör. **Web kökünün / `public/` klasörünün
+# dışında olmalı** — Next.js `public/` altındaki her şeyi kimlik doğrulaması
+# olmadan servis eder ve faturalar müşteri adı, adresi, vergi bilgisi içerir.
+# Faturaya erişimin tek meşru yolu /api/invoices/<dosya>?t=<token> ucudur.
+#
+# Storefront ve admin **aynı klasörü** göstermek zorunda: admin yazıyor,
+# storefront okuyor. İki uygulamanın .env dosyasına da aynı mutlak yolu yazın.
+# Boş bırakılırsa varsayılan olarak monorepo kökünde `storage/invoices`
+# kullanılır (ör. /var/www/fusionmarkt/storage/invoices).
+INVOICE_STORAGE_DIR="/var/www/fusionmarkt/storage/invoices"
+
+# =====================================================
 # SITE URL (Callback için gerekli)
 # =====================================================
 NEXT_PUBLIC_SITE_URL="https://fusionmarkt.com"

@@ -1,16 +1,50 @@
 /**
- * Hesabım Layout - SEO Metadata
+ * Hesabım Layout — SEO metadata + ortak kabuk
+ *
+ * Kabuk BURADA, page.tsx'lerin içinde değil. Böylece alt sayfalar arasında
+ * geçişte sidebar remount olmaz; açılır grubun durumu ve scroll pozisyonu
+ * korunur (plan 01 §2.1).
+ *
+ * Oturum SUNUCUDA çözülüyor (F2-45). Eskiden kabuk `useSession()` yanıtlayana
+ * kadar iskelet basıyordu; oturumu olan kullanıcı her hesap sayfası açılışında
+ * önce iskelet görüyordu. Artık kim olduğu ilk HTML'de belli.
  */
 
+import { Suspense } from "react";
 import { staticPageMetadata } from "@/lib/seo";
+import { getServerAccountUser } from "./_lib/server-user";
+import AccountShellGate from "./_components/AccountShellGate";
+import { AccountSkeleton } from "./_components/shared";
 
 export const metadata = staticPageMetadata.account;
 
-export default function HesabimLayout({
+/**
+ * Oturum çerezi okunduğu için bu alt ağaç zaten dinamik; açıkça yazmak
+ * ileride birinin yanlışlıkla önbelleğe almasını engelliyor.
+ *
+ * Kapsam YALNIZCA `/hesabim/*`. Aynı satır kök layout'a konsaydı mağazanın
+ * tamamı dinamikleşir, ana sayfanın ve ürün sayfalarının ISR'ı ölürdü.
+ */
+export const dynamic = "force-dynamic";
+
+export default async function HesabimLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
-}
+  const serverUser = await getServerAccountUser();
 
+  return (
+    <Suspense
+      fallback={
+        <div className="account-page">
+          <div className="max-w-[1280px] mx-auto px-8">
+            <AccountSkeleton variant="shell" />
+          </div>
+        </div>
+      }
+    >
+      <AccountShellGate serverUser={serverUser}>{children}</AccountShellGate>
+    </Suspense>
+  );
+}

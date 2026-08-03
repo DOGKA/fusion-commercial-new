@@ -4,6 +4,10 @@ import { X, FileText, Check, Printer, Info } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import type { AddressFormData } from "@/types/checkout";
+import {
+  DISTANCE_CONTRACT_SELLER,
+  DISTANCE_CONTRACT_TEXT,
+} from "@/lib/distance-contract-content";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INTERFACES
@@ -242,23 +246,23 @@ function DistanceSalesContract({
       <div style={styles.infoBox(isMobile)}>
         <div style={styles.infoRow(isMobile)}>
           <span style={styles.infoLabel(isMobile)}>Ticaret Unvanı:</span>
-          <span style={styles.infoValue}>ASDTC MÜHENDİSLİK TİCARET A.Ş. / FUSIONMARKT LLC</span>
+          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.title}</span>
         </div>
         <div style={styles.infoRow(isMobile)}>
           <span style={styles.infoLabel(isMobile)}>Genel Merkez:</span>
-          <span style={styles.infoValue}>Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE</span>
+          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.address}</span>
         </div>
         <div style={styles.infoRow(isMobile)}>
           <span style={styles.infoLabel(isMobile)}>İade Adresi:</span>
-          <span style={styles.infoValue}>Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE</span>
+          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.returnAddress}</span>
         </div>
         <div style={styles.infoRow(isMobile)}>
           <span style={styles.infoLabel(isMobile)}>Telefon:</span>
-          <span style={styles.infoValue}>+90 850 840 6160</span>
+          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.phone}</span>
         </div>
         <div style={styles.infoRow(isMobile)}>
           <span style={styles.infoLabel(isMobile)}>E-posta:</span>
-          <span style={styles.infoValue}>sales@fusionmarkt.com</span>
+          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.email}</span>
         </div>
       </div>
 
@@ -291,13 +295,10 @@ function DistanceSalesContract({
       {/* KONU */}
       <div style={styles.sectionTitle(isMobile)}>Konu</div>
       <p style={styles.paragraph(isMobile)}>
-        İşbu Mesafeli Satış Sözleşmesi&apos;nin konusu, SATICI&apos;ya ait www.fusionmarkt.com ve işbu sözleşme kapsamında 
-        ALICI tarafından online olarak verilen siparişe karşılık, satış bedelinin ALICI tarafından ödenmesi, 
-        ürünlerin teslimi ve tarafların 27.11.2014 tarihli Resmi Gazete&apos;de yayınlanan Mesafeli Satışlar Yönetmeliği 
-        ve 6502 sayılı Tüketicinin Korunması Hakkında Kanun kapsamındaki diğer hak ve yükümlülükleri kapsamaktadır.
+        {DISTANCE_CONTRACT_TEXT.subject}
       </p>
       <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: styles.textDimmed }}>
-        Not: Montaj hizmeti işbu Sözleşme&apos;nin konu ve kapsamı dışında tutulmuş olup, talep edilmesi halinde ayrı bir sözleşme ile düzenlenecektir.
+        {DISTANCE_CONTRACT_TEXT.montageNote}
       </p>
 
       <div style={styles.divider} />
@@ -361,18 +362,18 @@ function DistanceSalesContract({
       {/* ÖDEME */}
       <div style={styles.sectionTitle(isMobile)}>Ödeme</div>
       <p style={styles.paragraph(isMobile)}>
-        Minimum Sipariş: İnternet mağazasında minimum sipariş tutarı 150 TL&apos;dir.
+        {DISTANCE_CONTRACT_TEXT.minimumOrder}
       </p>
       <p style={styles.paragraph(isMobile)}>
-        ALICI, işbu Sözleşme kapsamında sipariş verdiği ürün(ler) için KDV dahil satış bedelini ve kargo ücretlerini 
-        Sözleşme&apos;de belirtilen ödeme koşullarına uygun olarak ödeyecektir.
+        {DISTANCE_CONTRACT_TEXT.payment}
       </p>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}>Kabul Edilen Kartlar: Visa, Amex, MasterCard kredi kartları</li>
-        <li style={styles.listItem}>Ön Provizyon: Siparişler banka onayı sonrası işleme alınır</li>
+        {DISTANCE_CONTRACT_TEXT.paymentNotes.map((note) => (
+          <li key={note} style={styles.listItem}>{note}</li>
+        ))}
       </ul>
       <p style={{ ...styles.paragraph(isMobile), fontSize: isMobile ? "10px" : "12px", color: styles.textDimmed }}>
-        Promosyonlar ve indirimler, ürünün sipariş tarihinde geçerli ise uygulanacaktır. SATICI, bankaların kesintileri veya ücretlerinden sorumlu değildir.
+        {DISTANCE_CONTRACT_TEXT.promotions}
       </p>
 
       <div style={styles.divider} />
@@ -380,15 +381,15 @@ function DistanceSalesContract({
       {/* TESLİMAT */}
       <div style={styles.sectionTitle(isMobile)}>Teslimat</div>
       <p style={styles.paragraph(isMobile)}>
-        ALICI tarafından internet üzerinden siparişi verilen ürün/ürünler, verilen 30 (otuz) günlük yasal süre içerisinde 
-        SATICI&apos;nın anlaşmalı kargo şirketi tarafından ALICI&apos;ya veya ALICI&apos;nın belirttiği adreste bulunan kişilere teslim edilir.
+        {DISTANCE_CONTRACT_TEXT.delivery}
       </p>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}><strong>Aynı Gün Teslimat:</strong> Ürünler siparişin verildiği gün teslim edilir.</li>
-        <li style={styles.listItem}><strong>Randevulu Teslimat:</strong> ALICI&apos;nın belirlediği tarihte teslim edilir.</li>
+        {DISTANCE_CONTRACT_TEXT.deliveryOptions.map((option) => (
+          <li key={option} style={styles.listItem}>{option}</li>
+        ))}
       </ul>
       <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: styles.textDimmed }}>
-        Not: ALICI&apos;nın teslimat sırasında adreste bulunmaması halinde dahi SATICI edimini eksiksiz olarak yerine getirmiş sayılacaktır.
+        {DISTANCE_CONTRACT_TEXT.deliveryNote}
       </p>
 
       <div style={styles.divider} />
@@ -396,25 +397,24 @@ function DistanceSalesContract({
       {/* CAYMA HAKKI */}
       <div style={styles.sectionTitle(isMobile)}>Cayma Hakkı</div>
       <p style={styles.paragraph(isMobile)}>
-        ALICI, Sözleşme kapsamındaki ürünlerin kendisine veya gösterdiği adresteki kişiye tesliminden itibaren 
-        <strong style={{ color: "#10b981" }}> 14 (on dört) gün</strong> içinde cayma hakkını kullanabilir.
+        {DISTANCE_CONTRACT_TEXT.withdrawal}
       </p>
       
       <div style={styles.subTitle(isMobile)}>Cayma Hakkı Şartları:</div>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}>Ürünler tekrar satılabilir durumda, hasarsız ve orijinal ambalajında olmalıdır</li>
-        <li style={styles.listItem}>SATICI&apos;ya yazılı veya müşteri hizmetleri aracılığıyla bildirimde bulunulmalıdır</li>
-        <li style={styles.listItem}>İade masrafları SATICI tarafından karşılanacaktır</li>
+        {DISTANCE_CONTRACT_TEXT.withdrawalConditions.map((condition) => (
+          <li key={condition} style={styles.listItem}>{condition}</li>
+        ))}
       </ul>
 
       <div style={styles.subTitle(isMobile)}>Cayma Hakkı Kapsamı Dışındaki Ürünler:</div>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}>Fiyatı finansal piyasalardaki dalgalanmalara bağlı olarak değişen ürünler</li>
-        <li style={styles.listItem}>Sağlık ve hijyen nedenleriyle iade edilemeyen ürünler</li>
-        <li style={styles.listItem}>Kişisel ihtiyaçlara göre hazırlanan ürünler</li>
+        {DISTANCE_CONTRACT_TEXT.withdrawalExceptions.map((exception) => (
+          <li key={exception} style={styles.listItem}>{exception}</li>
+        ))}
       </ul>
       <p style={styles.paragraph(isMobile)}>
-        <strong>İade Süresi:</strong> Cayma hakkının kullanılması halinde, ürünlerin iadesi sonrası 14 gün içinde ödenen tutar ALICI&apos;ya iade edilir.
+        {DISTANCE_CONTRACT_TEXT.refund}
       </p>
 
       <div style={styles.divider} />
@@ -422,10 +422,9 @@ function DistanceSalesContract({
       {/* GARANTİ */}
       <div style={styles.sectionTitle(isMobile)}>Garanti ve Sorumluluk</div>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}><strong>2 Yıl Garanti</strong> süresi, ürünün teslimat tarihinden itibaren geçerlidir.</li>
-        <li style={styles.listItem}><strong>Değişim Durumu:</strong> Garanti kapsamında değiştirilen ürünler için süre, ilk ürünün kalan garanti süresi ile sınırlıdır.</li>
-        <li style={styles.listItem}>SATICI, garanti koşullarına uymayan veya yetkisiz müdahaleye uğramış ürünler için sorumluluk kabul etmez.</li>
-        <li style={styles.listItem}>ALICI, ürünlerin kullanım talimatlarına uygun olarak kullanılmaması durumunda doğacak zararlardan kendisinin sorumlu olduğunu kabul eder.</li>
+        {DISTANCE_CONTRACT_TEXT.warranty.map((item) => (
+          <li key={item} style={styles.listItem}>{item}</li>
+        ))}
       </ul>
 
       <div style={styles.divider} />
@@ -433,14 +432,13 @@ function DistanceSalesContract({
       {/* KİŞİSEL VERİLER */}
       <div style={styles.sectionTitle(isMobile)}>Kişisel Verilerin Korunması</div>
       <p style={styles.paragraph(isMobile)}>
-        SATICI, ALICI&apos;ya ait kişisel bilgileri ilgili mevzuat kapsamında işleyebilir ve saklayabilir. 
-        ALICI, kişisel verilerinin işlenmesi ile ilgili her türlü talebi SATICI&apos;ya iletebilir.
+        {DISTANCE_CONTRACT_TEXT.privacy}
       </p>
       <div style={styles.subTitle(isMobile)}>KVKK Kapsamında Haklarınız:</div>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
-        <li style={styles.listItem}>Eksik veya hatalı işlenmişse düzeltilmesini isteme</li>
-        <li style={styles.listItem}>İşlenme amacının ortadan kalkması durumunda silinmesini talep etme</li>
+        {DISTANCE_CONTRACT_TEXT.privacyRights.map((right) => (
+          <li key={right} style={styles.listItem}>{right}</li>
+        ))}
       </ul>
 
       <div style={styles.divider} />
@@ -448,14 +446,15 @@ function DistanceSalesContract({
       {/* UYUŞMAZLIK */}
       <div style={styles.sectionTitle(isMobile)}>Uyuşmazlıkların Çözümü</div>
       <p style={styles.paragraph(isMobile)}>
-        İşbu Sözleşme&apos;nin uygulanmasından ve yorumlanmasından doğabilecek her türlü uyuşmazlıkların çözümünde Türk Hukuku uygulanacaktır.
+        {DISTANCE_CONTRACT_TEXT.disputes}
       </p>
       <ul style={styles.list(isMobile)}>
-        <li style={styles.listItem}><strong>Tüketici Hakem Heyetleri:</strong> 6502 sayılı Kanun kapsamında başvuru yapılabilir.</li>
-        <li style={styles.listItem}><strong>Tüketici Mahkemeleri:</strong> Hakem heyeti sınırlarını aşan uyuşmazlıklar için yetkilidir.</li>
+        {DISTANCE_CONTRACT_TEXT.disputeOptions.map((option) => (
+          <li key={option} style={styles.listItem}>{option}</li>
+        ))}
       </ul>
       <p style={{ ...styles.paragraph(isMobile), fontStyle: "italic", color: styles.textDimmed }}>
-        Dil: ALICI ve SATICI arasında farklı dillerde yapılan sözleşmelerde çelişki olması halinde Türkçe versiyon geçerli olacaktır.
+        {DISTANCE_CONTRACT_TEXT.language}
       </p>
 
       <div style={styles.divider} />
@@ -463,11 +462,10 @@ function DistanceSalesContract({
       {/* MÜCBİR SEBEP */}
       <div style={styles.sectionTitle(isMobile)}>Mücbir Sebep</div>
       <p style={styles.paragraph(isMobile)}>
-        Mücbir sebep halleri (doğal afetler, savaş, ayaklanma, grev, salgın hastalıklar vb.) tarafların kontrolü dışında 
-        gelişen ve tarafların yükümlülüklerini yerine getirmesini engelleyen durumlardır.
+        {DISTANCE_CONTRACT_TEXT.forceMajeure}
       </p>
       <p style={styles.paragraph(isMobile)}>
-        Mücbir sebep halinde SATICI, ALICI&apos;ya durumu bildirir ve teslimat süresi ertelenebilir veya sipariş iptal edilerek iade yapılabilir.
+        {DISTANCE_CONTRACT_TEXT.forceMajeureResult}
       </p>
 
       <div style={styles.divider} />
@@ -475,7 +473,7 @@ function DistanceSalesContract({
       {/* ONAY */}
       <div style={styles.sectionTitle(isMobile)}>Sözleşme Tarihi ve Onayı</div>
       <p style={styles.paragraph(isMobile)}>
-        Bu sözleşme, ALICI tarafından elektronik ortamda onaylandığı tarihte yürürlüğe girer.
+        {DISTANCE_CONTRACT_TEXT.acceptance}
       </p>
       <div style={{ 
         ...styles.infoBox(isMobile), 
@@ -486,7 +484,7 @@ function DistanceSalesContract({
           <div>
             <div style={{ fontSize: isMobile ? "10px" : "11px", color: styles.textMuted, marginBottom: "4px" }}>SATICI</div>
             <div style={{ fontSize: isMobile ? "12px" : "14px", fontWeight: "600", color: "#10b981" }}>
-              ASDTC MÜHENDİSLİK TİCARET A.Ş. / FUSIONMARKT LLC
+              {DISTANCE_CONTRACT_SELLER.title}
             </div>
           </div>
           <div>

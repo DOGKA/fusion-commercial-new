@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@repo/db";
+import { authOptions } from "@/lib/auth";
+import {
+  countCouponUsage,
+  countUserCouponUsage,
+  isPerUserLimitReached,
+  isUsageLimitReached,
+  perUserLimitMessage,
+  USAGE_LIMIT_MESSAGE,
+} from "@/lib/coupon-usage";
 
 interface CartItemInput {
   productId: string;
@@ -233,8 +243,27 @@ export async function POST(request: NextRequest) {
         if (coupon.endDate && new Date(coupon.endDate) < now) {
           errors.push({ type: "COUPON_INVALID", message: "Kuponun süresi dolmuş" });
         }
-        if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
-          errors.push({ type: "COUPON_INVALID", message: "Kupon kullanım limitine ulaşmış" });
+        // Sayılar `Coupon.usageCount` kolonundan değil siparişlerden geliyor;
+        // iptal edilen ve ödemesi başarısız siparişler kuponu tüketmiyor.
+        if (coupon.usageLimit !== null) {
+          const totalUsed = await countCouponUsage(prisma, coupon.id);
+          if (isUsageLimitReached(coupon.usageLimit, totalUsed)) {
+            errors.push({ type: "COUPON_INVALID", message: USAGE_LIMIT_MESSAGE });
+          }
+        }
+
+        // Kişisel hak. Buraya da gerekiyordu: bu uç ödeme adımının son
+        // kontrolü, `POST /api/orders` reddedince müşteri sebebini
+        // anlamadan hata görürdü. Oturum yoksa atlanıyor (misafir).
+        const session = await getServerSession(authOptions);
+        if (session?.user?.id) {
+          const used = await countUserCouponUsage(prisma, session.user.id, coupon.id);
+          if (isPerUserLimitReached(coupon.perUserLimit, used)) {
+            errors.push({
+              type: "COUPON_INVALID",
+              message: perUserLimitMessage(coupon.perUserLimit),
+            });
+          }
         }
       }
     }

@@ -8,7 +8,6 @@ import {
   ChevronRight,
   Search,
   X,
-  Info,
 } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import BundleProductCard, { BundleProduct } from "@/components/ui/BundleProductCard";
@@ -16,7 +15,6 @@ import { mapApiProductToCard, mapApiProductsToCards } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import WaveMesh from "@/components/ui/WaveMesh";
 import ParticleField from "@/components/three/ParticleField";
-import { useMysteryBox } from "@/context/MysteryBoxContext";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getAllFilters } from "@/lib/filters/category-filters";
 import { isOnSale, isNewProduct } from "@/lib/badge-config";
@@ -644,9 +642,6 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
   // Filtre paneli için aktif kategori tema rengi
   const filterPanelThemeColor = categoriesWithProducts[0]?.themeColor || "#8b5cf6";
 
-  // Mystery Box context
-  const { hasClaim, coupon, openModal, isLoading: mysteryBoxLoading } = useMysteryBox();
-
   return (
     <div className="min-h-screen bg-background relative">
       {/* Filter Side Panel */}
@@ -775,34 +770,6 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
                   )}
                 </div>
 
-                {/* Mystery Box / Coupon Button */}
-                {!mysteryBoxLoading && (
-                  hasClaim && coupon ? (
-                    /* Kupon açılmış - Kupon kodunu göster */
-                    <button
-                      onClick={openModal}
-                      className={cn(
-                        "store-coupon-button flex items-center gap-2 px-4 h-[42px] transition-all duration-200 whitespace-nowrap group",
-                        // Light: text black, Dark: keep emerald-white styling
-                        isDark ? "text-emerald-50" : "text-foreground"
-                      )}
-                    >
-                      <span className={cn("coupon-code font-semibold text-sm tracking-wide", isDark ? "text-emerald-50" : "text-foreground")}>
-                        {coupon.code}
-                      </span>
-                      <span className={cn("coupon-dot font-medium text-sm", isDark ? "text-emerald-400" : "text-foreground")}>•</span>
-                      <span className={cn("coupon-amount text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>
-                        {coupon.discountType === "percentage" 
-                          ? `${coupon.discountValue}%` 
-                          : `₺${coupon.discountValue}`
-                        }
-                      </span>
-                      <span className={cn("coupon-label text-sm font-medium", isDark ? "text-emerald-300" : "text-foreground")}>İndirim</span>
-                      <div className={cn("coupon-divider w-px h-4 mx-1", isDark ? "bg-emerald-400/30" : "bg-border")} />
-                      <Info className={cn("coupon-info w-4 h-4 transition-colors", isDark ? "text-emerald-400/70 group-hover:text-emerald-400" : "text-foreground-muted group-hover:text-foreground")} />
-                    </button>
-                  ) : null
-                )}
               </div>
             </div>
           </div>

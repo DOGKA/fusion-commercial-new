@@ -11,14 +11,18 @@ import {
   RefreshCw,
   CreditCard,
   Shield,
-  Smartphone
+  Smartphone,
+  BatteryCharging
 } from "lucide-react";
 
 const nonReturnableItems = [
-  "Kurulmuş ve kullanılmış güneş panelleri",
-  "Fiziksel hasar görmüş veya çizilmiş ürünler",
-  "Eksik aksesuar veya parça içeren ürünler",
-  "Orijinal ambalajı olmayan veya hasarlı ambalajlı ürünler",
+  "Şarj-deşarj döngüsü başlamış, yani kullanılmış taşınabilir güç istasyonları ve akü modülleri",
+  "Kurulmuş, montajı yapılmış veya çatıya/zemine sabitlenmiş güneş panelleri",
+  "Kablo bağlantısı yapılmış inverter, şarj kontrol cihazı ve enerji depolama üniteleri",
+  "Fiziksel hasar görmüş, çizilmiş, vidası sökülmüş veya etiketi çıkarılmış ürünler",
+  "Eksik aksesuar, kablo, adaptör veya parça içeren ürünler",
+  "Orijinal ambalajı olmayan, ambalajı yırtılmış veya koruyucu köpükleri atılmış ürünler",
+  "Kullanıcı hatası, aşırı yükleme veya uygun olmayan koşullarda çalıştırma nedeniyle arızalanmış ürünler",
   "Ürün sayfasında 'iade edilemez' olarak belirtilen ürünler",
 ];
 
@@ -69,7 +73,7 @@ export default function IadePolitikasiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                Mesafeli Satışlar Yönetmeliği kapsamında, satın aldığınız üründen memnun kalmazsanız teslim tarihinden itibaren <strong>14 gün</strong> içinde cayma hakkınızı kullanabilirsiniz.
+                Mesafeli Satışlar Yönetmeliği kapsamında, satın aldığınız üründen memnun kalmazsanız teslim tarihinden itibaren <strong>14 gün</strong> içinde cayma hakkınızı kullanabilirsiniz. Bu süre içinde ürünü <strong>yalnızca inceleme ve deneme amacıyla</strong> kullanabilirsiniz; bunun ötesindeki kullanım cayma hakkını ortadan kaldırmaz ancak oluşan değer kaybı geri ödeme tutarından düşülür.
               </p>
 
               <div className="p-4 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6">
@@ -79,6 +83,11 @@ export default function IadePolitikasiPage() {
               </div>
 
               <div className="space-y-3">
+                <div className="p-4 rounded-xl bg-[var(--fusion-error)]/10 border border-[var(--fusion-error)]/20">
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    <strong>İade talepleri onaya bağlıdır.</strong> Talebiniz incelenmeden ürünü kargoya vermeyiniz. Onaysız gönderilen, iade kodu taşımayan veya bildirilen adres dışına gönderilen kargolar teslim alınmaz ve gönderi ücreti tarafınıza ait olacak şekilde iade edilir.
+                  </p>
+                </div>
                 <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
                   <p className="text-sm text-[var(--foreground-secondary)]">
                     Eğer orijinal siparişiniz ücretsiz ürünler içeriyorsa, tam bir geri ödeme almak için tüm ilgili ürünleri iade etmelisiniz. Saklanan ücretsiz ürünlerin perakende değeri, geri ödeme tutarınızdan düşülecektir.
@@ -158,9 +167,9 @@ export default function IadePolitikasiPage() {
                     <span className="text-white font-bold">3</span>
                   </div>
                   <div className="flex-1 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                    <h4 className="font-semibold mb-1">Onay Bekleyin</h4>
+                    <h4 className="font-semibold mb-1">Onay ve İade Kodunu Bekleyin</h4>
                     <p className="text-sm text-[var(--foreground-secondary)]">
-                      Talebiniz incelendikten sonra size iade adresi ve talimatlar e-posta ile gönderilecektir.
+                      Talebiniz incelenir. Uygun bulunması hâlinde size bir <strong>iade kodu</strong>, iade adresi ve paketleme talimatları e-posta ile gönderilir. <strong>Onay ve iade kodu almadan ürünü göndermeyiniz.</strong>
                     </p>
                   </div>
                 </div>
@@ -172,7 +181,7 @@ export default function IadePolitikasiPage() {
                   <div className="flex-1 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <h4 className="font-semibold mb-1">Paketle ve Gönder</h4>
                     <p className="text-sm text-[var(--foreground-secondary)]">
-                      Ürünü orijinal ambalajında, tüm aksesuarları ile birlikte belirtilen adrese kargolayın.
+                      Ürünü orijinal ambalajında, tüm aksesuarları ile birlikte, iade kodunu kutunun üzerine yazarak belirtilen adrese kargolayın.
                     </p>
                   </div>
                 </div>
@@ -203,10 +212,13 @@ export default function IadePolitikasiPage() {
 
               <div className="space-y-3">
                 {[
-                  "Tüm ürünler, orijinal ambalajında, eksiksiz ve bozulmamış şekilde olmalıdır (UPC kodu dahil).",
-                  "Tüm aksesuarlar, kullanım kılavuzları ve ücretsiz ürünler iade edilmelidir.",
+                  "İade talebiniz onaylanmış ve tarafınıza bir iade kodu ile iade adresi bildirilmiş olmalıdır.",
+                  "Tüm ürünler, orijinal ambalajında, eksiksiz ve bozulmamış şekilde olmalıdır (UPC kodu ve seri numarası etiketi dahil).",
+                  "Ürün, inceleme ve deneme amacının ötesinde kullanılmamış olmalı; güç istasyonlarında şarj-deşarj döngüsü başlamamış olmalıdır.",
+                  "Tüm aksesuarlar, kablolar, adaptörler, kullanım kılavuzları ve ücretsiz ürünler iade edilmelidir.",
                   "Saklanan ücretsiz ürünlerin değeri, iade tutarından düşülecektir.",
                   "FusionMarkt yalnızca ürünün orijinal satın alma fiyatını iade eder; nakliye masrafları iade edilmez.",
+                  "Ürün, teslim alındıktan sonra tarafımızca incelenir; geri ödeme bu incelemenin olumlu sonuçlanmasının ardından başlatılır.",
                 ].map((item, index) => (
                   <div key={index} className="p-3 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)]">
                     <span className="text-sm text-[var(--foreground-secondary)]">{item}</span>
@@ -236,6 +248,53 @@ export default function IadePolitikasiPage() {
               </div>
             </motion.div>
 
+            {/* Kullanım Tespiti ve Değer Kaybı */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="glass-card p-6 md:p-8 rounded-2xl"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <BatteryCharging className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold">Kullanım Tespiti ve Değer Kaybı</h2>
+                  <p className="text-sm text-[var(--fusion-warning)]">Taşınabilir güç istasyonları, aküler ve güneş panelleri</p>
+                </div>
+              </div>
+
+              <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
+                Taşınabilir güç istasyonları ve akü modülleri, üzerlerindeki yönetim sisteminde <strong>şarj-deşarj döngü sayısını, çalışma süresini ve sıcaklık geçmişini</strong> kaydeder. İade edilen her ürün teslim alındığında bu kayıtlar okunur ve satın alma anındaki değerlerle karşılaştırılır.
+              </p>
+
+              <div className="space-y-3">
+                <div className="p-4 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
+                  <h4 className="font-semibold mb-1 text-sm">Döngü kaydı yok, ambalaj tam</h4>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Ürün yalnızca açılıp incelenmiş, şarj-deşarj döngüsü başlamamış ve orijinal ambalajı eksiksizse ürün bedeli tam olarak iade edilir.
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
+                  <h4 className="font-semibold mb-1 text-sm">Sınırlı kullanım tespit edilirse</h4>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Ürün ikinci el olarak satılabilir durumdaysa iade kabul edilir, ancak oluşan <strong>değer kaybı geri ödeme tutarından düşülür</strong>. Kesinti miktarı; döngü sayısı, kullanım süresi, kozmetik durum ve ambalaj bütünlüğü değerlendirilerek belirlenir ve tarafınıza yazılı olarak bildirilir.
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-[var(--fusion-error)]/10 border border-[var(--fusion-error)]/20">
+                  <h4 className="font-semibold mb-1 text-sm">Ürün yeniden satılabilir değilse</h4>
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Belirgin kullanım izi, yüksek döngü sayısı, sökülmüş vida, çıkarılmış seri numarası etiketi veya sahada kurulum belirtisi varsa ürün <strong>iade kapsamı dışındadır.</strong> Bu durumda ürün tarafınıza geri gönderilir; arıza söz konusuysa garanti kapsamında onarım veya değişim süreci başlatılır.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Güneş panelleri, inverterler ve şarj kontrol cihazlarında kurulum yapılmış olması tek başına iadeyi engeller: kablo uçları kesilmiş, konnektörü değiştirilmiş veya çatı/zemin montajı yapılmış bir panel yeniden satılamaz.
+                </p>
+              </div>
+            </motion.div>
+
             {/* Kusurlu veya Hasarlı Ürünler */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -249,13 +308,20 @@ export default function IadePolitikasiPage() {
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
-                Kusurlu ürünler, onarım, değişim veya iade için kabul edilir.
+                Üretim kaynaklı bir kusur tespit edilen ürünler garanti kapsamında <strong>onarım, değişim veya iade</strong> için kabul edilir. Sıra bu şekildedir: öncelikle onarım veya aynı ürünle değişim önerilir, bu mümkün değilse bedel iadesi yapılır.
               </p>
 
-              <div className="p-4 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
-                <p className="text-sm text-[var(--foreground-secondary)]">
-                  İade edilen kusurlu ürünler için nakliye masrafları tarafımızdan karşılanır.
-                </p>
+              <div className="space-y-3">
+                <div className="p-4 rounded-xl bg-[var(--fusion-success)]/10 border border-[var(--fusion-success)]/20">
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Üretim kusuru doğrulanan ürünlerde <strong>nakliye masrafları tarafımızdan karşılanır</strong> ve değer kaybı kesintisi uygulanmaz.
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-[var(--fusion-warning)]/10 border border-[var(--fusion-warning)]/20">
+                  <p className="text-sm text-[var(--foreground-secondary)]">
+                    Kusur bildirimi teknik incelemeye tabidir. İnceleme sonucunda arızanın <strong>kullanıcı hatası, aşırı yükleme, sıvı teması, yetkisiz müdahale veya uygun olmayan ortam koşulları</strong> kaynaklı olduğu tespit edilirse ürün garanti dışı sayılır; bu durumda gidiş-dönüş kargo ve varsa onarım bedeli tarafınıza aittir.
+                  </p>
+                </div>
               </div>
             </motion.div>
 

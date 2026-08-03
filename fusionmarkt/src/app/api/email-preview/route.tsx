@@ -208,6 +208,10 @@ const templates: Record<string, { component: React.ReactElement; name: string }>
 };
 
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === "production") {
+    return new NextResponse(null, { status: 404 });
+  }
+
   const { searchParams } = new URL(request.url);
   const template = searchParams.get("template");
 

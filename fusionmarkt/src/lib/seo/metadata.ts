@@ -312,6 +312,19 @@ export function generateBlogMetadata({
 }
 
 /**
+ * Hesabım alt sayfaları için metadata.
+ * Hesap sayfalarının tamamı noIndex; robots.ts da /hesabim/ altını disallow ediyor.
+ */
+export function accountPageMetadata(title: string, canonical: string): Metadata {
+  return generateMetadata({
+    title,
+    description: `FusionMarkt hesabınız — ${title.toLocaleLowerCase("tr-TR")}.`,
+    canonical,
+    noIndex: true,
+  });
+}
+
+/**
  * Statik sayfalar için metadata
  */
 export const staticPageMetadata = {
@@ -330,8 +343,8 @@ export const staticPageMetadata = {
   }),
   
   about: generateMetadata({
-    title: "Hakkımızda - Türkiye'nin Güvenilir Enerji Marketi",
-    description: "FusionMarkt - IEETek, Traffi, Telesteps yetkili distribütörü. Taşınabilir güç kaynağı, solar panel ve iş güvenliği ekipmanları alanında Türkiye'nin güvenilir marketi. Profesyonel destek, 2 yıl garanti.",
+    title: "Hakkımızda",
+    description: "ASDTC Mühendislik Ticaret ve FusionMarkt LLC. Havacılık ve mühendislik teknolojileri, elektrik ara bağlantı ve elektronik bileşen çözümleri ile son kullanıcıya yönelik elektronik, batarya ve güç grupları, LiFePO4 piller, soğutucu sistemler ve taşınabilir buzdolapları üzerine online alışveriş platformu.",
     canonical: "/hakkimizda",
   }),
   
@@ -370,9 +383,11 @@ export const staticPageMetadata = {
     canonical: "/gonderim-yerleri",
   }),
   
+  // `/favori` yalnızca misafir yüzeyi; oturumlu kullanıcı sunucuda
+  // `/hesabim/favorilerim`e yönlendiriliyor. İkisi de noIndex.
   favorites: generateMetadata({
-    title: "Favorilerim",
-    description: "Favori ürünlerinizi görüntüleyin ve yönetin.",
+    title: "Beğendiklerim",
+    description: "Beğendiğiniz ürünleri görüntüleyin ve yönetin.",
     canonical: "/favori",
     noIndex: true, // Kullanıcıya özel sayfa
   }),
@@ -383,6 +398,29 @@ export const staticPageMetadata = {
     canonical: "/hesabim",
     noIndex: true,
   }),
+
+  accountOrders: accountPageMetadata("Siparişlerim", "/hesabim/siparisler"),
+  accountAddresses: accountPageMetadata("Adreslerim", "/hesabim/adresler"),
+  accountProfile: accountPageMetadata("Üyelik Bilgilerim", "/hesabim/bilgilerim"),
+  accountPassword: accountPageMetadata("Şifre Değişikliği", "/hesabim/sifre-degisikligi"),
+  accountCommunication: accountPageMetadata(
+    "İletişim Tercihlerim",
+    "/hesabim/iletisim-tercihlerim"
+  ),
+  // Oturumlu kullanıcının favori adresi burası; `/favori` buraya yönlendiriyor.
+  accountFavorites: accountPageMetadata(
+    "Beğendiklerim ve Tekrar Al",
+    "/hesabim/favorilerim"
+  ),
+  accountReviews: accountPageMetadata(
+    "Değerlendirmelerim",
+    "/hesabim/degerlendirmelerim"
+  ),
+  accountReviewsPending: accountPageMetadata(
+    "Değerlendirme Bekleyenler",
+    "/hesabim/degerlendirmelerim/bekleyenler"
+  ),
+  accountCoupons: accountPageMetadata("Kuponlarım", "/hesabim/kuponlar"),
   
   checkout: generateMetadata({
     title: "Ödeme",

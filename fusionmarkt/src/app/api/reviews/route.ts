@@ -128,41 +128,23 @@ export async function POST(request: NextRequest) {
       where: existingReviewWhere,
     });
 
-    if (existingReview) {
-      // Güncelleme talebi - mevcut yorumu güncelle ve tekrar onaya gönder
-      const updatedReview = await prisma.review.update({
-        where: { id: existingReview.id },
-        data: {
-          rating: rating,
-          title: data.title || null,
-          comment: data.comment,
-          images: data.images || existingReview.images || [],
-          displayName: displayName, // İsim tercihini güncelle
-          isVerified: true,
-          isApproved: false, // Tekrar onay bekliyor
-          adminReply: null, // Admin yanıtı sıfırla
-          adminReplyAt: null,
-        },
-        include: {
-          user: { select: { name: true, email: true } },
-          product: { select: { name: true } },
-          bundle: { select: { name: true } },
-        },
-      });
+    /**
+     * Yazma `upsert` ile yapılıyor: "önce ara, yoksa oluştur" deseni iki
+     * eşzamanlı gönderim arasında aynı ürüne iki yorum bırakabiliyordu. Artık
+     * hem veritabanında tekillik kısıtı var (`reviews_userId_productId_key`)
+     * hem de tek cümlede yazılıyor, yani yarışacak aralık kalmadı.
+     *
+     * Yukarıdaki okuma yalnızca **yanıt metnini** seçmek için duruyor (yeni
+     * yorum mu, güncelleme mi). O aralıkta araya giren eşzamanlı bir istek
+     * olursa kayıt yine doğru yazılır, sadece mesaj "gönderildi" der.
+     */
+    const uniqueWhere = hasProductId
+      ? { userId_productId: { userId: user.id, productId: data.productId as string } }
+      : { userId_bundleId: { userId: user.id, bundleId: data.bundleId as string } };
 
-      return NextResponse.json({
-        success: true,
-        message: "Yorum güncelleme talebiniz alındı ve onay bekliyor",
-        isUpdate: true,
-        displayName,
-        isVerified: true,
-        review: updatedReview,
-      }, { status: 200 });
-    }
-
-    // Create the review
-    const review = await prisma.review.create({
-      data: {
+    const review = await prisma.review.upsert({
+      where: uniqueWhere,
+      create: {
         productId: hasProductId ? data.productId : null,
         bundleId: hasBundleId ? data.bundleId : null,
         userId: user.id,
@@ -174,12 +156,35 @@ export async function POST(request: NextRequest) {
         isVerified: true, // Satın alma zorunlu olduğu için her yorum doğrulanmış
         isApproved: false, // Requires admin approval
       },
+      update: {
+        rating: rating,
+        title: data.title || null,
+        comment: data.comment,
+        // Yeni görsel gelmediyse eskiler korunuyor.
+        ...(data.images ? { images: data.images } : {}),
+        displayName: displayName, // İsim tercihini güncelle
+        isVerified: true,
+        isApproved: false, // Tekrar onay bekliyor
+        adminReply: null, // Admin yanıtı sıfırla
+        adminReplyAt: null,
+      },
       include: {
         user: { select: { name: true, email: true } },
         product: { select: { name: true } },
         bundle: { select: { name: true } },
       },
     });
+
+    if (existingReview) {
+      return NextResponse.json({
+        success: true,
+        message: "Yorum güncelleme talebiniz alındı ve onay bekliyor",
+        isUpdate: true,
+        displayName,
+        isVerified: true,
+        review,
+      }, { status: 200 });
+    }
 
     return NextResponse.json({
       success: true,

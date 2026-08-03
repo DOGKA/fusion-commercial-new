@@ -21,6 +21,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { generateContractsHTML } from "@/lib/contracts";
 import { isValidEmail } from "@/lib/utils";
+import { invoiceTypeFromCheckout } from "@/lib/address-validation";
 
 type AddressSnapshot = {
   fullName: string;
@@ -101,6 +102,11 @@ type DraftPayload = {
     country?: string;
     tcKimlikNo?: string;
     orderNotes?: string;
+    /** Ödeme formundaki karşılığı `person` / `company` */
+    invoiceType?: string;
+    companyName?: string;
+    taxNumber?: string;
+    taxOffice?: string;
   };
   shippingAddress?: {
     id?: string;
@@ -207,6 +213,11 @@ async function createOrderFromDraft(
   if (billingAddress.id) {
     billingAddressId = billingAddress.id;
   } else if (billingAddress.saveToAddresses && finalUserId) {
+    // Kurumsal bilgi kart yolunda da kaydediliyor. Bu satırlar eklenene kadar
+    // firma adı / vergi no yalnızca havale siparişlerinde saklanıyordu; kartla
+    // ödeyen kurumsal müşteri her siparişte aynı üç alanı yeniden yazıyordu.
+    const savedInvoiceType = invoiceTypeFromCheckout(billingAddress.invoiceType);
+    const isCorporate = savedInvoiceType === "CORPORATE";
     const createdBillingAddress = await prisma.address.create({
       data: {
         userId: finalUserId,
@@ -221,6 +232,10 @@ async function createOrderFromDraft(
         address: billingAddress.addressLine1 || "",
         country: billingAddress.country || "Türkiye",
         type: "BILLING",
+        invoiceType: savedInvoiceType,
+        company: isCorporate ? billingAddress.companyName || null : null,
+        taxNumber: isCorporate ? billingAddress.taxNumber || null : null,
+        taxOffice: isCorporate ? billingAddress.taxOffice || null : null,
         isDefault: false,
       },
     });

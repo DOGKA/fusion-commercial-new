@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import bcrypt from "bcryptjs";
+import { PASSWORD_TOO_SHORT_ERROR, isPasswordLongEnough } from "@/lib/password-policy";
 
 // Verify token is valid
 export async function GET(request: NextRequest) {
@@ -67,8 +68,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Şifreler eşleşmiyor" }, { status: 400 });
     }
 
-    if (newPassword.length < 6) {
-      return NextResponse.json({ error: "Şifre en az 6 karakter olmalı" }, { status: 400 });
+    // Kural kayıt ucuyla aynı olmalı (F2-74): burası eskiden 6 karakter kabul
+    // ediyordu, yani şifremi-unuttum akışı kayıt kuralı için kaçış yoluydu.
+    if (!isPasswordLongEnough(newPassword)) {
+      return NextResponse.json({ error: PASSWORD_TOO_SHORT_ERROR }, { status: 400 });
     }
 
     // Find user with this token

@@ -2,6 +2,13 @@
  * Admin Order Invoice API
  * POST /api/admin/orders/[id]/invoice - Upload invoice (LOCAL)
  * DELETE /api/admin/orders/[id]/invoice - Delete invoice
+ *
+ * DOSYA KONUMU (F2-70): Yüklenen PDF eskiden **iki `public/` klasörüne birden**
+ * yazılıyordu (storefront'unki ve admin'inki), çünkü iki uygulama da dosyayı
+ * okuyabilmeliydi. `public/` altındaki her şey kimlik doğrulaması olmadan
+ * servis edildiği için bu, faturaları herkese açık hale getiriyordu. Artık
+ * `@repo/storage`'ın gösterdiği **tek ortak özel klasöre** yazılıyor; iki
+ * uygulama da oradan okuyor, kopyalamaya gerek kalmadı.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -13,6 +20,7 @@ import { randomBytes } from "crypto";
 import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
+import { getInvoiceDir, getLegacyInvoiceDir } from "@repo/storage";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -33,12 +41,22 @@ async function checkAdminAuth() {
   return { authorized: true, session };
 }
 
-// Local storage path - fusionmarkt public folder (both apps need access)
-const STORAGE_BASE_PATH = path.join(process.cwd(), "..", "fusionmarkt", "public", "storage", "invoices");
-// Also save to admin's public folder for direct access
-const ADMIN_STORAGE_PATH = path.join(process.cwd(), "public", "storage", "invoices");
 // Public URL is served via tokenized API stream route (see /api/invoices/[file])
 const PUBLIC_URL_BASE = "/api/invoices";
+
+/**
+ * Silme sırasında bakılacak klasörler: yeni özel klasör ve taşınma öncesinden
+ * kalan iki `public` klasörü. Eski dosyalar yerinde bırakıldığı için (31 Tem
+ * kullanıcı kararı) silme onları da temizleyebilmeli, yoksa admin panelinden
+ * "sil" denen bir fatura diskte kalıp herkese açık olmaya devam ederdi.
+ */
+function invoiceDeleteTargets(fileName: string): string[] {
+  return [
+    path.join(getInvoiceDir(), fileName),
+    path.join(getLegacyInvoiceDir(), fileName),
+    path.join(process.cwd(), "..", "fusionmarkt", "public", "storage", "invoices", fileName),
+  ];
+}
 
 /**
  * POST /api/admin/orders/[id]/invoice
@@ -96,12 +114,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Ensure directories exist (both frontend and admin)
-    if (!existsSync(STORAGE_BASE_PATH)) {
-      await mkdir(STORAGE_BASE_PATH, { recursive: true });
-    }
-    if (!existsSync(ADMIN_STORAGE_PATH)) {
-      await mkdir(ADMIN_STORAGE_PATH, { recursive: true });
+    const storageDir = getInvoiceDir();
+    if (!existsSync(storageDir)) {
+      await mkdir(storageDir, { recursive: true });
     }
 
     // Generate file name and token for the new tokenized URL scheme.
@@ -109,17 +124,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // "Kaydet" basıldığında (checkbox aktifse) tetiklenir.
     const fileName = `${order.orderNumber}.pdf`;
     const token = randomBytes(24).toString("hex");
-    const frontendFilePath = path.join(STORAGE_BASE_PATH, fileName);
-    const adminFilePath = path.join(ADMIN_STORAGE_PATH, fileName);
+    const filePath = path.join(storageDir, fileName);
 
-    // Write file to both locations
-    await writeFile(frontendFilePath, buffer);
-    await writeFile(adminFilePath, buffer);
+    await writeFile(filePath, buffer);
 
     const invoiceUrl = `${PUBLIC_URL_BASE}/${fileName}?t=${token}`;
 
-    console.log(`📁 Invoice saved to: ${frontendFilePath}`);
-    console.log(`📁 Invoice also saved to: ${adminFilePath}`);
+    console.log(`📁 Invoice saved to: ${filePath}`);
 
     // Update order — yeni fatura ile birlikte bildirim durumu sıfırlanır.
     const updatedOrder = await prisma.order.update({
@@ -184,22 +195,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Delete from both storage locations
+    // Yeni klasör ve eski `public` kopyaları — hepsinden silinir.
     const fileName = `${order.orderNumber}.pdf`;
-    const frontendFilePath = path.join(STORAGE_BASE_PATH, fileName);
-    const adminFilePath = path.join(ADMIN_STORAGE_PATH, fileName);
-    
-    try {
-      if (existsSync(frontendFilePath)) {
-        await unlink(frontendFilePath);
-        console.log(`🗑️ Deleted: ${frontendFilePath}`);
+
+    for (const target of invoiceDeleteTargets(fileName)) {
+      try {
+        if (existsSync(target)) {
+          await unlink(target);
+          console.log(`🗑️ Deleted: ${target}`);
+        }
+      } catch (fsError) {
+        console.warn(`File delete warning (${target}):`, fsError);
       }
-      if (existsSync(adminFilePath)) {
-        await unlink(adminFilePath);
-        console.log(`🗑️ Deleted: ${adminFilePath}`);
-      }
-    } catch (fsError) {
-      console.warn("File delete warning (file may not exist):", fsError);
     }
 
     // Update order

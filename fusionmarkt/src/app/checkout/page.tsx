@@ -37,6 +37,13 @@ interface SavedAddress {
   postalCode: string;
   phone: string;
   isDefault: boolean;
+  // Hesabım → Adreslerim'de kurumsal fatura bilgisi kaydedilebiliyor; kayıtlı
+  // adres seçildiğinde bu alanlar formu doldurur. Eksik olanları form zaten
+  // zorunlu alan kontrolüyle soruyor.
+  invoiceType?: string;
+  companyName?: string;
+  taxNumber?: string;
+  taxOffice?: string;
 }
 
 interface AddressApiItem {
@@ -53,7 +60,11 @@ interface AddressApiItem {
   phone?: string;
   email?: string;
   isDefault?: boolean;
-  invoiceType?: string;
+  /** Şemada `INDIVIDUAL` / `CORPORATE`; formdaki karşılığı `person` / `company` */
+  invoiceType?: string | null;
+  company?: string | null;
+  taxNumber?: string | null;
+  taxOffice?: string | null;
 }
 
 interface PreflightError {
@@ -67,7 +78,7 @@ interface PreflightError {
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const { setBillingAddress } = useCheckout();
+  const { setBillingAddress, setShippingAddress, setUseDifferentShipping } = useCheckout();
   const { items, updateQuantity, updateItemPrice, removeItem, subtotal, originalSubtotal, totalSavings, isHydrated } = useCart();
   const { addItem: addFavorite } = useFavorites();
   
@@ -117,6 +128,24 @@ export default function CheckoutPage() {
   const [addressLine2, setAddressLine2] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
+
+  // ── Ayrı fatura adresi ───────────────────────────────────────────────────
+  // Varsayılan kapalı; o hâlde akış bugünküyle birebir aynı kalır: tek adres
+  // hem teslimat hem fatura olur. Açıldığında aşağıdaki alanlar `billingAddress`
+  // olarak, yukarıdaki form da `shippingAddress` olarak gider — sunucu ikisini
+  // ayrı kayıt ve ayrı anlık görüntü olarak zaten işleyebiliyor.
+  const [separateBilling, setSeparateBilling] = useState(false);
+  const [billingSelectedAddressId, setBillingSelectedAddressId] = useState<string | null>(null);
+  const [billingShowNewForm, setBillingShowNewForm] = useState(false);
+  const [billingFirstName, setBillingFirstName] = useState("");
+  const [billingLastName, setBillingLastName] = useState("");
+  const [billingPhone, setBillingPhone] = useState("");
+  const [billingCity, setBillingCity] = useState("");
+  const [billingDistrict, setBillingDistrict] = useState("");
+  const [billingAddressLine1, setBillingAddressLine1] = useState("");
+  const [billingAddressLine2, setBillingAddressLine2] = useState("");
+  const [billingPostalCode, setBillingPostalCode] = useState("");
+  const [saveBillingToAddresses, setSaveBillingToAddresses] = useState(false);
   
   const [isSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -182,6 +211,7 @@ export default function CheckoutPage() {
 
   // Districts based on selected city
   const districts = city ? getDistricts(city) : [];
+  const billingDistricts = billingCity ? getDistricts(billingCity) : [];
 
   // Kargo seçeneklerini API'den çek
   useEffect(() => {
@@ -369,7 +399,11 @@ export default function CheckoutPage() {
                 district: addr.district || "",
                 postalCode: addr.postalCode || "",
                 phone: addr.phone || "",
-                isDefault: addr.isDefault || false
+                isDefault: addr.isDefault || false,
+                invoiceType: addr.invoiceType || undefined,
+                companyName: addr.company || undefined,
+                taxNumber: addr.taxNumber || undefined,
+                taxOffice: addr.taxOffice || undefined,
               };
             });
             setSavedAddresses(formatted);
@@ -388,6 +422,7 @@ export default function CheckoutPage() {
               // Ad/soyad yoksa adresten al - functional update
               if (defaultAddr.firstName) setFirstName(prev => prev || defaultAddr.firstName);
               if (defaultAddr.lastName) setLastName(prev => prev || defaultAddr.lastName);
+              applySavedInvoiceInfo(defaultAddr);
             }
           } else {
             setShowNewAddressForm(true);
@@ -403,6 +438,75 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated]);
 
+  /**
+   * Kayıtlı adresteki fatura bilgisini forma taşır.
+   *
+   * Adres kurumsal kayıtlıysa form kurumsala geçer ve üç alan dolar; kayıtta
+   * eksik olan alan boş kalır ve gönderimde mevcut zorunluluk kontrolü onu
+   * sorar. `invoiceType` hiç yoksa (eski kayıtlar) kullanıcının o an seçtiği
+   * tip bilinçli olarak korunur.
+   */
+  function applySavedInvoiceInfo(addr: SavedAddress) {
+    if (addr.invoiceType === "CORPORATE") {
+      setInvoiceType("company");
+      setCompanyName(addr.companyName || "");
+      setTaxNumber(addr.taxNumber || "");
+      setTaxOffice(addr.taxOffice || "");
+    } else if (addr.invoiceType === "INDIVIDUAL") {
+      setInvoiceType("person");
+    }
+  }
+
+  /**
+   * Fatura adresi olarak kayıtlı bir adres seçilir.
+   *
+   * Kurumsal bilgiyi de taşır: fatura adresi ayrı seçildiğinde firma/vergi
+   * bilgisi teslimat adresinden değil buradan gelmeli.
+   */
+  const handleSelectBillingAddress = (addr: SavedAddress) => {
+    setBillingSelectedAddressId(addr.id);
+    setBillingCity(addr.city);
+    setBillingDistrict(addr.district);
+    setBillingAddressLine1(addr.addressLine1);
+    setBillingPostalCode(addr.postalCode);
+    if (addr.phone) setBillingPhone(addr.phone);
+    if (addr.firstName) setBillingFirstName(addr.firstName);
+    if (addr.lastName) setBillingLastName(addr.lastName);
+    applySavedInvoiceInfo(addr);
+    setBillingShowNewForm(false);
+  };
+
+  /**
+   * Ayrı fatura adresi bölümünü açar/kapatır.
+   *
+   * Açılırken kayıtlı adres varsa varsayılanı seçili gelir; hiç yoksa doğrudan
+   * boş form açılır. Kapatılırken alanlar temizlenir, aksi hâlde kullanıcı
+   * vazgeçtikten sonra da eski değerler bağlama sızardı.
+   */
+  const toggleSeparateBilling = (next: boolean) => {
+    setSeparateBilling(next);
+    if (!next) {
+      setBillingSelectedAddressId(null);
+      setBillingShowNewForm(false);
+      setBillingFirstName("");
+      setBillingLastName("");
+      setBillingPhone("");
+      setBillingCity("");
+      setBillingDistrict("");
+      setBillingAddressLine1("");
+      setBillingAddressLine2("");
+      setBillingPostalCode("");
+      setSaveBillingToAddresses(false);
+      return;
+    }
+    const fallback = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+    if (isAuthenticated && fallback) {
+      handleSelectBillingAddress(fallback);
+    } else {
+      setBillingShowNewForm(true);
+    }
+  };
+
   // When selecting an address, fill the form with all info
   const handleSelectAddress = (addr: SavedAddress) => {
     setSelectedAddressId(addr.id);
@@ -414,12 +518,25 @@ export default function CheckoutPage() {
     if (addr.phone) setPhone(addr.phone);
     if (addr.firstName) setFirstName(addr.firstName);
     if (addr.lastName) setLastName(addr.lastName);
+    applySavedInvoiceInfo(addr);
     setShowNewAddressForm(false);
   };
 
-  // Sync form to context
+  /**
+   * Formu ödeme bağlamına yazar.
+   *
+   * İki durum var:
+   * - Fatura adresi teslimatla aynıysa (varsayılan) tek adres `billingAddress`
+   *   olur, `shippingAddress` boş kalır. Sunucu boş teslimat adresini fatura
+   *   adresine eşitliyor; bu yüzden davranış bugünküyle birebir aynı.
+   * - Ayrı fatura adresi seçildiyse fatura alanları `billingAddress`, teslimat
+   *   formu `shippingAddress` olur. İsim böyle: sunucunun zorunlu alan, kullanıcı
+   *   eşleme ve fatura anlık görüntüsü kontrollerinin hepsi `billingAddress`
+   *   üzerinden yürüyor, bu yüzden iletişim bilgisi ve sipariş notu her iki
+   *   durumda da fatura yükünde taşınır.
+   */
   const syncFormToContext = useCallback(() => {
-    const formData: AddressFormData & { id?: string; saveToAddresses?: boolean } = {
+    const deliveryData: AddressFormData & { id?: string; saveToAddresses?: boolean } = {
       firstName, lastName, phone, email, invoiceType,
       tcKimlikNo, taxNumber, taxOffice, companyName,
       country: "Türkiye", city, district, postalCode,
@@ -429,8 +546,37 @@ export default function CheckoutPage() {
       // Yeni adres ise kaydetme seçeneği
       saveToAddresses: !selectedAddressId && showNewAddressForm ? saveToAddresses : undefined,
     };
-    setBillingAddress(formData as AddressFormData);
-  }, [firstName, lastName, phone, email, invoiceType, tcKimlikNo, taxNumber, taxOffice, companyName, city, district, postalCode, addressLine1, addressLine2, orderNotes, selectedAddressId, showNewAddressForm, saveToAddresses, setBillingAddress]);
+
+    if (!separateBilling) {
+      setUseDifferentShipping(false);
+      setBillingAddress(deliveryData as AddressFormData);
+      return;
+    }
+
+    const billingData: AddressFormData & { id?: string; saveToAddresses?: boolean } = {
+      // Fatura adresinde ayrı bir ad/telefon girilmediyse iletişim bilgisi
+      // teslimat formundan devralınır; fatura yükü bu alanlar olmadan sunucuda
+      // reddediliyor.
+      firstName: billingFirstName || firstName,
+      lastName: billingLastName || lastName,
+      phone: billingPhone || phone,
+      email,
+      invoiceType, tcKimlikNo, taxNumber, taxOffice, companyName,
+      country: "Türkiye",
+      city: billingCity,
+      district: billingDistrict,
+      postalCode: billingPostalCode,
+      addressLine1: billingAddressLine1,
+      addressLine2: billingAddressLine2,
+      orderNotes,
+      id: billingSelectedAddressId || undefined,
+      saveToAddresses: !billingSelectedAddressId && isAuthenticated ? saveBillingToAddresses : undefined,
+    };
+
+    setBillingAddress(billingData as AddressFormData);
+    setUseDifferentShipping(true);
+    setShippingAddress(deliveryData as AddressFormData);
+  }, [firstName, lastName, phone, email, invoiceType, tcKimlikNo, taxNumber, taxOffice, companyName, city, district, postalCode, addressLine1, addressLine2, orderNotes, selectedAddressId, showNewAddressForm, saveToAddresses, setBillingAddress, separateBilling, billingFirstName, billingLastName, billingPhone, billingCity, billingDistrict, billingPostalCode, billingAddressLine1, billingAddressLine2, billingSelectedAddressId, saveBillingToAddresses, isAuthenticated, setShippingAddress, setUseDifferentShipping]);
 
   useEffect(() => {
     syncFormToContext();
@@ -442,6 +588,12 @@ export default function CheckoutPage() {
       setDistrict("");
     }
   }, [city, selectedAddressId, showNewAddressForm]);
+
+  useEffect(() => {
+    if (!billingSelectedAddressId && billingShowNewForm) {
+      setBillingDistrict("");
+    }
+  }, [billingCity, billingSelectedAddressId, billingShowNewForm]);
 
   const fetchEmailRegistered = useCallback(async (emailToCheck: string) => {
     if (!emailToCheck || isAuthenticated) return null;
@@ -632,6 +784,14 @@ export default function CheckoutPage() {
       if (!taxOffice) newErrors.taxOffice = "Vergi dairesi gerekli";
     }
 
+    // Ayrı fatura adresi açıksa kendi zorunlu alanları var. Ad/soyad/telefon
+    // boş bırakılabilir; o durumda teslimat formundakiler devralınıyor.
+    if (separateBilling) {
+      if (!billingCity) newErrors.billingCity = "Fatura adresi için il seçin";
+      if (!billingDistrict) newErrors.billingDistrict = "Fatura adresi için ilçe seçin";
+      if (!billingAddressLine1) newErrors.billingAddressLine1 = "Fatura adresi gerekli";
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       const firstErrorKey = Object.keys(newErrors)[0];
@@ -779,7 +939,47 @@ export default function CheckoutPage() {
   };
 
   const hasSavedAddresses = savedAddresses.length > 0;
-  
+
+  // Kurumsal fatura alanları iki yerden birinde çıkar: ayrı fatura adresi
+  // seçilmişse o bloğun içinde (bilgi ait olduğu adresin yanında dursun),
+  // seçilmemişse sayfanın üstündeki eski yerinde.
+  const corporateFields = invoiceType === "company" ? (
+    <div style={{ marginBottom: "24px" }}>
+      <div data-field="companyName" style={{ marginBottom: "12px" }}>
+        <label style={labelStyle}><Building2 size={13} /> Şirket Adı *</label>
+        <input
+          type="text"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          placeholder="Şirket ünvanı"
+          style={{ ...inputStyle, borderColor: errors.companyName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
+        />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+        <div data-field="taxNumber">
+          <label style={labelStyle}><FileText size={13} /> Vergi Numarası *</label>
+          <input
+            type="text"
+            value={taxNumber}
+            onChange={(e) => setTaxNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+            placeholder="1234567890"
+            style={{ ...inputStyle, borderColor: errors.taxNumber ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
+          />
+        </div>
+        <div data-field="taxOffice">
+          <label style={labelStyle}>Vergi Dairesi *</label>
+          <input
+            type="text"
+            value={taxOffice}
+            onChange={(e) => setTaxOffice(e.target.value)}
+            placeholder="Vergi dairesi adı"
+            style={{ ...inputStyle, borderColor: errors.taxOffice ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
+          />
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div className="checkout-page" style={{ minHeight: "100vh", backgroundColor: "var(--background)", paddingTop: "120px", paddingBottom: "80px" }}>
       <div className="checkout-container" style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 16px" }}>
@@ -1034,43 +1234,8 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Company Fields - Sadece kurumsal seçildiğinde */}
-            {invoiceType === "company" && (
-              <div style={{ marginBottom: "24px" }}>
-                <div data-field="companyName" style={{ marginBottom: "12px" }}>
-                  <label style={labelStyle}><Building2 size={13} /> Şirket Adı *</label>
-                  <input
-                    type="text"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="Şirket ünvanı"
-                    style={{ ...inputStyle, borderColor: errors.companyName ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
-                  />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                  <div data-field="taxNumber">
-                    <label style={labelStyle}><FileText size={13} /> Vergi Numarası *</label>
-                    <input
-                      type="text"
-                      value={taxNumber}
-                      onChange={(e) => setTaxNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      placeholder="1234567890"
-                      style={{ ...inputStyle, borderColor: errors.taxNumber ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
-                    />
-                  </div>
-                  <div data-field="taxOffice">
-                    <label style={labelStyle}>Vergi Dairesi *</label>
-                    <input
-                      type="text"
-                      value={taxOffice}
-                      onChange={(e) => setTaxOffice(e.target.value)}
-                      placeholder="Vergi dairesi adı"
-                      style={{ ...inputStyle, borderColor: errors.taxOffice ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Kurumsal alanlar: ayrı fatura adresi yoksa burada, varsa aşağıdaki blokta */}
+            {!separateBilling && corporateFields}
 
             {/* T.C. Kimlik No - Bireysel için */}
             {invoiceType === "person" && (
@@ -1257,6 +1422,181 @@ export default function CheckoutPage() {
               </div>
             )}
 
+            {/* ── Fatura Adresi ──────────────────────────────────────────────
+                Varsayılan "teslimat ile aynı": kayıtlı adresi olan kullanıcıya
+                fazladan soru sorulmuyor, yalnızca durum gösteriliyor. Ayırmak
+                isteyen bağlantıyla açıyor. */}
+            <div style={{ marginBottom: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "12px" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--foreground)" }}>Fatura Adresi</h2>
+                <button
+                  type="button"
+                  onClick={() => toggleSeparateBilling(!separateBilling)}
+                  style={{ fontSize: "13px", fontWeight: "500", color: "#10b981", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right" }}
+                >
+                  {separateBilling ? "Teslimat adresiyle aynı olsun" : "Farklı fatura adresi seç"}
+                </button>
+              </div>
+
+              {!separateBilling ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "14px 16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <Check size={16} style={{ color: "#10b981", flexShrink: 0 }} />
+                  <span style={{ fontSize: "13px", color: "var(--foreground-secondary)" }}>
+                    Teslimat adresiyle aynı
+                  </span>
+                </div>
+              ) : (
+                <>
+                  {corporateFields}
+
+                  {isAuthenticated && hasSavedAddresses && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "12px" }}>
+                      {savedAddresses.map((addr) => (
+                        <div
+                          key={addr.id}
+                          onClick={() => handleSelectBillingAddress(addr)}
+                          style={{
+                            padding: "16px",
+                            borderRadius: "12px",
+                            border: billingSelectedAddressId === addr.id ? "1px solid #10b981" : "1px solid var(--border)",
+                            backgroundColor: billingSelectedAddressId === addr.id ? "rgba(16,185,129,0.05)" : "var(--glass-bg)",
+                            cursor: "pointer"
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                            <div style={{
+                              width: "20px", height: "20px", borderRadius: "50%",
+                              border: billingSelectedAddressId === addr.id ? "2px solid #10b981" : "2px solid var(--border)",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              flexShrink: 0, marginTop: "2px"
+                            }}>
+                              {billingSelectedAddressId === addr.id && <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#10b981" }} />}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <span style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)" }}>{addr.title}</span>
+                              <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)", marginTop: "4px" }}>
+                                {addr.addressLine1}, {addr.district}, {addr.city}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (billingShowNewForm) {
+                            const fallback = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+                            if (fallback) handleSelectBillingAddress(fallback);
+                          } else {
+                            setBillingSelectedAddressId(null);
+                            setBillingShowNewForm(true);
+                            setBillingCity("");
+                            setBillingDistrict("");
+                            setBillingAddressLine1("");
+                            setBillingPostalCode("");
+                          }
+                        }}
+                        style={{
+                          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                          padding: "16px", borderRadius: "12px",
+                          border: billingShowNewForm ? "1px solid #10b981" : "1px dashed var(--border)",
+                          backgroundColor: "transparent",
+                          color: billingShowNewForm ? "#10b981" : "var(--foreground-secondary)",
+                          fontSize: "13px", fontWeight: "500", cursor: "pointer"
+                        }}
+                      >
+                        <PlusIcon size={16} /> {billingShowNewForm ? "İptal" : "Yeni Adres Ekle"}
+                      </button>
+                    </div>
+                  )}
+
+                  {(billingShowNewForm || !isAuthenticated || !hasSavedAddresses) && (
+                    <div>
+                      <div className="checkout-address-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={labelStyle}>Ad</label>
+                          <input type="text" value={billingFirstName} onChange={(e) => setBillingFirstName(e.target.value)} placeholder={firstName || "Teslimat adresindeki ad"} style={inputStyle} />
+                        </div>
+                        <div>
+                          <label style={labelStyle}>Soyad</label>
+                          <input type="text" value={billingLastName} onChange={(e) => setBillingLastName(e.target.value)} placeholder={lastName || "Teslimat adresindeki soyad"} style={inputStyle} />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                        <div data-field="billingCity" style={{ position: "relative" }}>
+                          <label style={labelStyle}><MapPin size={13} /> İl *</label>
+                          <select
+                            value={billingCity}
+                            onChange={(e) => setBillingCity(e.target.value)}
+                            style={{ ...selectStyle, borderColor: errors.billingCity ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
+                          >
+                            <option value="">İl Seçin</option>
+                            {CITIES.map((c) => (<option key={c} value={c}>{c}</option>))}
+                          </select>
+                          <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
+                        </div>
+                        <div data-field="billingDistrict" style={{ position: "relative" }}>
+                          <label style={labelStyle}>İlçe *</label>
+                          <select
+                            value={billingDistrict}
+                            onChange={(e) => setBillingDistrict(e.target.value)}
+                            disabled={!billingCity}
+                            style={{ ...selectStyle, borderColor: errors.billingDistrict ? "rgba(239,68,68,0.5)" : "var(--input-border)", opacity: !billingCity ? 0.5 : 1 }}
+                          >
+                            <option value="">İlçe Seçin</option>
+                            {billingDistricts.map((d) => (<option key={d} value={d}>{d}</option>))}
+                          </select>
+                          <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
+                        </div>
+                      </div>
+
+                      <div data-field="billingAddressLine1" style={{ marginBottom: "12px" }}>
+                        <label style={labelStyle}><MapPin size={13} /> Adres *</label>
+                        <input
+                          type="text"
+                          value={billingAddressLine1}
+                          onChange={(e) => setBillingAddressLine1(e.target.value)}
+                          placeholder="Mahalle, Sokak, Bina No"
+                          style={{ ...inputStyle, borderColor: errors.billingAddressLine1 ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
+                        />
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                        <div>
+                          <label style={labelStyle}>Adres Devamı</label>
+                          <input type="text" value={billingAddressLine2} onChange={(e) => setBillingAddressLine2(e.target.value)} placeholder="Daire, Kat vb." style={inputStyle} />
+                        </div>
+                        <div>
+                          <label style={labelStyle}>Posta Kodu</label>
+                          <input type="text" value={billingPostalCode} onChange={(e) => setBillingPostalCode(e.target.value.replace(/\D/g, "").slice(0, 5))} placeholder="34000" style={inputStyle} />
+                        </div>
+                      </div>
+
+                      {isAuthenticated && (
+                        <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", padding: "12px 16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                          <div
+                            onClick={() => setSaveBillingToAddresses(!saveBillingToAddresses)}
+                            style={{
+                              width: "20px", height: "20px", borderRadius: "6px",
+                              border: saveBillingToAddresses ? "2px solid #10b981" : "2px solid var(--border)",
+                              backgroundColor: saveBillingToAddresses ? "#10b981" : "transparent",
+                              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+                            }}
+                          >
+                            {saveBillingToAddresses && <Check size={12} className="text-white" strokeWidth={3} />}
+                          </div>
+                          <span style={{ fontSize: "13px", color: "var(--foreground-secondary)" }}>
+                            Bu fatura adresini kayıtlı adreslerime ekle
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
             {/* Order Notes */}
             <div>
               <label style={labelStyle}>Sipariş Notları (İsteğe bağlı)</label>
@@ -1359,7 +1699,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Favorilere Ekle">
+                    <button onClick={() => handleMoveToFavorites(item)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Beğendiklerime Ekle">
                       <Heart size={18} />
                     </button>
                     <button onClick={() => removeItem(item.id)} style={{ padding: "8px", color: "var(--foreground-muted)", backgroundColor: "transparent", border: "none", borderRadius: "8px", cursor: "pointer" }} title="Sepetten Sil">

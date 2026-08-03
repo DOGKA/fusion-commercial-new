@@ -9,11 +9,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession, hashPassword, verifyPassword } from "@/lib/auth";
 import { prisma } from "@repo/db";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { PASSWORD_TOO_SHORT_ERROR, isPasswordLongEnough } from "@/lib/password-policy";
 
 interface ChangePasswordBody {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
+  /** Form iki alanlı olduğu için gönderilmiyor; geldiyse eşleşmesi beklenir. */
+  confirmPassword?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -39,35 +41,33 @@ export async function POST(request: NextRequest) {
     const { currentPassword, newPassword, confirmPassword } = body;
 
     // Validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if (!currentPassword || !newPassword) {
       return NextResponse.json(
         { error: "Tüm alanları doldurun" },
         { status: 400 }
       );
     }
 
-    if (newPassword !== confirmPassword) {
+    if (confirmPassword !== undefined && newPassword !== confirmPassword) {
       return NextResponse.json(
         { error: "Yeni şifreler eşleşmiyor" },
         { status: 400 }
       );
     }
 
-    // Password strength validation (same as registration)
-    if (newPassword.length < 8) {
+    if (currentPassword === newPassword) {
       return NextResponse.json(
-        { error: "Yeni şifre en az 8 karakter olmalıdır" },
+        { error: "Yeni şifreniz mevcut şifrenizden farklı olmalı" },
         { status: 400 }
       );
     }
 
-    const hasUppercase = /[A-Z]/.test(newPassword);
-    const hasLowercase = /[a-z]/.test(newPassword);
-    const hasNumber = /[0-9]/.test(newPassword);
-    
-    if (!hasUppercase || !hasLowercase || !hasNumber) {
+    // Kural `lib/password-policy.ts`'den geliyor; burada eskiden ayrıca büyük
+    // harf + küçük harf + rakam isteniyordu ve bu, uygulamadaki en katı kuraldı.
+    // Yani kullanıcı üye olurken kabul edilen bir şifreyi sonradan koyamıyordu.
+    if (!isPasswordLongEnough(newPassword)) {
       return NextResponse.json(
-        { error: "Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir" },
+        { error: PASSWORD_TOO_SHORT_ERROR },
         { status: 400 }
       );
     }

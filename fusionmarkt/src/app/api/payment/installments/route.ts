@@ -13,8 +13,11 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    console.log("📊 Request body:", JSON.stringify(body));
     const { binNumber, price } = body;
+
+    // Gövde olduğu gibi loglanmıyor: bu uç herkese açık, dolayısıyla gelen
+    // değerin gerçekten 6 haneye kısaltılmış olduğuna güvenilemez. İzleme için
+    // gereken alanları `getInstallmentInfo` kendisi basıyor.
 
     // Validate BIN number (first 6 digits of card)
     if (!binNumber || binNumber.replace(/\s/g, "").length < 6) {

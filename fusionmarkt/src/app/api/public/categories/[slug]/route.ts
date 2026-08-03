@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, Prisma } from "@/lib/prisma";
+import { BESTSELLER_FALLBACK_ORDER, getBestsellerProductIds } from "@/lib/bestsellers";
 
 // ============================================
 // TYPE DEFINITIONS
@@ -345,7 +346,9 @@ export async function GET(
     }
     
     // Sıralama
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // newest
+    let orderBy: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[] = {
+      createdAt: "desc",
+    }; // newest
     switch (sort) {
       case "price_asc":
         orderBy = { price: "asc" };
@@ -357,9 +360,42 @@ export async function GET(
         orderBy = { name: "asc" };
         break;
       case "bestseller":
-        orderBy = { createdAt: "desc" }; // TODO: Gerçek satış verisi ile değiştir
+        // Satış varsa sıra aşağıda kimlik listesiyle kuruluyor; bu yedek
+        // sıralama satış olmadığında (bugünkü durum) devreye giriyor.
+        orderBy = BESTSELLER_FALLBACK_ORDER;
         break;
     }
+
+    /**
+     * "Çok satanlar" sayfalaması.
+     *
+     * Sıra veritabanında kurulamıyor (bkz. `lib/bestsellers.ts`), bu yüzden önce
+     * tam sıralı kimlik listesi çıkarılıyor: önce satılanlar satış adedine göre,
+     * arkasına hiç satılmamışlar yedek sırayla. Sayfalama bu liste üzerinden
+     * dilimleniyor — aksi hâlde 2. sayfada sıra bozulurdu.
+     *
+     * Satış yoksa liste `null` kalır ve sorgu normal `skip/take` yoluna düşer.
+     */
+    let orderedIds: string[] | null = null;
+    if (sort === "bestseller") {
+      const rankedIds = await getBestsellerProductIds({ categoryId: category.id });
+      if (rankedIds.length > 0) {
+        const rest = await prisma.product.findMany({
+          where: {
+            categoryId: category.id,
+            isActive: true,
+            id: { notIn: rankedIds },
+          },
+          orderBy: BESTSELLER_FALLBACK_ORDER,
+          select: { id: true },
+        });
+        orderedIds = [...rankedIds, ...rest.map((row) => row.id)];
+      }
+    }
+
+    const pageIds = orderedIds
+      ? orderedIds.slice((page - 1) * limit, page * limit)
+      : null;
 
     // Toplam ürün sayısı
     const totalProducts = await prisma.product.count({
@@ -370,10 +406,11 @@ export async function GET(
     });
 
     // Ürünleri getir (teknik özellikler dahil)
-    const productsRaw = await prisma.product.findMany({
+    const productsUnordered = await prisma.product.findMany({
       where: {
         categoryId: category.id,
         isActive: true,
+        ...(pageIds ? { id: { in: pageIds } } : {}),
       },
       include: {
         category: {
@@ -417,9 +454,16 @@ export async function GET(
         },
       },
       orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
+      // Kimlik listesi varsa sayfalama zaten orada yapıldı.
+      ...(pageIds ? {} : { skip: (page - 1) * limit, take: limit }),
     });
+
+    // `id: { in: [...] }` sorgusu sırayı korumaz; istenen sıraya geri diziyoruz.
+    const productsRaw = pageIds
+      ? pageIds
+          .map((id) => productsUnordered.find((product) => product.id === id))
+          .filter((product): product is (typeof productsUnordered)[number] => Boolean(product))
+      : productsUnordered;
 
     // Rating hesapla ve products'a ekle
     const products = productsRaw.map(p => {

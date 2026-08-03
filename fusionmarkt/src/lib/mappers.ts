@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Product, ProductVariant, ProductBadge } from "@/components/ui/ProductCard";
 import {
   isOnSale,
@@ -37,16 +37,6 @@ const isColorLike = (str: string): boolean => {
   ];
   
   return colorNames.some(c => lower.includes(c));
-};
-
-// Parse combinationKey like "renk:beyaz|beden:l" into attribute-value pairs
-const parseCombinationKey = (combinationKey: string): Array<{ attr: string; value: string }> => {
-  if (!combinationKey) return [];
-  
-  return combinationKey.split("|").map(pair => {
-    const [attr, value] = pair.split(":");
-    return { attr: attr?.trim() || "", value: value?.trim() || "" };
-  }).filter(p => p.attr && p.value);
 };
 
 const mapApiVariantsToCardVariants = (apiProduct: any): ProductVariant[] => {
@@ -95,7 +85,6 @@ const mapApiVariantsToCardVariants = (apiProduct: any): ProductVariant[] => {
       });
     } else {
       // Fallback: parse combinationKey for simple variants without ProductVariantOption records
-      const combinationKey = variant?.combinationKey || "";
       const variantName = variant?.name || "";
       const variantType = variant?.type || "";
       const variantValue = variant?.value || "";

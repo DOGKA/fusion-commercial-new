@@ -1,0 +1,1432 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HESABIM — hesap kabuğu stilleri
+
+   globals.css'te mobile.css'ten SONRA import edilir; böylece gerektiğinde
+   mobil override'larını ezebilir. mobile.css bu dosyayla düzenlenmez —
+   tüm ekleme ve override'lar buradan yapılır.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1. Light tema token override'ları
+
+   page.tsx içindeki <style jsx global> bloğundan BİREBİR taşındı. Seçiciler
+   aynı olduğu için light temadaki görünüm değişmez. Taşıma zorunluydu: blok
+   eskiden authenticated dalın içinde render ediliyordu, alt route'lara
+   bölününce orada olmayacaktı ve light temada tüm hesap sayfaları bozulacaktı.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.light .account-page {
+  --acc-canvas: #f3f5f7;
+  --acc-card: #ffffff;
+  --acc-inset: #f8fafc;
+  --acc-inset-strong: #eef2f6;
+  --acc-raised: #ffffff;
+  --acc-line: rgba(15, 23, 42, 0.1);
+  --acc-line-strong: rgba(15, 23, 42, 0.18);
+  --acc-shadow-tint: 0 1px 3px rgba(15, 23, 42, 0.09);
+  --acc-shadow-raised: 0 10px 30px rgba(15, 23, 42, 0.12);
+
+  --background: var(--acc-card);
+  --background-secondary: var(--acc-inset);
+  --glass-bg: var(--acc-inset);
+  --glass-bg-hover: #f1f5f9;
+  --glass-bg-active: #e9edf2;
+  --glass-bg-solid: #ffffff;
+  --border: var(--acc-line);
+  --border-hover: var(--acc-line-strong);
+  --glass-border: var(--acc-line);
+  --glass-border-hover: var(--acc-line-strong);
+  --foreground: #0f172a;
+  --foreground-secondary: #334155;
+  --foreground-tertiary: #475569;
+  --foreground-muted: #526071;
+  --foreground-disabled: #94a3b8;
+}
+
+/* Hesap içindeki tekrar eden yüzey ve metin tarifleri. Açık temada katmanlar
+   farklı beyaz tonlarına, koyu temada mevcut global tokenlara çözülür. */
+.account-surface {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--glass-bg);
+}
+
+.account-surface-interactive {
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.account-surface-interactive:hover {
+  border-color: var(--border-hover);
+  background: var(--glass-bg-hover);
+}
+
+.account-inset {
+  background: var(--background-secondary);
+}
+
+.account-inset-strong {
+  background: var(--acc-inset-strong, var(--glass-bg-active));
+}
+
+.account-media-well {
+  background: var(--acc-inset-strong, var(--background-secondary));
+}
+
+.account-subsection-label {
+  color: var(--foreground-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.account-eyebrow {
+  color: var(--foreground-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Light tema: dekoratif emerald blur arka planı gizle */
+.light .account-page-bg {
+  display: none;
+}
+
+/* Tarih input'unun native takvim ikonu tema ile uyumlu */
+.account-date-input {
+  color-scheme: dark;
+}
+.light .account-date-input {
+  color-scheme: light;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1b. Semantik durum tonları (plan 07 §2.2)
+
+   Neden token: sabit Tailwind tonları (text-red-400, text-emerald-400 …) light
+   temada beyaz zemin üstünde 2.4–2.8:1 kontrast veriyordu; WCAG AA eşiği 4.5:1.
+   Aynı anlamın iki temada AYRI hex'e çözülmesi gerekiyor, tek sınıfla olmuyor.
+
+   Kapsam `/hesabim` kabuğu ve `/sozlesmeler` sayfası; global token adlarıyla
+   (--foreground vb.) çakışmasın diye hepsi `--acc-` önekli.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Her tonun DÖRT değişkeni var ve görevleri ayrı:
+     -fg        metin/ikon rengi          → zemini üstünde ≥ 4.5:1
+     -bg        çip zemini
+     -bg-hover  çip hover zemini          → o da ≥ 4.5:1 (hover AA'dan düşmez)
+     -border    çipin DIŞ sınırı          → KARTA karşı ≥ 3:1 (WCAG 1.4.11)
+
+   `-border`in ölçütü bilerek karta karşı: `acc-chip-*` yalnız rozet değil,
+   buton olarak da kullanılıyor ("Sorgula", "Yeni adres", "Tekrar al").
+   Butonun nerede başlayıp bittiği ancak sınırından anlaşılıyor — çip dolgusu
+   tek başına kart zeminine karşı yalnızca ~1.2:1, yani sınır olmadan buton
+   görünmez oluyordu. Alfalar ton başına ayrı çünkü aynı alfa farklı
+   parlaklıktaki renklerde farklı kontrast veriyor; her biri 3:1 eşiğinden
+   çözüldü. */
+.account-page,
+.contract-page {
+  --acc-accent-fg: #34d399;
+  --acc-accent-bg: rgba(16, 185, 129, 0.12);
+  --acc-accent-bg-hover: rgba(16, 185, 129, 0.22);
+  --acc-accent-border: rgba(16, 185, 129, 0.6);
+
+  --acc-success-fg: #34d399;
+  --acc-success-bg: rgba(16, 185, 129, 0.12);
+  --acc-success-bg-hover: rgba(16, 185, 129, 0.22);
+  --acc-success-border: rgba(16, 185, 129, 0.6);
+
+  --acc-danger-fg: #f87171;
+  --acc-danger-bg: rgba(239, 68, 68, 0.12);
+  --acc-danger-bg-hover: rgba(239, 68, 68, 0.22);
+  --acc-danger-border: rgba(239, 68, 68, 0.76);
+
+  --acc-warning-fg: #fbbf24;
+  --acc-warning-bg: rgba(245, 158, 11, 0.12);
+  --acc-warning-bg-hover: rgba(245, 158, 11, 0.22);
+  --acc-warning-border: rgba(245, 158, 11, 0.55);
+
+  --acc-info-fg: #60a5fa;
+  --acc-info-bg: rgba(59, 130, 246, 0.12);
+  --acc-info-bg-hover: rgba(59, 130, 246, 0.22);
+  --acc-info-border: rgba(59, 130, 246, 0.75);
+
+  --acc-progress-fg: #c084fc;
+  --acc-progress-bg: rgba(168, 85, 247, 0.12);
+  --acc-progress-bg-hover: rgba(168, 85, 247, 0.22);
+  --acc-progress-border: rgba(168, 85, 247, 0.78);
+
+  --acc-neutral-fg: #a1a1aa;
+  --acc-neutral-bg: rgba(161, 161, 170, 0.12);
+  --acc-neutral-bg-hover: rgba(161, 161, 170, 0.22);
+  --acc-neutral-border: rgba(161, 161, 170, 0.6);
+}
+
+/* Light temada aynı anlamlar koyu tonlara çözülür.
+   Hesap kartlarının zemini burada saf beyaza sabitleniyor (§1), yani en çok
+   kontrast gereken yer burası. Eskiden tersi oluyordu: light zemin alfaları
+   dark'takinden DÜŞÜKTÜ (danger .10 → .07), çipler beyaz üstünde tanımsız
+   kalıyordu. Alfalar dark ile aynı seviyeye çekildi.
+
+   `warning`in metin rengi #a16207'den #854d0e'ye koyulaştı: eski renk mevcut
+   .08 zeminde bile 4.52:1 ile sınırdaydı, zemin alfası yükselince AA'nın
+   altına düşüyordu. Yedi ton içinde eşiği tutmayan tek tondu. */
+.light .account-page,
+.light .contract-page {
+  --acc-accent-fg: #047857;
+  --acc-accent-bg: rgba(16, 185, 129, 0.14);
+  --acc-accent-bg-hover: rgba(16, 185, 129, 0.2);
+  --acc-accent-border: rgba(4, 120, 87, 0.72);
+
+  --acc-success-fg: #047857;
+  --acc-success-bg: rgba(16, 185, 129, 0.14);
+  --acc-success-bg-hover: rgba(16, 185, 129, 0.2);
+  --acc-success-border: rgba(4, 120, 87, 0.72);
+
+  --acc-danger-fg: #b91c1c;
+  --acc-danger-bg: rgba(220, 38, 38, 0.12);
+  --acc-danger-bg-hover: rgba(220, 38, 38, 0.19);
+  --acc-danger-border: rgba(185, 28, 28, 0.62);
+
+  --acc-warning-fg: #854d0e;
+  --acc-warning-bg: rgba(217, 119, 6, 0.12);
+  --acc-warning-bg-hover: rgba(217, 119, 6, 0.19);
+  --acc-warning-border: rgba(133, 77, 14, 0.68);
+
+  --acc-info-fg: #1d4ed8;
+  --acc-info-bg: rgba(37, 99, 235, 0.12);
+  --acc-info-bg-hover: rgba(37, 99, 235, 0.2);
+  --acc-info-border: rgba(29, 78, 216, 0.66);
+
+  --acc-progress-fg: #7e22ce;
+  --acc-progress-bg: rgba(147, 51, 234, 0.12);
+  --acc-progress-bg-hover: rgba(147, 51, 234, 0.2);
+  --acc-progress-border: rgba(126, 34, 206, 0.62);
+
+  --acc-neutral-fg: #52525b;
+  --acc-neutral-bg: rgba(82, 82, 91, 0.12);
+  --acc-neutral-bg-hover: rgba(82, 82, 91, 0.2);
+  --acc-neutral-border: rgba(82, 82, 91, 0.66);
+}
+
+.acc-tone-accent { color: var(--acc-accent-fg); }
+.acc-tone-success { color: var(--acc-success-fg); }
+.acc-tone-danger { color: var(--acc-danger-fg); }
+.acc-tone-warning { color: var(--acc-warning-fg); }
+.acc-tone-info { color: var(--acc-info-fg); }
+.acc-tone-progress { color: var(--acc-progress-fg); }
+.acc-tone-neutral { color: var(--acc-neutral-fg); }
+
+.acc-chip-accent,
+.acc-chip-success,
+.acc-chip-danger,
+.acc-chip-warning,
+.acc-chip-info,
+.acc-chip-progress,
+.acc-chip-neutral {
+  border-style: solid;
+  border-width: 1px;
+}
+
+/* PASİF ÇİP.
+   Bu kuralın JSX'te değil burada olması zorunlu. `acc-chip-*` renkleri bu
+   dosyadan geliyor ve `account.css` globals.css'e KATMANSIZ import ediliyor;
+   Tailwind'in `disabled:bg-*` / `disabled:text-*` varyantları ise `utilities`
+   katmanında. Katmansız bildirim her katmanı yendiği için JSX'teki
+   `disabled:` sınıfları çipin rengini hiçbir zaman ezemiyordu — pasif buton
+   etkin buton gibi görünmeye devam ediyordu. Ölçüldü: kural eklenmeden önce
+   pasif "Sorgula" hâlâ tam renkli accent çizilmiş durumdaydı.
+
+   Renk yerine opaklık kullanılmıyor: opaklık metni ve zemini birlikte
+   soldurup kontrastı AA'nın altına indiriyor. Ayrı nötr palet hem "çalışmıyor"
+   bilgisini veriyor hem okunur kalıyor. */
+/* Light temada çipe çok hafif bir dış gölge: beyaz kartın üstünde yüzen bir
+   nesne gibi otursun. Dark'ta kapalı — koyu zeminde gölge derinlik değil kir
+   olarak okunuyor, ayrım orada zaten zemin parlaklığından geliyor. */
+.light .acc-chip-accent,
+.light .acc-chip-success,
+.light .acc-chip-danger,
+.light .acc-chip-warning,
+.light .acc-chip-info,
+.light .acc-chip-progress,
+.light .acc-chip-neutral {
+  box-shadow: var(--acc-shadow-tint);
+}
+
+/* Pasif çip kuralı gölgeden SONRA gelmeli: `.light .acc-chip-accent` ile
+   `.acc-chip-accent:disabled` aynı özgüllükte (iki bileşen), eşitlikte kaynak
+   sırası karar veriyor. Ters sırada pasif butona gölge geri gelirdi. */
+.acc-chip-accent:disabled,
+.acc-chip-success:disabled,
+.acc-chip-danger:disabled,
+.acc-chip-warning:disabled,
+.acc-chip-info:disabled,
+.acc-chip-progress:disabled,
+.acc-chip-neutral:disabled {
+  background: var(--glass-bg);
+  border-color: var(--border);
+  color: var(--foreground-tertiary);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.acc-chip-accent {
+  color: var(--acc-accent-fg);
+  background: var(--acc-accent-bg);
+  border-color: var(--acc-accent-border);
+}
+.acc-chip-success {
+  color: var(--acc-success-fg);
+  background: var(--acc-success-bg);
+  border-color: var(--acc-success-border);
+}
+.acc-chip-danger {
+  color: var(--acc-danger-fg);
+  background: var(--acc-danger-bg);
+  border-color: var(--acc-danger-border);
+}
+.acc-chip-warning {
+  color: var(--acc-warning-fg);
+  background: var(--acc-warning-bg);
+  border-color: var(--acc-warning-border);
+}
+.acc-chip-info {
+  color: var(--acc-info-fg);
+  background: var(--acc-info-bg);
+  border-color: var(--acc-info-border);
+}
+.acc-chip-progress {
+  color: var(--acc-progress-fg);
+  background: var(--acc-progress-bg);
+  border-color: var(--acc-progress-border);
+}
+.acc-chip-neutral {
+  color: var(--acc-neutral-fg);
+  background: var(--acc-neutral-bg);
+  border-color: var(--acc-neutral-border);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1c. Odak görünürlüğü tabanı
+
+   Hesap ve sözleşme yüzeylerinde onlarca girdi `focus:outline-none` taşıyor;
+   tek tek düzeltmek yerine kabuk seviyesinde bir taban veriliyor. Bu dosya
+   katmansız yüklendiği için Tailwind'in `outline-none` yardımcısını (utilities
+   katmanı) özgüllükten bağımsız olarak yener.
+
+   `:where()` bilinçli — sıfır özgüllük, aşağıdaki bileşen kuralları (sekme,
+   çip, menü satırı) kendi `outline-offset` değerlerini verebilsin diye.
+   Dosyanın başında duruyor ki sonraki kurallar üstüne yazabilsin.
+
+   `.account-toggle` dışarıda: halkasını görsel rayına çiziyor, buton ise onu
+   saran 44px'lik şeffaf dokunma kutusu — ikisi birden çizilirse çift halka olur.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-page
+  :where(a, button, input, select, textarea, summary, [tabindex]):where(
+    :not(.account-toggle)
+  ):focus-visible,
+.contract-page
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   2. Sayfa kabuğu
+
+   Eskiden page.tsx'te inline stildi (paddingTop 120 / paddingBottom 80).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-page {
+  min-height: 100vh;
+  background: var(--acc-canvas, var(--background));
+  padding: 120px 0 80px;
+}
+
+.account-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 20px;
+}
+
+.account-page-subtitle {
+  font-size: 14px;
+  color: var(--foreground-muted);
+  margin: -14px 0 20px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3. Sabit yükseklik (CONTAINER_HEIGHT = 780) yerine gelen düzen kuralı
+
+   Dört parçanın hepsi zorunlu — bkz. plan 01 §6.2.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* (1) Flexbox'ın varsayılan align-items: stretch değeri, sabit yükseklik
+   kalktığı anda iki kolonu en uzun olanın boyuna eşitler; 780px'i kaldırmak
+   tek başına yetmez, kısa sidebar uzun içeriğe gerilerek aynı sorunu geri
+   getirir. Kolonun KENDİSİ gerilmemeli — ama içindeki <aside> kabı gerilmeli,
+   yoksa sticky kartın kayacak yeri olmaz (bkz. §4 .account-sidebar-desktop). */
+.account-page-layout {
+  align-items: flex-start;
+}
+
+/* (2) height değil min-height — kısa sayfalarda kart çökmesin. */
+.account-content-card {
+  min-height: 480px;
+}
+
+@media (max-width: 1023px) {
+  /* Güvenlik ağı: mobile.css'teki min-height:auto !important zaten eziyor. */
+  .account-content-card {
+    min-height: 0;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   4. Masaüstü sidebar
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Sticky'nin çalışması için kartın kabı (aside) satır boyunca uzamalı:
+   sticky öğe yalnızca KENDİ kabının içinde kayabilir. `align-items:flex-start`
+   aside'ı içeriği kadar kısa bıraktığı için kap ile kart aynı boydaydı,
+   kaydırılacak mesafe sıfırdı ve sticky hiç tetiklenmiyordu (plan 07 B-1).
+   Yalnız masaüstünde; mobilde aside zaten display:none. */
+@media (min-width: 1024px) {
+  .account-sidebar-desktop {
+    align-self: stretch;
+  }
+}
+
+.account-sidebar-sticky {
+  position: sticky;
+  top: 100px; /* Header 70px + 30px nefes payı */
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.account-sidebar-heading {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+  padding: 14px 24px 6px;
+}
+
+.account-sidebar-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  text-align: left;
+  color: var(--foreground-muted);
+  font-size: 17px;
+  transition: all 0.2s ease;
+}
+
+.account-sidebar-link:hover {
+  color: var(--foreground);
+  background: rgb(from var(--foreground) r g b / 0.02);
+}
+
+/* Aktif işaret. Sabit #34d399 light temada beyaz üstünde ~1.8:1 veriyordu;
+   ton token'ı iki temada ayrı hex'e çözülüyor (§2.2). */
+.account-sidebar-link--active {
+  background: var(--acc-accent-bg);
+  color: var(--acc-accent-fg);
+  border-right: 2px solid var(--acc-accent-fg);
+}
+
+.account-sidebar-link--active:hover {
+  color: var(--acc-accent-fg);
+  background: var(--acc-accent-bg);
+}
+
+.account-sidebar-group__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  text-align: left;
+  color: var(--foreground-muted);
+  font-size: 17px;
+}
+
+.account-sidebar-group__panel .account-sidebar-link {
+  padding-left: 46px; /* ikon hizası */
+  font-size: 15px;
+}
+
+.account-sidebar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Sidebar altı: çıkış + SSL satırı.
+   Eskiden `text-red-400/60` idi; %60 alfa light temada beyaz üstünde ~1.9:1
+   veriyordu. Tam opak danger token'ı iki temada da ≥ 4.5:1. */
+.account-sidebar-logout {
+  color: var(--acc-danger-fg);
+}
+
+.account-sidebar-logout:hover {
+  background: var(--acc-danger-bg);
+}
+
+/* --foreground-muted light temada 4.8:1 ile sınırda; tertiary'de pay var. */
+.account-sidebar-ssl {
+  color: var(--foreground-tertiary);
+}
+
+/* Odak görünürlüğü — outline: none yazılmıyor. */
+.account-sidebar-link:focus-visible,
+.account-sidebar-logout:focus-visible,
+.account-menu-row:focus-visible,
+.account-mobile-topbar__back:focus-visible {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: -2px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   5. Mobil hub listesi (/hesabim)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-menu-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-menu-list__heading {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--foreground-muted);
+  padding: 18px 4px 8px;
+}
+
+.account-menu-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 12px 4px;
+  text-align: left;
+  color: var(--foreground);
+  font-size: 15px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+
+.account-menu-row:active {
+  background: rgb(from var(--foreground) r g b / 0.03);
+}
+
+.account-menu-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgb(from var(--foreground) r g b / 0.04);
+  color: var(--foreground-muted);
+  flex-shrink: 0;
+}
+
+.account-menu-row__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-menu-row__chevron {
+  color: var(--foreground-muted);
+  flex-shrink: 0;
+}
+
+/* Mobil çıkış satırı. Devralınan `rgba(239,68,68,.7)` light temada ~3.3:1
+   kalıyordu; ton token'ına geçti. */
+.account-menu-row--danger {
+  color: var(--acc-danger-fg);
+  border-bottom: none;
+}
+
+.account-menu-row--danger:active {
+  background: var(--acc-danger-bg);
+}
+
+.account-menu-row--danger .account-menu-row__icon {
+  background: var(--acc-danger-bg);
+  color: inherit;
+}
+
+/* Mobil hub sayaç çipleri */
+.account-stat-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 16px 0 4px;
+}
+
+.account-stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgb(from var(--foreground) r g b / 0.02);
+}
+
+.account-stat-chip__value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.account-stat-chip__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--foreground-muted);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   6. Mobil üst bar
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-mobile-topbar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .account-mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 70px; /* Header yüksekliği */
+    z-index: 50;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    margin: 0 -16px 16px;
+    padding: 8px 16px;
+  }
+
+  /* h1 mobilde görsel olarak gizlenir; başlığı üst bar devralır.
+     Ekran okuyucuda ve DOM sırasında kalır. */
+  .account-page-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+.account-mobile-topbar__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--foreground);
+  flex-shrink: 0;
+}
+
+/* `min-width: 0` şart: flex çocuğunun varsayılan `min-width: auto` değeri
+   kırpılmayı engelliyor, uzun sipariş numarası başlığı geri okunu ezip
+   satırı taşırıyordu (plan 07 K-6). */
+.account-mobile-topbar__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7. Tek sekme dili — .account-tabbar (plan 07 §2.2)
+
+   Eskiden sekmeler mobile.css'teki `.account-mobile-nav` şeridini ödünç alıp
+   masaüstünde sticky/negatif margin'lerini tek tek geri alıyordu. O sınıf ve
+   `.account-tabs__*` kuralları artık hiçbir bileşende geçmediği için silindi;
+   şerit kendi kurallarına sahip.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-tabbar {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  margin: 0 0 20px;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.account-tabbar::-webkit-scrollbar {
+  display: none;
+}
+
+.account-tabbar__item {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground-tertiary);
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.account-tabbar__item:hover {
+  color: var(--foreground);
+}
+
+.account-tabbar__item.is-active,
+.account-tabbar__item[aria-selected="true"],
+.account-tabbar__item[aria-current="page"] {
+  color: var(--acc-accent-fg);
+  border-bottom-color: var(--acc-accent-fg);
+}
+
+.account-tabbar__item:focus-visible {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: -2px;
+}
+
+/* Rozet ve shimmer kutu modelini PAYLAŞIR (plan 07 C-1). Ayrı tanımlıyken iki
+   fark vardı: shimmer `inline-block` ve içi boştu, yani taban çizgisi alt
+   kenarına düşüyordu — rozet ise `inline-flex` olarak metninin taban çizgisine
+   hizalanıyordu; sayaç yüklenince satır kutusu yeniden hesaplanıp sekme etiketi
+   oynuyordu. Ayrıca shimmer `.account-skeleton` ile birlikte kullanıldığı ve o
+   kural bu dosyada daha SONRA geldiği için 999px yerine 8px köşe alıyordu.
+   Seçici bu yüzden `.account-tabbar` altına alındı: özgüllüğü artırmak
+   `.account-skeleton`ın köşe yarıçapını yenmenin tek yolu. */
+.account-tabbar .account-tabbar__badge,
+.account-tabbar .account-tabbar__badge-shimmer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.account-tabbar__badge {
+  background: rgb(from var(--foreground) r g b / 0.08);
+  color: var(--foreground-muted);
+}
+
+.account-tabbar__item.is-active .account-tabbar__badge,
+.account-tabbar__item[aria-selected="true"] .account-tabbar__badge {
+  background: var(--acc-accent-bg);
+  color: var(--acc-accent-fg);
+}
+
+
+@media (max-width: 1023px) {
+  /* Şerit kart kenarlarına yaslanır; kaydırıldığında kenardan kesilmesin. */
+  .account-tabbar {
+    margin: 0 -16px 16px;
+    padding: 0 16px;
+  }
+}
+
+/* Dar ekranda şerit KAYDIRILMAZ, bölüşülür.
+
+   Sekmeler `flex-shrink:0` + `white-space:nowrap` taşıdığı için uzun etiketli
+   iki sekme ("Değerlendirdiklerim" + "Değerlendirme Bekleyenler" ≈ 450px)
+   390px'lik şeride sığmıyor ve ikincisi ekranın dışında kalıyordu. Şerit
+   kaydırılabilir olduğunu belli etmiyor (kaydırma çubuğu gizli, kesilen sekme
+   de kartın kenarına denk geliyor), dolayısıyla kullanıcı bunu taşma/kırık
+   olarak görüyor — haklı olarak, çünkü ikinci sekmenin varlığı hiç
+   sezilmiyor.
+
+   Sığmıyorsa gizlemek yerine sardırıyoruz: sekmeler satırı eşit bölüyor ve
+   etiket iki satıra iniyor. En uzun TEK kelime ("Değerlendirme" ≈ 98px) +
+   rozet + iç boşluk ≈ 140px, iki sekme 280px — 320px'lik ekranda bile sığıyor.
+   Üçüncü bir sekme eklenirse kural yine çalışır, yalnız daha çok sarar. */
+@media (max-width: 640px) {
+  .account-tabbar__item {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding: 8px 8px;
+    font-size: 13px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+  }
+}
+
+/* Değerlendirme, adres ve favori sekmeleri sipariş filtreleriyle aynı davranışı
+   kullanır. Sözleşme sayfasındaki bağımsız `.account-tabbar` kapsam dışında. */
+.account-tabbar.account-tabbar--order-filter {
+  position: sticky;
+  top: 72px;
+  z-index: 20;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 0;
+  background: rgb(from var(--background) r g b / 0.95);
+  backdrop-filter: blur(12px);
+}
+
+.account-tabbar--order-filter .account-tabbar__item {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: auto;
+  min-height: 52px;
+  justify-content: flex-start;
+  padding: 0 12px;
+  border-bottom: 0;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+.account-tabbar--order-filter .account-tabbar__item::after {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+}
+
+.account-tabbar--order-filter .account-tabbar__item.is-active,
+.account-tabbar--order-filter .account-tabbar__item[aria-selected="true"],
+.account-tabbar--order-filter .account-tabbar__item[aria-current="page"] {
+  color: var(--foreground);
+}
+
+.account-tabbar--order-filter .account-tabbar__item.is-active::after,
+.account-tabbar--order-filter .account-tabbar__item[aria-selected="true"]::after,
+.account-tabbar--order-filter .account-tabbar__item[aria-current="page"]::after {
+  background: var(--acc-accent-text);
+}
+
+.account-tabbar--order-filter .account-tabbar__item.is-active .account-tabbar__badge,
+.account-tabbar--order-filter
+  .account-tabbar__item[aria-selected="true"]
+  .account-tabbar__badge {
+  background: rgb(from var(--foreground) r g b / 0.08);
+  color: var(--foreground-muted);
+}
+
+@media (max-width: 1023px) {
+  .account-tabbar.account-tabbar--order-filter {
+    position: static;
+    z-index: auto;
+    gap: 0;
+    margin: 0 0 16px;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .account-tabbar--order-filter .account-tabbar__item {
+    flex: 1 0 auto;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0 8px;
+    text-align: center;
+  }
+
+  .account-tabbar--order-filter .account-tabbar__item::after {
+    right: 0;
+    left: 0;
+  }
+
+  .account-tabbar--order-filter .account-tabbar__item.is-active,
+  .account-tabbar--order-filter .account-tabbar__item[aria-selected="true"],
+  .account-tabbar--order-filter .account-tabbar__item[aria-current="page"] {
+    color: var(--acc-accent-text);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7b. Metin akışı içindeki bağlantı — .account-inline-link (plan 07 K-4)
+
+   44px dokunma tabanının tek metinsel istisnası. Satır içinde geçen "Tümünü
+   gör" gibi bağlantılar 44px'e zorlanınca paragrafın satır aralığını açıyor;
+   bağlantı zaten daha büyük bir dokunulabilir satırın parçası oluyor.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-inline-link {
+  min-height: unset;
+  min-width: unset;
+}
+
+.account-inline-link:focus-visible {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7c. Yuvarlak filtre çipi — .account-chip (plan 07 §K-3)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  color: var(--foreground-tertiary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.account-chip:hover {
+  color: var(--foreground);
+  border-color: var(--border-hover);
+}
+
+.account-chip--active,
+.account-chip[aria-pressed="true"] {
+  color: var(--acc-accent-fg);
+  background: var(--acc-accent-bg);
+  border-color: var(--acc-accent-border);
+}
+
+.account-chip:focus-visible {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: 2px;
+}
+
+.favorites-filter-chip {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 8px;
+  font-size: 12px;
+}
+
+@media (max-width: 1023px) {
+  .account-chip {
+    min-height: 44px;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7d. Durum rozeti — .account-status-badge (plan 07 M-11)
+
+   Renk/zemin `.acc-chip-*` yardımcılarından gelir; bu sınıf yalnız ölçüyü ve
+   yerleşimi verir. Mobilde zemin ve kenarlık kalkar: dar kartta çip, içinde
+   bulunduğu kartla "kutu içinde kutu" hissi veriyordu — orada ayırt ediciliği
+   ikon ve renk zaten sağlıyor. Masaüstünde liste yoğun olduğu için çip kalır.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* border-color BİLİNÇLİ olarak yazılmıyor ve kısayol (`border: 1px solid`)
+   kullanılmıyor: kısayol, bu kural `.acc-chip-*`ten sonra geldiği için onun
+   border-color'ını currentcolor'a sıfırlardı ve %25 alfalı kenarlık sert
+   renge dönerdi. */
+.account-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.account-status-badge--bare {
+  background: none;
+  border-color: transparent;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 1023px) {
+  .account-status-badge {
+    background: none;
+    border-color: transparent;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 6px;
+  }
+
+  /* Gölge `.light .acc-chip-*`ten geliyor ve zemin/kenarlık kalkınca yalnız
+     metnin altında kalıp yazıyı gölgeli gösteriyordu. Seçici `.light` ile
+     yazılmak zorunda: tek sınıflı `.account-status-badge` o kuralı yenemez. */
+  .light .account-status-badge {
+    box-shadow: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7e. Hareket duyarlılığı
+
+   Sekme/çip geçişleri dekoratif; prefers-reduced-motion altında kapanır.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .account-tabbar__item,
+  .account-chip,
+  .account-status-badge,
+  .account-sidebar-link,
+  .account-menu-row {
+    transition: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7f. Aksiyon butonu genişliği (plan 07 M-12)
+
+   Masaüstünde buton içeriği kadar geniştir. `@layer components` şart: bu dosya
+   katmansız yüklendiği için kural aksi hâlde — özgüllüğü sıfır olsa bile —
+   Tailwind'in `utilities` katmanındaki `w-full` yardımcısını ezerdi ve ızgara
+   kartlarında tam genişlik İSTEYEN butonlar (favori/tekrar al) daralırdı.
+   Katmanlı hâlde `w-full` yazan kazanır, yazmayan içeriği kadar kalır.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+  @media (min-width: 1024px) {
+    .account-btn {
+      width: auto;
+    }
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   8. İskelet (skeleton)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--glass-bg) 25%,
+    var(--glass-bg-hover) 37%,
+    var(--glass-bg) 63%
+  );
+  background-size: 400% 100%;
+  animation: account-shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes account-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-skeleton {
+    animation: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   9. Boş durum CTA'sı
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-empty-state__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  background: var(--acc-accent-bg);
+  border: 1px solid var(--acc-accent-border);
+  color: var(--foreground);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.account-empty-state__cta:hover {
+  background: var(--acc-accent-bg-hover);
+  border-color: var(--acc-accent-border);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   10. Onay modalı
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.account-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.account-dialog {
+  width: 100%;
+  max-width: 420px;
+  background: var(--acc-raised, var(--glass-bg-solid));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--acc-shadow-raised, none);
+}
+
+.account-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.account-dialog__desc {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+}
+
+.account-dialog__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.account-dialog__cancel,
+.account-dialog__confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.account-dialog__cancel {
+  color: var(--foreground-muted);
+  border: 1px solid var(--border);
+}
+
+.account-dialog__cancel:hover:not(:disabled) {
+  color: var(--foreground);
+  border-color: var(--border-hover);
+}
+
+.account-dialog__confirm {
+  background: var(--acc-accent-bg);
+  border: 1px solid var(--acc-accent-border);
+  color: var(--acc-accent-fg);
+}
+
+.account-dialog__confirm:hover:not(:disabled) {
+  background: var(--acc-accent-bg-hover);
+}
+
+.account-dialog__confirm--danger {
+  background: var(--acc-danger-bg);
+  border-color: var(--acc-danger-border);
+  color: var(--acc-danger-fg);
+}
+
+.account-dialog__confirm--danger:hover:not(:disabled) {
+  background: var(--acc-danger-bg-hover);
+}
+
+/* Pasif hâl `opacity` ile değil ayrı bir paletle: opaklık metni ve zemini
+   birlikte soldurup kontrastı AA'nın altına indiriyordu. Aynı kural JSX
+   tarafında `DISABLED_TONE` olarak duruyor (hesabim/_lib/action-classes.ts);
+   burada CSS karşılığı yazılı çünkü bu butonlar sınıflarını CSS'ten alıyor. */
+.account-dialog__cancel:disabled,
+.account-dialog__confirm:disabled {
+  background: var(--glass-bg);
+  border-color: var(--border);
+  color: var(--foreground-tertiary);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Modal, portal değil bileşen ağacında render ediliyor; `.account-content-area`
+   içinde kaldığı için mobil 44px tabanı ona da uygulanır. Yine de burada açıkça
+   yazılı: yıkıcı işlemin onay butonu, kapsayıcı sınıf adı değişirse de küçülmesin. */
+@media (max-width: 1023px) {
+  .account-dialog__cancel,
+  .account-dialog__confirm {
+    min-height: 44px;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   11. Dokunma hedefi
+
+   44px tabanı mobile.css'te, `components` katmanında ve `.account-content-area`
+   kapsamında veriliyor (KN-2). Kabuğun kendi öğeleri o tabana ihtiyaç duymuyor:
+   `.account-menu-row` 56px, `.account-mobile-topbar__back` 44px, sidebar ise
+   mobilde `display: none`. Eskiden buradaki `min-height: 44px !important`
+   listesi `.account-menu-row`un 56px'ini de eziyordu.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  @layer components {
+    /* İkon-only butonlar: görsel 32px kalır, ::after ile etkin alan 44px'e çıkar.
+       Katmanlı tanım sayesinde `absolute` gibi yerleşim utility'leri kazanır. */
+    .account-icon-btn {
+      min-height: 32px !important;
+      min-width: 32px !important;
+      position: relative;
+    }
+
+    .account-icon-btn::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+    }
+
+  /* ALAN İÇİ ikon butonu (şifre göster/gizle, aramayı temizle).
+     Girdinin sağ iç boşluğunda duran butonlar bu değişkeni alır.
+
+     İki düzeltme:
+     1) `mobile.css` her `.account-icon-btn`e 6px iç boşluk ve 6px köşe
+        dayatıyor. Yuvarlak buton mobilde köşeli bir kutuya dönüşüyor, ikon
+        16→14px düşüyordu; hizalama bozulmuş gibi görünmesinin sebebi buydu
+        (dikey merkezleme aslında doğruydu: `top-1/2 -translate-y-1/2`).
+     2) Genişletilmiş dokunma alanı YALNIZ DİKEYDE. Her yöne 6px büyüyen alan
+        girdinin sağ kenarına biniyordu; girdinin sağına dokunan kullanıcı
+        alana odaklanmak yerine butona basıyordu. Dikeyde 44px'e çıkmak
+        yeterli — buton zaten girdinin 44px'lik sağ boşluğunun içinde ve
+        yatayda metin alanına değmiyor. */
+    .account-icon-btn--field,
+    .account-icon-btn--round {
+      border-radius: 9999px !important;
+    }
+
+    .account-icon-btn--field {
+      padding: 0 !important;
+    }
+
+    .account-icon-btn--field::after {
+      inset: -6px 0;
+    }
+
+    .account-icon-btn--field svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
+  }
+
+  /* Mobilde toast üstte durur — JS ile genişlik okumadan. */
+  .account-toaster {
+    top: 84px !important;
+    bottom: auto !important;
+  }
+}
+
+/* Mobil kabuk boşlukları */
+@media (max-width: 1023px) {
+  .account-page {
+    padding: 80px 0 40px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   İletişim Tercihlerim — toggle satırları
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.account-prefs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-prefs__intro {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--foreground-secondary);
+  margin: 0;
+}
+
+.account-prefs__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--acc-accent-bg);
+  border: 1px solid var(--acc-accent-border);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--foreground-secondary);
+}
+
+.account-prefs__notice svg {
+  color: var(--acc-accent-fg);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.account-prefs__group-note,
+.account-prefs__footnote {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--foreground-tertiary);
+  margin: 0;
+}
+
+.account-prefs__link {
+  color: var(--acc-accent-fg);
+  text-decoration: none;
+}
+
+.account-prefs__link:hover {
+  text-decoration: underline;
+}
+
+.account-toggle-group {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--glass-bg);
+}
+
+.account-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+  padding: 16px;
+}
+
+.account-toggle-row + .account-toggle-row {
+  border-top: 1px solid var(--border);
+}
+
+.account-toggle-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.account-toggle-row__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.account-toggle-row__desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--foreground-tertiary);
+}
+
+/* Dokunma hedefi 44px; görsel ray daha küçük ve ortalanmış duruyor. */
+.account-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.account-toggle:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.account-toggle__track {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--glass-bg-solid, var(--glass-bg));
+  border: 1px solid var(--border);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.account-toggle[data-checked="true"] .account-toggle__track {
+  background: var(--acc-accent-fg);
+  border-color: var(--acc-accent-fg);
+}
+
+.account-toggle__thumb {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  transform: translateY(-50%);
+  transition: left 0.18s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.account-toggle[data-checked="true"] .account-toggle__thumb {
+  left: 22px;
+}
+
+.account-toggle:focus-visible .account-toggle__track {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: 2px;
+}
+
+/* Alan altı doğrulama hatası (PUT /api/user/profile `field` döndürdüğünde).
+   #ef4444 light temada 3.8:1 kalıyordu; token iki temada da eşiği geçiyor. */
+.account-field-error {
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--acc-danger-fg);
+}

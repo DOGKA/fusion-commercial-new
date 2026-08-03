@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -9,11 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Loader2,
   Package,
-  Filter,
   Store,
-  X,
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
@@ -23,7 +20,6 @@ import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getFiltersByCategory } from "@/lib/filters/category-filters";
 import { useTransformCarousel } from "@/hooks/useTransformCarousel";
-import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
 // ============================================
 // INTERFACES
@@ -66,8 +62,6 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 interface GlassBannerProps {
   themeColor: string;
   onFilterClick: () => void;
-  onVoiceClick: () => void;
-  isListening: boolean;
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
   sortOpen: boolean;
@@ -78,8 +72,6 @@ interface GlassBannerProps {
 function GlassBanner({ 
   themeColor, 
   onFilterClick, 
-  onVoiceClick, 
-  isListening,
   sortBy,
   onSortChange,
   sortOpen,
@@ -259,7 +251,6 @@ export default function CategoryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = params?.slug as string;
-  const carouselRef = useRef<HTMLDivElement>(null);
 
   // Data State
   const [category, setCategory] = useState<Category | null>(null);
@@ -292,9 +283,6 @@ export default function CategoryPage() {
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
   const [allProducts, setAllProducts] = useState<any[]>([]);
 
-  // Mobile Detection
-  const [isMobile, setIsMobile] = useState(false);
-  
   // CSS Transform carousel for mobile - manual scroll only
   const { 
     containerRef: mobileContainerRef, 
@@ -302,20 +290,11 @@ export default function CategoryPage() {
     containerStyle: mobileContainerStyle, 
     wrapperStyle: mobileWrapperStyle, 
     handlers: mobileScrollHandlers,
-    scrollBy,
   } = useTransformCarousel({ friction: 0.95 });
 
   // Get theme color only from category (no fallback)
   const themeColor = category?.themeColor ?? "";
   const hasThemeColor = Boolean(themeColor);
-
-  // Check mobile
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   // Fetch free shipping threshold on mount
   useEffect(() => {
@@ -758,16 +737,6 @@ export default function CategoryPage() {
     router.push(`/kategori/${slug}?${p.toString()}`, { scroll: false });
   };
 
-  // Mobile carousel scroll
-  const scrollCarousel = (direction: "left" | "right") => {
-    if (!carouselRef.current) return;
-    const scrollAmount = carouselRef.current.clientWidth * 0.8;
-    carouselRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
-
   // Not found (only when NOT loading)
   if (!loading && !category) {
     return (
@@ -794,8 +763,6 @@ export default function CategoryPage() {
       <GlassBanner 
         themeColor={themeColor}
         onFilterClick={() => setFilterPanelOpen(true)}
-        onVoiceClick={() => {}}
-        isListening={false}
         sortBy={sortBy}
         onSortChange={handleSortChange}
         sortOpen={sortOpen}

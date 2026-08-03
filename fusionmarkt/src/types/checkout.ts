@@ -72,33 +72,6 @@ export interface SavedAddress {
 // SHIPPING TYPES
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface ShippingOption {
-  id: ShippingMethod;
-  label: string;
-  price: number;
-  description?: string;
-  estimatedDays?: string;
-}
-
-export const SHIPPING_OPTIONS: ShippingOption[] = [
-  { 
-    id: "free", 
-    label: "Ücretsiz Kargo", 
-    price: 0, 
-    description: "2-4 iş günü içinde teslimat",
-    estimatedDays: "2-4 gün"
-  },
-  { 
-    id: "standard", 
-    label: "Standart Kargo", 
-    price: 500, 
-    description: "1-2 iş günü içinde teslimat",
-    estimatedDays: "1-2 gün"
-  },
-];
-
-export const FREE_SHIPPING_THRESHOLD = 3000; // TL
-
 // ═══════════════════════════════════════════════════════════════════════════
 // COUPON TYPES
 // ═══════════════════════════════════════════════════════════════════════════

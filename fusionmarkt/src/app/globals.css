@@ -16,6 +16,7 @@
 @import "../styles/layout.css";
 @import "../styles/effects.css";
 @import "../styles/mobile.css";
+@import "../styles/account.css";
 /* blog.css BİLEREK burada değil (~68 KB). Yalnızca kullanıldığı rotalarda
    import ediliyor: app/blog/layout.tsx ve app/sikca-sorulan-sorular/layout.tsx.
    Buradan import edilirse her sayfanın render-blocking CSS'ine geri girer. */

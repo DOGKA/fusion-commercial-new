@@ -97,8 +97,20 @@ export default function OrdersPage() {
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
 
-  // Pagination
+  // Pagination — sayfa ve toplam sunucudan geliyor (F2-56)
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  /**
+   * Arama kutusu her tuşta istek atmasın diye geciktiriliyor. Filtre ve sayfa
+   * değişimi anında; yalnızca serbest metin bekliyor.
+   */
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Dropdown states
   const [activeStatusDropdown, setActiveStatusDropdown] = useState<string | null>(null);
@@ -108,54 +120,56 @@ export default function OrdersPage() {
   // Loading states for individual updates
   const [updatingOrders, setUpdatingOrders] = useState<Set<string>>(new Set());
 
-  // Fetch orders
+  /**
+   * Liste sunucudan filtrelenmiş ve sayfalanmış geliyor (F2-56).
+   *
+   * Önceden uç parametresiz çağrılıyordu: ilk 100 sipariş çekilip arama,
+   * filtre ve sayfalama bellekte yapılıyordu. Yani 100'üncü siparişten
+   * eskisi hiçbir aramada bulunamıyordu. Uç bu parametreleri zaten
+   * destekliyordu, yalnızca gönderilmiyordu.
+   */
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/orders");
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        limit: String(ITEMS_PER_PAGE),
+      });
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      if (statusFilter !== "ALL") params.set("status", statusFilter);
+      if (paymentFilter !== "ALL") params.set("paymentStatus", paymentFilter);
+
+      const res = await fetch(`/api/admin/orders?${params.toString()}`);
       if (!res.ok) throw new Error("Siparişler alınamadı");
       const data = await res.json();
       setOrders(data.orders || []);
       setStats(data.stats || null);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setTotalCount(data.pagination?.totalCount || 0);
+      // Liste değişti: görünmeyen satırların seçili kalması toplu işlemi
+      // sürprize çevirirdi.
+      setSelectedOrders(new Set());
+      setSelectAll(false);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, debouncedSearch, statusFilter, paymentFilter]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Filter orders
-  const filteredOrders = orders.filter((order) => {
-    // Search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch = 
-        order.orderNumber.toLowerCase().includes(query) ||
-        order.user?.name?.toLowerCase().includes(query) ||
-        order.user?.email?.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
-    }
+  // Filtre değişince ilk sayfaya dön: 5. sayfadayken filtre daraltılırsa
+  // sonuç var ama sayfa boş görünürdü.
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter, paymentFilter]);
 
-    // Status filter
-    if (statusFilter !== "ALL" && order.status !== statusFilter) return false;
-
-    // Payment filter
-    if (paymentFilter !== "ALL" && order.paymentStatus !== paymentFilter) return false;
-
-    return true;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-  const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // Sunucu zaten filtreleyip dilimlediği için liste doğrudan kullanılıyor.
+  const paginatedOrders = orders;
 
   // Select all toggle
   const handleSelectAll = () => {
@@ -505,7 +519,7 @@ export default function OrdersPage() {
           <h2 className="text-lg font-semibold text-dark dark:text-white">
             Sipariş Listesi
             <span className="ml-2 text-sm font-normal text-gray-500">
-              ({filteredOrders.length} sipariş)
+              ({totalCount} sipariş)
             </span>
           </h2>
         </div>
@@ -525,7 +539,7 @@ export default function OrdersPage() {
               Tekrar Dene
             </button>
           </div>
-        ) : filteredOrders.length === 0 ? (
+        ) : paginatedOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Package size={48} className="text-gray-300 mb-4" />
             <p className="text-gray-500">
@@ -742,7 +756,7 @@ export default function OrdersPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-stroke px-6 py-4 dark:border-dark-3">
                 <p className="text-sm text-gray-500">
-                  {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length)} / {filteredOrders.length} sipariş
+                  {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} / {totalCount} sipariş
                 </p>
                 <div className="flex items-center gap-2">
                   <button

@@ -13,6 +13,7 @@ export {
   generateCategoryMetadata,
   generateBrandMetadata,
   generateBlogMetadata,
+  accountPageMetadata,
   staticPageMetadata,
   type ProductMetaParams,
   type CategoryMetaParams,

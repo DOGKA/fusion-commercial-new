@@ -9,6 +9,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import { hashPassword } from "@/lib/auth";
 import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
+import { buildConsentLogRows, CONSENT_CHANNELS, CONSENT_SOURCES } from "@/lib/consent";
+import { PASSWORD_TOO_SHORT_ERROR, isPasswordLongEnough } from "@/lib/password-policy";
 
 interface RegisterBody {
   email: string;
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: RegisterBody = await request.json();
-    const { email, password, name, phone } = body;
+    const { email, password, name, phone, newsletter } = body;
 
     // ─────────────────────────────────────────────────────────────────────────
     // Validation
@@ -64,9 +66,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 8) {
+    if (!isPasswordLongEnough(password)) {
       return NextResponse.json(
-        { error: "Parola en az 8 karakter olmalıdır" },
+        { error: PASSWORD_TOO_SHORT_ERROR },
         { status: 400 }
       );
     }
@@ -92,6 +94,10 @@ export async function POST(request: NextRequest) {
     // ─────────────────────────────────────────────────────────────────────────
     const hashedPassword = await hashPassword(password);
 
+    // Kutu işaretlenmemişse `undefined` gelir ve alan `null` kalır: "hiç
+    // sorulmadı" ile "reddetti" ayrımı korunur (bkz. lib/consent.ts).
+    const emailConsent = typeof newsletter === "boolean" ? newsletter : null;
+
     const user = await prisma.user.create({
       data: {
         email: normalizedEmail,
@@ -99,7 +105,8 @@ export async function POST(request: NextRequest) {
         name: name?.trim() || null,
         phone: phone?.trim() || null,
         role: "CUSTOMER",
-        // Newsletter subscription could be stored in a separate table or user metadata
+        emailConsent,
+        consentUpdatedAt: emailConsent !== null ? new Date() : null,
       },
       select: {
         id: true,
@@ -108,6 +115,32 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     });
+
+    if (emailConsent !== null) {
+      const logRows = buildConsentLogRows(
+        [
+          {
+            channel: CONSENT_CHANNELS.EMAIL,
+            granted: emailConsent,
+            previousValue: null,
+          },
+        ],
+        {
+          userId: user.id,
+          source: CONSENT_SOURCES.REGISTER,
+          ipAddress: clientIP,
+          userAgent: request.headers.get("user-agent"),
+        }
+      );
+
+      // Kayıt zaten tamamlandı; denetim kaydı yazılamazsa kullanıcıyı
+      // başarısız saymak yerine hatayı bildirip devam ediyoruz.
+      try {
+        await prisma.userConsentLog.createMany({ data: logRows });
+      } catch (logError) {
+        console.error("Consent log write failed on register:", logError);
+      }
+    }
 
     return NextResponse.json(
       {

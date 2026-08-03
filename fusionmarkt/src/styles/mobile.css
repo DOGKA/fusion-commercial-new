@@ -51,8 +51,8 @@
   /* Ürün kartı favori butonu — en ağır backdrop-filter kaynağı (her kartta var,
      slider hareket ederken kompozit maliyeti yüksek). Mobilde blur'u hafifçe
      kısıyoruz; görsel fark neredeyse yok ama scroll/INP belirgin iyileşir. */
-  button[title="Favorilere Ekle"],
-  button[title="Favorilerden Çıkar"] {
+  button[title="Beğendiklerime Ekle"],
+  button[title="Beğendiklerimden Çıkar"] {
     backdrop-filter: blur(6px) saturate(1.1) !important;
     -webkit-backdrop-filter: blur(6px) saturate(1.1) !important;
   }
@@ -462,8 +462,7 @@
   }
   
   /* Favorite butonu - 44x44px, sağda */
-  .product-cta-row > button[title*="Favori"],
-  .product-cta-row > button[title*="favori"] {
+  .product-cta-row > button[title*="Beğendiklerim"] {
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
@@ -658,57 +657,6 @@
     font-size: 12px !important;
   }
   
-  /* Kupon/Mystery Box butonu - sağ üst, SQUIRCLE */
-  .store-coupon-button {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-    height: 36px !important;
-    padding: 0 14px !important;
-    font-size: 12px !important;
-    white-space: nowrap !important;
-    border-radius: 16px !important; /* SQUIRCLE - iOS style yumuşak köşe */
-    background: rgba(16, 185, 129, 0.15) !important;
-    border: 1px solid rgba(52, 211, 153, 0.30) !important;
-    min-width: auto !important;
-    max-width: fit-content !important;
-  }
-  
-  .store-coupon-button span {
-    font-size: 11px !important;
-  }
-  
-  /* Kupon kodu - göster */
-  .store-coupon-button .coupon-code {
-    display: inline !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-  }
-  
-  /* Nokta ayırıcı - göster */
-  .store-coupon-button .coupon-dot {
-    display: inline !important;
-  }
-  
-  /* İndirim miktarı (₺5000) - GÖSTER */
-  .store-coupon-button .coupon-amount {
-    display: inline !important;
-  }
-  
-  /* "İndirim" yazısı - GİZLE (sığmıyor) */
-  .store-coupon-button .coupon-label {
-    display: none !important;
-  }
-  
-  /* Ayırıcı çizgi - gizle */
-  .store-coupon-button .coupon-divider {
-    display: none !important;
-  }
-  
-  /* Info icon - gizle */
-  .store-coupon-button .coupon-info {
-    display: none !important;
-  }
-  
   /* Arama - tam genişlik, alt satır, squircle */
   .store-search-container {
     grid-column: 1 / -1 !important;
@@ -748,14 +696,6 @@
     grid-column: 2 !important;
     grid-row: 1 !important;
     border-radius: 14px !important;
-  }
-  
-  .store-coupon-button {
-    grid-column: 1 / -1 !important;
-    grid-row: 2 !important;
-    width: 100% !important;
-    justify-content: center !important;
-    border-radius: 20px !important;
   }
   
   .store-search-container {
@@ -807,14 +747,6 @@
   border-color: var(--glass-border-hover) !important;
 }
 
-.store-coupon-button {
-  border-radius: 16px !important; /* SQUIRCLE - iOS style */
-  background: rgba(16, 185, 129, 0.12) !important;
-  border: 1px solid rgba(52, 211, 153, 0.25) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
 /* ─────────────────────────────────────────────────────────────────────────
    RELATED PRODUCTS - Fiyat Düzeltmesi
    "Birlikte Sıkça Alınan" ve "Kullanıcılar Bu Ürünlere de Baktı" bölümleri
@@ -853,11 +785,6 @@
 .related-product-buttons button:hover {
   transform: scale(1.02);
   background-color: var(--glass-bg-hover) !important;
-}
-
-.store-coupon-button:hover {
-  background: rgba(16, 185, 129, 0.18) !important;
-  border-color: rgba(52, 211, 153, 0.40) !important;
 }
 
 .store-search-container input {
@@ -1334,143 +1261,105 @@
      SİPARİŞ KARTI - Order Card Mobile Layout
   =========================================================================== */
   
-  /* Order Card Header - Düzgün grid layout */
+  /* Order Card Header - tam dikey akış:
+     1) ortalanmış ürün görselleri, 2) durum + meta, 3) fiyat. */
   .order-card-header {
     display: grid !important;
-    grid-template-columns: 40px 1fr auto !important;
-    grid-template-rows: auto auto !important;
-    gap: 8px 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 10px !important;
     padding: 14px !important;
-    align-items: start !important;
+    align-items: center !important;
   }
-  
-  /* Status icon - sol üst */
+
+  /* Altı ürünlü siparişte ilk üç görsel ve +N rozeti aynı ortalanmış,
+     üst üste binen şeritte kalır. */
+  .order-card-header > .order-thumbs {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: center !important;
+  }
+
+  .order-card-header > .order-thumbs > div {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  /* Görseli olmayan siparişte aynı yeri durum ikonu alıyor. */
   .order-card-header > .order-status-icon {
     grid-column: 1 !important;
-    grid-row: 1 / 3 !important;
-    width: 40px !important;
-    height: 40px !important;
+    grid-row: 1 !important;
+    justify-self: center !important;
+    width: 48px !important;
+    height: 48px !important;
   }
   
-  /* Order info - üst orta */
+  /* Durum + meta: ikinci katman, tamamen ortalı. */
   .order-card-header > .order-info {
-    grid-column: 2 !important;
-    grid-row: 1 / 3 !important;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
     padding-left: 0 !important;
     width: 100% !important;
+    text-align: center !important;
   }
   
-  /* Order number ve status badge */
   .order-card-header .order-info > div:first-child {
+    justify-content: center !important;
     flex-wrap: wrap !important;
     gap: 6px !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 2px !important;
   }
   
-  /* Order number daha küçük */
-  .order-card-header .order-info > div:first-child > span:first-child {
-    font-size: 13px !important;
-  }
-  
-  /* Status badge daha küçük */
-  .order-card-header .order-info > div:first-child > span:last-child {
-    font-size: 10px !important;
-    padding: 2px 6px !important;
-  }
-  
-  /* Meta bilgiler (tarih, ürün sayısı, ödeme durumu) - tek satır.
-     Ürün adedi her zaman görünür; alan darsa tarih ... ile kısalır. */
+  /* Meta bilgiler (tarih, ürün sayısı, ödeme durumu). Artık tam genişlikte
+     olduğu için kırpma yok, gerekirse alt satıra sarıyor. */
   .order-card-header .order-info > div:last-child {
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
-    gap: 4px !important;
-    font-size: 10px !important;
-    overflow: hidden !important;
+    justify-content: center !important;
+    gap: 2px 6px !important;
+    font-size: 11px !important;
     min-width: 0 !important;
-  }
-
-  .order-card-header .order-info > div:last-child > span {
-    flex-shrink: 0 !important;
-  }
-
-  .order-card-header .order-info > div:last-child > span:first-child {
-    flex-shrink: 1 !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
   }
   
-  /* Total - sağ üst */
+  /* Fiyat: üçüncü katmanda, ayırıcı çizginin altında ortalı. Ok sağ kenarda
+     mutlak konumda olduğu için fiyatın görsel merkezini bozmaz. */
   .order-card-header > .order-total {
-    grid-column: 3 !important;
-    grid-row: 1 / 3 !important;
-    text-align: right !important;
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    width: 100% !important;
+    padding-top: 10px !important;
+    border-top: 1px solid var(--border) !important;
+    text-align: center !important;
   }
   
   .order-card-header > .order-total > p:first-child {
-    font-size: 14px !important;
+    font-size: 16px !important;
+    margin-bottom: 0 !important;
   }
-  
-  /* ===========================================================================
-     SİPARİŞ TİMELINE - DİKEY LAYOUT (Mobil için)
-     5 adım: Sipariş → Ödeme → Hazırlanıyor → Kargoda → Teslim
-  =========================================================================== */
-  
-  .order-timeline-container {
-    overflow: visible !important;
-    padding: 8px 0 !important;
-    margin: 0 !important;
+
+  .order-card-header > .order-total > svg {
+    position: absolute !important;
+    right: 0 !important;
+    margin-left: 0 !important;
   }
-  
-  /* Timeline - dikey layout */
-  .order-timeline {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 0 !important;
-    padding: 0 !important;
-  }
-  
-  /* Her bir step */
-  .order-timeline-step {
-    flex-direction: row !important;
-    align-items: stretch !important;
-    min-width: auto !important;
+
+  /* Çizelgenin altındaki takip / iptal / iade aksiyonları mobilde ayrı küçük
+     kartlar gibi yüzmesin. Aynı akış içinde tam genişlikte, sonraki aksiyon
+     ince bir ayırıcıyla devam etsin. */
+  .order-flow-action {
     width: 100% !important;
-    position: relative !important;
-    padding-left: 0 !important;
+    max-width: none !important;
   }
-  
-  /* Step içindeki content container */
-  .order-step-content {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 12px !important;
-    min-width: auto !important;
+
+  .order-flow-action + .order-flow-action {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+
+  .order-flow-action > .account-btn {
     width: 100% !important;
-    padding: 8px 0 !important;
-  }
-  
-  /* Step ikonu - Büyütülmüş */
-  .order-step-icon {
-    width: 32px !important;
-    height: 32px !important;
-    flex-shrink: 0 !important;
-    position: relative !important;
-    z-index: 2 !important;
-  }
-  
-  .order-step-icon svg {
-    width: 16px !important;
-    height: 16px !important;
-  }
-  
-  /* Step label - Büyütülmüş */
-  .order-step-label {
-    font-size: 18px !important;
-    margin-top: 0 !important;
-    font-weight: 600 !important;
-    flex: 1 !important;
-    letter-spacing: -0.01em !important;
   }
   
   /* Sipariş numarası - Mobil uyumlu */
@@ -1478,35 +1367,12 @@
     font-size: 13px !important;
   }
   
-  /* Step tarih - sağa yasla */
-  .order-step-date {
-    font-size: 11px !important;
-    margin-top: 0 !important;
-    margin-left: auto !important;
-    color: var(--foreground-muted) !important;
-  }
-  
-  /* Yatay connector - gizle */
-  .order-step-connector {
-    display: none !important;
-  }
-  
-  /* Dikey çizgi - son step hariç (--border: her iki temada da görünür) */
-  .order-timeline-step:not(:last-child) .order-step-icon::after {
-    content: '' !important;
-    position: absolute !important;
-    left: 50% !important;
-    top: 100% !important;
-    transform: translateX(-50%) !important;
-    width: 2px !important;
-    height: 24px !important;
-    background: var(--border) !important;
-  }
-  
-  /* Done step için yeşil çizgi */
-  .order-timeline-step.step-done:not(:last-child) .order-step-icon::after {
-    background: linear-gradient(to bottom, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15)) !important;
-  }
+  /* Not: Buradaki `.order-timeline*` / `.order-step-*` blokları kaldırıldı.
+     Yatay ve dikey olmak üzere iki ayrı çizelge bileşeni tek bir duyarlı
+     bileşende birleşti (plan 07 M-15); yeni bileşen `.order-flow` sınıflarını
+     ve Tailwind `lg:` varyantlarını kullanıyor, yerleşimi `!important` yığınıyla
+     değil kırılım noktasıyla çözüyor. Eski kuralları hiçbir bileşen
+     seçmiyordu. */
   
   /* ===========================================================================
      EXPANDED CONTENT
@@ -1531,13 +1397,16 @@
     height: 40px !important;
   }
   
-  .order-item-row .order-item-info {
-    font-size: 12px !important;
-  }
-  
-  .order-item-row .order-item-price {
-    font-size: 13px !important;
-  }
+  /* Not: `.order-item-info` ve `.order-item-price` için buradaki `font-size`
+     kuralları kaldırıldı. İkisi de KAPSAYICIYA yazıyordu, oysa içindeki her
+     metnin kendi punto sınıfı var (`text-[13px]`, `text-[11px]`). Bir öğenin
+     kendi bildirimi kalıtımla gelen değeri her zaman yener — ebeveyndeki
+     `!important` bunu değiştirmiyor. Yani kurallar yalnızca sınıfsız bir
+     çocuğu etkileyebilirdi, gerçek işaretlemede öyle bir çocuk yok: ölüydüler.
+     Ölçüldü (390px): ad 13px, varyant 11px; kural varken de aynıydı.
+
+     Bırakılsalardı ileride eklenecek sınıfsız bir metni sessizce küçültecek
+     bir tuzak olarak kalırlardı. Kalem ölçüsü bileşende duruyor. */
   
   /* Order Summary */
   .order-summary-grid {
@@ -1553,7 +1422,10 @@
 /* ─────────────────────────────────────────────────────────────────────────
    HESABIM / ACCOUNT PAGE - Sidebar + Content Layout
    Desktop: Sidebar (300px) + Content
-   Mobile: Tab navigation üstte, content altta
+   Mobile: Sidebar gizli, content tam genişlik (gezinme kabuğun üst barında)
+
+   `.account-mobile-nav*` kuralları buradan kalktı: tek sekme dili artık
+   `.account-tabbar` (account.css §7b) ve o sınıfın hiçbir tüketicisi kalmadı.
 ───────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {
@@ -1567,74 +1439,10 @@
     display: none !important;
   }
   
-  /* Mobile tab navigation göster */
-  .account-mobile-nav {
-    display: flex !important;
-  }
-  
   /* Content tam genişlik */
   .account-content-area {
     width: 100% !important;
   }
-}
-
-/* Desktop'ta gizle - Çıkış Yap bölümü (sidebar'da var) */
-.account-logout-section {
-  display: none;
-}
-
-/* Mobile tab navigation stilleri */
-.account-mobile-nav {
-  display: none;
-  overflow-x: auto;
-  gap: 0;
-  background: var(--background);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 70px; /* Header yüksekliği */
-  z-index: 50;
-  padding: 0 16px;
-  margin: 0 -16px 16px -16px; /* Bottom margin eklendi */
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.account-mobile-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.account-mobile-nav-item {
-  flex-shrink: 0;
-  padding: 16px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--foreground-muted);
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-
-.account-mobile-nav-item.active {
-  color: #10b981;
-  border-bottom-color: #10b981;
-}
-
-.account-mobile-nav-item:hover {
-  color: var(--foreground-secondary);
-}
-
-/* Mobil Çıkış Yap butonu */
-.account-mobile-logout {
-  color: rgba(239, 68, 68, 0.7) !important;
-  border-bottom-color: transparent !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  margin-left: auto !important;
-}
-
-.account-mobile-logout:hover {
-  color: #ef4444 !important;
 }
 
 @media (max-width: 1023px) {
@@ -1663,57 +1471,53 @@
     padding: 0 !important;
   }
   
-  /* Çıkış Yap bölümü - mobilde görünür */
-  .account-logout-section {
-    display: block !important;
-  }
-  
   /* Form section başlıkları */
   .account-details-form .space-y-3 > span:first-child {
     font-size: 13px !important;
   }
   
-  /* Input alanları: boyutlar component'te tanımlı (h-11, text-[15px]);
-     eski 48px/16px !important override'ı kaldırıldı. */
-  
-  /* Label'lar */
-  .account-details-form label {
-    font-size: 12px !important;
-  }
+  /* Input alanları ve etiketler: ölçü bileşende (h-11, text-[15px], etiket
+     13px). Buradaki `label { font-size: 12px !important }` kuralı kaldırıldı —
+     bileşenin 13px ölçeğini yalnızca mobilde küçültüyordu, yani aynı form iki
+     kırılımda iki farklı tipografiye sahipti (plan 07 D-5). */
   
   /* ===========================================================================
-     HESABIM - TÜM BUTONLAR KOMPAKT & UNIFIED
-     Web: px-4 py-2 text-[13px] rounded-lg gap-2
-     Mobile: px-3 py-1.5 text-[12px] rounded-md gap-1.5
+     HESABIM - AKSİYON BUTONLARI (mobil ölçek)
+
+     Burada YALNIZCA dokunma hedefi zorlanır. Eskiden bu kural `padding`,
+     `font-size`, `gap`, `border-radius` ve ikon boyutunu da `!important` ile
+     dayatıyordu; sonuç olarak kart içindeki küçük haplar ("Tekrar al",
+     "Siparişi iptal et", "Yeni adres") mobilde 11-12px yerine 13px metin ve
+     14px iç boşlukla çizilip kaba/şişkin görünüyordu — aynı buton iki
+     kırılımda iki farklı tipografiye sahipti.
+
+     Ölçüyü artık bileşen belirler; buradan sadece 44px taban geçer
+     (plan 07 K-4). Dikey padding yerine `min-height`: padding'le sabit hedef
+     tutturulamaz, içerik yüksekliği metne göre oynar. `line-height` metni bu
+     44px kutunun içinde dikeyde ortalı tutmak için kalıyor.
+
+     Köşe yarıçapı kaldırıldı: `.account-btn` kullanan bileşenlerin hepsi
+     zaten `rounded-full` yazıyor, kural yalnız kendini tekrar ediyordu.
   =========================================================================== */
   
-  /* Action butonlar - kompakt mobile */
   .account-btn {
-    padding: 5px 10px !important;
-    font-size: 11px !important;
-    gap: 4px !important;
-    border-radius: 9999px !important;
-    min-height: unset !important;
-    min-width: unset !important;
+    min-height: 44px !important;
     line-height: 1.3 !important;
   }
   
   .account-btn svg {
-    width: 11px !important;
-    height: 11px !important;
     flex-shrink: 0 !important;
   }
   
-  /* Kaydet butonu - mobilde full width */
+  /* Kaydet butonu - mobilde full width (M-12'nin bilinçli istisnası) */
   .account-save-btn {
     width: 100% !important;
     justify-content: center !important;
   }
   
-  /* Icon-only butonlar - 44px override'dan muaf */
+  /* Icon-only butonlar. Ölçü account.css §11'de (32px + ::after ile 44px etkin
+     alan); burada yalnız iç boşluk ve köşe var ki ikon kutuya sığsın. */
   .account-icon-btn {
-    min-height: unset !important;
-    min-width: unset !important;
     padding: 6px !important;
     border-radius: 6px !important;
   }
@@ -1723,31 +1527,9 @@
     height: 14px !important;
   }
   
-  /* Çıkış Yap butonu - Mobilde gizle (tab navigation'da zaten var) */
-  .account-logout-btn {
-    display: none !important;
-  }
-  
-  /* Çıkış Yap bölümü - Mobilde gizle */
-  .account-logout-section {
-    display: none !important;
-  }
-  
-  /* Adres kart butonları - mobilde yan yana eşit genişlik */
-  .account-addr-actions {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
-  }
-  
-  /* Şifre bölümü */
-  .account-details-form .password-section {
-    padding: 16px !important;
-    margin: 0 -16px !important;
-    width: calc(100% + 32px) !important;
-    background: var(--glass-bg) !important;
-    border-radius: 0 !important;
-  }
+  /* Not: Buradaki `.account-addr-actions` kuralı kaldırıldı — hiçbir bileşende
+     geçmiyordu. Adres kartında yan yana iki buton kalmadı; düzenleme bir ikon
+     butonu, "varsayılan yap" ise kart altında tam genişlikte tek aksiyon. */
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1847,13 +1629,27 @@
    Mobilde gizle/göster helper class'ları
 ───────────────────────────────────────────────────────────────────────── */
 
-/* Desktop'ta göster, mobilde gizle */
-.hide-on-mobile {
-  display: block;
+/* Desktop'ta göster, mobilde gizle.
+
+   Kural `@layer components` içinde olmak ZORUNDA. Sıfır özgüllük (`:where`)
+   tek başına yetmiyor: bu dosya katmansız (unlayered) yükleniyor ve katmansız
+   bildirimler özgüllükten bağımsız olarak her `@layer`ı — dolayısıyla Tailwind
+   `utilities` katmanındaki `flex`/`grid`/`inline-flex` yardımcılarını da —
+   yener. Preflight `svg { display: block }` verdiği için `hide-on-mobile flex`
+   taşıyan breadcrumb'ta ikonlar alt alta düşüyordu (plan 07 KN-1).
+   `components`, `utilities`ten önce geldiğinden artık yardımcı sınıf kazanır;
+   yardımcı taşımayan düz elemanlar hâlâ blok olur. */
+@layer components {
+  :where(.hide-on-mobile) {
+    display: block;
+  }
 }
 
-/* Mobilde göster, desktop'ta gizle */
-.show-on-mobile {
+/* Mobilde göster, desktop'ta gizle.
+   `.show-on-mobile-flex` de burada gizleniyor ki tek başına kullanılabilsin;
+   mobil dalın `display: block` dayatması gereken yerlerde onunla aşılıyor. */
+.show-on-mobile,
+.show-on-mobile-flex {
   display: none !important;
 }
 
@@ -1887,14 +1683,41 @@
 ───────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {
-  /* Tüm butonlar ve tıklanabilir alanlar minimum 44px */
-  button, 
-  a, 
-  [role="button"],
-  input[type="checkbox"],
-  input[type="radio"] {
+  /* Tüm butonlar ve tıklanabilir alanlar minimum 44px.
+
+     Hesap alanı seçicinin DIŞINDA bırakıldı; tabanı aşağıdaki `@layer
+     components` bloğu veriyor. Sebep: bu blok katmansız olduğu için Tailwind'in
+     `min-h-[48px]` yardımcısını da eziyor — yani bileşenin bilinçli olarak daha
+     yüksek istediği satırlar da 44px'e iniyordu. Katmanlı taban ise yardımcıya
+     yol veriyor (plan 07 K-4). */
+  button:not(.account-content-area *),
+  a:not(.account-content-area *),
+  [role="button"]:not(.account-content-area *),
+  input[type="checkbox"]:not(.account-content-area *),
+  input[type="radio"]:not(.account-content-area *) {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Hesap alanının 44px tabanı. Eski hâli toptan muafiyetti
+     (`min-height: unset !important`) ve bileşenlerdeki min-h-[36px]/[38px]/
+     [48px] niyetlerini de sildiği için sözleşme satırları, filtre çipleri ve
+     bilgilerim butonları mobilde ince çubuğa dönüyordu.
+
+     `components` katmanında: `min-h-[48px]` yazan bileşen kazanır, yazmayan
+     44px alır. Yalnızca YÜKSEKLİK — min-width: 44px metin akışındaki
+     bağlantıları ve dar çipleri kart düzeninden taşırıyor, dokunma hedefi için
+     de gerekmiyor. Onay kutusu/radyo hiç hedeflenmiyor: 44px'lik kutu form
+     ızgarasını bozar, hedef alanı sarmalayan etiketten geliyor.
+
+     İstisnalar: `.account-icon-btn` (görsel 32px, ::after ile etkin alan 44px —
+     account.css §11) ve `.account-inline-link` (metin akışının içindeki
+     bağlantı; yükseklik tabanı satır aralığını bozardı). */
+  @layer components {
+    .account-content-area
+      :is(button, a, [role="button"]):not(.account-icon-btn):not(.account-inline-link) {
+      min-height: 44px;
+    }
   }
   
   /* MiniCart selection checkbox - küçük kalmalı */
@@ -1910,18 +1733,6 @@
     min-width: unset !important;
   }
   
-  /* Account page - tüm buton/link'ler kendi boyutlarını kullanır */
-  .account-content-area button,
-  .account-content-area a,
-  .account-content-area [role="button"],
-  .account-content-area input[type="checkbox"],
-  .account-content-area input[type="radio"],
-  .account-btn,
-  .account-icon-btn {
-    min-height: unset !important;
-    min-width: unset !important;
-  }
-
   /* Checkout payment page - radio/checkbox kendi boyutlarını kullanır */
   .checkout-page input[type="radio"],
   .checkout-page input[type="checkbox"] {
@@ -2158,22 +1969,6 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   MYSTERY BOX MODAL - Squircle Stiller
-───────────────────────────────────────────────────────────────────────── */
-
-.mystery-coupon-badge {
-  border-radius: 16px !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-.mystery-coupon-code {
-  border-radius: 16px !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

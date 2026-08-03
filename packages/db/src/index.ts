@@ -16,6 +16,9 @@ export { prisma } from "./client";
 // Re-export Prisma types for convenience
 export * from "@prisma/client";
 
+// Kupon kullanım sayımı — storefront ve admin aynı kuralı paylaşıyor
+export * from "./coupon-usage";
+
 // Package info
 export const DB_PACKAGE_VERSION = "0.0.1";
 export const MIGRATION_OWNER = "packages/db";

@@ -196,7 +196,18 @@ export function threedsInitialize(request: ThreeDSInitializeRequest): Promise<Iy
       })),
     };
 
-    console.log("🔐 3DS Initialize Request:", JSON.stringify(iyziRequest, null, 2));
+    // Kart numarası, CVV, son kullanma tarihi ve alıcının kimlik/adres/iletişim
+    // bilgisi loglanmaz. Kart verisi PCI-DSS gereği hiçbir koşulda log'a yazılamaz;
+    // geri kalan alanlar KVKK kapsamındadır. Bir ödemeyi iz sürmek için
+    // conversationId + basketId yeterli, iyzico panelinde de bu alanlarla aranıyor.
+    console.log("🔐 3DS Initialize:", {
+      conversationId: iyziRequest.conversationId,
+      basketId: iyziRequest.basketId,
+      price: iyziRequest.price,
+      paidPrice: iyziRequest.paidPrice,
+      installment: iyziRequest.installment,
+      itemCount: iyziRequest.basketItems.length,
+    });
 
     if (!iyzipay) {
       reject(new Error("iyzico is not configured"));
@@ -229,7 +240,11 @@ export function threedsPayment(request: ThreeDSPaymentRequest): Promise<IyzicoRe
       conversationData: request.conversationData,
     };
 
-    console.log("💳 3DS Payment Request:", JSON.stringify(iyziRequest, null, 2));
+    // conversationData 3DS oturumunu temsil eden bir sır; loglanmaz.
+    console.log("💳 3DS Payment:", {
+      conversationId: iyziRequest.conversationId,
+      paymentId: iyziRequest.paymentId,
+    });
 
     if (!iyzipay) {
       reject(new Error("iyzico is not configured"));
@@ -273,7 +288,11 @@ export function createRefund(request: RefundRequest): Promise<IyzicoResult> {
       ip: request.ip,
     };
 
-    console.log("💸 Refund Request:", JSON.stringify(iyziRequest, null, 2));
+    console.log("💸 Refund:", {
+      conversationId: iyziRequest.conversationId,
+      paymentTransactionId: iyziRequest.paymentTransactionId,
+      price: iyziRequest.price,
+    });
 
     if (!iyzipay) {
       reject(new Error("iyzico is not configured"));
@@ -313,7 +332,10 @@ export function createCancel(request: CancelRequest): Promise<IyzicoResult> {
       ip: request.ip,
     };
 
-    console.log("🚫 Cancel Request:", JSON.stringify(iyziRequest, null, 2));
+    console.log("🚫 Cancel:", {
+      conversationId: iyziRequest.conversationId,
+      paymentId: iyziRequest.paymentId,
+    });
 
     if (!iyzipay) {
       reject(new Error("iyzico is not configured"));
@@ -435,7 +457,13 @@ export function getInstallmentInfo(request: InstallmentInfoRequest): Promise<Ins
       price: request.price,
     };
 
-    console.log("💳 Installment Info Request:", JSON.stringify(iyziRequest, null, 2));
+    // binNumber ilk 6 hane (banka/kart tipi); PCI-DSS bu kadarını izin verilen
+    // "maskelenmiş" veri sayıyor, kartı tekilleştirmeye yetmez.
+    console.log("💳 Installment Info:", {
+      conversationId: iyziRequest.conversationId,
+      binNumber: iyziRequest.binNumber,
+      price: iyziRequest.price,
+    });
 
     if (!iyzipay) {
       reject(new Error("iyzico is not configured"));

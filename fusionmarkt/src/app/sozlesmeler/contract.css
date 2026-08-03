@@ -1,0 +1,284 @@
+/* ===========================================================================
+   /sozlesmeler — sözleşme belgesi görünümü (plan 07 §B-3)
+
+   Sayfanın kökü `.contract-page` sınıfını taşır; `--acc-*` ton token'ları
+   `styles/account.css` içinde bu kapsam için de çözülür.
+=========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. Belge tipografisi
+
+   Elle yazılmış (token'sız) sözleşme HTML'i için taban. Renkler tema
+   değişkenlerinden gelir, böylece light temada da okunur.
+--------------------------------------------------------------------------- */
+
+.contract-content {
+  padding: 16px;
+  color: var(--foreground-secondary);
+  font-size: 15px;
+  line-height: 1.7;
+  /* Uzun e-posta/adres değerleri dar ekranda kartı taşırmasın (K-6). */
+  overflow-wrap: break-word;
+}
+
+.contract-content h1,
+.contract-content h2,
+.contract-content h3,
+.contract-content h4 {
+  color: var(--acc-accent-fg);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.contract-content h1 {
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.contract-content h2 {
+  font-size: 1rem;
+  border-bottom: 2px solid var(--acc-accent-fg);
+  padding-bottom: 0.5rem;
+}
+
+.contract-content h3 {
+  font-size: 0.9rem;
+}
+
+.contract-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+
+.contract-content ul,
+.contract-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.contract-content li {
+  margin-bottom: 0.25rem;
+}
+
+.contract-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+
+.contract-content th,
+.contract-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.contract-content th {
+  background-color: var(--acc-accent-bg);
+  color: var(--acc-accent-fg);
+}
+
+.contract-content strong {
+  color: var(--foreground);
+}
+
+.contract-content a {
+  color: var(--acc-accent-fg);
+  text-decoration: underline;
+}
+
+.contract-content a:focus-visible,
+.contract-content table:focus-visible {
+  outline: 2px solid var(--acc-accent-fg);
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .contract-content {
+    padding: 24px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .contract-content {
+    font-size: 14px;
+  }
+
+  .contract-content h1 {
+    font-size: 1.1rem;
+  }
+
+  .contract-content h2 {
+    font-size: 0.95rem;
+  }
+
+  .contract-content h3 {
+    font-size: 0.9rem;
+  }
+
+  /* Tablo 390px'te sığmıyor; kesmek yerine kendi içinde kaydırılıyor.
+     Kayan bölgeye `tabIndex` sayfa bileşeninde veriliyor (klavye erişimi). */
+  .contract-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.75rem;
+  }
+
+  .contract-content thead,
+  .contract-content tbody {
+    display: table;
+    width: 100%;
+    min-width: 420px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   2. Üretilen belgenin satır içi renklerinin tema token'larına eşlenmesi
+
+   Sözleşme HTML'i `lib/contracts.ts` tarafından üretilip siparişin
+   `statusHistory` alanına yazılıyor: kabul anındaki metnin kaydı olduğu için
+   geriye dönük yeniden üretilmiyor, dolayısıyla üreticiyi düzeltmek eski
+   siparişleri kurtarmaz. Belge yalnız koyu tema için yazılmış satır içi
+   renkler taşıyor (#0f0f0f zemin, beyaz metin, #10b981 vurgular) ve satır içi
+   stil stylesheet'i yendiği için light temada sayfanın ortasında koyu bir ada
+   olarak kalıyordu — kullanıcının 1. şikâyeti buydu.
+
+   Bu yüzden eşleme `style` özniteliğinin metnine bakıyor ve `!important`
+   kullanıyor. Renk listesi üreticide sabit; yeni bir renk eklenirse buraya da
+   eklenmeli.
+--------------------------------------------------------------------------- */
+
+/* Belgenin dış kabuğu: kartı biz çiziyoruz, ikinci bir çerçeve gerekmiyor. */
+.contract-content > [style*="rgb(15, 15, 15)"] {
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  font-family: inherit !important;
+}
+
+/* Metin ölçeği */
+.contract-content [style*="color: rgb(255, 255, 255)"],
+.contract-content [style*="color: rgba(255, 255, 255, 0.9)"] {
+  color: var(--foreground) !important;
+}
+
+.contract-content [style*="color: rgba(255, 255, 255, 0.85)"],
+.contract-content [style*="color: rgba(255, 255, 255, 0.8)"],
+.contract-content [style*="color: rgba(255, 255, 255, 0.7)"] {
+  color: var(--foreground-secondary) !important;
+}
+
+.contract-content [style*="color: rgba(255, 255, 255, 0.5)"] {
+  color: var(--foreground-tertiary) !important;
+}
+
+/* Vurgu renkleri — sabit emerald light temada beyaz üstünde 2.3:1 kalıyordu. */
+.contract-content [style*="color: rgb(16, 185, 129)"],
+.contract-content [style*="color: #10b981"] {
+  color: var(--acc-accent-fg) !important;
+}
+
+.contract-content [style*="color: rgb(96, 165, 250)"] {
+  color: var(--acc-info-fg) !important;
+}
+
+.contract-content [style*="color: rgb(251, 191, 36)"] {
+  color: var(--acc-warning-fg) !important;
+}
+
+.contract-content [style*="color: #f87171"] {
+  color: var(--acc-danger-fg) !important;
+}
+
+/* Zeminler */
+.contract-content [style*="background-color: rgba(255, 255, 255, 0.03)"] {
+  background-color: var(--glass-bg) !important;
+}
+
+.contract-content [style*="background-color: rgba(16, 185, 129, 0.05)"],
+.contract-content [style*="background-color: rgba(16, 185, 129, 0.1)"],
+.contract-content [style*="background-color: rgba(16, 185, 129, 0.15)"] {
+  background-color: var(--acc-accent-bg) !important;
+}
+
+.contract-content [style*="background-color: rgba(251, 191, 36, 0.1)"] {
+  background-color: var(--acc-warning-bg) !important;
+}
+
+/* Bölüm ayracı: kenarlık değil, 1px yüksekliğinde bir kutu olarak çiziliyor. */
+.contract-content [style*="height: 1px"] {
+  background-color: var(--border) !important;
+}
+
+/* Kenarlıklar */
+.contract-content [style*="solid rgba(255, 255, 255, 0.1)"],
+.contract-content [style*="solid rgba(255, 255, 255, 0.08)"],
+.contract-content [style*="solid rgba(255, 255, 255, 0.05)"] {
+  border-color: var(--border) !important;
+}
+
+.contract-content [style*="solid rgba(16, 185, 129, 0.3)"],
+.contract-content [style*="solid rgba(16, 185, 129, 0.2)"] {
+  border-color: var(--acc-accent-border) !important;
+}
+
+.contract-content [style*="solid rgba(251, 191, 36, 0.3)"] {
+  border-color: var(--acc-warning-border) !important;
+}
+
+/* Belge başlığındaki ikon `stroke` özniteliğiyle boyanıyor (sunum özniteliği,
+   `!important` gerekmiyor). */
+.contract-content svg[stroke] {
+  stroke: var(--acc-accent-fg);
+}
+
+/* ---------------------------------------------------------------------------
+   3. Üretilen belgenin KENDİ başlığının gizlenmesi (plan 07 D-7)
+
+   Üretici, belgeyi tek başına duran bir kart varsayarak yazmış: içinde ikon +
+   sözleşme adı + "Ref: …" + "✓ Onaylandı" şeridi, hemen altında da ortalanmış
+   büyük başlık + ref + tarih bloğu var. Sayfa kabuğu bunların hepsini zaten
+   basıyor, dolayısıyla ekranda sözleşme adı üç, referans numarası üç, onay
+   rozeti iki kez görünüyordu.
+
+   Gizleme neden burada, üreticide değil: belge kabul anının kaydı olarak
+   saklanıyor ve geriye dönük yeniden üretilmiyor. Üreticiyi düzeltmek yalnız
+   yeni siparişleri kurtarırdı, mevcut siparişlerde tekrar sürerdi.
+
+   Yan fayda: belgenin `<h1>`'i de gizlendiği için sayfada tek `h1` kalıyor —
+   kabuktaki sözleşme adı. Öncesinde iki `h1` vardı.
+--------------------------------------------------------------------------- */
+
+/* İkon + ad + "Ref" + "✓ Onaylandı" şeridi. Çocuk birleştiricisi şart:
+   aynı emerald zemini belge içinde bilgi kutularında da kullanılıyor. */
+.contract-content > [style*="rgb(15, 15, 15)"] > [style*="background-color: rgba(16, 185, 129, 0.05)"] {
+  display: none;
+}
+
+/* Ortalanmış başlık + ref + tarih bloğu. */
+.contract-content [style*="text-align: center"][style*="margin-bottom: 30px"] {
+  display: none;
+}
+
+/* Etiket/değer satırları sabit 140px etiket sütunu kullanıyor; 390px'te uzun
+   değer taşıyordu. */
+.contract-content [style*="display: flex"] {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .contract-content [style*="min-width: 140px"] {
+    min-width: 110px !important;
+  }
+
+  /* Üretilen belge kendi 24px iç boşluğunu taşıyor; kartın boşluğuyla
+     toplanınca 390px ekranda satır uzunluğu okunmaz hâle geliyor. */
+  .contract-content:has(> [style*="rgb(15, 15, 15)"]) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

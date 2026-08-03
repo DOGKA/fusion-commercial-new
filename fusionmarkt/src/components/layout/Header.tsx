@@ -274,7 +274,7 @@ export default function Header() {
                   "hover:before:bg-foreground/[0.05]",
                   favoritesAnimating && "animate-wiggle"
                 )}
-                aria-label="Favoriler"
+                aria-label="Beğendiklerim"
               >
                 <Heart className={cn(
                   "w-5 h-5 relative z-10 transition-colors duration-300",

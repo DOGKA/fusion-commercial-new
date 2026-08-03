@@ -6,11 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useEffect, useState, type CSSProperties } from "react";
 import { 
-  Target, 
+  Building2,
   Heart,
-  Leaf,
-  Users,
-  Sparkles,
+  Cpu,
   Globe,
   Shield,
   MessageCircle,
@@ -20,7 +18,10 @@ import {
   ArrowRight,
   Play,
   Terminal,
-  RotateCcw
+  RotateCcw,
+  ShoppingBag,
+  Recycle,
+  HandHeart
 } from "lucide-react";
 
 // Office Image URL
@@ -278,15 +279,15 @@ export default function HakkimizdaPage() {
 
   const values = [
     {
-      icon: Sparkles,
-      title: "Yüksek Kalite",
-      description: "Titizlikle seçilmiş, uluslararası standartlarda ürünler sunuyoruz.",
+      icon: Cpu,
+      title: "Mühendislik",
+      description: "Havacılık, elektrik ara bağlantı, ağ ve elektronik bileşen çözümlerinde kaliteli hizmet.",
       color: "var(--fusion-primary)"
     },
     {
-      icon: Heart,
-      title: "Müşteri Memnuniyeti",
-      description: "Her müşterimizin deneyimi bizim için önceliktir.",
+      icon: ShoppingBag,
+      title: "E-Ticaret",
+      description: "Elektronik, batarya ve güç grupları, LiFePO4 piller, soğutucu sistemler ve taşınabilir buzdolapları.",
       color: "var(--fusion-secondary)"
     },
     {
@@ -296,9 +297,9 @@ export default function HakkimizdaPage() {
       color: "var(--fusion-success)"
     },
     {
-      icon: Globe,
-      title: "Küresel Erişim",
-      description: "Dünya genelinden benzersiz ürünleri sizlerle buluşturuyoruz.",
+      icon: Heart,
+      title: "Müşteri Odaklılık",
+      description: "Her müşterimizin deneyimi bizim için önceliktir.",
       color: "var(--fusion-info)"
     }
   ];
@@ -348,22 +349,11 @@ export default function HakkimizdaPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center max-w-4xl mx-auto"
           >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6"
-            >
-              <Target className="w-4 h-4 text-[var(--fusion-primary)]" />
-              <span className="text-sm font-medium text-white/90">Hikayemiz</span>
-            </motion.div>
-
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Kültürlerin Buluştuğu
+              FusionMarkt
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--fusion-primary)] via-[var(--fusion-secondary)] to-[var(--fusion-primary)]">
-                Alışveriş Deneyimi
+                Mühendislik & Alışveriş
               </span>
             </h1>
 
@@ -371,8 +361,8 @@ export default function HakkimizdaPage() {
                 ezdiği için burada `!` gerekiyor; aksi halde fotoğrafın üzerinde
                 koyu metin kalıyor. */}
             <p className="text-lg md:text-xl text-white/90! max-w-2xl mx-auto mb-8">
-              FusionMarkt, benzersiz ürünleri ve müşteri odaklı hizmetleriyle 
-              bir alışveriş platformundan daha fazlasını sunar.
+              ASDTC Mühendislik Ticaret ve FusionMarkt LLC bünyesinde; 
+              mühendislik çözümleri ile online alışverişi bir arada sunuyoruz.
             </p>
 
             {/* Stats Row */}
@@ -390,27 +380,11 @@ export default function HakkimizdaPage() {
               ))}
             </motion.div>
           </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          >
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-1.5"
-            >
-              <div className="w-1.5 h-3 rounded-full bg-white/60" />
-            </motion.div>
-          </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          MISSION SECTION
+          BIZ KIMIZ SECTION
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="relative py-12 md:py-20">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--fusion-primary)]/5 to-transparent" />
@@ -425,13 +399,13 @@ export default function HakkimizdaPage() {
               className="text-center mb-16"
             >
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--fusion-primary)]/10 mb-6">
-                <Target className="w-8 h-8 text-[var(--fusion-primary)]" />
+                <Building2 className="w-8 h-8 text-[var(--fusion-primary)]" />
               </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                Misyonumuz
+                Biz Kimiz
               </h2>
               <p className="text-lg md:text-xl text-[var(--foreground-secondary)] max-w-3xl mx-auto leading-relaxed">
-                Geleneksel e-ticaretin ötesine geçiyor
+                ASDTC Mühendislik Ticaret Ltd. Şti. / FusionMarkt LLC
               </p>
             </motion.div>
 
@@ -444,19 +418,20 @@ export default function HakkimizdaPage() {
             >
               <div className="prose max-w-none">
                 <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                  FusionMarkt'ta alışveriş yapmak, sadece bir ürün satın almak anlamına gelmez. 
-                  <span className="text-[var(--foreground)] font-medium"> Her parça, bir hikâyeyi, bir kültürü ve zanaatkârlığın zarafetini taşır.</span> 
-                  Her alışveriş deneyimi, küresel anlatıya bir bağlantı kurmanızı sağlar.
+                  ASDTC Mühendislik Ticaret Ltd. Şti veya FusionMarkt LLC (www.fusionmarkt.com), 
+                  Türkiye'de <span className="text-[var(--foreground)] font-medium">havacılık ve mühendislik teknolojisinin</span> gelişmesinde, 
+                  kritik parçaların ve elektrik ara bağlantı çözümlerinin, ağ çözümünün, elektronik 
+                  bileşen çözümünün tedariki ve üretiminde en son yenilikleri destekleyen kaliteli 
+                  hizmetler sunma konusunda büyük bir kapasiteye sahiptir.
                 </p>
                 <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                  Sürdürülebilirlik ilkesine bağlı kalarak, sadece bugünün değil, geleceğin de 
-                  ihtiyaçlarına yönelik çözümler sunmayı hedefliyoruz.
+                  Mühendislik parçalarının yanı sıra <span className="text-[var(--fusion-primary)] font-semibold">son kullanıcıya yönelik elektronik ürünler, batarya ve güç grupları, LiFePO4 piller, soğutucu sistemler ve taşınabilir buzdolapları</span> üzerine 
+                  kurulmuş bir online alışveriş platformudur.
                 </p>
                 <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed">
-                  FusionMarkt, benzersiz ürünleri ve müşteri odaklı hizmetleriyle bir alışveriş 
-                  platformundan daha fazlasını sunar. <span className="text-[var(--fusion-primary)] font-semibold">Kalite, sürdürülebilirlik ve müşteri 
-                  memnuniyeti</span> bizim için önceliktir. FusionMarkt ile alışveriş yapmak, kültürlerin 
-                  buluştuğu bu yolculuğa katılmak demektir.
+                  Perakende ve e-ticaret işinin doğası gereği, FusionMarkt tüketicilerine, kurumsal 
+                  satış müşterilerine, bağlı kuruluşlarına ve satıcılarına kaliteli ürün ve hizmet 
+                  sunmayı temel alır. Kalite, güvenilirlik ve müşteri memnuniyeti bizim için önceliktir.
                 </p>
               </div>
             </motion.div>
@@ -465,7 +440,7 @@ export default function HakkimizdaPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          VALUES SECTION - Bento Grid
+          VALUES SECTION
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-12 md:py-20">
         <div className="container px-4 md:px-6">
@@ -501,19 +476,18 @@ export default function HakkimizdaPage() {
             className="mt-12 text-center"
           >
             <p className="text-lg text-[var(--foreground-secondary)] max-w-3xl mx-auto leading-relaxed">
-              Kalitemizi her zaman ön planda tutarak, titizlikle seçilmiş ürünleri sunarken 
-              uluslararası markalarla iş birliği yapıyoruz. Bu sayede müşterilerimize bir ürün değil, 
-              <span className="text-[var(--foreground)] font-medium"> bir deneyim sunmayı garanti ediyoruz.</span>
+              Kalitemizi her zaman ön planda tutarak, mühendislik çözümlerinden perakende ürünlere 
+              kadar titizlikle seçilmiş bir yelpaze sunuyoruz. Bu sayede müşterilerimize bir ürün değil, 
+              <span className="text-[var(--foreground)] font-medium"> güvenilir bir deneyim sunmayı garanti ediyoruz.</span>
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SOCIAL & CLIMATE SECTION
+          FAALIYET ALANLARI
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-12 md:py-20 relative overflow-hidden">
-        {/* Background Pattern — sadece desktop'ta render edilir */}
         <div className="absolute inset-0 opacity-30 hidden lg:block pointer-events-none" aria-hidden="true">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-[var(--fusion-primary)]/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[var(--fusion-secondary)]/20 rounded-full blur-[120px]" />
@@ -521,7 +495,7 @@ export default function HakkimizdaPage() {
 
         <div className="container px-4 md:px-6 relative">
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* Social Section */}
+            {/* Engineering */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -529,19 +503,45 @@ export default function HakkimizdaPage() {
               className="glass-card p-8 md:p-10 rounded-3xl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <Users className="w-6 h-6 text-[#E1306C] flex-shrink-0" />
-                <h3 className="text-2xl font-bold">Sosyal Etkileşim ve Takip</h3>
+                <Cpu className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
+                <h3 className="text-2xl font-bold">Mühendislik & Teknoloji</h3>
               </div>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                FusionMarkt olarak dijital platformlarda etkin varlık göstererek müşterilerimizle 
-                kesintisiz iletişim halindeyiz. Takipçilerimize özel avantajlar sunuyor, düzenli 
-                içerik paylaşımlarıyla sektörel gelişmeleri ve ürün yeniliklerini anlık olarak aktarıyoruz.
+                Türkiye'de havacılık ve mühendislik teknolojisinin gelişmesine katkı sağlıyoruz. 
+                Kritik parçalar, elektrik ara bağlantı çözümleri, ağ çözümleri ve elektronik 
+                bileşenlerin tedariki ile üretiminde yenilikçi hizmetler sunuyoruz.
+              </p>
+              
+              <p className="text-[var(--foreground-secondary)] leading-relaxed">
+                Kurumsal satış müşterilerimiz ve iş ortaklarımız için yüksek standartlarda 
+                mühendislik altyapısı ve teknik destek sağlıyoruz.
+              </p>
+            </motion.div>
+
+            {/* E-commerce */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="glass-card p-8 md:p-10 rounded-3xl"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <Globe className="w-6 h-6 text-[var(--fusion-secondary)] flex-shrink-0" />
+                <h3 className="text-2xl font-bold">Online Alışveriş Platformu</h3>
+              </div>
+              
+              <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
+                FusionMarkt, mühendislik parçalarının yanı sıra son kullanıcıya yönelik 
+                elektronik ürünler, batarya ve güç grupları, LiFePO4 piller, soğutucu 
+                sistemler ve taşınabilir buzdolapları kategorilerinde online alışveriş 
+                imkânı sunar. Geniş ürün yelpazemizle farklı ihtiyaçlara tek platformdan 
+                yanıt veriyoruz.
               </p>
               
               <p className="text-[var(--foreground-secondary)] leading-relaxed mb-8">
-                Müşterilerimizin görüş ve önerilerini değerlendiriyor, bu doğrultuda hizmet 
-                kalitemizi sürekli geliştiriyoruz.
+                Dijital platformlarda müşterilerimizle kesintisiz iletişim halindeyiz; 
+                görüş ve önerilerinizi değerlendirerek hizmet kalitemizi sürekli geliştiriyoruz.
               </p>
 
               {/* Social Links */}
@@ -557,8 +557,65 @@ export default function HakkimizdaPage() {
                 </a>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
 
-            {/* Climate Section */}
+      {/* ═══════════════════════════════════════════════════════════════════
+          SOSYAL SORUMLULUK & ÇEVRE
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section className="py-12 md:py-20">
+        <div className="container px-4 md:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-10 md:mb-14"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--fusion-success)]/10 mb-6">
+              <HandHeart className="w-8 h-8 text-[var(--fusion-success)]" />
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+              Sosyal Sorumluluk &amp; Çevre
+            </h2>
+            <p className="text-lg md:text-xl text-[var(--foreground-secondary)] max-w-3xl mx-auto leading-relaxed">
+              Topluma ve doğaya katkı, işimizin ayrılmaz bir parçasıdır.
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="glass-card p-8 md:p-10 rounded-3xl"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <Heart className="w-6 h-6 text-[var(--fusion-primary)] flex-shrink-0" />
+                <h3 className="text-2xl font-bold">Sorumluluklarımızın Farkındayız</h3>
+              </div>
+              <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
+                Ticari faaliyetimizin ötesinde topluma karşı sorumluluklarımızın
+                farkındayız. Eğitim, çevre, gaziler ve hayvan hakları alanlarında
+                çalışan{" "}
+                <span className="text-[var(--foreground)] font-medium">AÇEV</span>,{" "}
+                <span className="text-[var(--foreground)] font-medium">TEMA</span>,{" "}
+                <span className="text-[var(--foreground)] font-medium">TSKGV</span> ve{" "}
+                <span className="text-[var(--foreground)] font-medium">HAYTAP</span>{" "}
+                derneklerine düzenli olarak destek veriyoruz.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["AÇEV", "TEMA", "TSKGV", "HAYTAP"].map((org) => (
+                  <span
+                    key={org}
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--foreground)]"
+                  >
+                    {org}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -566,21 +623,20 @@ export default function HakkimizdaPage() {
               className="glass-card p-8 md:p-10 rounded-3xl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <Leaf className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
-                <h3 className="text-2xl font-bold">İklim Hareketi</h3>
+                <Recycle className="w-6 h-6 text-[var(--fusion-success)] flex-shrink-0" />
+                <h3 className="text-2xl font-bold">Atık Pil &amp; Çevre Uyumluluğu</h3>
               </div>
-              
-              <p className="text-[var(--foreground-secondary)] leading-relaxed mb-6">
-                FusionMarkt olarak, ticari başarının ötesinde küresel sürdürülebilirlik hedeflerine 
-                katkıda bulunmayı temel sorumluluğumuz olarak görüyoruz. Çevresel ayak izimizi 
-                minimize etmek ve gelecek nesillere daha yaşanabilir bir dünya bırakmak için 
-                kapsamlı bir sürdürülebilirlik stratejisi uyguluyoruz.
+              <p className="text-[var(--foreground-secondary)] leading-relaxed mb-4">
+                Batarya ve güç sistemleri sunan bir platform olarak çevresel etkimizin
+                sorumluluğunu taşıyoruz. Her yıl{" "}
+                <span className="text-[var(--foreground)] font-medium">TAP Derneği</span>{" "}
+                iş birliğiyle, çevre uyumluluğu kapsamında atık pil toplama ve geri
+                dönüşüm süreçlerine katkı sağlıyoruz.
               </p>
-              
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                FusionMarkt olarak, sürdürülebilir bir gelecek için <span className="text-[var(--fusion-success-text)] font-semibold">teknoloji ve inovasyonu 
-                birleştirerek</span>, çevresel sorumluluklarımızı yerine getirmeye ve toplumsal değer 
-                yaratmaya devam edeceğiz.
+                Kullanım ömrünü tamamlayan pil ve bataryaların doğru şekilde geri
+                kazanılması için yasal ve çevresel yükümlülüklerimizi eksiksiz yerine
+                getiriyoruz.
               </p>
             </motion.div>
           </div>
@@ -631,4 +687,3 @@ export default function HakkimizdaPage() {
     </div>
   );
 }
-

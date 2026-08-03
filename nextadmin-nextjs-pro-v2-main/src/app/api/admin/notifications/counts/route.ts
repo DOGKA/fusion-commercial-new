@@ -44,10 +44,16 @@ export async function GET() {
         }
       }),
       
-      // Pending return requests
+      // Aksiyon bekleyen iade talepleri.
+      //
+      // İki aşamalı akışta admin'in eli iki noktada gerekiyor: yeni talep
+      // (onay bekliyor) ve teslim alınmış koli (inceleme + para iadesi bekliyor).
+      // APPROVED bilinçli olarak sayılmıyor — orada top müşteride, kargoya
+      // vermesini bekliyoruz. RECEIVED sayılmazsa incelemede bekleyen iade
+      // rozette hiç görünmez ve 14 günlük yasal ödeme süresi sessizce geçer.
       prisma.returnRequest.count({
         where: {
-          status: "PENDING_ADMIN_APPROVAL"
+          status: { in: ["PENDING_ADMIN_APPROVAL", "RECEIVED"] }
         }
       }),
       

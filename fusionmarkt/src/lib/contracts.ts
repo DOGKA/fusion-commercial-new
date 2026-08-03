@@ -4,6 +4,12 @@
  * Uses the EXACT same design as ContractModal.tsx
  */
 
+import {
+  DISTANCE_CONTRACT_SELLER,
+  DISTANCE_CONTRACT_TEXT,
+  DISTANCE_CONTRACT_VERSION,
+} from "@/lib/distance-contract-content";
+
 interface BuyerInfo {
   fullName: string;
   tcKimlikNo?: string;
@@ -44,6 +50,12 @@ function formatDate(date: Date): string {
     minute: "2-digit",
     timeZone: "Europe/Istanbul",
   }).format(date);
+}
+
+function renderContractList(items: readonly string[]): string {
+  return `<ul style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.8); margin-bottom: 14px; padding-left: 20px;">
+    ${items.map((item) => `<li style="margin-bottom: 6px;">${item}</li>`).join("")}
+  </ul>`;
 }
 
 /**
@@ -113,19 +125,23 @@ export function generateDistanceSalesContractHTML(
     <div style="padding: 16px; background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 16px;">
       <div style="display: flex; margin-bottom: 8px; font-size: 13px;">
         <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">Unvan:</span>
-        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">ASDTC MÜHENDİSLİK TİCARET A.Ş.</span>
+        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.title}</span>
       </div>
       <div style="display: flex; margin-bottom: 8px; font-size: 13px;">
-        <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">Adres:</span>
-        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">Ankara, Türkiye</span>
+        <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">Genel Merkez:</span>
+        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.address}</span>
+      </div>
+      <div style="display: flex; margin-bottom: 8px; font-size: 13px;">
+        <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">İade Adresi:</span>
+        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.returnAddress}</span>
       </div>
       <div style="display: flex; margin-bottom: 8px; font-size: 13px;">
         <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">E-posta:</span>
-        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">info@fusionmarkt.com</span>
+        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.email}</span>
       </div>
       <div style="display: flex; font-size: 13px;">
         <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">Telefon:</span>
-        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">+90 850 840 6160</span>
+        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.phone}</span>
       </div>
     </div>
 
@@ -157,6 +173,13 @@ export function generateDistanceSalesContractHTML(
         <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${buyer.email}</span>
       </div>
     </div>
+
+    <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
+
+    <!-- Konu -->
+    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">KONU</div>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.subject}</p>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.6); margin-bottom: 14px; font-style: italic;">${DISTANCE_CONTRACT_TEXT.montageNote}</p>
 
     <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
 
@@ -202,39 +225,57 @@ export function generateDistanceSalesContractHTML(
 
     <!-- Sözleşme Maddeleri -->
     <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">ÖDEME</div>
-    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">
-      Minimum Sipariş: İnternet mağazasında minimum sipariş tutarı 150 TL'dir.
-    </p>
-    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">
-      ALICI, işbu Sözleşme kapsamında sipariş verdiği ürün(ler) için KDV dahil satış bedelini ve kargo ücretlerini Sözleşme'de belirtilen ödeme koşullarına uygun olarak ödeyecektir.
-    </p>
-    <ul style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.8); margin-bottom: 14px; padding-left: 20px;">
-      <li style="margin-bottom: 6px;">Kabul Edilen Kartlar: Visa, Amex, MasterCard kredi kartları</li>
-      <li style="margin-bottom: 6px;">Ön Provizyon: Siparişler banka onayı sonrası işleme alınır</li>
-    </ul>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.minimumOrder}</p>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.payment}</p>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.paymentNotes)}
+    <p style="font-size: 12px; line-height: 1.7; color: rgba(255, 255, 255, 0.6); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.promotions}</p>
 
     <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
 
     <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">TESLİMAT</div>
-    <ul style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.8); margin-bottom: 14px; padding-left: 20px;">
-      <li style="margin-bottom: 6px;">Sipariş onayından itibaren 1-5 iş günü içinde kargoya verilir</li>
-      <li style="margin-bottom: 6px;">Kargo takip bilgileri e-posta ile bildirilir</li>
-      <li style="margin-bottom: 6px;">Teslim alınamayan siparişler 3 gün bekletilir</li>
-    </ul>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.delivery}</p>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.deliveryOptions)}
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.6); margin-bottom: 14px; font-style: italic;">${DISTANCE_CONTRACT_TEXT.deliveryNote}</p>
 
     <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
 
     <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">CAYMA HAKKI</div>
-    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">
-      ALICI, sözleşme konusu ürünü teslim aldığı tarihten itibaren 14 (on dört) gün içinde herhangi bir gerekçe göstermeksizin ve cezai şart ödemeksizin cayma hakkına sahiptir.
-    </p>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.withdrawal}</p>
+    <div style="font-size: 14px; font-weight: 600; color: rgb(96, 165, 250); margin: 20px 0 12px;">Cayma Hakkı Şartları:</div>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.withdrawalConditions)}
+    <div style="font-size: 14px; font-weight: 600; color: rgb(96, 165, 250); margin: 20px 0 12px;">Cayma Hakkı Kapsamı Dışındaki Ürünler:</div>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.withdrawalExceptions)}
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.refund}</p>
 
     <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
 
-    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">YETKİLİ MAHKEME</div>
-    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">
-      İşbu sözleşmeden doğan uyuşmazlıklarda Ankara Mahkemeleri ve İcra Daireleri yetkilidir.
-    </p>
+    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">GARANTİ VE SORUMLULUK</div>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.warranty)}
+
+    <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
+
+    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">KİŞİSEL VERİLERİN KORUNMASI</div>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.privacy}</p>
+    <div style="font-size: 14px; font-weight: 600; color: rgb(96, 165, 250); margin: 20px 0 12px;">KVKK Kapsamında Haklarınız:</div>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.privacyRights)}
+
+    <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
+
+    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">UYUŞMAZLIKLARIN ÇÖZÜMÜ</div>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.disputes}</p>
+    ${renderContractList(DISTANCE_CONTRACT_TEXT.disputeOptions)}
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.6); margin-bottom: 14px; font-style: italic;">${DISTANCE_CONTRACT_TEXT.language}</p>
+
+    <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
+
+    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">MÜCBİR SEBEP</div>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.forceMajeure}</p>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.forceMajeureResult}</p>
+
+    <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 20px 0;"></div>
+
+    <div style="font-size: 16px; font-weight: 700; color: rgb(16, 185, 129); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">SÖZLEŞME TARİHİ VE ONAYI</div>
+    <p style="font-size: 13px; line-height: 1.7; color: rgba(255, 255, 255, 0.85); margin-bottom: 14px;">${DISTANCE_CONTRACT_TEXT.acceptance}</p>
 
     <!-- Footer -->
     <div style="margin-top: 30px; padding: 16px; background-color: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;">
@@ -245,8 +286,9 @@ export function generateDistanceSalesContractHTML(
         Bu sözleşme ${formattedDate} tarihinde elektronik ortamda onaylanmıştır.
       </p>
       <p style="font-size: 14px; font-weight: 600; color: #10b981; margin: 0;">
-        ASDTC MÜHENDİSLİK TİCARET A.Ş. | FUSIONMARKT
+        ${DISTANCE_CONTRACT_SELLER.title}
       </p>
+      <p style="font-size: 10px; color: rgba(255, 255, 255, 0.4); margin: 8px 0 0;">Metin sürümü: ${DISTANCE_CONTRACT_VERSION}</p>
     </div>
   </div>
 </div>

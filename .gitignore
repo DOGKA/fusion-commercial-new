@@ -116,6 +116,18 @@ fusionmarkt_products_s3.csv
 nextadmin-nextjs-pro-v2-main/storage/
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Fatura PDF'leri (F2-70) — müşteri adı, adresi ve vergi bilgisi içerir.
+# Bilerek `public/` DIŞINDA: Next.js `public/` altındaki her şeyi kimlik
+# doğrulaması olmadan servis eder. Tek okuma yolu /api/invoices/[file].
+# Ayrıca yedekleyin; repoya girmemeli.
+#
+# Başta `/` var: kalıp yalnızca monorepo kökündeki klasörü hedefler.
+# Baştaki eğik çizgi olmasaydı `fusionmarkt/public/storage` gibi alt
+# klasörler de kapsama girerdi.
+# ─────────────────────────────────────────────────────────────────────────────
+/storage/
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Python Virtual Environment
 # ─────────────────────────────────────────────────────────────────────────────
 venv/

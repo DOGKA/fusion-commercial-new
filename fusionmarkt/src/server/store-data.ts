@@ -12,6 +12,7 @@
  */
 
 import { prisma, Prisma } from "@repo/db";
+import { fetchBestsellerProducts } from "@/lib/bestsellers";
 import {
   selectProductPublic,
   selectCategoryPublic,
@@ -134,21 +135,37 @@ export async function getStoreProducts(options: {
       },
     };
 
-    const products = await prisma.product.findMany({
-      where,
-      select: {
-        ...selectProductPublic,
-        variants: variantSelect,
-      },
-      orderBy: bestseller
-        ? [{ createdAt: "desc" as const }]
-        : [
+    const runQuery = (
+      productWhere: Prisma.ProductWhereInput,
+      orderBy: Prisma.ProductOrderByWithRelationInput[],
+      take: number | undefined
+    ) =>
+      prisma.product.findMany({
+        where: productWhere,
+        select: {
+          ...selectProductPublic,
+          variants: variantSelect,
+        },
+        orderBy,
+        take,
+      });
+
+    const products = bestseller
+      ? await fetchBestsellerProducts({
+          // Şerit sabit sayıda kart gösteriyor; sınır verilmemişse makul bir tavan.
+          limit: limit ?? 12,
+          where,
+          query: (productWhere, orderBy, take) => runQuery(productWhere, orderBy, take),
+        })
+      : await runQuery(
+          where,
+          [
             { isFeatured: "desc" as const },
             { isNew: "desc" as const },
             { createdAt: "desc" as const },
           ],
-      take: limit,
-    });
+          limit
+        );
 
     const sortedProducts = products.map(
       (p: { productType?: string; variants?: ProductVariantRow[]; reviews?: { rating: number }[]; [key: string]: unknown }) => {

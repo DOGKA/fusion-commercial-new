@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, Prisma } from "@repo/db";
 import { selectProductPublic } from "@/server/dto";
+import { BESTSELLER_FALLBACK_ORDER, fetchBestsellerProducts } from "@/lib/bestsellers";
 
 // Variant type for sorting (matches Prisma return type)
 interface ProductVariant {
@@ -82,22 +83,41 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch products with variants included
-    const products = await prisma.product.findMany({
-      where,
-      select: {
-        ...selectProductPublic,
-        variants: variantSelect,
-      },
-      orderBy: bestseller 
-        ? [{ createdAt: 'desc' }]
-        : [
-        { isFeatured: 'desc' },
-        { isNew: 'desc' },
-        { createdAt: 'desc' },
-      ],
-      take: limit ? parseInt(limit) : undefined,
-      skip: offset ? parseInt(offset) : undefined,
-    });
+    const runQuery = (
+      productWhere: Prisma.ProductWhereInput,
+      orderBy: Prisma.ProductOrderByWithRelationInput[],
+      take: number | undefined,
+      skip?: number
+    ) =>
+      prisma.product.findMany({
+        where: productWhere,
+        select: {
+          ...selectProductPublic,
+          variants: variantSelect,
+        },
+        orderBy,
+        take,
+        skip,
+      });
+
+    // Çok satanlar şeridi sayfalanmıyor; `offset` verilmişse (şu an hiçbir
+    // çağıran vermiyor) satış sıralaması atlanıp yedek sıraya düşülüyor, çünkü
+    // sıra veritabanında kurulamadığı için `skip` doğru sonuç vermez.
+    const products =
+      bestseller && !offset
+        ? await fetchBestsellerProducts({
+            limit: limit ? parseInt(limit) : 12,
+            where,
+            query: (productWhere, orderBy, take) => runQuery(productWhere, orderBy, take),
+          })
+        : await runQuery(
+            where,
+            bestseller
+              ? BESTSELLER_FALLBACK_ORDER
+              : [{ isFeatured: 'desc' }, { isNew: 'desc' }, { createdAt: 'desc' }],
+            limit ? parseInt(limit) : undefined,
+            offset ? parseInt(offset) : undefined
+          );
 
     // Get total count for pagination
     const total = await prisma.product.count({ where });

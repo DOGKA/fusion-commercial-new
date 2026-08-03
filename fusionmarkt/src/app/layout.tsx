@@ -7,9 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
-import { MysteryBoxProvider } from "@/context/MysteryBoxContext";
 import MiniCart from "@/components/cart/MiniCart";
-import { MysteryBoxModal } from "@/components/campaign";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -188,21 +186,24 @@ export default function RootLayout({
           <CookieConsentProvider>
             <GoogleAnalytics />
             
+            {/*
+              Sıra bilinçli: CartProvider DIŞTA. FavoritesProvider "favoriden
+              sepete taşı" için useCart() çağırıyor, dolayısıyla sepetin altında
+              olmak zorunda. CartContext hiçbir bağlama bağlı değil, bu yüzden
+              yer değişimi tek yönlü ve güvenli.
+            */}
             <AuthProvider>
-              <FavoritesProvider>
-                <CartProvider>
-                  <MysteryBoxProvider>
-                    <Header />
-                    <main className="min-h-screen">
-                      {children}
-                    </main>
-                    <Footer />
-                    <MiniCart />
-                    <MysteryBoxModal />
-                    <CookieConsent />
-                  </MysteryBoxProvider>
-                </CartProvider>
-              </FavoritesProvider>
+              <CartProvider>
+                <FavoritesProvider>
+                  <Header />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <Footer />
+                  <MiniCart />
+                  <CookieConsent />
+                </FavoritesProvider>
+              </CartProvider>
             </AuthProvider>
           </CookieConsentProvider>
         </ThemeProvider>
