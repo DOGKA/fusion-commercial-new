@@ -9,8 +9,6 @@ import {
   Store,
   Zap,
   Calculator,
-  Heart,
-  User,
   ShoppingBag,
   ChevronDown,
   ChevronRight,
@@ -23,7 +21,6 @@ import {
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
-import { useFavorites } from "@/context/FavoritesContext";
 
 // Hydration-safe mounted check (same approach as MiniCart / ThemeToggle)
 const emptySubscribe = () => () => {};
@@ -107,7 +104,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname();
 
   const { itemCount, subtotal, openCart } = useCart();
-  const { itemCount: favoritesCount } = useFavorites();
 
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
@@ -355,56 +351,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               );
             })}
 
-            {/* Quick Actions: Favoriler + Hesabım */}
-            <div
-              className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-right-4 fill-mode-backwards"
-              style={{ animationDelay: `${menuItems.length * 50}ms`, animationDuration: "400ms" }}
-            >
-              <Link
-                href="/favori"
-                prefetch={false}
-                onClick={onClose}
-                className="relative flex flex-col items-center gap-2 px-3 py-4 bg-glass-bg border border-border hover:border-border-hover hover:bg-glass-bg-hover transition-colors duration-200 no-underline"
-                style={{ borderRadius: "14px" }}
-              >
-                <div className="relative">
-                  <div
-                    className="w-10 h-10 border border-pink-500/20 flex items-center justify-center"
-                    style={{ borderRadius: "12px" }}
-                  >
-                    <Heart
-                      className={cn(
-                        "w-[18px] h-[18px]",
-                        favoritesCount > 0 ? "text-pink-400 fill-pink-400" : "text-pink-400"
-                      )}
-                      strokeWidth={1.8}
-                    />
-                  </div>
-                  {favoritesCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-br from-pink-400 to-pink-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-pink-500/40 ring-2 ring-background">
-                      {favoritesCount > 99 ? "99+" : favoritesCount}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[13px] font-medium text-foreground">Beğendiklerim</span>
-              </Link>
-
-              <Link
-                href="/hesabim"
-                prefetch={false}
-                onClick={onClose}
-                className="flex flex-col items-center gap-2 px-3 py-4 bg-glass-bg border border-border hover:border-border-hover hover:bg-glass-bg-hover transition-colors duration-200 no-underline"
-                style={{ borderRadius: "14px" }}
-              >
-                <div
-                  className="w-10 h-10 border border-cyan-500/20 flex items-center justify-center"
-                  style={{ borderRadius: "12px" }}
-                >
-                  <User className="w-[18px] h-[18px] text-cyan-400" strokeWidth={1.8} />
-                </div>
-                <span className="text-[13px] font-medium text-foreground">Hesabım</span>
-              </Link>
-            </div>
+            {/* "Beğendiklerim + Hesabım" hızlı erişim ızgarası BURADAN KALDIRILDI.
+                İkisi de hesap çekmecesine taşındı (AccountDrawer): alt barda
+                kendi "Hesabım" butonu var ve oradan siparişler, adresler,
+                kuponlar dahil tüm hesap sayfalarına tek dokunuşla gidiliyor.
+                Menüde durmaları aynı bağlantıyı iki ayrı çekmeceye koyuyordu. */}
 
             {/* Tema anahtarı - mobilde header'dan buraya taşındı */}
             <button

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   ShoppingBag, 
-  Heart, 
   User, 
   Menu, 
   X,
@@ -28,6 +27,11 @@ import { useTheme } from "next-themes";
  * güvenli: kaldırılan çıktı zaten boştu.
  */
 const MobileMenu = dynamic(() => import("@/components/layout/MobileMenu"), {
+  ssr: false,
+});
+
+/** Hesap çekmecesi de mobil menüyle aynı sebeple ilk açılışa kadar inmiyor. */
+const AccountDrawer = dynamic(() => import("@/components/layout/AccountDrawer"), {
   ssr: false,
 });
 
@@ -84,6 +88,7 @@ const navigation: NavItem[] = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [badgeAnimating, setBadgeAnimating] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [sliderTheme, setSliderTheme] = useState<string | null>(null);
@@ -156,8 +161,8 @@ export default function Header() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
           isScrolled ? "py-2" : "py-4",
-          (isScrolled || isMobileMenuOpen) && "header-scrolled",
-          !isScrolled && !isMobileMenuOpen && headerColorClass
+          (isScrolled || isMobileMenuOpen || isAccountOpen) && "header-scrolled",
+          !isScrolled && !isMobileMenuOpen && !isAccountOpen && headerColorClass
         )}
       >
 
@@ -275,51 +280,75 @@ export default function Header() {
                 <MobileThemeToggle />
               </div>
 
-              {/* Wishlist / Favorites - Desktop */}
-              <Link
-                href="/favori"
+              {/* Hesabım - desktop: ikon + etiket, sayfaya gitmek yerine mobildeki
+                  hesap çekmecesinin aynısını açar. Ayrı Beğendiklerim ikonu
+                  kaldırıldı; favori sayısı bu butonun rozetine taşındı. */}
+              <button
+                type="button"
+                onClick={() => setIsAccountOpen((open) => !open)}
                 className={cn(
-                  "hidden lg:flex relative p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "relative hidden lg:flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
+                  favoritesCount > 0 ? "text-emerald-400" : "text-foreground/60 hover:text-foreground",
                   favoritesAnimating && "animate-wiggle"
                 )}
-                aria-label="Beğendiklerim"
-              >
-                <Heart className={cn(
-                  "w-5 h-5 relative z-10 transition-colors duration-300",
-                  favoritesCount > 0 && "text-pink-400 fill-pink-400"
-                )} />
-                {favoritesCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30">
-                    {favoritesCount > 99 ? '99+' : favoritesCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* Account - sadece desktop */}
-              <Link
-                href="/hesabim"
-                className={cn(
-                  "relative hidden lg:flex items-center justify-center p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
-                  "hover:before:bg-foreground/[0.05]"
-                )}
                 aria-label="Hesabım"
+                aria-expanded={isAccountOpen}
               >
                 <User className="w-5 h-5 relative z-10" />
-              </Link>
+                <span className="relative z-10 text-sm font-medium">Hesabım</span>
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30">
+                    {favoritesCount > 99 ? "99+" : favoritesCount}
+                  </span>
+                )}
+              </button>
 
-              {/* Cart - mobilde ikon + "Sepet" etiketi (dikey), desktop'ta sadece ikon */}
+              {/* Hesabım - sadece mobil. Desktop'taki karşılığı yukarıdaki
+                  /hesabim bağlantısı; mobilde sayfaya gitmek yerine çekmece
+                  açılıyor, sepet ve menüyle aynı ölçüde. */}
               <button
-                onClick={openCart}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsAccountOpen((open) => !open);
+                }}
                 className={cn(
-                  "relative flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-0 px-2 py-1.5 lg:p-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
+                  "hover:before:bg-foreground/[0.05]",
+                  favoritesCount > 0 && "text-emerald-400",
+                  favoritesAnimating && "animate-wiggle"
+                )}
+                aria-label="Hesabım"
+                aria-expanded={isAccountOpen}
+              >
+                <User className="w-5 h-5 relative z-10" />
+                <span className="relative z-10 text-[10px] font-medium leading-none tracking-tight">
+                  Hesabım
+                </span>
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30">
+                    {favoritesCount > 99 ? "99+" : favoritesCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Cart - mobilde kısa "Sepet", masaüstünde Hesabım ile aynı
+                  düzende ikon + "Sepetim" etiketi. */}
+              <button
+                onClick={() => {
+                  setIsAccountOpen(false);
+                  setIsMobileMenuOpen(false);
+                  openCart();
+                }}
+                className={cn(
+                  "relative flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-1.5 px-2 py-1.5 lg:px-3 lg:py-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
                   "hover:before:bg-foreground/[0.05]",
                   isAnimating && "animate-wiggle"
                 )}
-                aria-label="Sepet"
+                aria-label="Sepetim"
               >
                 <ShoppingBag className={cn(
                   "w-5 h-5 relative z-10 transition-transform duration-300",
@@ -327,6 +356,9 @@ export default function Header() {
                 )} />
                 <span className="lg:hidden relative z-10 text-[10px] font-medium leading-none tracking-tight">
                   Sepet
+                </span>
+                <span className="hidden lg:inline relative z-10 text-sm font-medium">
+                  Sepetim
                 </span>
                 {itemCount > 0 && (
                   <span 
@@ -345,7 +377,10 @@ export default function Header() {
 
               {/* Mobile Menu - sadece <1024px'te görünür, sepet butonuyla aynı yapı/davranış */}
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={() => {
+                  setIsAccountOpen(false);
+                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                }}
                 className={cn(
                   "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
@@ -373,6 +408,11 @@ export default function Header() {
           temizliği geri alıyor. */}
       {isMobileMenuOpen && (
         <MobileMenu isOpen onClose={() => setIsMobileMenuOpen(false)} />
+      )}
+
+      {/* Hesap çekmecesi - mobil menüyle aynı montaj kalıbı */}
+      {isAccountOpen && (
+        <AccountDrawer isOpen onClose={() => setIsAccountOpen(false)} />
       )}
     </>
   );
