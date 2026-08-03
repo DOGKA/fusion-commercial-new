@@ -23,15 +23,19 @@ const LOOPBACK_HOST = /^(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::\d+)?$/
 /**
  * Yönlendirmelerde kullanılacak **herkese açık** origin'i çözer.
  *
- * `request.url` / `request.nextUrl` gelen `Host` başlığından türetiliyor ve
- * nginx paneli `proxy_pass http://localhost:3001` ile beslerken başlığı
- * düzeltmiyor. Bu yüzden admin.fusionmarkt.com'a giren herkes
- * `https://localhost:3001/auth/signin` adresine atılıyordu.
+ * NEDEN `request.url` KULLANILMIYOR: Middleware'de o değer isteğin `Host`
+ * başlığından gelmiyor. Next, middleware'e verdiği URL'yi sunucunun kendi
+ * bağlandığı adresten kuruyor (`next-server.js` → `runMiddleware`:
+ * `${initProtocol}://${this.fetchHostname}:${this.port}${path}`). Panel
+ * `next start -H 127.0.0.1 -p 3001` ile çalıştığı için sonuç
+ * `https://127.0.0.1:3001/...`; üstelik `NextURL` 127.x adreslerini
+ * `localhost`'a çeviriyor. Yani nginx `Host` başlığını doğru geçirse bile
+ * yönlendirme `https://localhost:3001/auth/signin` oluyordu.
  *
- * Göreli bir `Location` başlığı çözüm değil: Next middleware yanıtını
+ * Göreli bir `Location` başlığı da çözüm değil: Next, middleware yanıtını
  * `new NextURL(location)` ile normalize ediyor ve göreli değer orada
- * "Invalid URL" ile patlayıp her sayfayı 500'e düşürüyor. Yani mutlak URL
- * zorunlu, sadece host'u doğru kaynaktan almamız gerekiyor.
+ * "Invalid URL" ile patlayıp her sayfayı 500'e düşürüyor. Mutlak URL zorunlu,
+ * host'u kendimiz doğru kaynaktan okumamız gerekiyor.
  *
  * Sıra: vekilin ilettiği başlıklar → başlıktaki host loopback ise
  * `NEXTAUTH_URL` (panelin bilinen tek herkese açık adresi) → son çare istek

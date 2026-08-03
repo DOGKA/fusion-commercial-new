@@ -148,10 +148,8 @@ export async function GET(request: NextRequest) {
 
     // Avatar yok. Eskiden `/images/user/default-avatar.png` adresine
     // yönlendiriliyordu ama o dosya `public/` altında hiç bulunmuyor (yalnızca
-    // user-01..user-30 var), yani yönlendirmenin sonu her zaman 404'tü. Üstelik
-    // hedef `request.url` üzerinden kurulduğu için ters vekilin arkasında
-    // yanlış origin'e (localhost:3001) çıkıyordu. Doğrudan 404 dönüyoruz;
-    // istemci kendi yer tutucusunu gösterir.
+    // user-01..user-30 var), yani yönlendirmenin sonu her zaman 404'tü.
+    // Doğrudan 404 dönüyoruz; istemci kendi yer tutucusunu gösterir.
     return NextResponse.json({ error: "Avatar bulunamadı" }, { status: 404 });
   } catch (error) {
     console.error("❌ [USER PHOTO] Get error:", error);
