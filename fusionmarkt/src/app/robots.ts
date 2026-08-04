@@ -1,49 +1,50 @@
 /**
  * FusionMarkt Robots.txt
- * Arama motorları için crawl kuralları
+ * Arama motorları ve yapay zekâ erişim botları için crawl kuralları
  */
 
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/seo";
 
+const privatePaths = [
+  "/api/",
+  "/checkout/",
+  "/favori/",
+  "/hesabim/",
+  "/order-confirmation",
+  "/resetpassword",
+  "/sifremi-unuttum",
+  "/sozlesmeler/",
+  "/storage/invoices/",
+];
+
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = siteConfig.url;
+  const baseUrl = siteConfig.url.replace(/\/$/, "");
 
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/api/",
-          "/hesabim/",
-          "/checkout/",
-          "/favori/",
-          "/order-confirmation/",
-          "/resetpassword/",
-          "/sifremi-unuttum/",
-          "/_next/",
-          "/storage/",
-        ],
+        disallow: privatePaths,
       },
-      // Googlebot için özel kurallar
       {
-        userAgent: "Googlebot",
-        allow: "/",
-        disallow: [
-          "/api/",
-          "/hesabim/",
-          "/checkout/",
-          "/favori/",
-          "/order-confirmation/",
-          "/resetpassword/",
-          "/sifremi-unuttum/",
+        // Arama ve kullanıcı isteğiyle çalışan LLM erişim botları.
+        userAgent: [
+          "OAI-SearchBot",
+          "ChatGPT-User",
+          "Claude-SearchBot",
+          "Claude-User",
+          "PerplexityBot",
+          "Google-Extended",
+          "Applebot-Extended",
         ],
+        allow: ["/", "/llms.txt"],
+        disallow: privatePaths,
       },
-      // Googlebot-Image için
       {
         userAgent: "Googlebot-Image",
-        allow: ["/images/", "/media/", "/storage/users/"],
+        allow: ["/images/", "/media/", "/storage/users/", "/_next/image"],
         disallow: ["/storage/invoices/"],
       },
     ],
@@ -51,4 +52,3 @@ export default function robots(): MetadataRoute.Robots {
     host: baseUrl,
   };
 }
-
