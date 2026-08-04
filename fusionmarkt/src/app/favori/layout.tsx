@@ -2,6 +2,9 @@
  * Favoriler Layout - SEO Metadata
  */
 
+import "@/styles/account-mobile.css";
+import "@/styles/account.css";
+
 import { staticPageMetadata } from "@/lib/seo";
 
 export const metadata = staticPageMetadata.favorites;

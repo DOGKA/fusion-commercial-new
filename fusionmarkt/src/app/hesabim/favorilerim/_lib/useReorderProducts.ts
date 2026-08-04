@@ -55,12 +55,14 @@ interface OrdersResponse {
   }[];
 }
 
-export function useReorderProducts() {
+export function useReorderProducts(enabled = true) {
   const [products, setProducts] = useState<ReorderProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    if (!enabled) return;
+
     setLoading(true);
     setError(null);
     try {
@@ -116,11 +118,12 @@ export function useReorderProducts() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
     void load();
-  }, [load]);
+  }, [enabled, load]);
 
-  return { products, loading, error, reload: load };
+  return { products, loading: enabled && loading, error, reload: load };
 }

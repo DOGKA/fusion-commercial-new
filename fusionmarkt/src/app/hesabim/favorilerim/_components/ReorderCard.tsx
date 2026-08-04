@@ -44,9 +44,9 @@ export default function ReorderCard({ product, busy, onReorder }: ReorderCardPro
 
       <div className="flex min-w-0 flex-1 flex-col p-3">
         {product.brand && (
-          <span className="account-eyebrow line-clamp-1 break-words">
-            {product.brand}
-          </span>
+          <p className="line-clamp-1 break-words text-[11px] font-medium tracking-wider text-foreground-muted">
+            {product.brand.toLocaleUpperCase("en-US")}
+          </p>
         )}
         <Link
           href={`/urun/${product.slug}`}

@@ -85,9 +85,9 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
 
       <div className="flex min-w-0 flex-1 flex-col p-3 pr-11 sm:pr-3">
         {item.brand && (
-          <span className="account-eyebrow line-clamp-1 break-words">
-            {item.brand}
-          </span>
+          <p className="line-clamp-1 break-words text-[11px] font-medium tracking-wider text-foreground-muted">
+            {item.brand.toLocaleUpperCase("en-US")}
+          </p>
         )}
         <Link
           href={`/urun/${item.slug}`}

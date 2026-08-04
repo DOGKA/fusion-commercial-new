@@ -82,7 +82,9 @@ export default function AccountFavoritesView({
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [onlyPriceDrop, setOnlyPriceDrop] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
-  const reorderProducts = useReorderProducts();
+  // Hook sırası her görünümde aynı kalır; sipariş isteği yalnız "Tekrar Al"
+  // görünümünde etkinleştirilir.
+  const reorderProducts = useReorderProducts(view === "REORDER");
 
   const visible = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("tr");
@@ -223,7 +225,9 @@ export default function AccountFavoritesView({
               <div
                 role="group"
                 aria-label="Beğenilen ürün filtreleri"
-                className="mb-4 grid w-full grid-cols-3 gap-2"
+                className={`mb-4 grid w-full gap-2 ${
+                  isSynced ? "grid-cols-3" : "grid-cols-1"
+                }`}
               >
                 <FilterChip
                   active={onlyDiscounted}
