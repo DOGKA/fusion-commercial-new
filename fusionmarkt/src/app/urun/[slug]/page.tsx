@@ -169,7 +169,7 @@ async function serializeBundleForClient(bundle: NonNullable<Awaited<ReturnType<t
     images: (bundle.images as string[]) || [],
     thumbnail: bundle.thumbnail || undefined,
     brand: bundle.brand || undefined,
-    description: bundle.description || undefined,
+    description: description || undefined,
     shortDescription: bundle.shortDescription || undefined,
     stock: bundle.stock || 0,
     sku: bundle.sku || undefined,

@@ -397,7 +397,12 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
         const res = await fetch(`/api/public/bundles/${slug}`);
         if (res.ok) {
           const data = await res.json();
-          setProductData(data);
+          // SSR açıklamasını koruyarak hydration sonrasında innerHTML ağacının
+          // yıkılıp Safari'de tüm detay görsellerini yeniden decode etmesini önle.
+          setProductData((current) => ({
+            ...data,
+            description: current?.description ?? data.description,
+          }));
           setBundleItems(data.items || []);
           
           // API'den gelen yorumları component formatına map et

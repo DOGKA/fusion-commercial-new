@@ -6,6 +6,26 @@
  */
 
 const SIZED_BLOCK_TAGS = 'table|td|th|tr|col|colgroup';
+const DESCRIPTION_IMAGE_WIDTH = 1200;
+const DESCRIPTION_IMAGE_QUALITY = 75;
+
+function optimizeDescriptionImageSrc(src: string | undefined): string | undefined {
+  if (!src || process.env.NODE_ENV !== 'production') return src;
+
+  try {
+    const url = new URL(src);
+    const isOptimizableHost =
+      url.hostname === 'cdn.fusionmarkt.com' ||
+      url.hostname === 'fusionmarkt.com' ||
+      url.hostname === 'www.fusionmarkt.com';
+
+    if (!isOptimizableHost || url.pathname === '/_next/image') return src;
+
+    return `/_next/image?url=${encodeURIComponent(url.toString())}&w=${DESCRIPTION_IMAGE_WIDTH}&q=${DESCRIPTION_IMAGE_QUALITY}`;
+  } catch {
+    return src;
+  }
+}
 
 /**
  * `<img>` etiketini tek biçime getirir: lazy yükleme, responsive genişlik ve
@@ -27,13 +47,14 @@ function normalizeImageTag(rawAttrs: string): string {
 
   const width = readSize('width');
   const height = readSize('height');
+  const src = optimizeDescriptionImageSrc(readAttr('src'));
   const inlineStyle = (readAttr('style') ?? '')
     .replace(/(^|;)\s*(width|height|aspect-ratio)\s*:[^;]*/gi, '')
     .replace(/^;+|;+$/g, '')
     .trim();
 
   const passthroughAttrs = attrs
-    .replace(/\s(width|height|style|loading|decoding|fetchpriority)\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/\s(src|width|height|style|loading|decoding|fetchpriority)\s*=\s*["'][^"']*["']/gi, '')
     .trim();
 
   const styleParts = ['width:100%', 'height:auto'];
@@ -41,9 +62,16 @@ function normalizeImageTag(rawAttrs: string): string {
   if (inlineStyle) styleParts.push(inlineStyle);
 
   const sizeAttrs = width && height ? ` width="${width}" height="${height}"` : '';
+  const srcAttr = src ? ` src="${src.replace(/"/g, '&quot;')}"` : '';
   const prefix = passthroughAttrs ? ` ${passthroughAttrs}` : '';
+  // Boyutu bilinmeyen lazy görseller Safari'de yüklenene kadar 0px yer kaplar.
+  // Bu durumda eager/sync kullanmak, küçük scroll hareketlerinde lazy-load ve
+  // scroll anchoring döngüsünü engeller.
+  const loadingAttrs = width && height
+    ? ' loading="lazy" decoding="async"'
+    : ' loading="eager" decoding="sync"';
 
-  return `<img loading="lazy" decoding="async"${prefix}${sizeAttrs} style="${styleParts.join(';')}">`;
+  return `<img${loadingAttrs}${srcAttr}${prefix}${sizeAttrs} style="${styleParts.join(';')}">`;
 }
 
 // HTML içeriğini temizleme ve güvenlik sanitizer fonksiyonu

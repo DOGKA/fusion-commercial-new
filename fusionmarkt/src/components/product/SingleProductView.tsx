@@ -282,7 +282,13 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
         const res = await fetch(`/api/public/products/${slug}`);
         if (res.ok) {
           const data = await res.json();
-          setProductData(data);
+          // SSR'da boyutlandırılmış açıklama HTML'ini koru. API yanıtındaki
+          // küçük bir attribute farkı bile dangerouslySetInnerHTML ağacını
+          // yeniden kurup Safari'de tüm lazy görselleri tekrar decode ettirir.
+          setProductData((current) => ({
+            ...data,
+            description: current?.description ?? data.description,
+          }));
           // API'den gelen yorumları component formatına map et
           if (data.reviews) {
             const mappedReviews = data.reviews.map((r: ApiReview) => ({
