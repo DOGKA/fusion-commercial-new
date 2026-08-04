@@ -101,6 +101,7 @@ model User {
   cancellationRequests CancellationRequest[]
   returnRequests       ReturnRequest[]
   consentLogs          UserConsentLog[]
+  adminNotificationStates AdminNotificationState[]
 
   @@map("users")
 }
@@ -1353,6 +1354,45 @@ model AdminDismissedNotification {
   @@unique([userId, notifId])
   @@index([userId])
   @@map("admin_dismissed_notifications")
+}
+
+/// A durable, globally materialized admin event. `dedupeKey` is stable for the
+/// source object so polling can safely run the materializer more than once.
+model AdminNotification {
+  id        String   @id @default(cuid())
+  dedupeKey String   @unique
+  type      String
+  title     String
+  subTitle  String
+  href      String
+  sourceId  String?
+  active    Boolean  @default(true)
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
+  states    AdminNotificationState[]
+
+  @@index([active, createdAt])
+  @@index([type, sourceId])
+  @@map("admin_notifications")
+}
+
+/// Read/popup/snooze/dismiss state is deliberately per administrator.
+model AdminNotificationState {
+  id             String   @id @default(cuid())
+  notificationId String
+  userId         String
+  readAt         DateTime?
+  dismissedAt    DateTime?
+  remindAt       DateTime?
+  presentedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  notification   AdminNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@index([userId, dismissedAt, remindAt])
+  @@map("admin_notification_states")
 }
 
 model SiteSettings {

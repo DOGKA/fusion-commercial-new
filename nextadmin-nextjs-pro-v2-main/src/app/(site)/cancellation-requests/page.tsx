@@ -133,6 +133,7 @@ export default function CancellationRequestsPage() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
   const [adminNote, setAdminNote] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
+  const [deepLinkHandled, setDeepLinkHandled] = useState(false);
 
   // Fetch requests
   const fetchRequests = useCallback(async () => {
@@ -140,6 +141,8 @@ export default function CancellationRequestsPage() {
     setError(null);
     try {
       const params = new URLSearchParams();
+      const deepLinkId = new URLSearchParams(window.location.search).get("id");
+      if (deepLinkId) params.set("id", deepLinkId);
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       
       const res = await fetch(`/api/admin/cancellation-requests?${params}`);
@@ -157,6 +160,28 @@ export default function CancellationRequestsPage() {
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id && requests.some((request) => request.id === id)) {
+      document.getElementById(`cancellation-${id}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [requests]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!id || deepLinkHandled) return;
+    const target = requests.find((request) => request.id === id);
+    if (target?.status === "PENDING_ADMIN_APPROVAL") {
+      setActionModalRequest(target);
+      setActionType("approve");
+      setAdminNote(target.adminNote || "");
+      setDeepLinkHandled(true);
+    }
+  }, [requests, deepLinkHandled]);
 
   // Filter requests
   const filteredRequests = requests.filter((req) => {
@@ -404,7 +429,7 @@ export default function CancellationRequestsPage() {
                   const isCard = req.order.paymentMethod === "CREDIT_CARD" || req.order.paymentMethod === "iyzico";
                   
                   return (
-                    <tr key={req.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <tr id={`cancellation-${req.id}`} key={req.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                       {/* Order */}
                       <td className="px-4 py-4">
                         <Link

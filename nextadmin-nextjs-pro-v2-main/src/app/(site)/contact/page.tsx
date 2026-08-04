@@ -58,6 +58,7 @@ export default function ContactPage() {
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deepLinkHandled, setDeepLinkHandled] = useState(false);
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -83,6 +84,17 @@ export default function ContactPage() {
   useEffect(() => {
     fetchMessages();
   }, [fetchMessages]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id && !deepLinkHandled) {
+      const target = messages.find((message) => message.id === id);
+      if (target) {
+        setViewMessage(target);
+        setDeepLinkHandled(true);
+      }
+    }
+  }, [messages, deepLinkHandled]);
 
   const handleSearch = () => {
     fetchMessages();

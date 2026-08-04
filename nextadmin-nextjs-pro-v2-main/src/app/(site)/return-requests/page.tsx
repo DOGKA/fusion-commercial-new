@@ -339,6 +339,7 @@ export default function ReturnRequestsPage() {
   const [lastReturnCode, setLastReturnCode] = useState<string | null>(null);
   const [sendBackCarrier, setSendBackCarrier] = useState("");
   const [sendBackTrackingNumber, setSendBackTrackingNumber] = useState("");
+  const [deepLinkHandled, setDeepLinkHandled] = useState(false);
 
   // Fetch requests
   const fetchRequests = useCallback(async () => {
@@ -346,6 +347,8 @@ export default function ReturnRequestsPage() {
     setError(null);
     try {
       const params = new URLSearchParams();
+      const deepLinkId = new URLSearchParams(window.location.search).get("id");
+      if (deepLinkId) params.set("id", deepLinkId);
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       if (reasonFilter !== "ALL") params.set("reason", reasonFilter);
       if (typeFilter !== "ALL") params.set("requestType", typeFilter);
@@ -366,6 +369,37 @@ export default function ReturnRequestsPage() {
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id && requests.some((request) => request.id === id)) {
+      document.getElementById(`return-${id}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [requests]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!id || deepLinkHandled) return;
+    const target = requests.find((request) => request.id === id);
+    if (!target) return;
+
+    if (target.status === "PENDING_ADMIN_APPROVAL") {
+      setActionModalRequest(target);
+      setActionType("approve");
+      setAdminNote(target.adminNote || "");
+      setReturnAddress(target.returnAddress || "");
+      setReturnInstructions(target.returnInstructions || "");
+      setDeepLinkHandled(true);
+    } else if (target.status === "RECEIVED") {
+      setActionModalRequest(target);
+      setActionType("refund");
+      setAdminNote(target.adminNote || "");
+      setDeepLinkHandled(true);
+    }
+  }, [requests, deepLinkHandled]);
 
   // Arama sunucuda yapıldığı için gelen liste zaten filtreli; her tuş vuruşunda
   // istek atmamak adına gecikme veriyoruz.
@@ -696,7 +730,7 @@ export default function ReturnRequestsPage() {
                   const sendBackWaitingDays = daysSince(req.reviewedAt);
                   
                   return (
-                    <tr key={req.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <tr id={`return-${req.id}`} key={req.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                       {/* Order */}
                       <td className="px-4 py-4">
                         <Link

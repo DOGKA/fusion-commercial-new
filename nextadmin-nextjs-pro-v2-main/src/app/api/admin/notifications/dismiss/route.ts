@@ -4,16 +4,13 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/libs/auth";
 import { prisma } from "@repo/db";
+import { requireAdminApi } from "@/lib/admin-api-auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireAdminApi();
+    if (auth.response) return auth.response;
 
     const { notifId } = await request.json();
     if (!notifId) {
@@ -23,13 +20,13 @@ export async function POST(request: NextRequest) {
     await (prisma as any).adminDismissedNotification.upsert({
       where: {
         userId_notifId: {
-          userId: session.user.id,
+          userId: auth.session!.user.id,
           notifId,
         },
       },
       update: {},
       create: {
-        userId: session.user.id,
+        userId: auth.session!.user.id,
         notifId,
       },
     });

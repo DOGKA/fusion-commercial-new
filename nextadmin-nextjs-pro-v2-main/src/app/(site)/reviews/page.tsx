@@ -230,6 +230,7 @@ export default function ReviewsPage() {
   const [filter, setFilter] = useState("all"); // all, pending, approved
   const [imageModal, setImageModal] = useState<{ images: string[]; index: number } | null>(null);
   const [approveModal, setApproveModal] = useState<Review | null>(null);
+  const [deepLinkHandled, setDeepLinkHandled] = useState(false);
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
@@ -255,6 +256,17 @@ export default function ReviewsPage() {
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id && !deepLinkHandled) {
+      const target = reviews.find((review) => review.id === id);
+      if (target) {
+        setApproveModal(target);
+        setDeepLinkHandled(true);
+      }
+    }
+  }, [reviews, deepLinkHandled]);
 
   const handleApproveWithReply = async (id: string, adminReply: string) => {
     try {

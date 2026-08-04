@@ -8,46 +8,22 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { BellIcon } from "./icons";
-
-interface NotificationItem {
-  id: string;
-  type: "order" | "payment" | "stock" | "user" | "contact" | "service";
-  title: string;
-  subTitle: string;
-  link: string;
-  createdAt: string;
-  read: boolean;
-}
+import {
+  type AdminNotificationItem,
+  useAdminNotifications,
+} from "@/components/AdminNotificationsProvider";
 
 export function Notification() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDotVisible, setIsDotVisible] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { summary, loading, refresh } = useAdminNotifications();
+  const [notifications, setNotifications] = useState<AdminNotificationItem[]>([]);
   const isMobile = useIsMobile();
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const response = await fetch("/api/admin/notifications");
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-        setIsDotVisible(data.unreadCount > 0);
-      }
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
-  }, [fetchNotifications]);
+    setNotifications(summary.notifications || []);
+  }, [summary.notifications]);
 
   const handleDismiss = async (e: React.MouseEvent, notifId: string) => {
     e.preventDefault();
@@ -57,14 +33,16 @@ export function Notification() {
     setNotifications((prev) => prev.filter((n) => n.id !== notifId));
 
     try {
-      await fetch("/api/admin/notifications/dismiss", {
-        method: "POST",
+      const response = await fetch(`/api/admin/notifications/${encodeURIComponent(notifId)}/state`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notifId }),
+        body: JSON.stringify({ action: "dismiss" }),
       });
+      if (!response.ok) throw new Error("Dismiss failed");
+      void refresh();
     } catch (error) {
       console.error("Dismiss error:", error);
-      fetchNotifications();
+      void refresh();
     }
   };
 
@@ -143,9 +121,6 @@ export function Notification() {
       isOpen={isOpen}
       setIsOpen={(open) => {
         setIsOpen(open);
-        if (open && isDotVisible) {
-          setIsDotVisible(false);
-        }
       }}
     >
       <DropdownTrigger
@@ -155,7 +130,7 @@ export function Notification() {
         <span className="relative">
           <BellIcon />
 
-          {isDotVisible && unreadCount > 0 && (
+          {unreadCount > 0 && (
             <span
               className={cn(
                 "absolute right-0 top-0 z-1 size-2 rounded-full bg-red-light ring-2 ring-gray-2 dark:ring-dark-3"
@@ -175,11 +150,25 @@ export function Notification() {
           <span className="text-lg font-medium text-dark dark:text-white">
             Bildirimler
           </span>
-          {unreadCount > 0 && (
-            <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
-              {unreadCount} yeni
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <button
+                className="text-xs text-primary hover:underline"
+                onClick={async () => {
+                  await fetch("/api/admin/notifications/read-all", { method: "POST" });
+                  setNotifications((current) => current.map((item) => ({ ...item, read: true })));
+                  void refresh();
+                }}
+              >
+                Tümünü okundu yap
+              </button>
+            )}
+            {unreadCount > 0 && (
+              <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
+                {unreadCount} yeni
+              </span>
+            )}
+          </div>
         </div>
 
         <ul className="mb-3 max-h-[23rem] space-y-1 overflow-y-auto">
@@ -202,7 +191,21 @@ export function Notification() {
                 >
                   <Link
                     href={item.link}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      setIsOpen(false);
+                      if (!item.read) {
+                        setNotifications((current) =>
+                          current.map((entry) =>
+                            entry.id === item.id ? { ...entry, read: true } : entry,
+                          ),
+                        );
+                        void fetch(`/api/admin/notifications/${encodeURIComponent(item.id)}/state`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ action: "read" }),
+                        });
+                      }
+                    }}
                     className="flex items-center gap-3 flex-1 min-w-0"
                   >
                     {getIcon(item.type)}

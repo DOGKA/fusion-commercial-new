@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
+import { useAdminNotifications } from "@/components/AdminNotificationsProvider";
 import { NAV_DATA } from "./data";
 import { ChevronUp } from "./icons";
 import { MenuItem } from "./menu-item";
@@ -32,46 +33,8 @@ const BADGE_URL_MAP: Record<string, keyof BadgeCounts> = {
 export function Sidebar() {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
+  const { summary: badgeCounts } = useAdminNotifications();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [badgeCounts, setBadgeCounts] = useState<BadgeCounts>({
-    orders: 0,
-    cancellations: 0,
-    returns: 0,
-    contacts: 0,
-    serviceForms: 0,
-    reviews: 0,
-  });
-
-  // Fetch badge counts
-  const fetchBadgeCounts = useCallback(async () => {
-    try {
-      const res = await fetch("/api/admin/notifications/counts");
-      if (res.ok) {
-        const data = await res.json();
-        setBadgeCounts({
-          orders: data.orders || 0,
-          cancellations: data.cancellations || 0,
-          returns: data.returns || 0,
-          contacts: data.contacts || 0,
-          serviceForms: data.serviceForms || 0,
-          reviews: data.reviews || 0,
-        });
-      }
-    } catch (error) {
-      // Silently fail - badges will show 0
-    }
-  }, []);
-
-  // Fetch badge counts on mount and every 30 seconds
-  useEffect(() => {
-    fetchBadgeCounts();
-    
-    const intervalId = setInterval(fetchBadgeCounts, 30000);
-    
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [fetchBadgeCounts]);
 
   // Get badge count for a URL
   const getBadgeCount = (url: string): number => {

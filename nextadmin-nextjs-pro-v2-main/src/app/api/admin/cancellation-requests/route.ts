@@ -50,6 +50,8 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
+    const id = searchParams.get("id");
+    if (id) where.id = id;
     if (status && status !== "ALL") {
       where.status = status;
     }

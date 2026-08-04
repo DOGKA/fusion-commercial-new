@@ -70,6 +70,7 @@ database-backup/
 *.dump
 *.sql
 !packages/db/prisma/migrations/**/migration.sql
+!packages/db/prisma/sql/2026-08-04-admin-bildirim.sql
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Image Processing / Temporary Files

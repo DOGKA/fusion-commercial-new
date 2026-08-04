@@ -7,6 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import ToastContext from "../context/ToastContext";
+import { AdminNotificationPopups } from "@/components/AdminNotificationPopups";
+import { AdminNotificationsProvider } from "@/components/AdminNotificationsProvider";
 
 interface LayoutClientProps {
   children: React.ReactNode;
@@ -59,20 +61,23 @@ export default function LayoutClient({ children }: LayoutClientProps) {
   // Session varsa dashboard göster
   return (
     <>
-      <SidebarProvider>
-        <div className="flex min-h-screen">
-          <Sidebar />
+      <AdminNotificationsProvider>
+        <SidebarProvider>
+          <div className="flex min-h-screen">
+            <Sidebar />
 
-          <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
-            <Header />
+            <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
+              <Header />
 
-            <main className="mx-auto w-full max-w-screen-2xl overflow-hidden p-4 md:p-6 2xl:p-10">
-              {children}
-            </main>
+              <main className="mx-auto w-full max-w-screen-2xl overflow-hidden p-4 md:p-6 2xl:p-10">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
+        </SidebarProvider>
 
+        <AdminNotificationPopups />
+      </AdminNotificationsProvider>
       <ToastContext />
     </>
   );

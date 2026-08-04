@@ -81,6 +81,18 @@ export default function ServiceFormsPage() {
   const [actionMode, setActionMode] = useState<"approve" | "reject" | null>(null);
   const [sending, setSending] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deepLinkHandled, setDeepLinkHandled] = useState(false);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id && !deepLinkHandled) {
+      const target = messages.find((message) => message.id === id);
+      if (target) {
+        setViewMessage(target);
+        setDeepLinkHandled(true);
+      }
+    }
+  }, [messages, deepLinkHandled]);
 
   const fetchMessages = useCallback(async () => {
     try {
