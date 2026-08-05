@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Home,
   ChevronRight,
@@ -70,6 +71,7 @@ export default function OrderDetailView({
   const [copiedTracking, setCopiedTracking] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [requestOpen, setRequestOpen] = useState(false);
+  const router = useRouter();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -88,6 +90,16 @@ export default function OrderDetailView({
       setLoading(false);
     }
   }, [orderNumber]);
+
+  /**
+   * Talep açıldıktan sonra sipariş durumu değişiyor; sunucudan gelen kopya da
+   * tazelenmeli. Router Cache dinamik segmentleri 30 sn tutuyor (next.config
+   * `staleTimes`), yoksa listeye dönen kullanıcı eski durumu görürdü.
+   */
+  const afterRequest = useCallback(() => {
+    void load();
+    router.refresh();
+  }, [load, router]);
 
   /**
    * Sunucu zaten bir cevap ürettiyse (veri ya da hata) mount'taki isteği
@@ -391,7 +403,7 @@ export default function OrderDetailView({
       <CancelRequestSheet
         orderNumber={cancelOpen ? order.orderNumber : null}
         onClose={() => setCancelOpen(false)}
-        onSuccess={() => void load()}
+        onSuccess={afterRequest}
       />
       <RequestSheet
         orderNumber={requestOpen ? order.orderNumber : null}
@@ -401,7 +413,7 @@ export default function OrderDetailView({
         /* Teknik servis kısayolu ürün müşteriye ulaşmadan anlamsız (M-13). */
         delivered={order.status === "DELIVERED"}
         onClose={() => setRequestOpen(false)}
-        onSuccess={() => void load()}
+        onSuccess={afterRequest}
       />
     </>
   );

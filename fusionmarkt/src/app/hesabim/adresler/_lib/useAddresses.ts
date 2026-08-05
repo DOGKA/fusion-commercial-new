@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import type { AddressFormValues, UserAddress } from "./types";
 
@@ -24,8 +25,18 @@ export function useAddresses(initialAddresses?: UserAddress[] | null) {
   const [addresses, setAddresses] = useState<UserAddress[]>(initialAddresses ?? []);
   const [loading, setLoading] = useState(!initialAddresses);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const skipInitialFetch = useRef(Boolean(initialAddresses));
+
+  /**
+   * Yazma sonrası sunucudan gelen liste de tazelenmeli: Router Cache dinamik
+   * segmentleri 30 sn tutuyor (next.config `staleTimes`), yoksa sayfadan çıkıp
+   * geri dönen kullanıcı silinmiş adresi tekrar görürdü.
+   */
+  const invalidateServerData = useCallback(() => {
+    router.refresh();
+  }, [router]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -87,13 +98,14 @@ export function useAddresses(initialAddresses?: UserAddress[] | null) {
           return { error: body.error || "Adres kaydedilemedi", field: body.field };
         }
         await load();
+        invalidateServerData();
         toast.success(id ? "Adres güncellendi" : "Adres eklendi");
         return null;
       } catch {
         return { error: "Adres kaydedilemedi. Lütfen tekrar deneyiniz." };
       }
     },
-    [load]
+    [load, invalidateServerData]
   );
 
   const remove = useCallback(
@@ -106,6 +118,7 @@ export function useAddresses(initialAddresses?: UserAddress[] | null) {
           return false;
         }
         await load();
+        invalidateServerData();
         toast.success("Adres silindi");
         return true;
       } catch {
@@ -113,7 +126,7 @@ export function useAddresses(initialAddresses?: UserAddress[] | null) {
         return false;
       }
     },
-    [load]
+    [load, invalidateServerData]
   );
 
   const setDefault = useCallback(
@@ -130,12 +143,13 @@ export function useAddresses(initialAddresses?: UserAddress[] | null) {
           return;
         }
         await load();
+        invalidateServerData();
         toast.success("Varsayılan adres güncellendi");
       } catch {
         toast.error("Varsayılan adres değiştirilemedi.");
       }
     },
-    [load]
+    [load, invalidateServerData]
   );
 
   return { addresses, loading, error, reload: load, save, remove, setDefault };

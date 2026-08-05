@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import { staticPageMetadata } from "@/lib/seo";
 import { getUserCoupons } from "@/lib/user-coupons";
 import { getServerAccountUser } from "../_lib/server-user";
-import { AccountCard } from "../_components/shared";
+import { AccountCard, AccountSkeleton } from "../_components/shared";
 import CouponsView from "./_components/CouponsView";
 
 export const metadata = staticPageMetadata.accountCoupons;
@@ -12,14 +13,22 @@ export const metadata = staticPageMetadata.accountCoupons;
  *
  * Oturum yoksa veri de çekilmiyor — o durumda kabuk zaten `AccountShellGate`
  * tarafından giriş ekranına çevriliyor, boşuna sorgu atmanın anlamı yok.
+ *
+ * Sorgu `Suspense` arkasında: menüden gelen tıklamada kabuk beklemeden çizilsin.
  */
-export default async function KuponlarPage() {
+export default function KuponlarPage() {
+  return (
+    <AccountCard>
+      <Suspense fallback={<AccountSkeleton variant="card" count={3} />}>
+        <CouponsSection />
+      </Suspense>
+    </AccountCard>
+  );
+}
+
+async function CouponsSection() {
   const user = await getServerAccountUser();
   const initialData = user?.id ? await getUserCoupons(user.id) : null;
 
-  return (
-    <AccountCard>
-      <CouponsView initialData={initialData} />
-    </AccountCard>
-  );
+  return <CouponsView initialData={initialData} />;
 }

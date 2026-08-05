@@ -251,6 +251,21 @@ const nextConfig: NextConfig = {
       "lucide-react",
       "framer-motion",
     ],
+
+    /**
+     * İstemci Router Cache ömrü. Next 15'te dinamik segmentlerin varsayılanı 0,
+     * yani `/hesabim/*` gibi force-dynamic sayfalarda saniyeler önce açılmış bir
+     * sekmeye dönmek bile bütün sorguları yeniden çalıştırıyordu.
+     *
+     * 30 sn sadece TEK OTURUM içindeki istemci gezinmesini etkiler; sayfa
+     * yenilemesi ve `router.refresh()` (form kaydetmelerinden sonra çağrılıyor)
+     * önbelleği atlar. Sipariş/adres gibi veriler bu pencerede eskiyebilir,
+     * karşılığında sekmeler arası ileri-geri gezinme anında oluyor.
+     */
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
 
   // Enable React strict mode for better debugging

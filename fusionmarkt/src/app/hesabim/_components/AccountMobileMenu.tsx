@@ -3,9 +3,41 @@
 import Link from "next/link";
 import { ChevronRight, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { ACCOUNT_NAV } from "../_lib/account-nav";
+import { ACCOUNT_NAV, type AccountRoute } from "../_lib/account-nav";
+import { useLinkIntent } from "../_lib/use-link-intent";
 import type { AccountSummary } from "../_lib/useAccountSummary";
 import AccountUserCard from "./AccountUserCard";
+
+function MenuRow({ item }: { item: AccountRoute }) {
+  const { prefetch, intentHandlers } = useLinkIntent();
+
+  return (
+    <Link
+      href={item.href}
+      className="account-menu-row"
+      {...(item.external
+        ? { prefetch: false }
+        : { prefetch, ...intentHandlers })}
+    >
+      <span className="account-menu-row__icon" aria-hidden="true">
+        <item.icon size={18} />
+      </span>
+      <span className="account-menu-row__label truncate">{item.label}</span>
+      {item.dotColor && (
+        <span
+          aria-hidden="true"
+          className="account-sidebar-dot"
+          style={{ background: item.dotColor, marginLeft: 0 }}
+        />
+      )}
+      <ChevronRight
+        size={16}
+        className="account-menu-row__chevron"
+        aria-hidden="true"
+      />
+    </Link>
+  );
+}
 
 interface AccountMobileMenuProps {
   summary: AccountSummary | null;
@@ -69,26 +101,7 @@ export default function AccountMobileMenu({
             <ul>
               {group.items.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="account-menu-row">
-                    <span className="account-menu-row__icon" aria-hidden="true">
-                      <item.icon size={18} />
-                    </span>
-                    <span className="account-menu-row__label truncate">
-                      {item.label}
-                    </span>
-                    {item.dotColor && (
-                      <span
-                        aria-hidden="true"
-                        className="account-sidebar-dot"
-                        style={{ background: item.dotColor, marginLeft: 0 }}
-                      />
-                    )}
-                    <ChevronRight
-                      size={16}
-                      className="account-menu-row__chevron"
-                      aria-hidden="true"
-                    />
-                  </Link>
+                  <MenuRow item={item} />
                 </li>
               ))}
             </ul>

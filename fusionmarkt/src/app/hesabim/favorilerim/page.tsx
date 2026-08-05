@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import { staticPageMetadata } from "@/lib/seo";
 import { getWishlistItems } from "@/lib/wishlist";
 import { getServerAccountUser } from "../_lib/server-user";
-import { AccountCard } from "../_components/shared";
+import { AccountCard, AccountSkeleton } from "../_components/shared";
 import AccountFavoritesView from "./_components/AccountFavoritesView";
 
 /**
@@ -19,7 +20,17 @@ import AccountFavoritesView from "./_components/AccountFavoritesView";
  */
 export const metadata = staticPageMetadata.accountFavorites;
 
-export default async function FavorilerimPage() {
+export default function FavorilerimPage() {
+  return (
+    <AccountCard>
+      <Suspense fallback={<AccountSkeleton variant="productCard" count={4} />}>
+        <FavoritesSection />
+      </Suspense>
+    </AccountCard>
+  );
+}
+
+async function FavoritesSection() {
   const user = await getServerAccountUser();
   const initialItems = user?.id
     ? (await getWishlistItems(user.id)).map((item) => ({
@@ -46,9 +57,5 @@ export default async function FavorilerimPage() {
       }))
     : null;
 
-  return (
-    <AccountCard>
-      <AccountFavoritesView initialItems={initialItems} />
-    </AccountCard>
-  );
+  return <AccountFavoritesView initialItems={initialItems} />;
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { AccountNavGroup } from "../_lib/account-nav";
 import { isAccountRouteActive } from "../_lib/account-nav.helpers";
+import { useLinkIntent } from "../_lib/use-link-intent";
 
 interface AccountSidebarGroupProps {
   group: AccountNavGroup;
@@ -26,6 +27,8 @@ function GroupLink({
   dotColor?: string;
   external?: boolean;
 }) {
+  const { prefetch, intentHandlers } = useLinkIntent();
+
   return (
     <Link
       href={href}
@@ -34,7 +37,7 @@ function GroupLink({
         "account-sidebar-link",
         active && "account-sidebar-link--active"
       )}
-      {...(external ? { prefetch: false } : {})}
+      {...(external ? { prefetch: false } : { prefetch, ...intentHandlers })}
     >
       {/* Rengi bağlantının kendisinden alır: aktif dalda `.account-sidebar-link
           --active` zaten ton token'ına çözülüyor, sabit emerald light temada
