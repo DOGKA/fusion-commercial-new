@@ -18,7 +18,9 @@ import { staticPageMetadata } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
 import { applyLiveShowcasePrices } from "@/server/showcase-live-prices";
 import {
+  mapBannerToPublicDTO,
   selectSliderPublic,
+  selectBannerPublic,
   mapSlidersToPublicDTO,
 } from "@/server/dto";
 
@@ -86,6 +88,22 @@ async function getInitialTrending() {
       attributes: item.attributes || undefined,
       image: item.image || null,
     }));
+  } catch {
+    return [];
+  }
+}
+
+async function getInitialCategoryCards() {
+  try {
+    const banner = await prisma.banner.findFirst({
+      where: {
+        isActive: true,
+        placement: "HOME_CATEGORY",
+      },
+      select: selectBannerPublic,
+      orderBy: { order: "asc" },
+    });
+    return banner ? mapBannerToPublicDTO(banner).cards : [];
   } catch {
     return [];
   }
@@ -190,6 +208,7 @@ export default async function Home() {
   const [
     initialSlides,
     initialTrending,
+    initialCategoryCards,
     initialCategorySections,
     initialPromo,
     initialVideoBanner,
@@ -197,6 +216,7 @@ export default async function Home() {
   ] = await Promise.all([
     getInitialSliders(),
     getInitialTrending(),
+    getInitialCategoryCards(),
     getInitialCategorySections(),
     getInitialPromo(),
     getInitialVideoBanner(),
@@ -223,7 +243,7 @@ export default async function Home() {
 
       <CategoryShowcase index={1} initialSection={initialCategorySections[1] || null} />
       
-      <CategoryBento />
+      <CategoryBento initialCategories={initialCategoryCards} />
 
       <VideoGrid initialVideos={initialVideos} />
       <WhyFusionMarkt />

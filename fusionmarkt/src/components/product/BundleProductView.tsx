@@ -20,6 +20,7 @@ import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
+import ProductStickyCta from "@/components/product/ProductStickyCta";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useProductTabDeepLink } from "@/components/product/useProductTabDeepLink";
@@ -227,8 +228,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
 
   // Mobil yapışkan CTA: fiyat bölümü yukarı kaydırılıp görünümden çıkınca göster
   const priceSectionRef = useRef<HTMLDivElement>(null);
-  const [showStickyCta, setShowStickyCta] = useState(false);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   // Sibling bundles (prev/next in same category)
   const [siblingProducts, setSiblingProducts] = useState<{
@@ -269,35 +268,6 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
     observer.observe(contentEl);
     return () => observer.disconnect();
   }, [productData?.description, activeTab]);
-
-  // Fiyat bölümü viewport'un üstüne çıkınca yapışkan CTA'yı göster,
-  // tekrar görünür olunca (veya viewport'un altındayken) gizle
-  useEffect(() => {
-    const el = priceSectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) =>
-        setShowStickyCta(!entry.isIntersecting && entry.boundingClientRect.top < 0),
-      { threshold: 0 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [productData, loading]);
-
-  // Sabit CTA'nın footer içeriğini kapatmasını önle
-  useEffect(() => {
-    const footer = document.querySelector('footer');
-    if (!footer) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsFooterVisible(entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
-
-  const shouldShowStickyCta = showStickyCta && !isFooterVisible;
 
   // Bundle state'leri
   const [bundleItems, setBundleItems] = useState<BundleItem[]>(initialData?.items || []);
@@ -1421,7 +1391,9 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                             setVariantImage(variant.image || null);
                           }
                         }}
-                        disabled={!isInStock}
+                        // Stoksuz seçenek de seçilebilir: sepete eklenemez ama
+                        // beğenilere eklenip stok takibi yapılabilir.
+                        title={isInStock ? undefined : `${variant.value || variant.name} (Stokta yok — beğenilere eklenebilir)`}
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
@@ -1430,8 +1402,8 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                           padding: '4px',
                           background: 'transparent',
                           border: 'none',
-                          cursor: isInStock ? 'pointer' : 'not-allowed',
-                          opacity: isInStock ? 1 : 0.4,
+                          cursor: 'pointer',
+                          opacity: isInStock ? 1 : isSelected ? 0.85 : 0.4,
                         }}
                       >
                         {/* Squircle */}
@@ -2478,8 +2450,7 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
           displayComparePrice = product.comparePrice ?? null;
         }
 
-        const hasDiscount = displayComparePrice != null && displayComparePrice > displayPrice;
-        const hasVariants = product.variants && product.variants.length > 0;
+        const hasVariants = Boolean(product.variants?.length);
         const isOutOfStock = hasVariants
           ? (selectedVariant ? selectedVariant.stock <= 0 : false)
           : (product.stock ?? 0) <= 0;
@@ -2506,89 +2477,14 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
         };
 
         return (
-          <>
-            {/* Mobil: alttan tam genişlik bar */}
-            <div
-              className={`product-sticky-cta md:hidden fixed bottom-0 left-0 right-0 z-[90] border-t transition-transform duration-300 ease-out ${
-                shouldShowStickyCta ? 'translate-y-0' : 'translate-y-full pointer-events-none'
-              }`}
-              style={{
-                backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
-                borderColor: 'var(--border)',
-                boxShadow: isDark
-                  ? '0 -12px 24px -8px rgba(0,0,0,0.6)'
-                  : '0 -12px 24px -8px rgba(0,0,0,0.12)',
-                paddingBottom: 'env(safe-area-inset-bottom)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 24px', maxWidth: '1400px', margin: '0 auto' }}>
-                <div style={{ minWidth: 0 }}>
-                  {hasDiscount && displayComparePrice != null && (
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1, marginBottom: '4px' }}>
-                      <span style={{ fontSize: '12px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
-                        {formatPrice(displayComparePrice)} TL
-                      </span>
-                      <span style={{ fontSize: '10px', fontWeight: 600, color: '#10B981' }}>
-                        {formatPrice(displayComparePrice - displayPrice)} TL kazanç
-                      </span>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', whiteSpace: 'nowrap' }}>
-                    <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)', lineHeight: 1.2 }}>
-                      {formatPrice(displayPrice)}
-                      <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--foreground-tertiary)', marginLeft: '4px' }}>TL</span>
-                    </span>
-                    <span style={{ fontSize: '10px', color: 'var(--foreground-muted)' }}>KDV Dahil</span>
-                  </div>
-                </div>
-                <AddToCartButton
-                  product={stickyCartProduct}
-                  variant="text"
-                  size="sm"
-                  className="flex-shrink-0"
-                  disabled={isOutOfStock}
-                  requiresVariant={hasVariants}
-                />
-              </div>
-            </div>
-
-            {/* Web: ortalanmış yüzen glass pill */}
-            <div
-              className={`hidden md:block fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-1rem)] max-w-[600px] -translate-x-1/2 transition-all duration-300 ease-out ${
-                shouldShowStickyCta ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'
-              }`}
-            >
-              <div className="flex items-center gap-3 md:gap-5 border border-[var(--glass-border)] bg-[var(--surface)] px-4 py-3 md:px-6 md:py-4 shadow-xl backdrop-blur-xl" style={{ borderRadius: 20 }}>
-                <div className="flex flex-col gap-0.5 min-w-0 shrink-0 min-h-[40px] md:min-h-[52px]">
-                  <div className="flex items-baseline gap-2">
-                    {hasDiscount && displayComparePrice != null && (
-                      <span className="text-[10px] md:text-sm line-through text-[var(--foreground-muted)]">
-                        {formatPrice(displayComparePrice)} TL
-                      </span>
-                    )}
-                    <span className="text-base md:text-2xl font-bold text-[var(--foreground)] whitespace-nowrap">
-                      {formatPrice(displayPrice)} TL
-                    </span>
-                  </div>
-                  {hasDiscount && displayComparePrice != null && (
-                    <span className="inline-flex items-center self-start px-2 py-0.5 text-[9px] md:text-xs font-semibold text-emerald-500 bg-emerald-500/20" style={{ borderRadius: 8 }}>
-                      Kazanç: {formatPrice(displayComparePrice - displayPrice)} TL
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5 md:gap-3 flex-1 justify-end">
-                  <AddToCartButton
-                    product={stickyCartProduct}
-                    variant="text"
-                    size="md"
-                    className="!flex-1 !min-w-0 !px-2.5 md:!px-4 !py-1.5 md:!py-2.5 !text-[12px] md:!text-[15px] !leading-tight !font-semibold !whitespace-nowrap !bg-emerald-500 !text-white hover:!bg-emerald-600 !rounded-[16px]"
-                    disabled={isOutOfStock}
-                    requiresVariant={hasVariants}
-                  />
-                </div>
-              </div>
-            </div>
-          </>
+          <ProductStickyCta
+            priceSectionRef={priceSectionRef}
+            product={stickyCartProduct}
+            price={displayPrice}
+            comparePrice={displayComparePrice}
+            disabled={isOutOfStock}
+            requiresVariant={hasVariants}
+          />
         );
       })()}
     </div>

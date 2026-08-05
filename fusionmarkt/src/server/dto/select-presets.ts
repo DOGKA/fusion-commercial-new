@@ -83,6 +83,7 @@ export const selectSliderPublic = {
   button2Link: true,
   button2Style: true,
   desktopImage: true,
+  mobileImage: true,
   backgroundVideo: true,
   // Overlay - Dark Theme
   overlayColor: true,

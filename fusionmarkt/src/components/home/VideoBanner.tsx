@@ -57,7 +57,7 @@ export default function VideoBanner({ initialItem }: VideoBannerProps) {
       ([entry]) => {
         if (entry.isIntersecting) setIsInView(true);
       },
-      { rootMargin: "200px" }
+      { rootMargin: "0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -78,7 +78,7 @@ export default function VideoBanner({ initialItem }: VideoBannerProps) {
             <div className="video-banner-yt-container">
               {isInView ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&playsinline=1&showinfo=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&fs=0&vq=hd1080`}
+                  src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&playsinline=1&showinfo=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3&fs=0&vq=hd1080`}
                   allow="autoplay; encrypted-media"
                   allowFullScreen={false}
                   className="video-banner-yt-iframe"
@@ -99,7 +99,7 @@ export default function VideoBanner({ initialItem }: VideoBannerProps) {
             </div>
           ) : (
             isInView ? (
-              <video autoPlay muted loop playsInline>
+              <video autoPlay muted loop playsInline aria-hidden="true" tabIndex={-1}>
                 <source src={data.videoUrl} type="video/mp4" />
               </video>
             ) : (

@@ -68,7 +68,8 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
   const hasVariants = product.variants && product.variants.length > 0;
   const productImage = product.thumbnail || product.images?.[0];
   const savings = product.comparePrice ? product.comparePrice - product.price : 0;
-  const isRelatedFavorite = isFavorite(String(product.id));
+  // Varyantlı üründe kalp, seçili seçeneğin favorisini yansıtır.
+  const isRelatedFavorite = isFavorite(String(product.id), selectedVariant?.id);
 
   // Stok durumu: varyantlı üründe seçili varyantın stoğuna, yoksa toplam stoğa bak.
   // Varyantsız üründe doğrudan product.stock kontrol edilir.
@@ -163,10 +164,8 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      if (!isOutOfStock) {
-                        setSelectedVariant(v);
-                        setVariantError(false);
-                      }
+                      setSelectedVariant(v);
+                      setVariantError(false);
                     }}
                     style={{
                       position: 'relative',
@@ -179,10 +178,10 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                       fontSize: '10px',
                       fontWeight: '500',
                       borderRadius: SQUIRCLE.sm,
-                      border: isOutOfStock 
-                        ? '2px solid var(--border)' 
-                        : isSelected 
-                          ? '2px solid #10B981' 
+                      border: isSelected 
+                        ? '2px solid #10B981' 
+                        : isOutOfStock 
+                          ? '2px solid var(--border)' 
                           : variantError 
                             ? '2px solid #EF4444' 
                             : '2px solid var(--border-secondary)',
@@ -198,7 +197,7 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                           : isSelected 
                             ? 'rgba(16, 185, 129, 0.1)' 
                             : 'var(--glass-bg)',
-                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                      cursor: 'pointer',
                       transition: 'all 0.2s ease',
                       boxShadow: isSelected 
                         ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
@@ -206,9 +205,9 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                           ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
                           : undefined,
                       transform: isSelected ? 'scale(1.08)' : undefined,
-                      opacity: isOutOfStock ? 0.4 : 1,
+                      opacity: isOutOfStock ? (isSelected ? 0.85 : 0.4) : 1,
                     }}
-                    title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
+                    title={isOutOfStock ? `${v.name} (Stokta yok — beğenilere eklenebilir)` : isSelected ? `${v.name} (Seçili)` : v.name}
                   >
                     {!swatchColor && (v.value || v.name)}
                     {isOutOfStock && (
@@ -293,6 +292,12 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
             onClick={(e) => { 
               e.preventDefault();
               e.stopPropagation();
+              // Seçeneksiz favori, favoriler sayfasında sepete eklenemeyen
+              // bir kalem olurdu.
+              if (hasVariants && !selectedVariant) {
+                handleNeedsVariant();
+                return;
+              }
               toggleItem({
                 productId: String(product.id),
                 slug: product.slug,
@@ -301,6 +306,13 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
                 price: product.price,
                 originalPrice: product.comparePrice,
                 image: productImage,
+                variant: selectedVariant ? {
+                  id: selectedVariant.id,
+                  name: selectedVariant.name,
+                  type: selectedVariant.type,
+                  value: selectedVariant.value,
+                } : undefined,
+                requiresVariant: Boolean(hasVariants),
               });
             }}
             style={{

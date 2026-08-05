@@ -14,7 +14,7 @@
  * silerdi. Ayrıntılı akış: HESABIM-REVIZE-PLAN/04 §4.1.
  */
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
 
@@ -61,6 +61,12 @@ export interface FavoriteItem {
     type: string;
     value: string;
   };
+  /**
+   * Ürünün seçenekleri var mı. Varyantlı bir ürün seçenek seçilmeden favoriye
+   * alınamaz; yine de eski kayıtlarda varyantsız kalemler bulunabilir, onlar
+   * sepete eklenmek yerine ürün sayfasına yönlendirilir.
+   */
+  requiresVariant?: boolean;
   addedAt: number; // timestamp
 
   // ── Yalnızca oturumlu (veritabanı) modda dolu olan alanlar ──
@@ -94,6 +100,7 @@ interface WishlistItemResponse {
   ratingAverage: number | null;
   ratingCount: number;
   variant: { id: string; name: string; type: string; value: string } | null;
+  requiresVariant: boolean;
   addedAt: string;
   priceAtAdd: number | null;
 }
@@ -111,6 +118,7 @@ function fromResponse(item: WishlistItemResponse): FavoriteItem {
     originalPrice: item.originalPrice,
     image: item.image ?? undefined,
     variant: item.variant ?? undefined,
+    requiresVariant: item.requiresVariant,
     addedAt: new Date(item.addedAt).getTime(),
     stock: item.stock,
     isActive: item.isActive,
@@ -120,6 +128,32 @@ function fromResponse(item: WishlistItemResponse): FavoriteItem {
     ratingCount: item.ratingCount,
     priceAtAdd: item.priceAtAdd,
   };
+}
+
+interface GuestStatus {
+  stock: number;
+  isActive: boolean;
+  requiresVariant: boolean;
+}
+
+/** Ürün + seçenek çifti için misafir stok haritasının anahtarı. */
+function statusKey(item: Pick<FavoriteItem, "productId" | "variant">) {
+  return `${item.productId}::${item.variant?.id ?? ""}`;
+}
+
+/**
+ * Favorideki kalemin neden sepete eklenemediğini söyler; eklenebiliyorsa null.
+ * Kart butonunu çizen arayüz ile `addToCart` koruması aynı kuralı paylaşsın
+ * diye tek yerde duruyor.
+ */
+export function getFavoriteCartBlock(
+  item: Pick<FavoriteItem, "stock" | "isActive" | "variant" | "requiresVariant">
+): "OUT_OF_STOCK" | "NEEDS_VARIANT" | null {
+  if (item.requiresVariant && !item.variant) return "NEEDS_VARIANT";
+  // Stok yalnızca oturumlu modda biliniyor; misafirde undefined kalır ve
+  // sepet tarafındaki doğrulama devreye girer.
+  if (item.stock === 0 || item.isActive === false) return "OUT_OF_STOCK";
+  return null;
 }
 
 interface FavoritesContextType {
@@ -165,6 +199,11 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   const { addItem: addToCartItem, openCart } = useCart();
 
   const [items, setItems] = useState<FavoriteItem[]>([]);
+  // Misafir listesi için sunucudan okunan taze stok/aktiflik. `items` içine
+  // yazılmıyor: orası localStorage'a kaydediliyor ve stok orada bayatlardı.
+  const [guestStatus, setGuestStatus] = useState<Map<string, GuestStatus>>(
+    () => new Map()
+  );
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -272,6 +311,75 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     if (!hydrationRef.current || isSynced) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, isSynced]);
+
+  /**
+   * Misafir listesinde stok bilgisi yok; tükenmiş bir seçenek sepete
+   * eklenebilir görünürdü. Oturumlu listedeki taze okumanın karşılığı bu.
+   */
+  useEffect(() => {
+    if (isSynced || items.length === 0) {
+      setGuestStatus((current) => (current.size === 0 ? current : new Map()));
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/public/wishlist-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              productId: item.isBundle ? undefined : item.productId,
+              bundleId: item.isBundle ? (item.bundleId || item.productId) : undefined,
+              variantId: item.variant?.id,
+            })),
+          }),
+        });
+        if (!res.ok) throw new Error("wishlist status failed");
+        const data = await res.json();
+        const list: (GuestStatus & {
+          productId: string | null;
+          bundleId: string | null;
+          variantId: string | null;
+        })[] = Array.isArray(data.items) ? data.items : [];
+
+        if (cancelled) return;
+        setGuestStatus(
+          new Map(
+            list.map((entry) => [
+              `${entry.bundleId ?? entry.productId ?? ""}::${entry.variantId ?? ""}`,
+              {
+                stock: entry.stock,
+                isActive: entry.isActive,
+                requiresVariant: entry.requiresVariant,
+              },
+            ])
+          )
+        );
+      } catch {
+        // Stok okunamazsa liste eskisi gibi çalışır; sepete ekleme sırasında
+        // sunucu doğrulaması yine devrede.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [items, isSynced]);
+
+  /**
+   * Dışarıya verilen liste: oturumluda sunucudan gelen hâli, misafirde taze
+   * stokla zenginleştirilmiş hâli.
+   */
+  const visibleItems = useMemo(() => {
+    if (isSynced || guestStatus.size === 0) return items;
+    return items.map((item) => {
+      const status = guestStatus.get(statusKey(item));
+      return status ? { ...item, ...status } : item;
+    });
+  }, [items, guestStatus, isSynced]);
 
   // Calculate derived values
   const itemCount = items.length;
@@ -398,12 +506,15 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   /** Favorideki ürünü sepete ekler; favori listede kalır. */
   const addToCart = useCallback(
     async (productId: string, variantId?: string) => {
-      const item = items.find(
+      const item = visibleItems.find(
         (candidate) =>
           candidate.productId === productId &&
           (variantId ? candidate.variant?.id === variantId : !candidate.variant)
       );
       if (!item) return;
+      // Stoksuz ürün favoride durabilir ama sepete gidemez; seçeneği eksik
+      // kalem de ürün sayfasında seçim yapılmadan sepete eklenemez.
+      if (getFavoriteCartBlock(item)) return;
 
       await addToCartItem({
         productId: item.productId,
@@ -420,13 +531,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
 
       openCart();
     },
-    [items, addToCartItem, openCart]
+    [visibleItems, addToCartItem, openCart]
   );
 
   return (
     <FavoritesContext.Provider
       value={{
-        items,
+        items: visibleItems,
         itemCount,
         isAnimating,
         isLoading,

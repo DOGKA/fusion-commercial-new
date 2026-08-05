@@ -34,6 +34,7 @@ export default async function FavorilerimPage() {
         originalPrice: item.originalPrice,
         image: item.image ?? undefined,
         variant: item.variant ?? undefined,
+        requiresVariant: item.requiresVariant,
         addedAt: new Date(item.addedAt).getTime(),
         stock: item.stock,
         isActive: item.isActive,

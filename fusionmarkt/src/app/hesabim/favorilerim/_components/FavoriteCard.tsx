@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Loader2, ShoppingCart, TrendingDown, X } from "lucide-react";
 import { DISABLED_TONE } from "@/app/hesabim/_lib/action-classes";
-import type { FavoriteItem } from "@/context/FavoritesContext";
+import { getFavoriteCartBlock, type FavoriteItem } from "@/context/FavoritesContext";
 import { formatPrice } from "../../_lib/format";
 
 interface FavoriteCardProps {
@@ -26,9 +26,10 @@ interface FavoriteCardProps {
 export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCardProps) {
   const [adding, setAdding] = useState(false);
 
-  // Stok yalnızca oturumlu modda biliniyor; misafirde undefined gelir ve
-  // "tükendi" bandı gösterilmez (yanlış bilgi vermemek için).
+  // Oturumluda sunucu listesinden, misafirde wishlist-status zenginleştirmesinden.
+  // Stok henüz gelmediyse (undefined) "tükendi" basılmaz.
   const outOfStock = item.stock === 0 || item.isActive === false;
+  const cartBlock = getFavoriteCartBlock(item);
   const dropped =
     item.priceAtAdd != null && item.priceAtAdd > item.price
       ? item.priceAtAdd - item.price
@@ -77,7 +78,7 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
         )}
 
         {outOfStock && (
-          <span className="absolute inset-x-0 bottom-0 py-1.5 bg-background/85 backdrop-blur text-center text-[11px] font-medium text-foreground-tertiary">
+          <span className="acc-tone-danger absolute inset-x-0 bottom-0 py-1.5 bg-background/85 backdrop-blur text-center text-[11px] font-medium">
             Tükendi
           </span>
         )}
@@ -123,12 +124,12 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
           </span>
         )}
 
-        {outOfStock ? (
+        {cartBlock ? (
           <Link
             href={`/urun/${item.slug}`}
             className="account-btn mt-3 inline-flex min-h-[40px] w-full items-center justify-center rounded-full border border-border bg-background px-3 text-[12px] font-medium text-foreground-secondary transition-colors hover:border-[color:var(--acc-accent-border)] hover:text-foreground"
           >
-            Ürüne git
+            {cartBlock === "NEEDS_VARIANT" ? "Seçenek seç" : "Ürüne git"}
           </Link>
         ) : (
           <button

@@ -1,11 +1,7 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
-interface BannerCard {
+export interface CategoryBentoCard {
   id: string;
   title: string;
   subtitle: string | null;
@@ -23,18 +19,9 @@ interface BannerCard {
   isActive?: boolean;
 }
 
-interface Banner {
-  id: string;
-  name: string;
-  bannerType: string;
-  placement: string;
-  isActive: boolean;
-  cards: BannerCard[];
-}
-
 // Fallback data - veritabanında veri yoksa kullanılır
 // Kullanıcı isteğine göre: Aksesuar → Teleskopik Merdiven, Bundle → Eldiven
-const fallbackCategories: BannerCard[] = [
+const fallbackCategories: CategoryBentoCard[] = [
   {
     id: "1",
     title: "Taşınabilir Güç Kaynakları",
@@ -165,60 +152,14 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   glove: IconGlove,
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-    },
-  },
-};
-
-export default function CategoryBento() {
-  const [categories, setCategories] = useState<BannerCard[]>(fallbackCategories);
-  const [, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        // Cache-buster yok: /api/public/* yanıtları CDN/browser cache'inden gelsin
-        const res = await fetch("/api/public/banners");
-        if (res.ok) {
-          const data = await res.json();
-          const categoryBanner = data.find(
-            (b: Banner) => b.placement === "HOME_CATEGORY" && b.cards?.length > 0
-          );
-          if (categoryBanner?.cards?.length > 0) {
-            console.log(`✅ [CategoryBento] Loaded ${categoryBanner.cards.length} cards`);
-            setCategories(categoryBanner.cards);
-          } else {
-            console.log("⚠️  [CategoryBento] No HOME_CATEGORY banner, using fallback");
-          }
-        }
-      } catch (error) {
-        console.error("❌ [CategoryBento] Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBanners();
-  }, []);
+export default function CategoryBento({
+  initialCategories,
+}: {
+  initialCategories?: CategoryBentoCard[];
+}) {
+  const categories = initialCategories?.length
+    ? initialCategories
+    : fallbackCategories;
 
   return (
     <section className="category-bento-section pt-16 lg:pt-12 pb-16 lg:pb-20 relative overflow-hidden">
@@ -235,13 +176,7 @@ export default function CategoryBento() {
       
       <div className="container relative z-10">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-6 lg:mb-8"
-        >
+        <div className="text-center mb-6 lg:mb-8">
           <span className="text-eyebrow mb-3 block">Kategoriler</span>
           <h2 className="text-display mb-4">
             İhtiyacınıza Uygun <span className="text-gradient">Enerji Çözümü</span>
@@ -250,17 +185,11 @@ export default function CategoryBento() {
             Kamp, karavan, acil durum veya ev kullanımı - her senaryo için 
             profesyonel enerji depolama sistemleri.
           </p>
-        </motion.div>
+        </div>
 
         {/* Bento Grid - Admin panel ile birebir aynı: 4 kolon, gap-4 */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="category-bento-grid grid gap-4 auto-rows-[240px] lg:auto-rows-[260px] grid-cols-1 lg:grid-cols-4"
-        >
-          {categories.map((category: BannerCard) => {
+        <div className="category-bento-grid grid gap-4 auto-rows-[240px] lg:auto-rows-[260px] grid-cols-1 lg:grid-cols-4">
+          {categories.map((category: CategoryBentoCard) => {
             const Icon = iconMap[category.icon || "package"] || IconPackage;
             const isLarge = category.desktopColSpan === 2 && category.desktopRowSpan === 2;
             const isWide = category.desktopColSpan === 2 && category.desktopRowSpan === 1;
@@ -273,9 +202,8 @@ export default function CategoryBento() {
             else if (isTall) gridClass = "lg:row-span-2";
             
             return (
-              <motion.div
+              <div
                 key={category.id}
-                variants={itemVariants}
                 className={`category-bento-card ${gridClass}`}
               >
                 <Link
@@ -351,10 +279,10 @@ export default function CategoryBento() {
                     }}
                   />
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

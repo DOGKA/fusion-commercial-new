@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView, type Variants } from "framer-motion";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -63,30 +62,6 @@ function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 }
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 40, rotateX: -15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-};
-
 // 3D Flip Card Component
 function PartnerCard({ partner }: { partner: Partner }) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -103,18 +78,19 @@ function PartnerCard({ partner }: { partner: Partner }) {
     : "grayscale(1) brightness(0)"; // Makes everything black
 
   return (
-    <motion.div 
-      variants={itemVariants}
-      className="perspective-1000"
+    <div 
+      className="group perspective-1000"
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
     >
       <Link href={`/marka/${partner.slug}`} className="block">
-        <motion.div
+        <div
           className="relative w-full h-32 sm:h-36 lg:h-40"
-          animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          style={{ transformStyle: "preserve-3d" }}
+          style={{
+            transform: `rotateY(${isFlipped ? 180 : 0}deg)`,
+            transformStyle: "preserve-3d",
+            transition: "transform 600ms cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
         >
           {/* Front Face - Logo */}
           <div 
@@ -127,20 +103,19 @@ function PartnerCard({ partner }: { partner: Partner }) {
             
             {/* Animated Gradient Border */}
             <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <div className="absolute inset-[-1px] rounded-2xl bg-gradient-to-r from-emerald-500/50 via-cyan-500/50 to-emerald-500/50 animate-gradient-x" />
+              <div className="absolute inset-[-1px] rounded-2xl bg-gradient-to-r from-emerald-500/50 via-cyan-500/50 to-emerald-500/50" />
             </div>
             
             {/* Glow Effect - box-shadow sabit, sadece opacity animate ediliyor.
                 box-shadow'u animate etmek her karede repaint tetikliyordu. */}
-            <motion.div 
+            <div 
               className="absolute inset-0 rounded-2xl"
               style={{
                 boxShadow:
                   "0 0 40px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.1)",
+                opacity: isFlipped ? 1 : 0,
+                transition: "opacity 300ms ease",
               }}
-              animate={{ opacity: isFlipped ? 1 : 0 }}
-              initial={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
             />
             
             {/* Logo Container */}
@@ -161,32 +136,6 @@ function PartnerCard({ partner }: { partner: Partner }) {
               </div>
             </div>
             
-            {/* Floating Particles */}
-            {isFlipped && (
-              <>
-                <motion.div
-                  className="absolute w-1 h-1 bg-emerald-400 rounded-full"
-                  initial={{ x: "50%", y: "100%", opacity: 0 }}
-                  animate={{ y: "-20%", opacity: [0, 1, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                  style={{ left: "20%" }}
-                />
-                <motion.div
-                  className="absolute w-1.5 h-1.5 bg-cyan-400 rounded-full"
-                  initial={{ x: "50%", y: "100%", opacity: 0 }}
-                  animate={{ y: "-30%", opacity: [0, 1, 0] }}
-                  transition={{ duration: 1.8, repeat: Infinity, delay: 0.3 }}
-                  style={{ left: "60%" }}
-                />
-                <motion.div
-                  className="absolute w-1 h-1 bg-white rounded-full"
-                  initial={{ x: "50%", y: "100%", opacity: 0 }}
-                  animate={{ y: "-25%", opacity: [0, 1, 0] }}
-                  transition={{ duration: 1.3, repeat: Infinity, delay: 0.6 }}
-                  style={{ left: "80%" }}
-                />
-              </>
-            )}
           </div>
 
           {/* Back Face - Info */}
@@ -205,72 +154,50 @@ function PartnerCard({ partner }: { partner: Partner }) {
               <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 group">
                 Keşfet
                 {/* Sonsuz döngü yalnızca kart açıkken çalışsın (INP/ana thread) */}
-                <motion.span
-                  animate={isFlipped ? { x: [0, 4, 0] } : { x: 0 }}
-                  transition={isFlipped ? { duration: 1, repeat: Infinity } : { duration: 0.2 }}
+                <span
+                  className="inline-block transition-transform duration-200"
+                  style={{ transform: `translateX(${isFlipped ? 4 : 0}px)` }}
                 >
                   →
-                </motion.span>
+                </span>
               </span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
 
 export default function PartnerLogos() {
-  const sectionRef = useRef<HTMLElement>(null);
-  // Bölüm ekranda değilken blur'lu pulse animasyonları çalışmasın
-  const inView = useInView(sectionRef, { margin: "100px" });
-
   return (
-    <section ref={sectionRef} className="py-20 lg:py-24 relative overflow-hidden">
+    <section className="py-20 lg:py-24 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-500/[0.03] to-background pointer-events-none" />
       
-      {/* Animated Background Orbs - yalnızca görünürken animate olur */}
-      <div className={`absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl ${inView ? "animate-pulse" : ""}`} />
-      <div className={`absolute top-1/3 right-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl ${inView ? "animate-pulse" : ""}`} style={{ animationDelay: "1s" }} />
+      <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl" />
       
       <div className="container relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-12 lg:mb-16"
-        >
-          <motion.span 
-            className="inline-block text-[11px] uppercase tracking-[0.3em] text-emerald-400/80 mb-4"
-            initial={{ opacity: 0, letterSpacing: "0.1em" }}
-            whileInView={{ opacity: 1, letterSpacing: "0.3em" }}
-            transition={{ duration: 1, delay: 0.2 }}
-          >
+        <div className="text-center mb-12 lg:mb-16">
+          <span className="inline-block text-[11px] uppercase tracking-[0.3em] text-emerald-400/80 mb-4">
             Güvenilir Markalar
-          </motion.span>
+          </span>
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground dark:text-white tracking-tight">
             Çözüm Ortaklarımız
           </h2>
           <p className="mt-4 text-foreground-muted dark:text-white/50 max-w-md mx-auto">
             Dünya lideri markalarla iş birliği yapıyoruz
           </p>
-        </motion.div>
+        </div>
 
         {/* Partner Logos Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-5xl mx-auto"
-        >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-5xl mx-auto">
           {partners.map((partner) => (
             <PartnerCard key={partner.id} partner={partner} />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

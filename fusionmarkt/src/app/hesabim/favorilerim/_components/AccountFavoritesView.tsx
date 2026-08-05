@@ -97,8 +97,14 @@ export default function AccountFavoritesView({
         return false;
       }
       if (onlyInStock && !(item.stock == null || item.stock > 0)) return false;
-      if (onlyPriceDrop && !(item.priceAtAdd != null && item.priceAtAdd > item.price)) {
-        return false;
+      // Oturumluda: favoriye eklendiğinden beri düşen fiyat (priceAtAdd).
+      // Misafirde priceAtAdd yok; aynı chip yalnızca güncel indirimi gösterir.
+      if (onlyPriceDrop) {
+        const droppedSinceAdd =
+          isSynced && item.priceAtAdd != null && item.priceAtAdd > item.price;
+        const currentlyDiscounted =
+          !isSynced && item.originalPrice != null && item.originalPrice > item.price;
+        if (!(droppedSinceAdd || currentlyDiscounted)) return false;
       }
       return true;
     });
@@ -118,7 +124,7 @@ export default function AccountFavoritesView({
     });
 
     return list;
-  }, [items, query, sort, onlyDiscounted, onlyInStock, onlyPriceDrop]);
+  }, [items, query, sort, onlyDiscounted, onlyInStock, onlyPriceDrop, isSynced]);
 
   const filtersActive = onlyDiscounted || onlyInStock || onlyPriceDrop || query.trim() !== "";
 
@@ -225,9 +231,7 @@ export default function AccountFavoritesView({
               <div
                 role="group"
                 aria-label="Beğenilen ürün filtreleri"
-                className={`mb-4 grid w-full gap-2 ${
-                  isSynced ? "grid-cols-3" : "grid-cols-1"
-                }`}
+                className="mb-4 grid w-full gap-2 grid-cols-3"
               >
                 <FilterChip
                   active={onlyDiscounted}
@@ -235,22 +239,18 @@ export default function AccountFavoritesView({
                   label="İndirimli"
                   ariaLabel="İndirimdekiler"
                 />
-                {isSynced && (
-                  <>
-                    <FilterChip
-                      active={onlyInStock}
-                      onClick={() => setOnlyInStock((v) => !v)}
-                      label="Stokta"
-                      ariaLabel="Stokta olanlar"
-                    />
-                    <FilterChip
-                      active={onlyPriceDrop}
-                      onClick={() => setOnlyPriceDrop((v) => !v)}
-                      label="Fiyatı düşen"
-                      ariaLabel="Fiyatı düşenler"
-                    />
-                  </>
-                )}
+                <FilterChip
+                  active={onlyInStock}
+                  onClick={() => setOnlyInStock((v) => !v)}
+                  label="Stokta"
+                  ariaLabel="Stokta olanlar"
+                />
+                <FilterChip
+                  active={onlyPriceDrop}
+                  onClick={() => setOnlyPriceDrop((v) => !v)}
+                  label="Fiyatı düşen"
+                  ariaLabel="Fiyatı düşenler"
+                />
               </div>
 
               {visible.length === 0 ? (

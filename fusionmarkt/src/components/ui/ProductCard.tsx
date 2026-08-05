@@ -96,8 +96,8 @@ export default function ProductCard({ product, className, priority = false }: Pr
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [variantError, setVariantError] = useState(false);
   
-  // Check if this product is in favorites
-  const isProductFavorite = isFavorite(String(product.id));
+  // Varyantlı üründe kalp, seçili seçeneğin favorisini yansıtır.
+  const isProductFavorite = isFavorite(String(product.id), selectedVariant?.id);
 
   const {
     slug,
@@ -123,6 +123,10 @@ export default function ProductCard({ product, className, priority = false }: Pr
 
   // Variants ve videoLabel birlikte olabilir
   const hasVariants = variants && variants.length > 0;
+
+  // Stoksuz seçenek beğenilere eklenebilsin diye seçilebilir kaldı; sepet
+  // butonu o seçimde kapanır.
+  const cartDisabled = isOutOfStock || (selectedVariant != null && !selectedVariant.inStock);
 
   return (
     <div
@@ -270,6 +274,13 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 onClick={(e) => { 
                   e.preventDefault(); 
                   e.stopPropagation();
+                  // Seçeneksiz favori, favoriler sayfasında sepete
+                  // eklenemeyen bir kalem olurdu.
+                  if (hasVariants && !selectedVariant) {
+                    setVariantError(true);
+                    setTimeout(() => setVariantError(false), 2500);
+                    return;
+                  }
                   toggleItem({
                     productId: String(product.id),
                     slug: slug,
@@ -278,6 +289,13 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     price: price,
                     originalPrice: originalPrice,
                     image: image,
+                    variant: selectedVariant ? {
+                      id: selectedVariant.id,
+                      name: selectedVariant.name,
+                      type: selectedVariant.type,
+                      value: selectedVariant.value,
+                    } : undefined,
+                    requiresVariant: Boolean(hasVariants),
                   });
                 }}
                 onMouseEnter={() => setFavoriteHover(true)}
@@ -384,10 +402,8 @@ export default function ProductCard({ product, className, priority = false }: Pr
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (!isOutOfStock) {
-                              setSelectedVariant(v);
-                              setVariantError(false);
-                            }
+                            setSelectedVariant(v);
+                            setVariantError(false);
                           }}
                           style={{
                             position: 'relative',
@@ -396,10 +412,10 @@ export default function ProductCard({ product, className, priority = false }: Pr
                             flexShrink: 0,
                             boxSizing: 'border-box',
                             borderRadius: SQUIRCLE.sm,
-                            border: isOutOfStock 
-                              ? '2px solid var(--border)' 
-                              : isSelected 
-                                ? '2px solid #10B981' 
+                            border: isSelected 
+                              ? '2px solid #10B981' 
+                              : isOutOfStock 
+                                ? '2px solid var(--border)' 
                                 : variantError 
                                   ? '2px solid #EF4444' 
                                   : '2px solid var(--border-secondary)',
@@ -411,8 +427,8 @@ export default function ProductCard({ product, className, priority = false }: Pr
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                            opacity: isOutOfStock ? 0.4 : 1,
+                            cursor: 'pointer',
+                            opacity: isOutOfStock ? (isSelected ? 0.85 : 0.4) : 1,
                             transition: 'all 0.2s ease',
                             boxShadow: isSelected 
                               ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
@@ -421,7 +437,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                                 : undefined,
                             transform: isSelected ? 'scale(1.08)' : undefined,
                           }}
-                          title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
+                          title={isOutOfStock ? `${v.name} (Stokta yok — beğenilere eklenebilir)` : isSelected ? `${v.name} (Seçili)` : v.name}
                         >
                           {showTextOnColor && (
                             <span style={{ fontSize: '10px', fontWeight: 600, textAlign: 'center', lineHeight: 1.1 }}>
@@ -448,55 +464,54 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     return (
                       <span
                         key={v.id}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          if (!isOutOfStock) {
-                            setSelectedVariant(v);
-                            setVariantError(false);
-                          }
-                        }}
-                        style={{
-                          position: 'relative',
-                          width: '28px',
-                          height: '28px',
-                          flexShrink: 0,
-                          boxSizing: 'border-box',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '10px',
-                          fontWeight: '500',
-                          borderRadius: SQUIRCLE.sm,
-                          border: isOutOfStock 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedVariant(v);
+                        setVariantError(false);
+                      }}
+                      style={{
+                        position: 'relative',
+                        width: '28px',
+                        height: '28px',
+                        flexShrink: 0,
+                        boxSizing: 'border-box',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '10px',
+                        fontWeight: '500',
+                        borderRadius: SQUIRCLE.sm,
+                        border: isSelected 
+                          ? '2px solid #10B981' 
+                          : isOutOfStock 
                             ? '2px solid var(--border)' 
-                            : isSelected 
-                              ? '2px solid #10B981' 
-                              : variantError 
-                                ? '2px solid #EF4444' 
-                                : '2px solid var(--border-secondary)',
-                          color: isOutOfStock 
-                            ? 'var(--foreground-disabled)' 
-                            : isSelected 
-                              ? '#10B981' 
-                              : 'var(--foreground-secondary)',
-                          backgroundColor: isOutOfStock 
-                            ? 'transparent' 
-                            : isSelected 
-                              ? 'rgba(16, 185, 129, 0.1)' 
-                              : 'var(--glass-bg)',
-                          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                          transition: 'all 0.2s ease',
+                            : variantError 
+                              ? '2px solid #EF4444' 
+                              : '2px solid var(--border-secondary)',
+                        color: isOutOfStock 
+                          ? 'var(--foreground-disabled)' 
+                          : isSelected 
+                            ? '#10B981' 
+                            : 'var(--foreground-secondary)',
+                        backgroundColor: isOutOfStock 
+                          ? 'transparent' 
+                          : isSelected 
+                            ? 'rgba(16, 185, 129, 0.1)' 
+                            : 'var(--glass-bg)',
+                        cursor: 'pointer',
+                        opacity: isOutOfStock ? (isSelected ? 0.85 : 0.55) : 1,
+                        transition: 'all 0.2s ease',
                           boxShadow: isSelected 
                             ? '0 0 0 2px rgba(16, 185, 129, 0.3)' 
                             : variantError 
                               ? '0 0 0 2px rgba(239, 68, 68, 0.3)' 
                               : undefined,
-                          transform: isSelected ? 'scale(1.08)' : undefined,
-                        }}
-                        title={isOutOfStock ? `${v.name} (Stokta Yok)` : isSelected ? `${v.name} (Seçili)` : v.name}
-                      >
-                        {displayValue}
+                        transform: isSelected ? 'scale(1.08)' : undefined,
+                      }}
+                      title={isOutOfStock ? `${v.name} (Stokta yok — beğenilere eklenebilir)` : isSelected ? `${v.name} (Seçili)` : v.name}
+                    >
+                      {displayValue}
                         {/* Stokta yok çizgisi */}
                         {isOutOfStock && (
                           <span style={{
@@ -682,7 +697,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     } : undefined,
                   }}
                   variant="icon"
-                  disabled={isOutOfStock}
+                  disabled={cartDisabled}
                   size="md"
                   requiresVariant={hasVariants}
                   onNeedsVariant={() => {

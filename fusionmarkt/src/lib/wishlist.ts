@@ -32,6 +32,11 @@ export interface WishlistItemDTO {
   ratingAverage: number | null;
   ratingCount: number;
   variant: { id: string; name: string; type: string; value: string } | null;
+  /**
+   * Ürünün aktif varyantı var mı. Varyantsız kaydedilmiş eski favorilerde
+   * sepete ekleme yerine ürün sayfasına yönlendirmek için gerekiyor.
+   */
+  requiresVariant: boolean;
   /** ISO tarih — "yeni eklenenler" sıralaması bunu kullanır */
   addedAt: string;
   /** Favoriye eklendiği andaki fiyat; eski/taşınan kayıtlarda null */
@@ -52,6 +57,7 @@ const ITEM_INCLUDE = {
       images: true,
       categoryId: true,
       category: { select: { name: true } },
+      variants: { where: { isActive: true }, select: { id: true }, take: 1 },
     },
   },
   variant: {
@@ -135,6 +141,7 @@ function toDto(
       ratingAverage: null,
       ratingCount: 0,
       variant: null,
+      requiresVariant: false,
       addedAt: item.createdAt.toISOString(),
       priceAtAdd: num(item.priceAtAdd),
     };
@@ -181,6 +188,7 @@ function toDto(
             value: variant.value ?? "",
           }
         : null,
+    requiresVariant: product.variants.length > 0,
     addedAt: item.createdAt.toISOString(),
     priceAtAdd: num(item.priceAtAdd),
   };

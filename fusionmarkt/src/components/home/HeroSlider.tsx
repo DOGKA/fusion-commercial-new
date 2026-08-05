@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight, Zap, Star, Flame, Gift, Tag, Percent, Truck, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/Spotlight";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { useTheme } from "next-themes";
 
 type Maybe<T> = T | null | undefined;
@@ -23,6 +23,7 @@ interface Slide {
   button2Link?: Maybe<string>;
   button2Style?: Maybe<string>;
   desktopImage?: Maybe<string>;
+  mobileImage?: Maybe<string>;
   overlayColor?: Maybe<string>;
   overlayOpacity?: Maybe<number>;
   overlayColorLight?: Maybe<string>;
@@ -272,7 +273,38 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   }
 
   const slide = slides[currentSlide];
-  const backgroundImage = slide.desktopImage;
+  const backgroundImage = isMobile
+    ? slide.mobileImage || slide.desktopImage
+    : slide.desktopImage;
+  const initialDesktopSlide = initialSlides?.find((item) => item.showOnDesktop);
+  const initialMobileSlide = initialSlides?.find((item) => item.showOnMobile);
+  const initialDesktopImage = initialDesktopSlide?.desktopImage;
+  const initialMobileImage =
+    initialMobileSlide?.mobileImage ||
+    initialMobileSlide?.desktopImage ||
+    initialDesktopImage;
+  const useResponsiveInitialImage =
+    currentSlide === 0 && Boolean(initialDesktopImage && initialMobileImage);
+  const desktopInitialImageProps = initialDesktopImage
+    ? getImageProps({
+        src: initialDesktopImage,
+        alt: "",
+        fill: true,
+        sizes: "100vw",
+        quality: 60,
+        priority: true,
+      }).props
+    : null;
+  const mobileInitialImageProps = initialMobileImage
+    ? getImageProps({
+        src: initialMobileImage,
+        alt: "",
+        fill: true,
+        sizes: "100vw",
+        quality: 60,
+        priority: true,
+      }).props
+    : null;
   
   // Theme-aware color resolution - uses light variant if available and theme is light
   const getThemedColor = (darkValue?: Maybe<string>, lightValue?: Maybe<string>, defaultDark?: string, defaultLight?: string) => {
@@ -336,6 +368,28 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   return (
     <>
+    {useResponsiveInitialImage && desktopInitialImageProps && mobileInitialImageProps && (
+      <>
+        <link
+          rel="preload"
+          as="image"
+          href={mobileInitialImageProps.src}
+          media="(max-width: 1023px)"
+          imageSrcSet={mobileInitialImageProps.srcSet}
+          imageSizes="100vw"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href={desktopInitialImageProps.src}
+          media="(min-width: 1024px)"
+          imageSrcSet={desktopInitialImageProps.srcSet}
+          imageSizes="100vw"
+          fetchPriority="high"
+        />
+      </>
+    )}
     <section
       ref={sliderRef}
       className="relative w-full md:h-screen md:min-h-[600px] md:max-h-[900px] overflow-hidden bg-background dark:bg-black touch-pan-y hero-slider-mobile"
@@ -346,26 +400,39 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       onTouchEnd={handleTouchEnd}
     >
       {/* Spotlight Effect */}
-      <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
+      <Spotlight className="hidden lg:block left-60 -top-20" fill="white" />
       
       {/* Background Image */}
       {backgroundImage && (
         <div className="absolute inset-0">
-          <Image 
-            src={backgroundImage} 
-            // Başlık/alt başlık zaten metin olarak render ediliyor; görsel dekoratif
-            alt=""
-            aria-hidden="true"
-            fill 
-            sizes="100vw"
-            // Dekoratif arka plan: q=60 LCP baytlarını ~%25 azaltır, görsel fark algılanmaz
-            quality={60}
-            className="object-cover object-center"
-            // Görünen slayt her zaman LCP adayı: sadece ilk slayta öncelik vermek
-            // autoplay sonrası gelen slaytları önceliksiz bırakıyordu
-            priority
-            fetchPriority="high"
-          />
+          {useResponsiveInitialImage && desktopInitialImageProps && mobileInitialImageProps ? (
+            <picture>
+              <source
+                media="(max-width: 1023px)"
+                srcSet={mobileInitialImageProps.srcSet}
+                sizes="100vw"
+              />
+              <img
+                {...desktopInitialImageProps}
+                alt=""
+                aria-hidden="true"
+                fetchPriority="high"
+                className="object-cover object-center"
+              />
+            </picture>
+          ) : (
+            <Image
+              src={backgroundImage}
+              // Başlık/alt başlık zaten metin olarak render ediliyor; görsel dekoratif
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="100vw"
+              quality={60}
+              className="object-cover object-center"
+              priority
+            />
+          )}
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && overlayOpacity > 0 && (
             <div 

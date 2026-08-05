@@ -57,7 +57,7 @@ function VideoCard({ video }: { video: VideoData }) {
       <div className="video-grid-thumbnail">
         {playing && ytId ? (
           <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`}
+            src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`}
             allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
             className="video-grid-iframe"

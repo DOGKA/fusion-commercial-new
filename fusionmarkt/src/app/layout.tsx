@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
 import Header from "@/components/layout/Header";
@@ -22,11 +21,6 @@ import {
   generateOrganizationSchema, 
   generateWebSiteSchema 
 } from "@/lib/seo";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
 
 // Viewport configuration
 export const viewport: Viewport = {
@@ -184,7 +178,7 @@ export default function RootLayout({
         <link rel="help" href={siteConfig.resources.appManual.url} title={siteConfig.resources.appManual.name} />
         <JsonLd data={[organizationSchema, webSiteSchema]} />
       </head>
-      <body className={`${inter.variable} antialiased bg-background text-foreground`}>
+      <body className="antialiased bg-background text-foreground">
         {/* GTM noscript fallback — DB-driven via SiteSettings.googleTagManagerId */}
         <GoogleTagManagerNoScript />
 
