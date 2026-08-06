@@ -15,6 +15,18 @@ const ALLOWED_TAGS = new Set([
 ]);
 
 /**
+ * Ürün akışları statik route handler olarak üretiliyor; tag ile temizlenemezler.
+ * Katalog değiştiğinde bunların da yenilenmesi gerekir, aksi halde Merchant
+ * Center ve yapay zekâ kaynakları bir saate kadar eski fiyatı gösterir.
+ */
+const CATALOG_FEED_PATHS = [
+  "/merchant-feed.xml",
+  "/products.json",
+  "/llms.txt",
+  "/llms-full.txt",
+];
+
+/**
  * On-Demand Revalidation Endpoint
  * Admin panel banner/slider kaydettiğinde bu endpoint'i çağırarak
  * frontend cache'ini anında temizler
@@ -93,6 +105,12 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Revalidated tags: ${tags.join(', ')}`);
     }
 
+    // Katalog değiştiyse ürün akışlarını da tazele
+    if (tagList.includes("products") || tagList.includes("categories")) {
+      CATALOG_FEED_PATHS.forEach((feedPath) => revalidatePath(feedPath));
+      console.log(`✅ Revalidated feeds: ${CATALOG_FEED_PATHS.join(", ")}`);
+    }
+
     // If no path or tags provided, revalidate common paths
     if (!path && !tag && !tags) {
       revalidatePath("/");
@@ -100,7 +118,8 @@ export async function POST(request: NextRequest) {
       revalidateTag("banners");
       revalidateTag("sliders");
       revalidateTag("homepage");
-      console.log("✅ Revalidated: /, /magaza, banners, sliders, homepage");
+      CATALOG_FEED_PATHS.forEach((feedPath) => revalidatePath(feedPath));
+      console.log("✅ Revalidated: /, /magaza, banners, sliders, homepage, feeds");
     }
 
     return NextResponse.json(

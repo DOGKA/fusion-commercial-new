@@ -23,6 +23,14 @@ export interface Partner {
   globalService?: string[];
   website?: string;
   productLink: string;
+  /**
+   * Marka sayfasında listelenecek ürünleri bulmak için kullanılan anahtarlar.
+   *
+   * Katalogdaki `brand` alanı her zaman markanın pazarlama adıyla aynı değil
+   * (IEETek ürünleri üretici unvanı "Initial Entropy Energy" ile kayıtlı), bu
+   * yüzden eşleşme ürün adında da aranıyor. Boş bırakılırsa marka adı kullanılır.
+   */
+  productMatch?: string[];
 }
 
 export const partners: Record<string, Partner> = {
@@ -62,7 +70,8 @@ export const partners: Record<string, Partner> = {
     mission: "Sürdürülebilir yeşil yaşamı herkes için erişilebilir kılmak.",
     vision: "Küresel enerji devriminde önemli bir rol oynamak ve değişimin itici gücü olmak.",
     website: "https://www.ieetek.com",
-    productLink: "/marka/ieetek"
+    productLink: "/marka/ieetek",
+    productMatch: ["IEETek", "Initial Entropy"]
   },
   
   "rgp-balls": {
@@ -106,7 +115,8 @@ export const partners: Record<string, Partner> = {
       content: "Ekibimiz İtalyanca, Almanca, İngilizce, Fransızca, İspanyolca, Ukraynaca, Rusça, Çince ve Romence dillerinde hizmet vermektedir. Uzmanlık, metot ve hız - bu üç değer RGP Balls'un temelini oluşturur."
     },
     website: "https://www.rgpballs.com",
-    productLink: "/marka/rgp-balls"
+    productLink: "/marka/rgp-balls",
+    productMatch: ["RGP"]
   },
   
   "telesteps": {
@@ -154,7 +164,8 @@ export const partners: Record<string, Partner> = {
       content: "Güvenliğinizi ciddiye alıyoruz. KIRMIZI tırmanmayın, YEŞİL tırmanmak güvenli demektir. Patentli Tek Dokunuş teknolojisi ile merdiveninizi saniyeler içinde kompakt hale getirin."
     },
     website: "https://telestepsladders.com",
-    productLink: "/marka/telesteps"
+    productLink: "/marka/telesteps",
+    productMatch: ["Telesteps"]
   },
   
   "traffi": {
@@ -198,7 +209,8 @@ export const partners: Record<string, Partner> = {
       content: "İş kazalarını azaltmak için herkesin doğru KKD giydiğinden emin olmak hayati önem taşır. Yeşil = Düşük Risk (hafif kesik riski), Amber = Orta Risk (orta düzey kesik riski), Kırmızı = Yüksek Risk (yüksek kesik riski)."
     },
     website: "https://www.traffiglove.com",
-    productLink: "/marka/traffi"
+    productLink: "/marka/traffi",
+    productMatch: ["Traffi"]
   }
 };
 

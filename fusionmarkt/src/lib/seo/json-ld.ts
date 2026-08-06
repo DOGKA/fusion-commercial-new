@@ -105,6 +105,24 @@ export interface ProductSchemaParams {
   color?: string;
   material?: string;
   isBundle?: boolean;
+  /**
+   * Teknik özellikler (kapasite, çıkış gücü, döngü sayısı...). Bunlar olmadan
+   * ürün şeması yalnızca ad, fiyat ve stoktan ibaret kalıyor; "5000Wh üzeri
+   * taşınabilir güç kaynağı" gibi sorularda ürünü eşleştirecek veri olmuyor.
+   */
+  additionalProperty?: Array<{
+    name: string;
+    value: string | number;
+    unitText?: string;
+  }>;
+  /** Yalnızca onaylı yorumlar. aggregateRating'in dayanağını görünür kılar. */
+  reviews?: Array<{
+    author: string;
+    ratingValue: number;
+    title?: string;
+    body?: string;
+    datePublished?: string;
+  }>;
 }
 
 export function generateProductSchema({
@@ -129,6 +147,8 @@ export function generateProductSchema({
   color,
   material,
   isBundle = false,
+  additionalProperty,
+  reviews,
 }: ProductSchemaParams) {
   const images = Array.isArray(image) ? image : image ? [image] : [];
   const finalPrice = discountPrice || price;
@@ -243,6 +263,16 @@ export function generateProductSchema({
   if (color) schema.color = color;
   if (material) schema.material = material;
 
+  // Teknik özellikler
+  if (additionalProperty?.length) {
+    schema.additionalProperty = additionalProperty.map((property) => ({
+      "@type": "PropertyValue",
+      name: property.name,
+      value: property.value,
+      ...(property.unitText ? { unitText: property.unitText } : {}),
+    }));
+  }
+
   // Rating
   if (rating && rating.count > 0) {
     schema.aggregateRating = {
@@ -252,6 +282,22 @@ export function generateProductSchema({
       bestRating: 5,
       worstRating: 1,
     };
+  }
+
+  if (reviews?.length) {
+    schema.review = reviews.map((review) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: review.author },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: review.ratingValue,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      ...(review.title ? { name: review.title } : {}),
+      ...(review.body ? { reviewBody: review.body } : {}),
+      ...(review.datePublished ? { datePublished: review.datePublished } : {}),
+    }));
   }
 
   return schema;
@@ -399,15 +445,26 @@ export interface ItemListParams {
     url: string;
     image?: string;
     price?: number;
+    /**
+     * Aşağıdaki alanlar liste sayfasını tek başına anlaşılır kılıyor: dil
+     * modelleri kategori sayfasını okurken her ürün için ayrı sayfaya girmek
+     * zorunda kalmasın diye marka, stok ve kısa tanım da listeye giriyor.
+     */
+    brand?: string;
+    sku?: string;
+    inStock?: boolean;
+    description?: string;
   }>;
   url: string;
+  description?: string;
 }
 
-export function generateItemListSchema({ name, items, url }: ItemListParams) {
+export function generateItemListSchema({ name, items, url, description }: ItemListParams) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name,
+    ...(description ? { description } : {}),
     url: `${siteConfig.url}${url}`,
     numberOfItems: items.length,
     itemListElement: items.map((item, index) => ({
@@ -418,11 +475,22 @@ export function generateItemListSchema({ name, items, url }: ItemListParams) {
         name: item.name,
         url: `${siteConfig.url}${item.url}`,
         image: item.image,
+        ...(item.description ? { description: item.description } : {}),
+        ...(item.sku ? { sku: item.sku } : {}),
+        ...(item.brand ? { brand: { "@type": "Brand", name: item.brand } } : {}),
         offers: item.price
           ? {
               "@type": "Offer",
               price: item.price,
               priceCurrency: "TRY",
+              url: `${siteConfig.url}${item.url}`,
+              ...(item.inStock === undefined
+                ? {}
+                : {
+                    availability: item.inStock
+                      ? "https://schema.org/InStock"
+                      : "https://schema.org/OutOfStock",
+                  }),
             }
           : undefined,
       },

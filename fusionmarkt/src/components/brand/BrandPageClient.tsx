@@ -31,9 +31,14 @@ function useIsMounted() {
 
 interface BrandPageClientProps {
   partner: Partner;
+  /**
+   * Sunucuda render edilen ürün listesi. Prop olarak alınıyor çünkü bu bileşen
+   * istemci tarafında; listeyi burada çekmek onu tekrar HTML'den düşürürdü.
+   */
+  productsSlot?: React.ReactNode;
 }
 
-export default function BrandPageClient({ partner }: BrandPageClientProps) {
+export default function BrandPageClient({ partner, productsSlot }: BrandPageClientProps) {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
   const isDark = mounted ? resolvedTheme === "dark" : true;
@@ -287,6 +292,8 @@ export default function BrandPageClient({ partner }: BrandPageClientProps) {
             </div>
           </section>
         )}
+
+        {productsSlot}
 
         {/* CTA Footer */}
         <section className="py-12 border-t border-border">

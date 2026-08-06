@@ -1,9 +1,19 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getPartnerBySlug, getAllPartnerSlugs } from "@/lib/partners-data";
+import { getBrandProducts } from "@/lib/brand-products";
 import BrandPageClient from "@/components/brand/BrandPageClient";
 import { JsonLd } from "@/components/seo";
-import { generateBrandMetadata, generateBreadcrumbSchema, siteConfig } from "@/lib/seo";
+import {
+  generateBrandMetadata,
+  generateBreadcrumbSchema,
+  generateItemListSchema,
+  siteConfig,
+} from "@/lib/seo";
+import BrandProductList from "./_components/BrandProductList";
+
+/** Ürün fiyat ve stokları listede göründüğü için sayfa 5 dakikada tazeleniyor. */
+export const revalidate = 300;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -55,11 +65,37 @@ export default async function PartnerPage({ params }: PageProps) {
     url: `${siteConfig.url}/marka/${slug}`,
   };
 
+  const products = await getBrandProducts(partner);
+
+  const listSchema =
+    products.length > 0
+      ? generateItemListSchema({
+          name: `${partner.name} ürünleri`,
+          description: partner.tagline,
+          url: `/marka/${slug}`,
+          items: products.map((product) => ({
+            name: product.name,
+            url: `/urun/${product.slug}`,
+            image: product.thumbnail ?? undefined,
+            price: product.price,
+            brand: partner.name,
+            sku: product.sku ?? undefined,
+            inStock: product.inStock,
+            description: product.shortDescription ?? undefined,
+          })),
+        })
+      : null;
+
   return (
     <>
-      <JsonLd data={[brandSchema, breadcrumbSchema]} />
+      <JsonLd
+        data={listSchema ? [brandSchema, breadcrumbSchema, listSchema] : [brandSchema, breadcrumbSchema]}
+      />
       <h1 className="sr-only">{partner.name} Ürünleri - FusionMarkt Yetkili Distribütör</h1>
-      <BrandPageClient partner={partner} />
+      <BrandPageClient
+        partner={partner}
+        productsSlot={<BrandProductList brandName={partner.name} products={products} />}
+      />
     </>
   );
 }

@@ -177,6 +177,29 @@ const SQUIRCLE = {
  */
 const PRODUCT_TABS = ['Açıklama', 'Teknik Özellikler', 'Yorumlar'] as const;
 
+/**
+ * API/SSR yorum yükünü bileşenin beklediği şekle çevirir.
+ *
+ * Aynı dönüşüm iki yerde gerekiyor: ilk render sunucudan gelen yorumlarla
+ * yapılıyor (sekme başlığındaki puan ve adet böylece ilk HTML'de oluyor),
+ * hidrasyondan sonra gelen fetch aynı listeyi tazeliyor.
+ */
+function mapApiReviews(apiReviews?: ApiReview[]): Review[] {
+  return (apiReviews || []).map((r) => ({
+    id: r.id,
+    userName: r.displayName || r.user?.name || "Anonim",
+    userEmail: r.user?.email || "",
+    rating: r.rating,
+    title: r.title || "",
+    comment: r.comment || "",
+    images: r.images || [],
+    adminReply: r.adminReply || null,
+    adminReplyAt: r.adminReplyAt || null,
+    createdAt: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : "",
+    isVerifiedPurchase: r.isVerified || false,
+  }));
+}
+
 export default function SingleProductView({ slug, initialData }: SingleProductViewProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("Açıklama");
@@ -266,22 +289,8 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
             ...data,
             description: current?.description ?? data.description,
           }));
-          // API'den gelen yorumları component formatına map et
           if (data.reviews) {
-            const mappedReviews = data.reviews.map((r: ApiReview) => ({
-              id: r.id,
-              userName: r.displayName || r.user?.name || "Anonim", // displayName varsa onu kullan
-              userEmail: r.user?.email || "",
-              rating: r.rating,
-              title: r.title || "",
-              comment: r.comment || "",
-              images: r.images || [],
-              adminReply: r.adminReply || null,
-              adminReplyAt: r.adminReplyAt || null,
-              createdAt: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : "",
-              isVerifiedPurchase: r.isVerified || false,
-            }));
-            setReviews(mappedReviews);
+            setReviews(mapApiReviews(data.reviews));
           }
         }
       } catch (error) {
@@ -312,7 +321,7 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
   }, [slug, productData?.category]);
 
   // Yorum state'leri
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<Review[]>(() => mapApiReviews(initialData?.reviews));
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewHoverRating, setReviewHoverRating] = useState(0);
   const [reviewTitle, setReviewTitle] = useState("");
@@ -2101,8 +2110,18 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                   )}
                 </div>
               </>
-            ) : (
-              <>
+            ) : null}
+
+            {/*
+              Teknik özellikler sekmesi her zaman DOM'da; aktif değilken
+              gizleniyor. Koşullu render edilirse tablo yalnızca kullanıcı
+              sekmeye tıkladıktan sonra oluşuyor ve sunucudan gelen HTML'de
+              ürünün hiçbir teknik değeri bulunmuyordu.
+            */}
+            <div
+              hidden={activeTab !== 'Teknik Özellikler'}
+              style={{ display: activeTab === 'Teknik Özellikler' ? undefined : 'none' }}
+            >
                 <h2 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '16px' }}>
                   Teknik Özellikler
                 </h2>
@@ -2330,8 +2349,7 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                     }
                   })()}
                 </div>
-              </>
-            )}
+            </div>
           </div>
         </div>
 

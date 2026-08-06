@@ -13,10 +13,13 @@ import {
   generateProductMetadata, 
   generateProductSchema, 
   generateBreadcrumbSchema,
+  generateFAQSchema,
   siteConfig 
 } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
 import { withImageDimensions } from "@/lib/image-dimensions";
+import { buildProductFaq } from "@/lib/product-faq";
+import ProductFaq from "./_components/ProductFaq";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -43,7 +46,48 @@ async function getProduct(slug: string) {
       include: {
         category: true,
         variants: true,
-        reviews: true,
+        /**
+         * Teknik özellikler, öne çıkan maddeler ve yorumlar eskiden yalnızca
+         * `/api/public/products/[slug]` üzerinden istemcide çekiliyordu; sunucunun
+         * ürettiği HTML'de ürünün tek bir teknik değeri bile yoktu. JavaScript
+         * çalıştırmayan LLM tarayıcıları "kaç Wh", "kaç W çıkış" gibi soruların
+         * cevabını sayfada bulamıyordu. Aynı veriler artık burada da çekiliyor;
+         * seçimler API ucuyla birebir aynı ki istemci fetch'i geldiğinde ağaç
+         * değişmesin.
+         */
+        keyFeatures: { orderBy: { order: "asc" } },
+        technicalSpecs: { orderBy: { order: "asc" } },
+        productFeatureValues: {
+          orderBy: { displayOrder: "asc" },
+          include: {
+            feature: {
+              select: { id: true, name: true, slug: true, inputType: true, unit: true },
+            },
+          },
+        },
+        /**
+         * Yalnızca onaylı yorumlar. Önceki hâlinde filtre yoktu: sayfadaki
+         * görünür liste onaylıları gösterirken JSON-LD'deki aggregateRating
+         * bekleyen/reddedilen yorumları da sayıyordu.
+         */
+        reviews: {
+          where: { isApproved: true },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+          select: {
+            id: true,
+            rating: true,
+            title: true,
+            comment: true,
+            images: true,
+            displayName: true,
+            isVerified: true,
+            adminReply: true,
+            adminReplyAt: true,
+            createdAt: true,
+            user: { select: { name: true } },
+          },
+        },
       },
     });
 
@@ -153,7 +197,70 @@ async function serializeProductForClient(product: NonNullable<Awaited<ReturnType
       sku: v.sku || null,
       isActive: v.isActive,
     })),
+    keyFeatures: (product.keyFeatures || []).map(f => ({
+      id: f.id,
+      title: f.title,
+      icon: f.icon || undefined,
+    })),
+    technicalSpecs: (product.technicalSpecs || []).map(s => ({
+      id: s.id,
+      name: s.label,
+      label: s.label,
+      value: s.value,
+    })),
+    productFeatureValues: (product.productFeatureValues || []).map(pfv => ({
+      id: pfv.id,
+      valueText: pfv.valueText || undefined,
+      valueNumber: pfv.valueNumber != null ? Number(pfv.valueNumber) : undefined,
+      unit: pfv.unit || undefined,
+      feature: pfv.feature
+        ? { name: pfv.feature.name, unit: pfv.feature.unit || undefined }
+        : null,
+    })),
+    reviews: (product.reviews || []).map(r => ({
+      id: r.id,
+      rating: r.rating,
+      title: r.title || undefined,
+      comment: r.comment || undefined,
+      images: r.images || [],
+      displayName: r.displayName || undefined,
+      isVerified: r.isVerified,
+      adminReply: r.adminReply || null,
+      adminReplyAt: r.adminReplyAt ? r.adminReplyAt.toISOString() : null,
+      createdAt: r.createdAt.toISOString(),
+      user: r.user ? { name: r.user.name || undefined } : undefined,
+    })),
   };
+}
+
+type ProductWithRelations = NonNullable<Awaited<ReturnType<typeof getProduct>>>;
+
+/**
+ * Şemanın `additionalProperty` listesi.
+ *
+ * Arayüzdeki tabloyla aynı önceliği izliyor: kategori tanımlı özellik değerleri
+ * varsa onlar, yoksa ürüne serbest girilmiş teknik özellikler. İki kaynağı
+ * birleştirmek sayfada görünmeyen satırları şemaya sokardı.
+ */
+function buildAdditionalProperties(product: ProductWithRelations) {
+  const featureValues = (product.productFeatureValues || []).flatMap((pfv) => {
+    const feature = pfv.feature;
+    if (!feature) return [];
+
+    const value = pfv.valueText ?? (pfv.valueNumber != null ? Number(pfv.valueNumber) : null);
+    if (value === null || value === "") return [];
+
+    const unitText = pfv.unit || feature.unit || undefined;
+    return [{ name: feature.name, value, ...(unitText ? { unitText } : {}) }];
+  });
+
+  if (featureValues.length > 0) {
+    return featureValues;
+  }
+
+  return (product.technicalSpecs || [])
+    .filter((spec) => spec.value)
+    .map((spec) => ({ name: spec.label, value: spec.value }));
 }
 
 // Prisma bundle → JSON-safe client data
@@ -309,10 +416,23 @@ export default async function ProductPage({ params }: Props) {
       brand: product.brand || undefined,
       category: product.category?.name,
       inStock: totalStock > 0,
+      stockCount: totalStock,
+      additionalProperty: buildAdditionalProperties(product),
       rating: reviews.length > 0 ? {
         value: Math.round(avgRating * 10) / 10,
         count: reviews.length,
       } : undefined,
+      /**
+       * İlk 10 yorum yeterli: şema zaten aggregateRating taşıyor, tamamını
+       * gömmek sayfa ağırlığını yorum sayısıyla birlikte büyütürdü.
+       */
+      reviews: reviews.slice(0, 10).map((review) => ({
+        author: review.displayName || review.user?.name || "FusionMarkt müşterisi",
+        ratingValue: review.rating,
+        title: review.title || undefined,
+        body: review.comment || undefined,
+        datePublished: review.createdAt.toISOString().split("T")[0],
+      })),
       url: `/urun/${product.slug}`,
     });
 
@@ -338,13 +458,33 @@ export default async function ProductPage({ params }: Props) {
       ...breadcrumbItems,
     ]);
 
+    const faq = buildProductFaq({
+      name: product.name,
+      inStock: totalStock > 0,
+      freeShipping: product.freeShipping,
+      categorySlug: product.category?.slug,
+      specs: buildAdditionalProperties(product).map((property) => ({
+        name: property.name,
+        value: `${property.value}${"unitText" in property && property.unitText ? ` ${property.unitText}` : ""}`,
+      })),
+      variants: (product.variants || [])
+        .filter((variant) => variant.isActive)
+        .map((variant) => ({
+          type: variant.type || "",
+          value: variant.value || "",
+          inStock: (variant.stock || 0) > 0,
+        })),
+    });
+
     return (
       <>
         {/* JSON-LD Structured Data */}
-        <JsonLd data={[productSchema, breadcrumbSchema]} />
+        <JsonLd data={[productSchema, breadcrumbSchema, generateFAQSchema(faq.items)]} />
         
         {/* Product View Component */}
         <SingleProductView slug={slug} initialData={await serializeProductForClient(product)} />
+
+        <ProductFaq faq={faq} />
       </>
     );
   }
@@ -396,13 +536,33 @@ export default async function ProductPage({ params }: Props) {
       ...breadcrumbItems,
     ]);
 
+    const faq = buildProductFaq({
+      name: bundle.name,
+      inStock: bundle.stock > 0,
+      freeShipping: true,
+      categorySlug: "bundle-paket-urunler",
+      specs: [],
+      bundle: {
+        price: Number(bundle.price),
+        totalValue: bundle.totalValue,
+        items: bundle.items
+          .filter((item) => item.product)
+          .map((item) => ({
+            name: item.product!.name,
+            quantity: item.quantity,
+          })),
+      },
+    });
+
     return (
       <>
         {/* JSON-LD Structured Data */}
-        <JsonLd data={[productSchema, breadcrumbSchema]} />
+        <JsonLd data={[productSchema, breadcrumbSchema, generateFAQSchema(faq.items)]} />
         
         {/* Bundle View Component */}
         <BundleProductView slug={slug} initialData={await serializeBundleForClient(bundle)} />
+
+        <ProductFaq faq={faq} />
       </>
     );
   }

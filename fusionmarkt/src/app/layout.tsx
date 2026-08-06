@@ -92,10 +92,15 @@ export const metadata: Metadata = {
     },
   },
   
-  // Verification - Google Search Console & Yandex
+  // Verification - Google Search Console, Yandex, Bing Webmaster Tools
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || undefined,
+    other: {
+      "msvalidate.01":
+        process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ||
+        "17D54A4A16549ECF5739BCD928EC987D",
+    },
   },
   
   // Category
