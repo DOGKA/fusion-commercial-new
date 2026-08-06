@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { submitIndexNow } from "@/lib/indexnow";
 
 // Simple in-memory rate limit (per IP per 60s)
 const rateLimitMap = new Map<string, { count: number; ts: number }>();
@@ -25,6 +26,9 @@ const CATALOG_FEED_PATHS = [
   "/llms.txt",
   "/llms-full.txt",
 ];
+
+/** Katalog değişince Bing'e de haber verilecek kanonik yollar. */
+const INDEXNOW_CATALOG_PATHS = ["/", "/magaza", "/sitemap.xml", ...CATALOG_FEED_PATHS];
 
 /**
  * On-Demand Revalidation Endpoint
@@ -71,7 +75,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { path, tag, tags } = body;
+    const { path, tag, tags, url, urls } = body as {
+      path?: string;
+      tag?: string;
+      tags?: string[];
+      url?: string;
+      urls?: string[];
+    };
 
     // Validate tags against whitelist
     const tagList: string[] = [];
@@ -87,9 +97,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const indexNowTargets: string[] = [];
+
     // Revalidate by path
     if (path) {
       revalidatePath(path);
+      indexNowTargets.push(path);
       console.log(`✅ Revalidated path: ${path}`);
     }
 
@@ -108,6 +121,7 @@ export async function POST(request: NextRequest) {
     // Katalog değiştiyse ürün akışlarını da tazele
     if (tagList.includes("products") || tagList.includes("categories")) {
       CATALOG_FEED_PATHS.forEach((feedPath) => revalidatePath(feedPath));
+      indexNowTargets.push(...INDEXNOW_CATALOG_PATHS);
       console.log(`✅ Revalidated feeds: ${CATALOG_FEED_PATHS.join(", ")}`);
     }
 
@@ -119,8 +133,21 @@ export async function POST(request: NextRequest) {
       revalidateTag("sliders");
       revalidateTag("homepage");
       CATALOG_FEED_PATHS.forEach((feedPath) => revalidatePath(feedPath));
+      indexNowTargets.push(...INDEXNOW_CATALOG_PATHS);
       console.log("✅ Revalidated: /, /magaza, banners, sliders, homepage, feeds");
     }
+
+    // Admin tekil ürün URL'si gönderebilir: { path, url } veya { urls: [...] }
+    if (typeof url === "string") indexNowTargets.push(url);
+    if (Array.isArray(urls)) {
+      for (const entry of urls) {
+        if (typeof entry === "string") indexNowTargets.push(entry);
+      }
+    }
+
+    const indexNow = indexNowTargets.length
+      ? await submitIndexNow(indexNowTargets)
+      : { submitted: 0, status: null, skipped: "none" };
 
     return NextResponse.json(
       {
@@ -129,6 +156,7 @@ export async function POST(request: NextRequest) {
         path,
         tag,
         tags: tagList.length ? tagList : undefined,
+        indexNow,
       },
       {
         status: 200,
