@@ -103,7 +103,6 @@ export const titleTemplates = {
   product: "%s - Fiyat ve Özellikler",
   category: "%s - En İyi Fiyat Garantisi",
   brand: "%s Ürünleri - Yetkili Distribütör",
-  blog: "%s | Blog",
 } as const;
 
 // Varsayılan meta açıklamaları (SEO optimized)

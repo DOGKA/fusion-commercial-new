@@ -6,6 +6,41 @@
 import type { Metadata } from "next";
 import { siteConfig, titleTemplates, categoryDescriptions, brandDescriptions } from "./config";
 
+/**
+ * Root layout `%s | FusionMarkt` şablonunu uyguluyor, yani her sayfa başlığına
+ * 14 karakter ekleniyor. Bing Site Scan 70 karakterden uzun <title> için uyarı
+ * veriyor; sınır aşıldığında anlamlı başlığı kesmek yerine marka son ekini
+ * düşürüyoruz (`absolute`), böylece hiçbir bilgi kaybolmuyor.
+ */
+const TITLE_MAX_LENGTH = 70;
+const TITLE_BRAND_SUFFIX = ` | ${siteConfig.name}`;
+
+function fitsWithBrandSuffix(title: string) {
+  return title.length + TITLE_BRAND_SUFFIX.length <= TITLE_MAX_LENGTH;
+}
+
+function clampTitle(value: string) {
+  if (value.length <= TITLE_MAX_LENGTH) return value;
+  const cut = value.slice(0, TITLE_MAX_LENGTH);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > TITLE_MAX_LENGTH * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd();
+}
+
+function resolveTitle(raw: string): NonNullable<Metadata["title"]> {
+  const title = raw.trim();
+  if (fitsWithBrandSuffix(title)) return title;
+  return { absolute: clampTitle(title) };
+}
+
+/**
+ * Şablon eki ("- Fiyat ve Özellikler" gibi) başlığı sınırın üstüne çıkarıyorsa
+ * ek atılır; ürün/kategori adı her zaman korunur.
+ */
+function applyTitleTemplate(template: string, value: string) {
+  const templated = template.replace("%s", value);
+  return fitsWithBrandSuffix(templated) ? templated : value;
+}
+
 interface GenerateMetadataOptions {
   title: string;
   description?: string;
@@ -41,7 +76,7 @@ export function generateMetadata({
   const allKeywords = [...new Set([...siteConfig.keywords, ...keywords])];
 
   return {
-    title,
+    title: resolveTitle(title),
     description,
     keywords: allKeywords,
     authors: [{ name: author || siteConfig.creator }],
@@ -147,7 +182,7 @@ export function generateProductMetadata({
   metaKeywords,
 }: ProductMetaParams): Metadata {
   // DB'den gelen metaTitle varsa onu kullan, yoksa template'den üret
-  const title = metaTitle || titleTemplates.product.replace("%s", name);
+  const title = metaTitle || applyTitleTemplate(titleTemplates.product, name);
   
   // DB'den gelen metaDescription varsa onu kullan, yoksa otomatik üret
   const productDescription = metaDescription 
@@ -212,7 +247,7 @@ export function generateCategoryMetadata({
   productCount,
   image,
 }: CategoryMetaParams): Metadata {
-  const title = titleTemplates.category.replace("%s", name);
+  const title = applyTitleTemplate(titleTemplates.category, name);
   const categoryDesc = description || categoryDescriptions[slug] || 
     `${name} kategorisinde ${productCount ? `${productCount} ürün` : "ürünler"}. En iyi fiyatlar ve hızlı kargo ile FusionMarkt'ta.`;
 
@@ -250,7 +285,7 @@ export function generateBrandMetadata({
   productCount,
   logo,
 }: BrandMetaParams): Metadata {
-  const title = titleTemplates.brand.replace("%s", name);
+  const title = applyTitleTemplate(titleTemplates.brand, name);
   const brandDesc = description || brandDescriptions[slug] || 
     `${name} marka ürünleri. ${productCount ? `${productCount} ürün` : "Tüm modeller"} FusionMarkt'ta yetkili distribütör garantisiyle.`;
 
@@ -295,11 +330,12 @@ export function generateBlogMetadata({
   updatedAt,
   tags = [],
 }: BlogMetaParams): Metadata {
-  const blogTitle = titleTemplates.blog.replace("%s", title);
+  // Layout zaten "| FusionMarkt" ekliyor; ayrıca "| Blog" eklemek başlığı
+  // gereksiz 7 karakter uzatıyor ve marka adını iki kez tekrarlıyordu.
   const description = excerpt || `${title} - FusionMarkt Blog'da enerji çözümleri hakkında bilgi edinin.`;
 
   return generateMetadata({
-    title: blogTitle,
+    title,
     description,
     keywords: tags,
     image,
@@ -329,14 +365,14 @@ export function accountPageMetadata(title: string, canonical: string): Metadata 
  */
 export const staticPageMetadata = {
   home: generateMetadata({
-    title: "Taşınabilir Güç Kaynakları & Solar Panel | Enerji Çözümleri",
+    title: "Taşınabilir Güç Kaynakları ve Solar Panel",
     description: "Taşınabilir güç kaynağı, LiFePO4 batarya, solar panel ve portable power station modelleri. IEETek yetkili distribütörü. Ücretsiz kargo, 2 yıl garanti ile Türkiye'nin güvenilir enerji marketi.",
     canonical: "/",
     keywords: ["taşınabilir güç kaynağı", "solar panel", "portable power station", "güç istasyonu", "lifepo4 batarya", "güneş paneli", "off-grid enerji"],
   }),
   
   shop: generateMetadata({
-    title: "Mağaza - Taşınabilir Güç Kaynağı, Solar Panel ve Tüm Ürünler",
+    title: "Mağaza - Taşınabilir Güç Kaynağı ve Solar Panel",
     description: "Taşınabilir güç kaynağı, solar panel, LiFePO4 portable power station, yalıtkan merdiven ve iş güvenliği eldiveni modelleri. En iyi fiyat garantisi, ücretsiz kargo ve 12 taksit imkanı ile FusionMarkt'ta.",
     canonical: "/magaza",
     keywords: ["taşınabilir güç kaynağı", "portable power station", "solar panel", "güneş paneli", "power station fiyat", "güç kaynağı satın al"],
@@ -356,7 +392,7 @@ export const staticPageMetadata = {
   }),
   
   blog: generateMetadata({
-    title: "Blog - Taşınabilir Güç Kaynağı Rehberi ve Enerji Çözümleri",
+    title: "Blog - Taşınabilir Güç Kaynağı ve Solar Rehberi",
     description: "Taşınabilir güç kaynağı karşılaştırmaları, solar panel kurulum rehberi, LiFePO4 batarya bilgileri, kamp enerji çözümleri ve ürün incelemeleri. Enerji bağımsızlığı hakkında uzman içerikler.",
     canonical: "/blog",
     type: "website",
@@ -371,7 +407,7 @@ export const staticPageMetadata = {
   }),
   
   powerCalculator: generateMetadata({
-    title: "Güç Hesaplayıcı - Hangi Taşınabilir Güç Kaynağı Size Uygun?",
+    title: "Güç Hesaplayıcı - Doğru Güç Kaynağını Seçin",
     description: "Cihazlarınızın watt tüketimini girin, size uygun taşınabilir güç kaynağını bulun. Power station kapasite hesaplama aracı. Kamp, karavan ve ev kullanımı için doğru ürünü seçin.",
     canonical: "/guc-hesaplayici",
     keywords: ["güç hesaplama", "watt hesaplama", "power station seçimi", "güç kaynağı kapasite hesaplama", "kamp güç ihtiyacı"],

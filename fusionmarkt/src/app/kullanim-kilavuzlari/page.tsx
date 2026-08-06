@@ -3,7 +3,9 @@ import KullanimKilavuzlariClient from "./KullanimKilavuzlariClient";
 import manualsData from "@/data/manuals-data.json";
 
 export const metadata: Metadata = {
-  title: "IEETek Kullanım Kılavuzları PDF İndir | FusionMarkt Türkiye",
+  // Layout "| FusionMarkt" ekliyor; markayı burada tekrarlamak <title>'ı
+  // 70 karakter sınırının üstüne çıkarıyordu.
+  title: "IEETek Kullanım Kılavuzları - Türkçe PDF İndir",
   description: "IEETek P800, P1800, P2400, P3200, SH4000, Singo1000, Singo2000, SP100, SP200, SP400 taşınabilir güç istasyonu ve güneş paneli Türkçe kullanım kılavuzları. Ücretsiz PDF indir, teknik özellikler, kurulum rehberi.",
   keywords: [
     // Ürün bazlı anahtar kelimeler
