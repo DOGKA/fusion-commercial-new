@@ -77,7 +77,13 @@ export async function materializeAdminNotifications() {
     }),
     prisma.serviceFormMessage.findMany({
       where: { status: "PENDING" },
-      select: { id: true, name: true, platform: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        platform: true,
+        productModel: true,
+        createdAt: true,
+      },
       orderBy: { createdAt: "desc" },
       take: MATERIALIZE_LIMIT,
     }),
@@ -162,7 +168,7 @@ export async function materializeAdminNotifications() {
       legacyId: `service-${service.id}`,
       type: "service" as const,
       title: "Yeni servis talebi",
-      subTitle: `${service.name} - ${service.platform}`,
+      subTitle: `${service.name}${service.productModel ? ` - ${service.productModel}` : ""} - ${service.platform}`,
       href: `/service-forms?id=${encodeURIComponent(service.id)}`,
       sourceId: service.id,
       createdAt: service.createdAt,

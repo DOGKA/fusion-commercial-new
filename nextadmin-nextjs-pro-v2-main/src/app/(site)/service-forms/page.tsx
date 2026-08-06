@@ -20,8 +20,22 @@ import {
   Mail,
   MapPin,
   StickyNote,
+  Package,
+  Stethoscope,
+  Hash,
 } from "lucide-react";
 import NextImage from "next/image";
+
+interface DiagnosticSummaryItem {
+  group: string;
+  label: string;
+  value: string;
+}
+
+interface ServiceFormDiagnostics {
+  answers?: Record<string, string | string[]>;
+  summary?: DiagnosticSummaryItem[];
+}
 
 interface ServiceFormMessage {
   id: string;
@@ -38,6 +52,10 @@ interface ServiceFormMessage {
   message: string;
   mediaUrls: string[];
   returnAddress: string;
+  productCategory: string | null;
+  productModel: string | null;
+  serialNumber: string | null;
+  diagnostics: ServiceFormDiagnostics | null;
   packagingConfirm: boolean;
   faultFeeConfirm: boolean;
   status: "PENDING" | "IN_REVIEW" | "APPROVED" | "REJECTED" | "REPLIED";
@@ -46,6 +64,29 @@ interface ServiceFormMessage {
   repliedAt: string | null;
   repliedBy: string | null;
   createdAt: string;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  "power-station": "Taşınabilir Güç Kaynağı",
+  "solar-panel": "Güneş Paneli",
+};
+
+function getCategoryLabel(category: string | null | undefined): string {
+  if (!category) return "";
+  return CATEGORY_LABELS[category] ?? category;
+}
+
+function groupDiagnostics(
+  summary: DiagnosticSummaryItem[] | undefined
+): { group: string; items: DiagnosticSummaryItem[] }[] {
+  if (!summary?.length) return [];
+  const map = new Map<string, DiagnosticSummaryItem[]>();
+  for (const item of summary) {
+    const list = map.get(item.group) ?? [];
+    list.push(item);
+    map.set(item.group, list);
+  }
+  return Array.from(map.entries()).map(([group, items]) => ({ group, items }));
 }
 
 interface Stats {
@@ -416,6 +457,12 @@ export default function ServiceFormsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-gray-500 mb-1 flex-wrap">
+                      {msg.productModel && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                          <Package className="w-3 h-3" />
+                          <strong>{msg.productModel}</strong>
+                        </span>
+                      )}
                       <span>Platform: <strong>{msg.platform}</strong></span>
                       <span>Fatura: <strong>{msg.invoiceNo}</strong></span>
                       <span>Tip: <strong>{msg.invoiceType}</strong></span>
@@ -490,6 +537,75 @@ export default function ServiceFormsPage() {
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-dark-2">
                   <p className="text-xs text-gray-500">Sipariş Numarası</p>
                   <p className="font-medium text-dark dark:text-white text-sm">{viewMessage.orderNumber}</p>
+                </div>
+              )}
+
+              {/* Product */}
+              {(viewMessage.productModel || viewMessage.productCategory) && (
+                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 mb-2 font-medium flex items-center gap-1">
+                    <Package className="w-3.5 h-3.5" />
+                    Ürün Bilgisi
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    {viewMessage.productCategory && (
+                      <div>
+                        <p className="text-xs text-gray-500">Kategori</p>
+                        <p className="font-medium text-dark dark:text-white text-sm">
+                          {getCategoryLabel(viewMessage.productCategory)}
+                        </p>
+                      </div>
+                    )}
+                    {viewMessage.productModel && (
+                      <div>
+                        <p className="text-xs text-gray-500">Model</p>
+                        <p className="font-medium text-dark dark:text-white text-sm">
+                          {viewMessage.productModel}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Hash className="w-3 h-3" />
+                        Seri No
+                      </p>
+                      <p className="font-medium text-dark dark:text-white text-sm">
+                        {viewMessage.serialNumber || "Belirtilmedi"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Diagnostics Survey */}
+              {groupDiagnostics(viewMessage.diagnostics?.summary).length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-dark dark:text-white flex items-center gap-1.5">
+                    <Stethoscope className="w-4 h-4 text-amber-600" />
+                    Arıza Teşhis Anketi
+                  </p>
+                  {groupDiagnostics(viewMessage.diagnostics?.summary).map(({ group, items }) => (
+                    <div
+                      key={group}
+                      className="rounded-xl border border-stroke dark:border-dark-3 overflow-hidden"
+                    >
+                      <div className="px-4 py-2.5 bg-gray-50 dark:bg-dark-2 border-b border-stroke dark:border-dark-3">
+                        <p className="text-xs font-semibold text-dark dark:text-white uppercase tracking-wide">
+                          {group}
+                        </p>
+                      </div>
+                      <div className="divide-y divide-stroke dark:divide-dark-3">
+                        {items.map((item, idx) => (
+                          <div key={`${group}-${idx}`} className="px-4 py-3">
+                            <p className="text-xs text-gray-500 mb-0.5">{item.label}</p>
+                            <p className="text-sm text-dark dark:text-white whitespace-pre-wrap">
+                              {item.value}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 

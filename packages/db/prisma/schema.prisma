@@ -1327,6 +1327,18 @@ model ServiceFormMessage {
   message          String
   mediaUrls        String[]
   returnAddress    String
+  // Formun 1. adımı: kullanıcının seçtiği ürün.
+  productCategory  String?
+  productModel     String?
+  serialNumber     String?
+  /// Formun 2. adımı (arıza teşhis anketi).
+  /// { answers: Record<string, string | string[]>,
+  ///   summary: { group, label, value }[] }
+  /// `answers` makine tarafından okunabilir ham cevaplar, `summary` ise soru
+  /// metinleriyle birlikte kaydedilmiş okunabilir hali — admin paneli soru
+  /// tanımlarına erişemediği için özeti olduğu gibi gösteriyor ve sorular
+  /// zamanla değişse bile eski talepler doğru metinlerle kalıyor.
+  diagnostics      Json?
   packagingConfirm Boolean           @default(false)
   faultFeeConfirm  Boolean           @default(false)
   status           ServiceFormStatus @default(PENDING)

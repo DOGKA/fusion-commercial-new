@@ -529,7 +529,61 @@ export async function sendServiceFormNotification(params: {
   invoiceNo: string;
   invoiceType: string;
   message: string;
+  productCategory?: string | null;
+  productModel?: string | null;
+  serialNumber?: string | null;
+  diagnosticsSummary?: { group: string; label: string; value: string }[];
 }) {
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const productBlock =
+    params.productModel || params.productCategory
+      ? `
+          <div class="field">
+            <div class="label">Ürün</div>
+            <div class="value"><strong>${escapeHtml(
+              [params.productCategory, params.productModel].filter(Boolean).join(" · ")
+            )}</strong>${
+              params.serialNumber
+                ? `<br><span style="font-size:13px;color:#666;">SN: ${escapeHtml(params.serialNumber)}</span>`
+                : ""
+            }</div>
+          </div>`
+      : "";
+
+  const summaryGroups = new Map<string, { label: string; value: string }[]>();
+  for (const item of params.diagnosticsSummary ?? []) {
+    const list = summaryGroups.get(item.group) ?? [];
+    list.push({ label: item.label, value: item.value });
+    summaryGroups.set(item.group, list);
+  }
+
+  const diagnosticsHtml =
+    summaryGroups.size > 0
+      ? Array.from(summaryGroups.entries())
+          .map(
+            ([group, items]) => `
+          <div class="diag-group">
+            <div class="diag-title">${escapeHtml(group)}</div>
+            ${items
+              .map(
+                (item) => `
+              <div class="diag-row">
+                <div class="diag-q">${escapeHtml(item.label)}</div>
+                <div class="diag-a">${escapeHtml(item.value)}</div>
+              </div>`
+              )
+              .join("")}
+          </div>`
+          )
+          .join("")
+      : "";
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -537,7 +591,7 @@ export async function sendServiceFormNotification(params: {
       <meta charset="utf-8">
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 640px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 24px; text-align: center; }
         .header h1 { color: white; margin: 0; font-size: 20px; }
         .content { padding: 24px; }
@@ -545,6 +599,11 @@ export async function sendServiceFormNotification(params: {
         .label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
         .value { font-size: 15px; color: #1a1a1a; }
         .message-box { background: #f9f9f9; border-left: 4px solid #f59e0b; padding: 16px; margin-top: 16px; }
+        .diag-group { margin-top: 18px; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+        .diag-title { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 700; padding: 10px 14px; }
+        .diag-row { padding: 10px 14px; border-top: 1px solid #f3f4f6; }
+        .diag-q { font-size: 12px; color: #6b7280; margin-bottom: 2px; }
+        .diag-a { font-size: 14px; color: #111827; }
         .footer { padding: 16px 24px; background: #f9f9f9; text-align: center; font-size: 12px; color: #666; }
       </style>
     </head>
@@ -556,32 +615,38 @@ export async function sendServiceFormNotification(params: {
         <div class="content">
           <div class="field">
             <div class="label">Gönderen</div>
-            <div class="value"><strong>${params.name}</strong></div>
+            <div class="value"><strong>${escapeHtml(params.name)}</strong></div>
           </div>
           <div class="field">
             <div class="label">E-posta</div>
-            <div class="value"><a href="mailto:${params.email}">${params.email}</a></div>
+            <div class="value"><a href="mailto:${escapeHtml(params.email)}">${escapeHtml(params.email)}</a></div>
           </div>
           <div class="field">
             <div class="label">Telefon</div>
-            <div class="value"><a href="tel:${params.phone}">${params.phone}</a></div>
+            <div class="value"><a href="tel:${escapeHtml(params.phone)}">${escapeHtml(params.phone)}</a></div>
           </div>
+          ${productBlock}
           <div class="field">
             <div class="label">Platform</div>
-            <div class="value">${params.platform}</div>
+            <div class="value">${escapeHtml(params.platform)}</div>
           </div>
           <div class="field">
             <div class="label">Fatura No</div>
-            <div class="value">${params.invoiceNo}</div>
+            <div class="value">${escapeHtml(params.invoiceNo)}</div>
           </div>
           <div class="field">
             <div class="label">Fatura Tipi</div>
-            <div class="value">${params.invoiceType}</div>
+            <div class="value">${escapeHtml(params.invoiceType)}</div>
           </div>
           <div class="message-box">
             <div class="label">Açıklama</div>
-            <div class="value" style="white-space: pre-wrap;">${params.message}</div>
+            <div class="value" style="white-space: pre-wrap;">${escapeHtml(params.message)}</div>
           </div>
+          ${
+            diagnosticsHtml
+              ? `<div style="margin-top:24px;"><div class="label" style="margin-bottom:8px;">Arıza Teşhis Anketi</div>${diagnosticsHtml}</div>`
+              : ""
+          }
         </div>
         <div class="footer">
           Bu mesaj FusionMarkt servis formu üzerinden gönderildi.<br>
@@ -592,9 +657,10 @@ export async function sendServiceFormNotification(params: {
     </html>
   `;
 
+  const subjectModel = params.productModel ? ` — ${params.productModel}` : "";
   return sendEmail({
     to: CONTACT_EMAIL,
-    subject: `Servis Formu Talebi: ${params.name}`,
+    subject: `Servis Formu Talebi: ${params.name}${subjectModel}`,
     html,
   });
 }

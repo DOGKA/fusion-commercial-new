@@ -7,6 +7,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { uploadToS3, generateServiceFormKey, isS3Configured } from "@/lib/s3";
 import { sendServiceFormNotification } from "@/lib/email";
+import {
+  buildDiagnosticSummary,
+  findModel,
+  getCategoryLabel,
+  pruneHiddenAnswers,
+  validateDiagnostics,
+  type DiagnosticAnswers,
+  type ProductCategoryId,
+  type StoredDiagnostics,
+} from "@/lib/service-form/diagnostics";
 
 // Rate limiting
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -51,6 +61,64 @@ const ALLOWED_IMAGE_TYPES = [
 const ALLOWED_PDF_TYPES = ["application/pdf"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+const VALID_CATEGORIES: ProductCategoryId[] = ["power-station", "solar-panel"];
+
+function parseDiagnosticsPayload(
+  rawAnswers: string | null,
+  rawSummary: string | null,
+  modelIdOrLabel: string
+): { ok: true; data: StoredDiagnostics } | { ok: false; error: string } {
+  const model = findModel(modelIdOrLabel);
+  if (!model) {
+    return { ok: false, error: "Geçersiz ürün modeli" };
+  }
+
+  let answers: DiagnosticAnswers = {};
+  if (rawAnswers) {
+    try {
+      const parsed = JSON.parse(rawAnswers);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return { ok: false, error: "Teşhis cevapları geçersiz" };
+      }
+      answers = parsed as DiagnosticAnswers;
+    } catch {
+      return { ok: false, error: "Teşhis cevapları okunamadı" };
+    }
+  }
+
+  const pruned = pruneHiddenAnswers(model, answers);
+  const errors = validateDiagnostics(model, pruned);
+  if (Object.keys(errors).length > 0) {
+    return { ok: false, error: "Teşhis anketindeki zorunlu sorular eksik" };
+  }
+
+  // Client summary varsa kullan (soru metinleri zamanla değişebilir diye client'tan gelen
+  // özeti tercih ediyoruz), yoksa sunucuda yeniden üret.
+  let summary = buildDiagnosticSummary(model, pruned);
+  if (rawSummary) {
+    try {
+      const parsed = JSON.parse(rawSummary);
+      if (
+        Array.isArray(parsed) &&
+        parsed.every(
+          (item) =>
+            item &&
+            typeof item === "object" &&
+            typeof item.group === "string" &&
+            typeof item.label === "string" &&
+            typeof item.value === "string"
+        )
+      ) {
+        summary = parsed;
+      }
+    } catch {
+      // Client özeti bozuksa sunucu özetiyle devam et.
+    }
+  }
+
+  return { ok: true, data: { answers: pruned, summary } };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const ip =
@@ -82,6 +150,13 @@ export async function POST(request: NextRequest) {
     const packagingConfirm = formData.get("packagingConfirm") === "true";
     const faultFeeConfirm = formData.get("faultFeeConfirm") === "true";
     const recaptchaToken = formData.get("recaptchaToken") as string | null;
+
+    const productCategory = (formData.get("productCategory") as string | null)?.trim() || "";
+    const productModelId = (formData.get("productModelId") as string | null)?.trim() || "";
+    const productModelLabel = (formData.get("productModel") as string | null)?.trim() || "";
+    const serialNumber = (formData.get("serialNumber") as string | null)?.trim() || null;
+    const diagnosticsRaw = formData.get("diagnostics") as string | null;
+    const diagnosticsSummaryRaw = formData.get("diagnosticsSummary") as string | null;
 
     // Validation
     if (!name?.trim()) {
@@ -120,6 +195,27 @@ export async function POST(request: NextRequest) {
     }
     if (!faultFeeConfirm) {
       return NextResponse.json({ error: "Arıza tespit onayı gereklidir" }, { status: 400 });
+    }
+
+    if (!VALID_CATEGORIES.includes(productCategory as ProductCategoryId)) {
+      return NextResponse.json({ error: "Ürün kategorisi gereklidir" }, { status: 400 });
+    }
+    const modelKey = productModelId || productModelLabel;
+    if (!modelKey) {
+      return NextResponse.json({ error: "Ürün modeli gereklidir" }, { status: 400 });
+    }
+    const model = findModel(modelKey);
+    if (!model || model.category !== productCategory) {
+      return NextResponse.json({ error: "Geçersiz ürün modeli" }, { status: 400 });
+    }
+
+    const diagnosticsResult = parseDiagnosticsPayload(
+      diagnosticsRaw,
+      diagnosticsSummaryRaw,
+      model.id
+    );
+    if (!diagnosticsResult.ok) {
+      return NextResponse.json({ error: diagnosticsResult.error }, { status: 400 });
     }
 
     // reCAPTCHA verification
@@ -182,12 +278,20 @@ export async function POST(request: NextRequest) {
         const url = await uploadToS3(key, Buffer.from(bytes), file.type);
         mediaUrls.push(url);
       }
+
+      if (mediaUrls.length === 0) {
+        return NextResponse.json(
+          { error: "En az bir görsel veya video eklemelisiniz" },
+          { status: 400 }
+        );
+      }
     } else {
       // S3 not configured - store placeholder
       invoicePdfUrl = "s3-not-configured";
     }
 
     const userAgent = request.headers.get("user-agent") || undefined;
+    const categoryLabel = getCategoryLabel(productCategory);
 
     // Save to database
     const prismaAny = prisma as unknown as Record<string, { create: (args: Record<string, unknown>) => Promise<{ id: string }> }>;
@@ -213,6 +317,10 @@ export async function POST(request: NextRequest) {
         message: message.trim(),
         mediaUrls,
         returnAddress: returnAddress.trim(),
+        productCategory,
+        productModel: model.label,
+        serialNumber,
+        diagnostics: diagnosticsResult.data,
         packagingConfirm,
         faultFeeConfirm,
         ipAddress: ip,
@@ -220,7 +328,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(`🔧 New service form from ${email} (ID: ${serviceForm.id})`);
+    console.log(
+      `🔧 New service form from ${email} — ${model.label} (ID: ${serviceForm.id})`
+    );
 
     // Send admin notification email
     try {
@@ -232,6 +342,10 @@ export async function POST(request: NextRequest) {
         invoiceNo: invoiceNo.trim(),
         invoiceType: invoiceType.trim(),
         message: message.trim(),
+        productCategory: categoryLabel,
+        productModel: model.label,
+        serialNumber,
+        diagnosticsSummary: diagnosticsResult.data.summary,
       });
     } catch (emailError) {
       console.error("Failed to send service form notification:", emailError);

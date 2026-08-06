@@ -94,6 +94,9 @@ export async function GET(request: NextRequest) {
         { phone: { contains: search, mode: "insensitive" } },
         { message: { contains: search, mode: "insensitive" } },
         { invoiceNo: { contains: search, mode: "insensitive" } },
+        { productModel: { contains: search, mode: "insensitive" } },
+        { serialNumber: { contains: search, mode: "insensitive" } },
+        { orderNumber: { contains: search, mode: "insensitive" } },
       ];
     }
 
