@@ -80,8 +80,6 @@ const has = (answers: DiagnosticAnswers, id: string, value: string): boolean => 
   return Array.isArray(answer) ? answer.includes(value) : answer === value;
 };
 
-const NONE_OF_THESE = "Hiçbiri";
-
 const POWER_STATION_GROUPS: DiagnosticGroup[] = [
   {
     id: "usage",
@@ -115,16 +113,16 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
       },
       {
         id: "faultTrigger",
-        label: "Arıza belirli bir olaydan sonra mı başladı?",
+        label: "Arıza ilk olarak hangi durumdan sonra fark edildi?",
         type: "single",
         required: true,
         options: [
-          "Hayır, kendiliğinden başladı",
-          "Düşme veya darbeden sonra",
-          "Su veya neme maruz kaldıktan sonra",
-          "Aşırı yük bağladıktan sonra",
-          "Solar panel bağladıktan sonra",
-          "Jeneratörle şarj ettikten sonra",
+          "Hiçbir belirgin olay olmadı, normal kullanım sırasında fark ettim.",
+          "Taşırken düşmüş, çarpmış veya darbe almış olabilir.",
+          "Nemli ortamda bulunduktan veya suyla temas ettikten sonra fark ettim.",
+          "Yüksek güç çeken bir cihaz kullandıktan sonra fark ettim. (Klima, kettle, pompa, buzdolabı vb.)",
+          "Solar panel bağladıktan sonra fark ettim.",
+          "Jeneratör ile şarj etmeyi denedikten sonra fark ettim.",
         ],
       },
       {
@@ -151,17 +149,18 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
       },
       {
         id: "conditions",
-        label: "Cihaz aşağıdaki koşullardan hangilerine maruz kaldı?",
+        label:
+          "Cihaz kullanım süresi boyunca aşağıdaki durumlardan hangileri yaşanmış olabilir? (Birden fazla seçenek işaretleyebilirsiniz.)",
         type: "multi",
         required: true,
-        exclusiveOptions: [NONE_OF_THESE],
+        exclusiveOptions: ["Bildiğim kadarıyla bunların hiçbiri yaşanmadı"],
         options: [
-          "0°C altı ortamda kaldı",
-          "45°C üstü ortamda veya doğrudan güneş altında kaldı",
-          "Yağmur, nem veya suya maruz kaldı",
-          "Düşme veya darbe aldı",
-          "Kapalı, tozlu bir alanda havalandırmasız çalıştı",
-          NONE_OF_THESE,
+          "Araçta, bagajda veya 0°C'nin altındaki soğuk bir ortamda kalmış olabilir.",
+          "Yaz sıcağında, araç içinde veya doğrudan güneş altında kalmış olabilir.",
+          "Nemli ortamda bulundu veya yağmur/suyla temas etmiş olabilir.",
+          "Taşınırken düşmüş, çarpmış veya darbe almış olabilir.",
+          "Kapalı, tozlu veya havalandırması yetersiz bir ortamda kullanılmış olabilir.",
+          "Bildiğim kadarıyla bunların hiçbiri yaşanmadı",
         ],
       },
     ],
@@ -575,15 +574,16 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
       },
       {
         id: "faultTrigger",
-        label: "Sorun belirli bir olaydan sonra mı başladı?",
+        label: "Sorun ilk olarak hangi durumdan sonra fark edildi?",
         type: "single",
         required: true,
         options: [
-          "Hayır, kendiliğinden başladı",
-          "Fırtına veya dolu sonrası",
-          "Düşme veya darbeden sonra",
-          "Su birikintisinde kaldıktan sonra",
-          "Katlayıp taşıdıktan sonra",
+          "Hiçbir belirgin olay olmadı, normal kullanım sırasında fark ettim.",
+          "Tam hatırlamıyorum / emin değilim.",
+          "Fırtına veya dolu sonrasında fark ettim.",
+          "Taşırken düşmüş, çarpmış veya darbe almış olabilir.",
+          "Suyla temas ettikten sonra fark ettim.",
+          "Katlayıp taşıdıktan sonra fark ettim.",
         ],
       },
     ],
@@ -612,16 +612,17 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
         type: "single",
         required: true,
         options: [
-          "FusionMarkt taşınabilir güç kaynağı",
+          "IEETEK taşınabilir güç kaynağı",
           "Şarj kontrol cihazı (regülatör)",
           "Başka marka güç kaynağı veya invertör",
           "Doğrudan aküye",
+          "Farklı cihazlarda denedim.",
           "Hiçbiri, test etmedim",
         ],
       },
       {
         id: "connectedDeviceModel",
-        label: "Bağlı olduğu cihazın modeli",
+        label: "Bağlı olduğu / denenen cihazın modeli",
         type: "text",
         required: true,
         placeholder: "Örn: P3200",
@@ -643,8 +644,8 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
         placeholder: "Örn: 21.4 V",
         hintFor: (model) =>
           model.vocV
-            ? `Panelinizin beklenen açık devre voltajı yaklaşık ${model.vocV} V'tur. Ölçüm için paneli güneşe çıkarın, hiçbir cihaza bağlamadan MC4 uçları arasındaki DC voltajı ölçün. Ölçüm yapamıyorsanız bu alanı boş bırakabilirsiniz.`
-            : "Ölçüm için paneli güneşe çıkarın, hiçbir cihaza bağlamadan MC4 uçları arasındaki DC voltajı ölçün. Ölçüm yapamıyorsanız bu alanı boş bırakabilirsiniz.",
+            ? `${model.label} panelin beklenen açık devre voltajı yaklaşık ${model.vocV} V'tur. Paneli güneşte, hiçbir cihaza bağlı olmadan MC4 uçları arasında DC voltajı ölçebilirsiniz. Ölçüm yapamıyorsanız bu alanı boş bırakabilirsiniz.`
+            : "Paneli güneşte, hiçbir cihaza bağlı olmadan MC4 uçları arasında DC voltajı ölçebilirsiniz. Ölçüm yapamıyorsanız bu alanı boş bırakabilirsiniz.",
       },
     ],
   },
@@ -654,6 +655,19 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
     description: "Panel verimi hava koşuluna ve açıya doğrudan bağlıdır.",
     category: "solar-panel",
     questions: [
+      {
+        id: "testTimeOfDay",
+        label: "Panel yaklaşık hangi koşullarda test edildi?",
+        type: "single",
+        required: true,
+        options: [
+          "Öğle saatlerinde (10:00–15:00)",
+          "Sabah",
+          "Akşam",
+          "Kapalı alanda",
+          "Emin değilim",
+        ],
+      },
       {
         id: "weather",
         label: "Test sırasındaki hava durumu nasıldı?",
@@ -675,7 +689,7 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
           "Hayır, panel temiz ve tamamen güneşteydi",
           "Bir kısmı gölgedeydi",
           "Ağaç veya bina gölgesi vardı",
-          "Panel yüzeyi kirli / tozluydu",
+          "Panel yüzeyi kirliydi veya üzerinde yaprak, toz vb. vardı.",
         ],
       },
       {
@@ -686,7 +700,7 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
         options: [
           "Evet, ayaklar açıktı ve güneşe dönüktü",
           "Yere düz serilmişti",
-          "Hayır / dikkat etmedim",
+          "Emin değilim / dikkat etmedim.",
         ],
       },
     ],
@@ -708,7 +722,7 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
           "Laminat kabarması / delinme",
           "Katlama menteşesi veya dikişi yırtık",
           "Ayak / stand kırık",
-          "Taşıma çantası veya fermuar hasarlı",
+          "MC4 kablosunun panelden çıktığı bölgede hasar var.",
         ],
       },
       {
@@ -726,14 +740,15 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
       },
       {
         id: "waterExposure",
-        label: "Panel suya maruz kaldı mı?",
+        label: "Panel kullanım süresi boyunca aşağıdaki durumlardan hangisi yaşandı?",
         type: "single",
         required: true,
         options: [
-          "Hayır",
-          "Yağmura maruz kaldı",
-          "Su birikintisinde kaldı veya suya düştü",
-          "Bilmiyorum",
+          "Bildiğim kadarıyla suyla temas etmedi.",
+          "Yağmur altında kullanıldı.",
+          "Islak zeminde veya su birikintisinde kaldı.",
+          "Suya düştü.",
+          "Emin değilim.",
         ],
       },
     ],
@@ -751,6 +766,7 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
         exclusiveOptions: ["Hiçbirini denemedim"],
         options: [
           "Farklı bir cihaza bağlayarak test ettim",
+          "Farklı bir güneşli ortamda tekrar test ettim.",
           "Farklı kablo veya uzatma ile denedim",
           "Konnektörleri temizleyip yeniden taktım",
           "Panel yüzeyini temizledim",

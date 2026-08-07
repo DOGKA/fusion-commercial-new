@@ -108,6 +108,8 @@ export default function ServisFormuPage() {
   const [invoicePdf, setInvoicePdf] = useState<File | null>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  /** Bir kez açılan adımlar DOM'da kalır — geri/ileri geçişte yeniden chunk yüklenmez. */
+  const [mountedSteps, setMountedSteps] = useState<ReadonlySet<number>>(() => new Set([1]));
   const cardRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -133,6 +135,23 @@ export default function ServisFormuPage() {
     }
   }, []);
 
+  useEffect(() => {
+    setMountedSteps((prev) => {
+      if (prev.has(step)) return prev;
+      const next = new Set(prev);
+      next.add(step);
+      return next;
+    });
+  }, [step]);
+
+  // Model seçilince sonraki adım chunk'larını arka planda ısıt.
+  useEffect(() => {
+    if (!model) return;
+    void import("./_components/DiagnosticsStep");
+    void import("@/lib/service-form/diagnostics");
+    void import("./_components/ContactStep");
+  }, [model]);
+
   // reCAPTCHA yalnızca gönderim adımında yüklenir — ilk boyamayı bloke etmesin.
   useEffect(() => {
     if (step !== 3 || !RECAPTCHA_SITE_KEY) return;
@@ -156,7 +175,8 @@ export default function ServisFormuPage() {
 
   const goToStep = (next: number) => {
     setStep(next);
-    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // smooth scroll mobil Safari'de geçiş hissini yavaşlatıyor
+    cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
   };
 
   const validateProductStep = (): boolean => {
@@ -170,20 +190,28 @@ export default function ServisFormuPage() {
   const handleNext = async () => {
     if (step === 1) {
       if (!validateProductStep()) {
-        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
         return;
       }
       setErrors({});
+      // Teşhis bileşenini adım değişmeden önce hazırla (prefetch kaçırılmışsa).
+      await Promise.all([
+        import("./_components/DiagnosticsStep"),
+        import("@/lib/service-form/diagnostics"),
+      ]);
       goToStep(2);
       return;
     }
 
     if (!model) return;
-    const { validateDiagnostics } = await import("@/lib/service-form/diagnostics");
+    const [{ validateDiagnostics }] = await Promise.all([
+      import("@/lib/service-form/diagnostics"),
+      import("./_components/ContactStep"),
+    ]);
     const newErrors = validateDiagnostics(model, answers);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
       return;
     }
     setErrors({});
@@ -385,14 +413,9 @@ export default function ServisFormuPage() {
   return (
     <div data-page-root className="min-h-screen bg-[var(--background)] overflow-x-hidden">
       {/* Hero */}
-      <section className="relative pb-8 md:pb-12 overflow-hidden" style={{ paddingTop: "120px" }}>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[var(--fusion-warning)]/10 rounded-full blur-[80px]" />
-          <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] bg-[var(--fusion-primary)]/10 rounded-full blur-[60px]" />
-        </div>
-
+      <section className="relative pb-8 md:pb-12" style={{ paddingTop: "120px" }}>
         <div className="container px-4 md:px-6 relative">
-          <div className="max-w-3xl mx-auto text-center px-2 animate-[fadeInUp_0.6s_ease-out_both]">
+          <div className="max-w-3xl mx-auto text-center px-2">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               Servis Formu
             </h1>
@@ -406,7 +429,7 @@ export default function ServisFormuPage() {
       {/* Form */}
       <section className="py-8 md:py-12">
         <div className="container px-4 md:px-6">
-          <div className="max-w-3xl mx-auto animate-[fadeInUp_0.6s_ease-out_0.2s_both]">
+          <div className="max-w-3xl mx-auto">
             <div
               ref={cardRef}
               className="glass-card-static p-4 sm:p-6 md:p-10 rounded-3xl overflow-hidden scroll-mt-28"
@@ -414,7 +437,7 @@ export default function ServisFormuPage() {
               <StepIndicator steps={STEPS} current={step} onStepClick={goToStep} />
 
               <div className="flex items-center gap-3 mb-6">
-                <StepIcon className="w-6 h-6 text-[var(--fusion-warning)] flex-shrink-0" />
+                <StepIcon className="w-6 h-6 text-[var(--foreground-secondary)] flex-shrink-0" />
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold">{stepHeader.title}</h2>
                   <p className="text-sm text-[var(--foreground-tertiary)]">{stepHeader.subtitle}</p>
@@ -435,7 +458,7 @@ export default function ServisFormuPage() {
 
               {step > 1 && selectedModelLabel && (
                 <div className="mb-6 flex items-center gap-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-3 py-2.5">
-                  <PackageSearch className="w-4 h-4 flex-shrink-0 text-[var(--fusion-primary)]" />
+                  <PackageSearch className="w-4 h-4 flex-shrink-0 text-[var(--foreground-secondary)]" />
                   <span className="text-sm truncate">
                     <span className="text-[var(--foreground-tertiary)]">Seçilen ürün: </span>
                     <span className="font-medium">{selectedModelLabel}</span>
@@ -449,7 +472,7 @@ export default function ServisFormuPage() {
                   <button
                     type="button"
                     onClick={() => goToStep(1)}
-                    className="ml-auto text-xs text-[var(--fusion-primary)] hover:underline flex-shrink-0"
+                    className="ml-auto text-xs text-[var(--foreground-secondary)] hover:underline flex-shrink-0"
                   >
                     Değiştir
                   </button>
@@ -457,45 +480,51 @@ export default function ServisFormuPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                {step === 1 && (
-                  <ProductStep
-                    category={category}
-                    model={model}
-                    serialNumber={serialNumber}
-                    errors={errors}
-                    onCategoryChange={handleCategoryChange}
-                    onModelChange={handleModelChange}
-                    onSerialNumberChange={setSerialNumber}
-                  />
+                {mountedSteps.has(1) && (
+                  <div hidden={step !== 1}>
+                    <ProductStep
+                      category={category}
+                      model={model}
+                      serialNumber={serialNumber}
+                      errors={errors}
+                      onCategoryChange={handleCategoryChange}
+                      onModelChange={handleModelChange}
+                      onSerialNumberChange={setSerialNumber}
+                    />
+                  </div>
                 )}
 
-                {step === 2 && model && (
-                  <DiagnosticsStep
-                    model={model}
-                    answers={answers}
-                    errors={errors}
-                    onChange={handleAnswerChange}
-                  />
+                {mountedSteps.has(2) && model && (
+                  <div hidden={step !== 2}>
+                    <DiagnosticsStep
+                      model={model}
+                      answers={answers}
+                      errors={errors}
+                      onChange={handleAnswerChange}
+                    />
+                  </div>
                 )}
 
-                {step === 3 && (
-                  <ContactStep
-                    formData={formData}
-                    errors={errors}
-                    invoicePdf={invoicePdf}
-                    mediaFiles={mediaFiles}
-                    dragActive={dragActive}
-                    recaptchaEnabled={Boolean(RECAPTCHA_SITE_KEY)}
-                    onChange={handleChange}
-                    onCheckbox={handleCheckbox}
-                    onInvoicePdfChange={handleInvoicePdfChange}
-                    onMediaAdd={handleMediaAdd}
-                    onMediaRemove={(index) =>
-                      setMediaFiles((prev) => prev.filter((_, i) => i !== index))
-                    }
-                    onDrag={handleDrag}
-                    onDrop={handleDrop}
-                  />
+                {mountedSteps.has(3) && (
+                  <div hidden={step !== 3}>
+                    <ContactStep
+                      formData={formData}
+                      errors={errors}
+                      invoicePdf={invoicePdf}
+                      mediaFiles={mediaFiles}
+                      dragActive={dragActive}
+                      recaptchaEnabled={Boolean(RECAPTCHA_SITE_KEY)}
+                      onChange={handleChange}
+                      onCheckbox={handleCheckbox}
+                      onInvoicePdfChange={handleInvoicePdfChange}
+                      onMediaAdd={handleMediaAdd}
+                      onMediaRemove={(index) =>
+                        setMediaFiles((prev) => prev.filter((_, i) => i !== index))
+                      }
+                      onDrag={handleDrag}
+                      onDrop={handleDrop}
+                    />
+                  </div>
                 )}
 
                 <div className="flex items-center gap-3 pt-2">

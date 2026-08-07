@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Info } from "lucide-react";
 import {
   APPROX_DATE_LABEL,
@@ -12,6 +11,20 @@ import {
   type ProductModel,
 } from "@/lib/service-form/diagnostics";
 import { FieldError } from "./FieldError";
+
+function getLocalToday() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatTrDate(iso: string) {
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return iso;
+  return `${d}.${m}.${y}`;
+}
 
 type Props = {
   model: ProductModel;
@@ -27,7 +40,7 @@ export function DiagnosticsStep({ model, answers, errors, onChange }: Props) {
     <div className="space-y-8">
       {groups.map(({ group, questions }) => (
         <section key={group.id}>
-          <div className="mb-4 pb-2 border-b border-[var(--glass-border)]">
+          <div className="mb-4">
             <h3 className="text-base sm:text-lg font-semibold">{group.title}</h3>
             {group.description && (
               <p className="text-xs sm:text-sm text-[var(--foreground-tertiary)] mt-1">
@@ -62,73 +75,69 @@ type DateChoiceFieldProps = {
 };
 
 function DateChoiceField({ question, label, value, error, onChange }: DateChoiceFieldProps) {
-  const today = new Date().toISOString().split("T")[0];
-  const isExactDate = value !== "" && value !== APPROX_DATE_LABEL && value !== today;
-  const [pickingExact, setPickingExact] = useState(isExactDate);
+  const today = getLocalToday();
+  const isToday = value === today;
+  const isApprox = value === APPROX_DATE_LABEL;
+  const isExactDate = value !== "" && !isToday && !isApprox;
   const hasError = Boolean(error);
 
-  const choices: { id: string; label: string; onSelect: () => void; active: boolean }[] = [
-    {
-      id: "today",
-      label: "Bugün",
-      active: !pickingExact && value === today,
-      onSelect: () => {
-        setPickingExact(false);
-        onChange(question.id, today);
-      },
-    },
-    {
-      id: "approx",
-      label: APPROX_DATE_LABEL,
-      active: !pickingExact && value === APPROX_DATE_LABEL,
-      onSelect: () => {
-        setPickingExact(false);
-        onChange(question.id, APPROX_DATE_LABEL);
-      },
-    },
-    {
-      id: "exact",
-      label: "Tarih seç",
-      active: pickingExact,
-      onSelect: () => {
-        setPickingExact(true);
-        if (value === today || value === APPROX_DATE_LABEL) onChange(question.id, "");
-      },
-    },
-  ];
+  const choiceClass = (active: boolean) =>
+    `relative flex items-center justify-center px-2 py-2.5 rounded-xl border transition-all text-xs sm:text-sm leading-snug text-center min-h-[44px] ${
+      active
+        ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05] text-[var(--foreground)] font-medium"
+        : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
+    } ${hasError ? "border-[var(--fusion-error)]" : ""}`;
 
   return (
     <div>
       {label}
-      <div role="radiogroup" className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {choices.map((choice) => (
-          <button
-            key={choice.id}
-            type="button"
-            role="radio"
-            aria-checked={choice.active}
-            onClick={choice.onSelect}
-            className={`flex items-center justify-center px-3 py-2.5 rounded-xl border transition-all ${
-              choice.active
-                ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10 text-[var(--fusion-primary)] font-medium"
-                : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
-            } ${hasError ? "border-[var(--fusion-error)]" : ""}`}
-          >
-            <span className="text-xs sm:text-sm leading-snug text-center">{choice.label}</span>
-          </button>
-        ))}
+      <div role="radiogroup" className="grid grid-cols-3 gap-2">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={isToday}
+          onClick={() => onChange(question.id, today)}
+          className={choiceClass(isToday)}
+        >
+          Bugün
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={isApprox}
+          onClick={() => onChange(question.id, APPROX_DATE_LABEL)}
+          className={choiceClass(isApprox)}
+        >
+          {APPROX_DATE_LABEL}
+        </button>
+        {/*
+          Safari iOS: ayrı date input açmak layout kaydırıyor ve boş kutu bırakıyor.
+          Native picker'ı chip üzerine şeffaf input ile bağlarız.
+        */}
+        <label className={`${choiceClass(isExactDate)} cursor-pointer`}>
+          <span className="pointer-events-none px-0.5">
+            {isExactDate ? formatTrDate(value) : "Tarih seç"}
+          </span>
+          <input
+            type="date"
+            value={isExactDate ? value : ""}
+            max={today}
+            aria-label="Tarih seç"
+            onChange={(e) => {
+              if (e.target.value) onChange(question.id, e.target.value);
+            }}
+            onFocus={(e) => {
+              try {
+                e.currentTarget.showPicker?.();
+              } catch {
+                /* Safari bazı sürümlerde engelleyebilir */
+              }
+            }}
+            className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+            style={{ fontSize: 16 }}
+          />
+        </label>
       </div>
-      {pickingExact && (
-        <input
-          type="date"
-          value={isExactDate ? value : ""}
-          max={today}
-          onChange={(e) => onChange(question.id, e.target.value)}
-          className={`glass-input mt-2 w-full min-w-0 px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base ${
-            hasError ? "border-[var(--fusion-error)]" : ""
-          }`}
-        />
-      )}
       <FieldError message={error} />
     </div>
   );
@@ -150,11 +159,11 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
     <div className="mb-2">
       <label className="block text-sm font-medium">
         {question.label}{" "}
-        {question.required && <span className="text-[var(--fusion-primary)]">*</span>}
+        {question.required && <span className="text-[var(--foreground-tertiary)]">*</span>}
       </label>
       {hint && (
         <div className="mt-1.5 flex items-start gap-2 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)] px-3 py-2">
-          <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-[var(--fusion-info)]" />
+          <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-[var(--foreground-tertiary)]" />
           <span className="text-xs text-[var(--foreground-tertiary)] leading-relaxed">{hint}</span>
         </div>
       )}
@@ -251,7 +260,7 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
               onClick={() => toggle(option)}
               className={`flex items-start gap-2.5 text-left px-3 py-2.5 rounded-xl border transition-all ${
                 isSelected
-                  ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10"
+                  ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
                   : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
               } ${hasError ? "border-[var(--fusion-error)]" : ""}`}
             >
@@ -261,20 +270,20 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
                   isMulti ? "rounded" : "rounded-full"
                 } ${
                   isSelected
-                    ? "bg-[var(--fusion-primary)] border-[var(--fusion-primary)]"
+                    ? "bg-[var(--foreground)] border-[var(--foreground)]"
                     : "border-gray-400"
                 }`}
               >
                 {isSelected &&
                   (isMulti ? (
-                    <Check className="w-3 h-3 text-white" />
+                    <Check className="w-3 h-3 text-[var(--background)]" />
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--background)]" />
                   ))}
               </span>
               <span
                 className={`text-xs sm:text-sm leading-snug ${
-                  isSelected ? "text-[var(--fusion-primary)] font-medium" : ""
+                  isSelected ? "text-[var(--foreground)] font-medium" : ""
                 }`}
               >
                 {option}

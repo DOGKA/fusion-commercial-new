@@ -31,9 +31,9 @@ export function StepIndicator({ steps, current, onStepClick }: Props) {
               <span
                 className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors ${
                   isDone
-                    ? "bg-[var(--fusion-success)] border-[var(--fusion-success)] text-white"
+                    ? "bg-[var(--foreground)] border-[var(--foreground)] text-[var(--background)]"
                     : isActive
-                      ? "bg-[var(--fusion-primary)] border-[var(--fusion-primary)] text-white"
+                      ? "bg-[var(--foreground)] border-[var(--foreground)] text-[var(--background)]"
                       : "border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--foreground-tertiary)]"
                 }`}
               >
@@ -53,7 +53,7 @@ export function StepIndicator({ steps, current, onStepClick }: Props) {
               <span
                 aria-hidden
                 className={`hidden sm:block h-px flex-1 mt-[18px] ${
-                  isDone ? "bg-[var(--fusion-success)]" : "bg-[var(--glass-border)]"
+                  isDone ? "bg-[var(--foreground)]/30" : "bg-[var(--glass-border)]"
                 }`}
               />
             )}

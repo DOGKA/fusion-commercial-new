@@ -32,6 +32,11 @@ export interface ContactFormData {
 
 const PLATFORMS = ["FusionMarkt", "Trendyol", "Hepsiburada", "Amazon", "N11", "Diğer"];
 
+function getLocalToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 type Props = {
   formData: ContactFormData;
   errors: Record<string, string | undefined>;
@@ -74,7 +79,7 @@ export function ContactStep({
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium mb-2">
-            İsim Soyisim <span className="text-[var(--fusion-primary)]">*</span>
+            İsim Soyisim <span className="text-[var(--foreground-tertiary)]">*</span>
           </label>
           <input
             type="text"
@@ -103,7 +108,7 @@ export function ContactStep({
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium mb-2">
-            Fatura No <span className="text-[var(--fusion-primary)]">*</span>
+            Fatura No <span className="text-[var(--foreground-tertiary)]">*</span>
           </label>
           <input
             type="text"
@@ -117,7 +122,7 @@ export function ContactStep({
         </div>
         <div>
           <label className="block text-sm font-medium mb-2">
-            Satın Alınan Platform <span className="text-[var(--fusion-primary)]">*</span>
+            Satın Alınan Platform <span className="text-[var(--foreground-tertiary)]">*</span>
           </label>
           <select
             name="platform"
@@ -142,7 +147,7 @@ export function ContactStep({
           <label className="flex items-center gap-1 text-sm font-medium mb-2">
             <Phone className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              Telefon <span className="text-[var(--fusion-primary)]">*</span>
+              Telefon <span className="text-[var(--foreground-tertiary)]">*</span>
             </span>
           </label>
           <input
@@ -159,7 +164,7 @@ export function ContactStep({
           <label className="flex items-center gap-1 text-sm font-medium mb-2">
             <Mail className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              E-posta <span className="text-[var(--fusion-primary)]">*</span>
+              E-posta <span className="text-[var(--foreground-tertiary)]">*</span>
             </span>
           </label>
           <input
@@ -179,7 +184,7 @@ export function ContactStep({
         <label className="flex items-center gap-1 text-sm font-medium mb-2">
           <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
-            Satın Alım Tarihi <span className="text-[var(--fusion-primary)]">*</span>
+            Satın Alım Tarihi <span className="text-[var(--foreground-tertiary)]">*</span>
           </span>
         </label>
         <input
@@ -187,8 +192,8 @@ export function ContactStep({
           name="purchaseDate"
           value={formData.purchaseDate}
           onChange={onChange}
-          max={new Date().toISOString().split("T")[0]}
-          className={`glass-input w-full min-w-0 px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
+          max={getLocalToday()}
+          className={`glass-input w-full min-w-0 min-h-[48px] px-3 sm:px-4 py-3 rounded-xl text-base ${errors.purchaseDate ? "border-[var(--fusion-error)]" : ""}`}
         />
         <FieldError message={errors.purchaseDate} />
       </div>
@@ -196,7 +201,7 @@ export function ContactStep({
       {/* Invoice Type + Order Number */}
       <div>
         <label className="block text-sm font-medium mb-2">
-          Fatura Tipi <span className="text-[var(--fusion-primary)]">*</span> / Sipariş Numarası
+          Fatura Tipi <span className="text-[var(--foreground-tertiary)]">*</span> / Sipariş Numarası
         </label>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {["Bireysel", "Kurumsal"].map((type) => (
@@ -204,7 +209,7 @@ export function ContactStep({
               key={type}
               className={`flex items-center justify-center px-2 sm:px-4 py-3 rounded-xl border cursor-pointer transition-all ${
                 formData.invoiceType === type
-                  ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10 text-[var(--fusion-primary)]"
+                  ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05] text-[var(--foreground)]"
                   : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
               } ${errors.invoiceType ? "border-[var(--fusion-error)]" : ""}`}
             >
@@ -236,7 +241,7 @@ export function ContactStep({
         <label className="flex items-center gap-1 text-sm font-medium mb-2">
           <FileText className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
-            Fatura PDF <span className="text-[var(--fusion-primary)]">*</span>
+            Fatura PDF <span className="text-[var(--foreground-tertiary)]">*</span>
           </span>
         </label>
         <div
@@ -284,7 +289,7 @@ export function ContactStep({
       {/* Message */}
       <div>
         <label className="block text-sm font-medium mb-2">
-          Yorum veya Mesaj <span className="text-[var(--fusion-primary)]">*</span>
+          Yorum veya Mesaj <span className="text-[var(--foreground-tertiary)]">*</span>
         </label>
         <textarea
           name="message"
@@ -302,7 +307,7 @@ export function ContactStep({
         <label className="flex items-center gap-1 text-sm font-medium mb-2">
           <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
-            Görsel / Video <span className="text-[var(--fusion-primary)]">*</span>
+            Görsel / Video <span className="text-[var(--foreground-tertiary)]">*</span>
           </span>
         </label>
         <div
@@ -313,7 +318,7 @@ export function ContactStep({
           onClick={() => mediaInputRef.current?.click()}
           className={`glass-input rounded-xl px-3 sm:px-4 py-5 sm:py-8 cursor-pointer text-center transition-all ${
             dragActive
-              ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/5"
+              ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.04]"
               : "hover:border-[var(--glass-border-hover)]"
           } ${errors.media ? "border-[var(--fusion-error)]" : ""}`}
         >
@@ -346,7 +351,7 @@ export function ContactStep({
                 {file.type.startsWith("video/") ? (
                   <FileText className="w-4 h-4 text-[var(--fusion-info)] flex-shrink-0" />
                 ) : (
-                  <ImageIcon className="w-4 h-4 text-[var(--fusion-success)] flex-shrink-0" />
+                  <ImageIcon className="w-4 h-4 text-[var(--foreground-tertiary)] flex-shrink-0" />
                 )}
                 <span className="truncate max-w-[150px]">{file.name}</span>
                 <button
@@ -369,7 +374,7 @@ export function ContactStep({
           <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
             Servis Sonrası Geri Gönderim Adresi{" "}
-            <span className="text-[var(--fusion-primary)]">*</span>
+            <span className="text-[var(--foreground-tertiary)]">*</span>
           </span>
         </label>
         <textarea
@@ -384,7 +389,7 @@ export function ContactStep({
           Belirttiğiniz adresten farklı bir adrese gönderim istemeniz durumunda,{" "}
           <a
             href="mailto:info@fusionmarkt.com"
-            className="text-[var(--fusion-primary)] hover:underline"
+            className="text-[var(--foreground-secondary)] hover:underline"
           >
             info@fusionmarkt.com
           </a>{" "}
@@ -398,7 +403,7 @@ export function ContactStep({
         <label
           className={`flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
             formData.packagingConfirm
-              ? "border-[var(--fusion-success)]/30 bg-[var(--fusion-success)]/5"
+              ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
               : "border-[var(--glass-border)] bg-[var(--glass-bg)]"
           } ${errors.packagingConfirm ? "border-[var(--fusion-error)]" : ""}`}
         >
@@ -408,14 +413,14 @@ export function ContactStep({
             onChange={(e) => onCheckbox("packagingConfirm", e.target.checked)}
             className="sr-only peer"
           />
-          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--fusion-success)] peer-checked:border-[var(--fusion-success)] transition-colors">
+          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--foreground)] peer-checked:border-[var(--foreground)] transition-colors">
             {formData.packagingConfirm && (
-              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--background)]" />
             )}
           </div>
           <div className="min-w-0">
             <p className="text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1">
-              Ürün Paketleme Onayı <span className="text-[var(--fusion-primary)]">*</span>
+              Ürün Paketleme Onayı <span className="text-[var(--foreground-tertiary)]">*</span>
             </p>
             <p className="text-[10px] sm:text-xs text-[var(--foreground-tertiary)] leading-snug sm:leading-relaxed mt-0.5">
               Aksesuarların eklendiğinden ve taşıma hasarı oluşmayacak şekilde paketlendiğinden emin
@@ -428,7 +433,7 @@ export function ContactStep({
         <label
           className={`flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
             formData.faultFeeConfirm
-              ? "border-[var(--fusion-success)]/30 bg-[var(--fusion-success)]/5"
+              ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
               : "border-[var(--glass-border)] bg-[var(--glass-bg)]"
           } ${errors.faultFeeConfirm ? "border-[var(--fusion-error)]" : ""}`}
         >
@@ -438,14 +443,14 @@ export function ContactStep({
             onChange={(e) => onCheckbox("faultFeeConfirm", e.target.checked)}
             className="sr-only peer"
           />
-          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--fusion-success)] peer-checked:border-[var(--fusion-success)] transition-colors">
+          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--foreground)] peer-checked:border-[var(--foreground)] transition-colors">
             {formData.faultFeeConfirm && (
-              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--background)]" />
             )}
           </div>
           <div className="min-w-0">
             <p className="text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1">
-              Arıza Tespit Onayı <span className="text-[var(--fusion-primary)]">*</span>
+              Arıza Tespit Onayı <span className="text-[var(--foreground-tertiary)]">*</span>
             </p>
             <p className="text-[10px] sm:text-xs text-[var(--foreground-tertiary)] leading-snug sm:leading-relaxed mt-0.5">
               Garanti dışı durumda KDV dahil 1.200 TL arıza tespit ücretini ödemeyi kabul ediyorum.

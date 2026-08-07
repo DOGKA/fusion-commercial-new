@@ -37,7 +37,7 @@ export function ProductStep({
     <div className="space-y-6">
       <div>
         <label className="block text-sm font-medium mb-3">
-          Ürün Kategorisi <span className="text-[var(--fusion-primary)]">*</span>
+          Ürün Kategorisi <span className="text-[var(--foreground-tertiary)]">*</span>
         </label>
         <div className="grid sm:grid-cols-2 gap-3">
           {PRODUCT_CATEGORIES.map((item) => {
@@ -50,7 +50,7 @@ export function ProductStep({
                 onClick={() => onCategoryChange(item.id)}
                 className={`text-left p-4 rounded-2xl border transition-all ${
                   isSelected
-                    ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10"
+                    ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
                     : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
                 } ${errors.category ? "border-[var(--fusion-error)]" : ""}`}
               >
@@ -58,7 +58,7 @@ export function ProductStep({
                   <Icon
                     className={`w-5 h-5 flex-shrink-0 ${
                       isSelected
-                        ? "text-[var(--fusion-primary)]"
+                        ? "text-[var(--foreground)]"
                         : "text-[var(--foreground-tertiary)]"
                     }`}
                   />
@@ -75,9 +75,9 @@ export function ProductStep({
       </div>
 
       {category && (
-        <div className="animate-[fadeInUp_0.3s_ease-out_both]">
+        <div>
           <label className="block text-sm font-medium mb-3">
-            Ürün Modeli <span className="text-[var(--fusion-primary)]">*</span>
+            Ürün Modeli <span className="text-[var(--foreground-tertiary)]">*</span>
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {getModelsByCategory(category).map((item) => {
@@ -89,7 +89,7 @@ export function ProductStep({
                   onClick={() => onModelChange(item)}
                   className={`text-left px-3 py-2.5 rounded-xl border transition-all ${
                     isSelected
-                      ? "border-[var(--fusion-primary)] bg-[var(--fusion-primary)]/10 text-[var(--fusion-primary)]"
+                      ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05] text-[var(--foreground)]"
                       : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
                   } ${errors.model ? "border-[var(--fusion-error)]" : ""}`}
                 >
@@ -111,7 +111,7 @@ export function ProductStep({
       )}
 
       {model && (
-        <div className="animate-[fadeInUp_0.3s_ease-out_both]">
+        <div>
           <label className="block text-sm font-medium mb-2">Seri Numarası</label>
           <input
             type="text"
