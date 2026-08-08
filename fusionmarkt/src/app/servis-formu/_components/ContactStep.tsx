@@ -43,6 +43,7 @@ type Props = {
   invoicePdf: File | null;
   mediaFiles: File[];
   dragActive: boolean;
+  requiresVideo: boolean;
   recaptchaEnabled: boolean;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -61,6 +62,7 @@ export function ContactStep({
   invoicePdf,
   mediaFiles,
   dragActive,
+  requiresVideo,
   recaptchaEnabled,
   onChange,
   onCheckbox,
@@ -73,13 +75,17 @@ export function ContactStep({
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const mediaInputRef = useRef<HTMLInputElement>(null);
 
+  /** Eksik bırakılan alanın başlığı kırmızıya döner. */
+  const labelTone = (error?: string) => (error ? "text-[var(--fusion-error)]" : "");
+  const starTone = (error?: string) => (error ? "" : "text-[var(--foreground-tertiary)]");
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Row: Name + Title */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            İsim Soyisim <span className="text-[var(--foreground-tertiary)]">*</span>
+        <div data-field="name" className="scroll-mt-28">
+          <label className={`block text-sm font-medium mb-2 ${labelTone(errors.name)}`}>
+            İsim Soyisim <span className={starTone(errors.name)}>*</span>
           </label>
           <input
             type="text"
@@ -106,9 +112,9 @@ export function ContactStep({
 
       {/* Row: Invoice No + Platform */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Fatura No <span className="text-[var(--foreground-tertiary)]">*</span>
+        <div data-field="invoiceNo" className="scroll-mt-28">
+          <label className={`block text-sm font-medium mb-2 ${labelTone(errors.invoiceNo)}`}>
+            Fatura No <span className={starTone(errors.invoiceNo)}>*</span>
           </label>
           <input
             type="text"
@@ -120,9 +126,9 @@ export function ContactStep({
           />
           <FieldError message={errors.invoiceNo} />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Satın Alınan Platform <span className="text-[var(--foreground-tertiary)]">*</span>
+        <div data-field="platform" className="scroll-mt-28">
+          <label className={`block text-sm font-medium mb-2 ${labelTone(errors.platform)}`}>
+            Satın Alınan Platform <span className={starTone(errors.platform)}>*</span>
           </label>
           <select
             name="platform"
@@ -143,11 +149,13 @@ export function ContactStep({
 
       {/* Row: Phone + Email */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium mb-2">
+        <div data-field="phone" className="scroll-mt-28">
+          <label
+            className={`flex items-center gap-1 text-sm font-medium mb-2 ${labelTone(errors.phone)}`}
+          >
             <Phone className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              Telefon <span className="text-[var(--foreground-tertiary)]">*</span>
+              Telefon <span className={starTone(errors.phone)}>*</span>
             </span>
           </label>
           <input
@@ -160,11 +168,13 @@ export function ContactStep({
           />
           <FieldError message={errors.phone} />
         </div>
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium mb-2">
+        <div data-field="email" className="scroll-mt-28">
+          <label
+            className={`flex items-center gap-1 text-sm font-medium mb-2 ${labelTone(errors.email)}`}
+          >
             <Mail className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              E-posta <span className="text-[var(--foreground-tertiary)]">*</span>
+              E-posta <span className={starTone(errors.email)}>*</span>
             </span>
           </label>
           <input
@@ -180,11 +190,13 @@ export function ContactStep({
       </div>
 
       {/* Purchase Date */}
-      <div>
-        <label className="flex items-center gap-1 text-sm font-medium mb-2">
+      <div data-field="purchaseDate" className="scroll-mt-28">
+        <label
+          className={`flex items-center gap-1 text-sm font-medium mb-2 ${labelTone(errors.purchaseDate)}`}
+        >
           <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
-            Satın Alım Tarihi <span className="text-[var(--foreground-tertiary)]">*</span>
+            Satın Alım Tarihi <span className={starTone(errors.purchaseDate)}>*</span>
           </span>
         </label>
         <input
@@ -199,9 +211,9 @@ export function ContactStep({
       </div>
 
       {/* Invoice Type + Order Number */}
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Fatura Tipi <span className="text-[var(--foreground-tertiary)]">*</span> / Sipariş Numarası
+      <div data-field="invoiceType" className="scroll-mt-28">
+        <label className={`block text-sm font-medium mb-2 ${labelTone(errors.invoiceType)}`}>
+          Fatura Tipi <span className={starTone(errors.invoiceType)}>*</span> / Sipariş Numarası
         </label>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {["Bireysel", "Kurumsal"].map((type) => (
@@ -237,11 +249,13 @@ export function ContactStep({
       </div>
 
       {/* Invoice PDF */}
-      <div>
-        <label className="flex items-center gap-1 text-sm font-medium mb-2">
+      <div data-field="invoicePdf" className="scroll-mt-28">
+        <label
+          className={`flex items-center gap-1 text-sm font-medium mb-2 ${labelTone(errors.invoicePdf)}`}
+        >
           <FileText className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
-            Fatura PDF <span className="text-[var(--foreground-tertiary)]">*</span>
+            Fatura PDF <span className={starTone(errors.invoicePdf)}>*</span>
           </span>
         </label>
         <div
@@ -287,9 +301,9 @@ export function ContactStep({
       </div>
 
       {/* Message */}
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Yorum veya Mesaj <span className="text-[var(--foreground-tertiary)]">*</span>
+      <div data-field="message" className="scroll-mt-28">
+        <label className={`block text-sm font-medium mb-2 ${labelTone(errors.message)}`}>
+          Yorum veya Mesaj <span className={starTone(errors.message)}>*</span>
         </label>
         <textarea
           name="message"
@@ -303,13 +317,35 @@ export function ContactStep({
       </div>
 
       {/* Media Upload */}
-      <div>
-        <label className="flex items-center gap-1 text-sm font-medium mb-2">
+      <div data-field="media" className="scroll-mt-28">
+        <label
+          className={`flex items-center gap-1 text-sm font-medium mb-2 ${labelTone(errors.media)}`}
+        >
           <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
-            Görsel / Video <span className="text-[var(--foreground-tertiary)]">*</span>
+            Görsel / Video <span className={starTone(errors.media)}>*</span>
           </span>
         </label>
+        <div className="mb-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-3 py-2.5">
+          <p className="text-xs sm:text-sm font-medium mb-1.5">
+            Aşağıdaki kareleri eklemeniz gerekir:
+          </p>
+          <ul className="space-y-1 text-xs text-[var(--foreground-tertiary)] leading-relaxed">
+            <li>• Gövdenin dört yönünden birer fotoğraf (ön, arka, sağ, sol)</li>
+            <li>• Port ve konnektör bölgesinin yakın çekimi</li>
+            <li>• Ekranda hata kodu veya uyarı görünüyorsa ekranın fotoğrafı</li>
+            {requiresVideo && (
+              <li className="text-[var(--foreground-secondary)]">
+                • Cihazın tepki vermediğini belirttiğiniz için: güç tuşuna bastığınızı gösteren
+                10 saniyelik video
+              </li>
+            )}
+          </ul>
+          <p className="mt-1.5 text-xs text-[var(--foreground-tertiary)] leading-relaxed">
+            Bu kareler cihazın size ulaştığı andaki durumunu kayda geçirir; kargo kaynaklı bir hasar
+            oluşursa sizin lehinize kanıt olur.
+          </p>
+        </div>
         <div
           onDragEnter={onDrag}
           onDragLeave={onDrag}
@@ -369,8 +405,10 @@ export function ContactStep({
       </div>
 
       {/* Return Address */}
-      <div>
-        <label className="flex items-center gap-1 text-sm font-medium mb-2">
+      <div data-field="returnAddress" className="scroll-mt-28">
+        <label
+          className={`flex items-center gap-1 text-sm font-medium mb-2 ${labelTone(errors.returnAddress)}`}
+        >
           <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
             Servis Sonrası Geri Gönderim Adresi{" "}
@@ -401,7 +439,8 @@ export function ContactStep({
       {/* Confirmations */}
       <div className="space-y-2 sm:space-y-4">
         <label
-          className={`flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
+          data-field="packagingConfirm"
+          className={`scroll-mt-28 flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
             formData.packagingConfirm
               ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
               : "border-[var(--glass-border)] bg-[var(--glass-bg)]"
@@ -413,14 +452,16 @@ export function ContactStep({
             onChange={(e) => onCheckbox("packagingConfirm", e.target.checked)}
             className="sr-only peer"
           />
-          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--foreground)] peer-checked:border-[var(--foreground)] transition-colors">
+          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--fusion-success)] peer-checked:border-[var(--fusion-success)] transition-colors">
             {formData.packagingConfirm && (
-              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--background)]" />
+              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1">
-              Ürün Paketleme Onayı <span className="text-[var(--foreground-tertiary)]">*</span>
+            <p
+              className={`text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1 ${labelTone(errors.packagingConfirm)}`}
+            >
+              Ürün Paketleme Onayı <span className={starTone(errors.packagingConfirm)}>*</span>
             </p>
             <p className="text-[10px] sm:text-xs text-[var(--foreground-tertiary)] leading-snug sm:leading-relaxed mt-0.5">
               Aksesuarların eklendiğinden ve taşıma hasarı oluşmayacak şekilde paketlendiğinden emin
@@ -431,7 +472,8 @@ export function ContactStep({
         <FieldError message={errors.packagingConfirm} />
 
         <label
-          className={`flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
+          data-field="faultFeeConfirm"
+          className={`scroll-mt-28 flex items-start gap-2 sm:gap-3 px-2.5 py-2 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
             formData.faultFeeConfirm
               ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
               : "border-[var(--glass-border)] bg-[var(--glass-bg)]"
@@ -443,17 +485,21 @@ export function ContactStep({
             onChange={(e) => onCheckbox("faultFeeConfirm", e.target.checked)}
             className="sr-only peer"
           />
-          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--foreground)] peer-checked:border-[var(--foreground)] transition-colors">
+          <div className="mt-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded border border-gray-400 flex-shrink-0 flex items-center justify-center peer-checked:bg-[var(--fusion-success)] peer-checked:border-[var(--fusion-success)] transition-colors">
             {formData.faultFeeConfirm && (
-              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--background)]" />
+              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1">
-              Arıza Tespit Onayı <span className="text-[var(--foreground-tertiary)]">*</span>
+            <p
+              className={`text-[11px] sm:text-sm font-medium leading-tight sm:leading-normal sm:mb-1 ${labelTone(errors.faultFeeConfirm)}`}
+            >
+              Beyan ve Arıza Tespit Onayı <span className={starTone(errors.faultFeeConfirm)}>*</span>
             </p>
             <p className="text-[10px] sm:text-xs text-[var(--foreground-tertiary)] leading-snug sm:leading-relaxed mt-0.5">
-              Garanti dışı durumda KDV dahil 1.200 TL arıza tespit ücretini ödemeyi kabul ediyorum.
+              Formda verdiğim bilgilerin doğru olduğunu beyan ederim. Kullanım kılavuzuna aykırı bir
+              kullanımdan kaynaklanan ve beyan etmediğim bir hasar tespit edilirse, KDV dahil 1.200
+              TL arıza tespit ücreti ile gönderim masrafının tarafıma yansıtılacağını kabul ediyorum.
             </p>
           </div>
         </label>

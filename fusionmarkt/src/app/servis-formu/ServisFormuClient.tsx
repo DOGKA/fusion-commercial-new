@@ -78,6 +78,9 @@ const STEP_HEADERS: Record<
   },
 };
 
+/** Gövdenin dört yönü + port/konnektör yakın çekimi. */
+const REQUIRED_MEDIA_COUNT = 5;
+
 const EMPTY_FORM: ContactFormData = {
   name: "",
   title: "",
@@ -179,18 +182,40 @@ export default function ServisFormuPage() {
     cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
   };
 
-  const validateProductStep = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!category) newErrors.category = "Ürün kategorisi seçiniz";
-    if (!model) newErrors.model = "Ürün modeli seçiniz";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  /**
+   * Eksik bırakılan ilk alana kaydırıp kısa süre yanıp söndürür. Alanlar
+   * `data-field="<hata anahtarı>"` ile işaretli; hata sırası doğrulama
+   * fonksiyonlarındaki ekleme sırasını, yani ekrandaki sırayı izler.
+   */
+  const focusFirstError = (fieldErrors: FormErrors) => {
+    const firstKey = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (!firstKey) return;
+
+    // Alan yeni render edildiği için bir frame bekliyoruz.
+    requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(`[data-field="${firstKey}"]`);
+      if (!target) {
+        cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+        return;
+      }
+
+      target.scrollIntoView({ behavior: "auto", block: "start" });
+      // Aynı alan üst üste hatalıysa animasyonun baştan oynaması için sıfırla.
+      target.classList.remove("field-flash");
+      void target.offsetWidth;
+      target.classList.add("field-flash");
+      window.setTimeout(() => target.classList.remove("field-flash"), 2000);
+    });
   };
 
   const handleNext = async () => {
     if (step === 1) {
-      if (!validateProductStep()) {
-        cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+      const productErrors: FormErrors = {};
+      if (!category) productErrors.category = "Ürün kategorisi seçiniz";
+      if (!model) productErrors.model = "Ürün modeli seçiniz";
+      if (Object.keys(productErrors).length > 0) {
+        setErrors(productErrors);
+        focusFirstError(productErrors);
         return;
       }
       setErrors({});
@@ -211,13 +236,22 @@ export default function ServisFormuPage() {
     const newErrors = validateDiagnostics(model, answers);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      cardRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+      focusFirstError(newErrors);
       return;
     }
     setErrors({});
     goToStep(3);
   };
 
+  /**
+   * "Hiç tepki vermiyor / hiç üretmiyor" beyanları serviste en sık yanlış çıkan
+   * gruptur; bu iki cevapta kısa bir video istiyoruz.
+   */
+  const requiresVideo =
+    answers.powerOn === "Güç tuşuna basınca hiçbir tepki vermiyor" ||
+    answers.problemType === "Hiç güç üretmiyor";
+
+  /** Kontrol sırası ekrandaki alan sırasını izler; ilk hata en üstteki alan olur. */
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -225,25 +259,34 @@ export default function ServisFormuPage() {
     if (!formData.invoiceNo.trim()) newErrors.invoiceNo = "Fatura No gereklidir";
     if (!formData.platform) newErrors.platform = "Platform seçimi gereklidir";
     if (!formData.phone.trim()) newErrors.phone = "Telefon numarası gereklidir";
-    if (!formData.purchaseDate) {
-      newErrors.purchaseDate = "Satın alım tarihi gereklidir";
-    }
-    if (!formData.invoiceType) newErrors.invoiceType = "Fatura tipi gereklidir";
     if (!formData.email.trim()) {
       newErrors.email = "E-posta gereklidir";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) newErrors.email = "Geçersiz e-posta adresi";
     }
+    if (!formData.purchaseDate) {
+      newErrors.purchaseDate = "Satın alım tarihi gereklidir";
+    }
+    if (!formData.invoiceType) newErrors.invoiceType = "Fatura tipi gereklidir";
     if (!invoicePdf) newErrors.invoicePdf = "Fatura PDF dosyası gereklidir";
     if (!formData.message.trim()) newErrors.message = "Açıklama gereklidir";
-    if (mediaFiles.length === 0) newErrors.media = "En az bir görsel veya video eklemelisiniz";
+    if (mediaFiles.length < REQUIRED_MEDIA_COUNT) {
+      newErrors.media = `Gövdenin dört yönü ve port bölgesi için en az ${REQUIRED_MEDIA_COUNT} dosya eklemelisiniz`;
+    } else if (requiresVideo && !mediaFiles.some((file) => file.type.startsWith("video/"))) {
+      newErrors.media =
+        "Cihazın tepki vermediğini belirttiğiniz için güç tuşuna bastığınızı gösteren kısa bir video eklemelisiniz";
+    }
     if (!formData.returnAddress.trim()) newErrors.returnAddress = "Geri gönderim adresi gereklidir";
     if (!formData.packagingConfirm) newErrors.packagingConfirm = "Bu onay gereklidir";
     if (!formData.faultFeeConfirm) newErrors.faultFeeConfirm = "Bu onay gereklidir";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      focusFirstError(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -444,7 +487,7 @@ export default function ServisFormuPage() {
                 </div>
               </div>
 
-              {step < 3 && (
+              {step === 1 && (
                 <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-[var(--fusion-info)]/30 bg-[var(--fusion-info)]/5 px-3 py-3">
                   <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-[var(--fusion-info)]" />
                   <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] leading-relaxed">
@@ -453,6 +496,33 @@ export default function ServisFormuPage() {
                     ulaşmadan ön inceleme yapabilir. Eksik veya hatalı bilgi, sürecin uzamasına ve
                     garanti değerlendirmesinin yanlış sonuçlanmasına yol açabilir.
                   </p>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="mb-6 rounded-xl border border-[var(--fusion-info)]/30 bg-[var(--fusion-info)]/5 px-3 py-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Info className="w-4 h-4 flex-shrink-0 text-[var(--fusion-info)]" />
+                    <p className="text-sm font-semibold">Beyanınız neden önemli?</p>
+                  </div>
+                  <div className="space-y-2 text-xs sm:text-sm text-[var(--foreground-secondary)] leading-relaxed">
+                    <p>
+                      Düşme, sıvı teması veya aşırı yük gibi bir durum yaşandıysa bunu belirtmeniz
+                      sizin lehinizedir: cihaz doğrudan ilgili birime yönlendirilir, onarım ücretini
+                      işlem öncesinde öğrenirsiniz ve onayınız olmadan hiçbir işlem yapılmaz. Bu
+                      durumda arıza tespit ücreti alınmaz.
+                    </p>
+                    <p>
+                      Kullanım kılavuzuna aykırı bir kullanımdan kaynaklanan ve beyan edilmemiş bir
+                      hasar teknik incelemede tespit edilirse, cihaz garanti kapsamı dışında
+                      değerlendirilir; arıza tespit ücreti ve gönderim masrafı tarafınıza yansıtılır.
+                    </p>
+                    <p>
+                      Garanti dışı onarımlarda ücret değişen parçaya göre belirlenir; batarya paketi
+                      veya invertör kartı değişimi gereken durumlarda bu tutar cihaz bedelinin önemli
+                      bir kısmına ulaşabilir.
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -513,6 +583,7 @@ export default function ServisFormuPage() {
                       invoicePdf={invoicePdf}
                       mediaFiles={mediaFiles}
                       dragActive={dragActive}
+                      requiresVideo={requiresVideo}
                       recaptchaEnabled={Boolean(RECAPTCHA_SITE_KEY)}
                       onChange={handleChange}
                       onCheckbox={handleCheckbox}

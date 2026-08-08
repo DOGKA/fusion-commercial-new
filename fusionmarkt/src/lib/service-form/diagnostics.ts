@@ -88,16 +88,6 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
     category: "power-station",
     questions: [
       {
-        id: "workedOnArrival",
-        label: "Cihaz size ulaştığında sorunsuz çalışıyor muydu?",
-        type: "single",
-        required: true,
-        options: [
-          "Evet, sorunsuz çalıştı",
-          "Hayır, kutudan çıktığında da çalışmadı",
-        ],
-      },
-      {
         id: "lastUsedDate",
         label: "Cihazı en son hangi tarihte çalıştırdınız?",
         type: "date",
@@ -109,7 +99,6 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
         label: "Arıza ilk hangi tarihte ortaya çıktı?",
         type: "date",
         required: true,
-        showIf: (a) => !has(a, "workedOnArrival", "Hayır, kutudan çıktığında da çalışmadı"),
       },
       {
         id: "faultTrigger",
@@ -161,6 +150,20 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
           "Taşınırken düşmüş, çarpmış veya darbe almış olabilir.",
           "Kapalı, tozlu veya havalandırması yetersiz bir ortamda kullanılmış olabilir.",
           "Bildiğim kadarıyla bunların hiçbiri yaşanmadı",
+        ],
+      },
+      {
+        id: "priorRepair",
+        label: "Cihaza daha önce yetkili servis dışında bir müdahale yapıldı mı?",
+        type: "single",
+        required: true,
+        hint: "Cihazın açılmış olması garanti değerlendirmesini etkilemez ama teşhisi hızlandırır. İkinci elde aldıysanız geçmişini bilmemeniz normaldir.",
+        options: [
+          "Hayır, cihaz hiç açılmadı.",
+          "Sadece dışarıdan kontrol edildi, kasa açılmadı.",
+          "Evet, kasa açıldı veya içine bakıldı.",
+          "Evet, bir parça değiştirildi veya onarım denendi.",
+          "İkinci elde aldım, önceki geçmişini bilmiyorum."
         ],
       },
     ],
@@ -376,12 +379,13 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
         label: "Cihazın fanı çalışıyor mu?",
         type: "single",
         required: true,
+        hint: "Fan yalnızca şarj sırasında veya yük bağlıyken devreye girer; boştayken çalışmaması normaldir. Yüksek güçte çalışırken sesinin artması da beklenen bir durumdur.",
         showIf: (_a, model) => model.traits.includes("fan"),
         options: [
           "Normal çalışıyor",
-          "Hiç çalışmıyor",
-          "Sürekli yüksek devirde çalışıyor",
-          "Anormal ses çıkarıyor",
+          "Şarj ve yük altındayken de hiç çalışmıyor",
+          "Yük yokken bile sürekli tam devirde çalışıyor",
+          "Takılma, sürtünme veya tıkırtı sesi çıkarıyor",
           "Fark etmedim",
         ],
       },
@@ -414,16 +418,18 @@ const POWER_STATION_GROUPS: DiagnosticGroup[] = [
       },
       {
         id: "soundSmell",
-        label: "Cihazdan anormal bir ses veya koku geliyor mu?",
+        label: "Cihazdan gelen seslerde alışılmadık bir durum fark ettiniz mi?",
         type: "multi",
         required: true,
-        exclusiveOptions: ["Hayır, yok"],
+        hint: "Bu cihazlarda AC çıkışı açılıp kapanırken duyulan bir iki klik (röle) sesi ve yük altında hafif bir uğultu normaldir; arıza belirtisi değildir. Aşağıda yalnızca bunlardan farklı bulduklarınızı işaretleyin.",
+        exclusiveOptions: ["Hayır, olağandışı bir ses veya koku yok"],
         options: [
-          "Hayır, yok",
-          "Röle tıkırtısı / sürekli klik sesi",
-          "Cızırtı veya çıtırtı",
-          "Yüksek uğultu / vınlama",
-          "Yanık kokusu",
+          "Hayır, olağandışı bir ses veya koku yok",
+          "Klik sesi sürekli tekrarlıyor, cihaz aç-kapa döngüsüne giriyor.",
+          "Çıtırtı, kıvılcım veya elektrik arkı sesi var.",
+          "Uğultu alışılmadık derecede yüksek veya metalik bir titreşim var.",
+          "Yanık, erimiş plastik veya kimyasal koku var.",
+          "Bir şey duyuyorum ama tanımlayamıyorum.",
         ],
       },
       {
@@ -552,13 +558,6 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
     category: "solar-panel",
     questions: [
       {
-        id: "workedOnArrival",
-        label: "Panel size ulaştığında sorunsuz çalışıyor muydu?",
-        type: "single",
-        required: true,
-        options: ["Evet, sorunsuz çalıştı", "Hayır, kutudan çıktığında da çalışmadı"],
-      },
-      {
         id: "lastUsedDate",
         label: "Paneli en son hangi tarihte kullandınız?",
         type: "date",
@@ -570,7 +569,6 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
         label: "Sorun ilk hangi tarihte ortaya çıktı?",
         type: "date",
         required: true,
-        showIf: (a) => !has(a, "workedOnArrival", "Hayır, kutudan çıktığında da çalışmadı"),
       },
       {
         id: "faultTrigger",
@@ -584,6 +582,21 @@ const SOLAR_PANEL_GROUPS: DiagnosticGroup[] = [
           "Taşırken düşmüş, çarpmış veya darbe almış olabilir.",
           "Suyla temas ettikten sonra fark ettim.",
           "Katlayıp taşıdıktan sonra fark ettim.",
+        ],
+      },
+      {
+        id: "priorRepair",
+        label: "Panele veya kablolarına daha önce yetkili servis dışında bir müdahale yapıldı mı?",
+        type: "single",
+        required: true,
+        hint: "Konnektör değişimi veya kablo eklemesi ölçüm sonuçlarını değiştirir; bilinmesi teşhisi hızlandırır.",
+        options: [
+          "Hayır, hiçbir müdahale yapılmadı.",
+          "MC4 konnektör değiştirildi veya yenisi takıldı.",
+          "Kablo kesildi, eklendi veya uzatıldı.",
+          "Arka kutu (junction box) açıldı.",
+          "İkinci elde aldım, önceki geçmişini bilmiyorum.",
+          "Emin değilim.",
         ],
       },
     ],

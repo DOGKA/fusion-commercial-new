@@ -35,9 +35,14 @@ export function ProductStep({
 }: Props) {
   return (
     <div className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium mb-3">
-          Ürün Kategorisi <span className="text-[var(--foreground-tertiary)]">*</span>
+      <div data-field="category" className="scroll-mt-28">
+        <label
+          className={`block text-sm font-medium mb-3 ${
+            errors.category ? "text-[var(--fusion-error)]" : ""
+          }`}
+        >
+          Ürün Kategorisi{" "}
+          <span className={errors.category ? "" : "text-[var(--foreground-tertiary)]"}>*</span>
         </label>
         <div className="grid sm:grid-cols-2 gap-3">
           {PRODUCT_CATEGORIES.map((item) => {
@@ -52,7 +57,7 @@ export function ProductStep({
                   isSelected
                     ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
                     : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
-                } ${errors.category ? "border-[var(--fusion-error)]" : ""}`}
+                }`}
               >
                 <div className="flex items-center gap-2.5 mb-1.5">
                   <Icon
@@ -75,9 +80,14 @@ export function ProductStep({
       </div>
 
       {category && (
-        <div>
-          <label className="block text-sm font-medium mb-3">
-            Ürün Modeli <span className="text-[var(--foreground-tertiary)]">*</span>
+        <div data-field="model" className="scroll-mt-28">
+          <label
+            className={`block text-sm font-medium mb-3 ${
+              errors.model ? "text-[var(--fusion-error)]" : ""
+            }`}
+          >
+            Ürün Modeli{" "}
+            <span className={errors.model ? "" : "text-[var(--foreground-tertiary)]"}>*</span>
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {getModelsByCategory(category).map((item) => {
@@ -91,7 +101,7 @@ export function ProductStep({
                     isSelected
                       ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05] text-[var(--foreground)]"
                       : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
-                  } ${errors.model ? "border-[var(--fusion-error)]" : ""}`}
+                  }`}
                 >
                   <span className="block text-sm font-medium leading-tight">{item.label}</span>
                   {item.summary && (

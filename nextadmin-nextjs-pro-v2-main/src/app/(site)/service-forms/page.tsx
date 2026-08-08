@@ -23,6 +23,7 @@ import {
   Package,
   Stethoscope,
   Hash,
+  AlertTriangle,
 } from "lucide-react";
 import NextImage from "next/image";
 
@@ -74,6 +75,96 @@ const CATEGORY_LABELS: Record<string, string> = {
 function getCategoryLabel(category: string | null | undefined): string {
   if (!category) return "";
   return CATEGORY_LABELS[category] ?? category;
+}
+
+/**
+ * Beyanla fiziksel bulgunun çeliştiği durumlar. Müşteri tarafında hiçbir şey
+ * değişmiyor; teknik ekip cihaz gelmeden şüpheli dosyayı görebilsin diye
+ * yalnızca admin kaydında gösteriliyor.
+ */
+const DAMAGE_MARKERS = [
+  "Kırık, çatlak veya darbe izi",
+  "Gövdede şişme veya deformasyon",
+  "Port / konnektör hasarlı",
+  "Panel yüzeyinde çatlak veya kırık",
+  "Laminat kabarması / delinme",
+  "Katlama menteşesi veya dikişi yırtık",
+  "MC4 kablosunun panelden çıktığı bölgede hasar var.",
+];
+
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+function toList(value: string | string[] | undefined): string[] {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function isoDay(value: string | undefined): string | null {
+  if (!value) return null;
+  const day = value.slice(0, 10);
+  return ISO_DAY.test(day) ? day : null;
+}
+
+function getRiskFlags(message: ServiceFormMessage): string[] {
+  const answers = message.diagnostics?.answers;
+  if (!answers) return [];
+
+  const flags: string[] = [];
+  const faultTrigger = toList(answers.faultTrigger);
+  const conditions = toList(answers.conditions);
+  const physical = toList(answers.physicalState);
+  const connector = toList(answers.connectorState);
+  const water = toList(answers.waterExposure);
+  const soundSmell = toList(answers.soundSmell);
+
+  const noEventDeclared = faultTrigger.some((v) => v.startsWith("Hiçbir belirgin olay olmadı"));
+  const noConditionDeclared = conditions.some((v) =>
+    v.startsWith("Bildiğim kadarıyla bunların hiçbiri")
+  );
+  const noWaterDeclared = water.some((v) => v.startsWith("Bildiğim kadarıyla suyla temas etmedi"));
+
+  if (noEventDeclared && physical.some((v) => DAMAGE_MARKERS.includes(v))) {
+    flags.push("Olay beyan edilmemiş, ancak gövdede darbe / kırık işaretlenmiş.");
+  }
+
+  const waterSigns =
+    physical.includes("Sızıntı veya akıntı") ||
+    connector.includes("Konnektör içine su girmiş / oksitlenmiş");
+  if ((noConditionDeclared || noWaterDeclared) && waterSigns) {
+    flags.push("Sıvı teması beyan edilmemiş, ancak sızıntı / oksitlenme işaretlenmiş.");
+  }
+
+  const burningSmell = soundSmell.some((v) => v.startsWith("Yanık, erimiş plastik"));
+  if (noConditionDeclared && burningSmell) {
+    flags.push("Yanık kokusu bildirilmiş, ancak olağandışı bir kullanım beyan edilmemiş.");
+  }
+
+  const faultDay = isoDay(typeof answers.faultStartDate === "string" ? answers.faultStartDate : undefined);
+  const purchaseDay = isoDay(message.purchaseDate);
+  if (faultDay && purchaseDay && faultDay < purchaseDay) {
+    flags.push("Arıza tarihi, satın alma tarihinden önce görünüyor.");
+  }
+
+  if (
+    toList(answers.priorRepair).some(
+      (v) =>
+        v.startsWith("Evet") ||
+        v.startsWith("MC4 konnektör") ||
+        v.startsWith("Kablo kesildi") ||
+        v.startsWith("Arka kutu")
+    )
+  ) {
+    flags.push("Yetkili servis dışında müdahale beyan edilmiş.");
+  }
+
+  if (
+    answers.powerOn === "Güç tuşuna basınca hiçbir tepki vermiyor" &&
+    answers.screenState === "Normal çalışıyor"
+  ) {
+    flags.push("Cihaz tepki vermiyor denmiş, ancak ekran normal çalışıyor işaretlenmiş.");
+  }
+
+  return flags;
 }
 
 function groupDiagnostics(
@@ -574,6 +665,27 @@ export default function ServiceFormsPage() {
                       </p>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Beyan / bulgu çelişkileri */}
+              {getRiskFlags(viewMessage).length > 0 && (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-300 flex items-center gap-1.5 mb-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    Dikkat Edilmesi Gereken Noktalar
+                  </p>
+                  <ul className="space-y-1">
+                    {getRiskFlags(viewMessage).map((flag) => (
+                      <li key={flag} className="text-xs text-amber-900/90 dark:text-amber-200/90">
+                        • {flag}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-[11px] text-amber-900/70 dark:text-amber-200/70">
+                    Bu notlar otomatik üretilir ve kesin bir sonuç değildir; yalnızca teknik
+                    incelemede özellikle kontrol edilmesi gereken başlıkları gösterir.
+                  </p>
                 </div>
               )}
 

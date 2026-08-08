@@ -63,6 +63,17 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const VALID_CATEGORIES: ProductCategoryId[] = ["power-station", "solar-panel"];
 
+/** Gövdenin dört yönü + port/konnektör yakın çekimi. */
+const REQUIRED_MEDIA_COUNT = 5;
+
+/** "Hiç tepki vermiyor / hiç üretmiyor" beyanlarında kısa video isteniyor. */
+function requiresPowerOnVideo(answers: DiagnosticAnswers): boolean {
+  return (
+    answers.powerOn === "Güç tuşuna basınca hiçbir tepki vermiyor" ||
+    answers.problemType === "Hiç güç üretmiyor"
+  );
+}
+
 function parseDiagnosticsPayload(
   rawAnswers: string | null,
   rawSummary: string | null,
@@ -258,6 +269,7 @@ export async function POST(request: NextRequest) {
 
       // Media files (images/videos)
       const mediaFiles = formData.getAll("media") as File[];
+      let hasVideo = false;
       for (const file of mediaFiles) {
         if (!file || file.size === 0) continue;
         if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -273,15 +285,28 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        if (file.type.startsWith("video/")) hasVideo = true;
+
         const bytes = await file.arrayBuffer();
         const key = generateServiceFormKey(file.name);
         const url = await uploadToS3(key, Buffer.from(bytes), file.type);
         mediaUrls.push(url);
       }
 
-      if (mediaUrls.length === 0) {
+      if (mediaUrls.length < REQUIRED_MEDIA_COUNT) {
         return NextResponse.json(
-          { error: "En az bir görsel veya video eklemelisiniz" },
+          {
+            error: `Gövdenin dört yönü ve port bölgesi için en az ${REQUIRED_MEDIA_COUNT} dosya eklemelisiniz`,
+          },
+          { status: 400 }
+        );
+      }
+      if (requiresPowerOnVideo(diagnosticsResult.data.answers) && !hasVideo) {
+        return NextResponse.json(
+          {
+            error:
+              "Cihazın tepki vermediğini belirttiğiniz için güç tuşuna bastığınızı gösteren kısa bir video eklemelisiniz",
+          },
           { status: 400 }
         );
       }

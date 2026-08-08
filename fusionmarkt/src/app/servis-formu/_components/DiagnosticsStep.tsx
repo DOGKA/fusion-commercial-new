@@ -79,17 +79,16 @@ function DateChoiceField({ question, label, value, error, onChange }: DateChoice
   const isToday = value === today;
   const isApprox = value === APPROX_DATE_LABEL;
   const isExactDate = value !== "" && !isToday && !isApprox;
-  const hasError = Boolean(error);
 
   const choiceClass = (active: boolean) =>
     `relative flex items-center justify-center px-2 py-2.5 rounded-xl border transition-all text-xs sm:text-sm leading-snug text-center min-h-[44px] ${
       active
         ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05] text-[var(--foreground)] font-medium"
         : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
-    } ${hasError ? "border-[var(--fusion-error)]" : ""}`;
+    }`;
 
   return (
-    <div>
+    <div data-field={question.id} className="scroll-mt-28">
       {label}
       <div role="radiogroup" className="grid grid-cols-3 gap-2">
         <button
@@ -157,9 +156,13 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
 
   const label = (
     <div className="mb-2">
-      <label className="block text-sm font-medium">
+      <label
+        className={`block text-sm font-medium ${hasError ? "text-[var(--fusion-error)]" : ""}`}
+      >
         {question.label}{" "}
-        {question.required && <span className="text-[var(--foreground-tertiary)]">*</span>}
+        {question.required && (
+          <span className={hasError ? "" : "text-[var(--foreground-tertiary)]"}>*</span>
+        )}
       </label>
       {hint && (
         <div className="mt-1.5 flex items-start gap-2 rounded-lg bg-[var(--glass-bg)] border border-[var(--glass-border)] px-3 py-2">
@@ -185,7 +188,7 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
   if (question.type === "text" || question.type === "textarea") {
     const textValue = typeof value === "string" ? value : "";
     return (
-      <div>
+      <div data-field={question.id} className="scroll-mt-28">
         {label}
         {question.type === "textarea" ? (
           <textarea
@@ -243,7 +246,7 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
   };
 
   return (
-    <div>
+    <div data-field={question.id} className="scroll-mt-28">
       {label}
       <div
         role={isMulti ? "group" : "radiogroup"}
@@ -262,7 +265,7 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
                 isSelected
                   ? "border-[var(--foreground)]/30 bg-[var(--foreground)]/[0.05]"
                   : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-[var(--glass-border-hover)]"
-              } ${hasError ? "border-[var(--fusion-error)]" : ""}`}
+              }`}
             >
               <span
                 aria-hidden
@@ -270,15 +273,15 @@ function QuestionField({ question, model, value, error, onChange }: QuestionFiel
                   isMulti ? "rounded" : "rounded-full"
                 } ${
                   isSelected
-                    ? "bg-[var(--foreground)] border-[var(--foreground)]"
+                    ? "bg-[var(--fusion-success)] border-[var(--fusion-success)]"
                     : "border-gray-400"
                 }`}
               >
                 {isSelected &&
                   (isMulti ? (
-                    <Check className="w-3 h-3 text-[var(--background)]" />
+                    <Check className="w-3 h-3 text-white" />
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--background)]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                   ))}
               </span>
               <span

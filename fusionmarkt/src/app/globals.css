@@ -252,6 +252,34 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
+/* ---------------------------------------------------------------------------
+   Form alanı hata vurgusu — eksik bırakılan soruya kaydırıldığında yalnızca
+   soru başlığı kısa süre yanıp söner. Alanın kendisi hareketsiz kalır.
+--------------------------------------------------------------------------- */
+@keyframes fieldLabelBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/*
+  Başlığın yeri alana göre değişiyor: normal alanlarda doğrudan çocuk label,
+  teşhis sorularında ipucu kutusuyla ortak sarmalayıcı içindeki label, onay
+  kutularında ise label'ın kendisi hedef olduğu için içindeki ilk paragraf.
+*/
+.field-flash > label,
+.field-flash > div:first-child > label,
+label.field-flash p:first-of-type {
+  animation: fieldLabelBlink 0.55s ease-in-out 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field-flash > label,
+  .field-flash > div:first-child > label,
+  label.field-flash p:first-of-type {
+    animation: none;
+  }
+}
+
 /* ===========================================================================
    Why FusionMarkt - Icon Cards Carousel
 =========================================================================== */
