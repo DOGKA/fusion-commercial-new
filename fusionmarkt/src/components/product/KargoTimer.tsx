@@ -427,7 +427,7 @@ export function KargoTimer(props: KargoTimerProps) {
               className="timer-pulse kargo-timer-text"
               style={{
                 fontWeight: 700,
-                color: '#10B981',
+                color: 'var(--fusion-success-text)',
                 fontVariantNumeric: 'tabular-nums',
               }}
             >
@@ -436,7 +436,7 @@ export function KargoTimer(props: KargoTimerProps) {
             <span style={{ color: 'var(--foreground-muted)' }}>•</span>
             <span className="kargo-timer-text" style={{
               fontWeight: 700,
-              color: '#10B981',
+              color: 'var(--fusion-success-text)',
             }}>
               {dayLabelForBanner} Kargoda
             </span>
@@ -447,14 +447,14 @@ export function KargoTimer(props: KargoTimerProps) {
         <div style={{
           width: '100%',
           height: '3px',
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          backgroundColor: 'var(--fusion-success-border-soft)',
           borderRadius: '2px',
           overflow: 'hidden',
         }}>
           <div style={{
             width: `${progressPercent}%`,
             height: '100%',
-            backgroundColor: '#10B981',
+            backgroundColor: 'var(--fusion-success-text)',
             borderRadius: '2px',
             transition: 'width 1s linear',
           }} />

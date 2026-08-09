@@ -8,7 +8,6 @@ import {
   HelpCircle,
   Search,
   MessageCircle,
-  Phone,
   Mail,
   X,
   Battery,
@@ -387,8 +386,8 @@ export default function FaqPageClient({
                   Sorunuza cevap bulamadınız mı?
                 </h2>
                 <p className="text-sm md:text-base text-[var(--foreground-secondary)] mb-6 md:mb-8 max-w-xl mx-auto">
-                  Müşteri hizmetlerimiz size yardımcı olmaktan mutluluk duyar. Bize
-                  ulaşmak için aşağıdaki kanalları kullanabilirsiniz.
+                  Müşteri hizmetlerimiz size yardımcı olmaktan mutluluk duyar.
+                  Bize ulaşmak için iletişim formunu kullanabilirsiniz.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
@@ -399,13 +398,6 @@ export default function FaqPageClient({
                     <Mail className="w-4 h-4 md:w-5 md:h-5" />
                     İletişim Formu
                   </Link>
-                  <a
-                    href="tel:+908508406160"
-                    className="inline-flex items-center justify-center gap-2 px-5 md:px-6 py-3 md:py-3.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-sm md:text-base font-semibold hover:bg-[var(--glass-bg-hover)] transition-colors"
-                  >
-                    <Phone className="w-4 h-4 md:w-5 md:h-5" />
-                    +90 850 840 6160
-                  </a>
                 </div>
               </div>
             </div>

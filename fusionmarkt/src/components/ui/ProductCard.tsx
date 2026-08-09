@@ -665,7 +665,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     <span className="text-[13px] text-foreground-muted line-through font-medium">
                       {formatPrice(originalPrice)} ₺
                     </span>
-                    <span className="text-[11px] text-emerald-400 font-semibold">
+                    <span className="text-[11px] text-[color:var(--fusion-success-text)] font-semibold">
                       {formatPrice(savingAmount)} ₺ kazanç
                     </span>
                   </div>

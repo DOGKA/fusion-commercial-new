@@ -2,11 +2,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { 
   Globe, 
   Truck, 
-  Phone, 
-  MessageCircle, 
   Mail,
   Package,
   AlertTriangle,
@@ -103,21 +102,16 @@ export default function GonderimYerleriPage() {
               className="glass-card p-6 md:p-8 rounded-2xl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <Phone className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
+                <FileText className="w-6 h-6 text-[var(--fusion-accent)] flex-shrink-0" />
                 <h2 className="text-xl md:text-2xl font-bold">Müşteri Hizmetleri</h2>
               </div>
               
-              <div className="grid sm:grid-cols-3 gap-4">
-                <a href="tel:+908508406160" className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:border-[var(--fusion-primary)]/50 transition-colors">
-                  <Phone className="w-5 h-5 text-[var(--fusion-primary)] mb-2" />
-                  <p className="text-xs text-[var(--foreground-tertiary)] mb-1">Telefon</p>
-                  <p className="font-medium text-sm">+90 850 840 61 60</p>
-                </a>
-                <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-                  <MessageCircle className="w-5 h-5 text-[var(--fusion-success)] mb-2" />
-                  <p className="text-xs text-[var(--foreground-tertiary)] mb-1">Canlı Sohbet</p>
-                  <p className="font-medium text-sm">Türkçe, İngilizce, Deutsch</p>
-                </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Link href="/iletisim" className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:border-[var(--fusion-primary)]/50 transition-colors">
+                  <FileText className="w-5 h-5 text-[var(--fusion-primary)] mb-2" />
+                  <p className="text-xs text-[var(--foreground-tertiary)] mb-1">İletişim Formu</p>
+                  <p className="font-medium text-sm">fusionmarkt.com/iletisim</p>
+                </Link>
                 <a href="mailto:info@fusionmarkt.com" className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:border-[var(--fusion-primary)]/50 transition-colors">
                   <Mail className="w-5 h-5 text-[var(--fusion-accent)] mb-2" />
                   <p className="text-xs text-[var(--foreground-tertiary)] mb-1">E-posta</p>

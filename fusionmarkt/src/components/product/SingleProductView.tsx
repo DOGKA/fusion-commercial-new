@@ -909,12 +909,12 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                     alignItems: 'center',
                     gap: '6px',
                     padding: '6px 12px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--fusion-success-border-soft)',
                     borderRadius: '8px',
                     fontSize: '11px',
                     fontWeight: '500',
-                    color: '#10B981',
+                    color: 'var(--fusion-success-text)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     textDecoration: 'none',
@@ -1239,7 +1239,7 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                         <span className="product-original-price" style={{ fontSize: '14px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
                           {formatPrice(displayComparePrice)} TL
                         </span>
-                        <span className="product-savings" style={{ fontSize: '12px', color: '#10B981', fontWeight: '600' }}>
+                        <span className="product-savings" style={{ fontSize: '12px', color: 'var(--fusion-success-text)', fontWeight: '600' }}>
                           {formatPrice(displayComparePrice - displayPrice)} TL kazanç
                         </span>
                       </div>

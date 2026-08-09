@@ -1318,7 +1318,7 @@ Genel Merkez      : Turan Güneş Bulvarı, Cezayir Cd. No.6/7,
                     Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE
 İade Adresi       : Turan Güneş Bulvarı, Cezayir Cd. No.6/7, 
                     Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE
-Telefon           : +90 850 840 6160
+İletişim          : https://fusionmarkt.com/iletisim
 E-posta           : sales@fusionmarkt.com
 
 ALICI BİLGİLERİ

@@ -225,7 +225,7 @@ export default function ReviewFormSheet({
               type="button"
               onClick={submit}
               disabled={loading || !rating || !comment.trim()}
-              className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 text-[13px] font-medium text-emerald-400 transition-all hover:bg-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border border-[color:var(--fusion-success-border-soft)] bg-[color:var(--fusion-success-bg)] px-3 text-[13px] font-medium text-[color:var(--fusion-success-text)] transition-all hover:border-[color:var(--fusion-success-border)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -244,8 +244,8 @@ export default function ReviewFormSheet({
     >
       {success ? (
         <div className="py-4 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20">
-            <Check size={28} className="text-emerald-400" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--fusion-success-bg)]">
+            <Check size={28} className="text-[color:var(--fusion-success-text)]" />
           </div>
           <p className="text-[14px] text-foreground">{success}</p>
         </div>

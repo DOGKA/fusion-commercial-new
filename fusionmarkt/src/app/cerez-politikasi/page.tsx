@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Cookie, Shield, BarChart3, Megaphone, Settings, Mail, Phone, MapPin, Globe } from "lucide-react";
+import { Cookie, Shield, BarChart3, Megaphone, Settings, Mail, MapPin, Globe } from "lucide-react";
 
 export default function CerezPolitikasiPage() {
   return (
@@ -168,12 +168,6 @@ export default function CerezPolitikasiPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-[var(--fusion-primary)]" />
-                    <a href="tel:+908508406160" className="text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
-                      +90 850 840 6160
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5 text-[var(--fusion-primary)]" />
                     <a href="mailto:compliance@fusionmarkt.com" className="text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
                       compliance@fusionmarkt.com
@@ -181,8 +175,8 @@ export default function CerezPolitikasiPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Globe className="w-5 h-5 text-[var(--fusion-primary)]" />
-                    <a href="https://fusionmarkt.com" className="text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
-                      fusionmarkt.com
+                    <a href="/iletisim" className="text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
+                      İletişim formu — fusionmarkt.com/iletisim
                     </a>
                   </div>
                 </div>

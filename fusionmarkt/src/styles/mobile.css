@@ -349,7 +349,7 @@
   
   .product-savings {
     font-size: 11px !important;
-    color: #10b981 !important;
+    color: var(--fusion-success-text) !important;
     font-weight: 600 !important;
   }
   
@@ -561,12 +561,9 @@
   
   .related-savings-badge {
     font-size: 9px !important;
-    padding: 2px 5px !important;
-    background: rgba(16, 185, 129, 0.1) !important;
-    border-radius: 4px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
-    color: #10B981 !important;
+    color: var(--fusion-success-text) !important;
   }
   
   /* Ana fiyat - büyük ve belirgin */
@@ -670,7 +667,6 @@
   
   .related-savings-badge {
     font-size: 8px !important;
-    padding: 1px 4px !important;
   }
   
   .related-main-price,
@@ -2265,6 +2261,41 @@
   .checkout-proceed-btn svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
+  }
+}
+
+/* ===========================================================================
+   İLETİŞİM FORMU - Mobile
+
+   Sayfa `data-page-root` taşımıyor; politika sayfaları için yazılmış
+   `main > [data-page-root] > section:first-child` kuralları form ekranını
+   bozuyordu (rozet 3.5rem kareye sıkışıyor, form paragrafları 0.75rem'e
+   düşüyordu). Ölçüler burada, iki temada da token üzerinden çözülüyor.
+=========================================================================== */
+@media (max-width: 767px) {
+  /* `.glass-card .rounded-xl` genel kuralı girdilere 1rem padding basıyor;
+     dokunma hedefi ve iOS'un 16px altı girdilerde yaptığı otomatik
+     yakınlaştırma için ölçüyü burada sabitliyoruz. */
+  .contact-page .glass-input {
+    font-size: 16px !important;
+    min-height: 48px;
+  }
+
+  .contact-page textarea.glass-input {
+    min-height: 140px;
+  }
+
+  /* Hata satırları form alanına yapışık kalsın, gövde metniyle karışmasın. */
+  .contact-page form p {
+    font-size: 0.8125rem !important;
+    line-height: 1.4 !important;
+  }
+
+  /* `.glass-card a, .glass-card button` kuralı 44px veriyor; gönder butonu
+     tam genişlikte ve daha rahat bir hedef olsun. */
+  .contact-page form button[type="submit"] {
+    min-height: 52px;
+    width: 100% !important;
   }
 }
 

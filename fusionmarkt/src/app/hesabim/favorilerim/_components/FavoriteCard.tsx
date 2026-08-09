@@ -49,7 +49,7 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
   };
 
   return (
-    <div className="group relative flex min-w-0 flex-row overflow-hidden rounded-xl border border-border bg-glass-bg transition-colors hover:border-border-hover sm:flex-col">
+    <div className="account-product-card group relative flex min-w-0 flex-row overflow-hidden rounded-xl border border-border bg-glass-bg transition-colors hover:border-border-hover sm:flex-col">
       <button
         type="button"
         onClick={() => onRemove(item.productId, item.variant?.id)}
@@ -61,7 +61,7 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
 
       <Link
         href={`/urun/${item.slug}`}
-        className="account-media-well relative block h-28 w-28 shrink-0 sm:h-auto sm:w-auto sm:aspect-square"
+        className="account-media-well relative block h-28 w-28 shrink-0 overflow-hidden rounded-xl sm:h-auto sm:w-auto sm:aspect-square"
       >
         {item.image ? (
           <Image
@@ -74,12 +74,6 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
         ) : (
           <span className="absolute inset-0 grid place-items-center text-[11px] text-foreground-disabled">
             Görsel yok
-          </span>
-        )}
-
-        {outOfStock && (
-          <span className="acc-tone-danger absolute inset-x-0 bottom-0 py-1.5 bg-background/85 backdrop-blur text-center text-[11px] font-medium">
-            Tükendi
           </span>
         )}
       </Link>
@@ -114,6 +108,9 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
             <span className="text-[11px] text-foreground-muted line-through tabular-nums">
               {formatPrice(discounted)}
             </span>
+          )}
+          {outOfStock && (
+            <span className="acc-tone-danger text-[11px] font-medium">Tükendi</span>
           )}
         </div>
 

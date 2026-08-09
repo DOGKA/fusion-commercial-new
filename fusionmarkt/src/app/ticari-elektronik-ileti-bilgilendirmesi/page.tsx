@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Megaphone, Mail, Phone } from "lucide-react";
+import { Megaphone, Mail, FileText } from "lucide-react";
 
 export default function TicariElektronikIletiBilgilendirmesiPage() {
   return (
@@ -124,8 +124,10 @@ export default function TicariElektronikIletiBilgilendirmesiPage() {
                   <span>info@fusionmarkt.com</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0" />
-                  <span>+90 850 840 6160</span>
+                  <FileText className="w-5 h-5 text-[var(--fusion-primary)] flex-shrink-0" />
+                  <Link href="/iletisim" className="hover:text-[var(--fusion-primary)] transition-colors">
+                    İletişim formu
+                  </Link>
                 </div>
               </div>
             </motion.div>

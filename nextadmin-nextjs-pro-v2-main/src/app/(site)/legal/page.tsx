@@ -51,8 +51,8 @@ const defaultTemplates: Record<string, string> = {
       <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA</span>
     </div>
     <div style="margin-bottom: 8px;">
-      <span style="color: rgba(255, 255, 255, 0.5);">Telefon:</span><br/>
-      <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">+90 850 840 6160</span>
+      <span style="color: rgba(255, 255, 255, 0.5);">İletişim:</span><br/>
+      <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">https://fusionmarkt.com/iletisim</span>
     </div>
     <div>
       <span style="color: rgba(255, 255, 255, 0.5);">E-posta:</span><br/>

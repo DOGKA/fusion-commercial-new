@@ -316,7 +316,7 @@ export default function PowerCalculator() {
     return [...customFirst, ...rest];
   }, []);
 
-  // Senaryo seçimi - cihaz detay adımına geç
+  // Senaryo seçimi - adım değişimi kullanıcının "İleri" aksiyonuna bırakılır
   const handleScenarioSelect = useCallback((scenarioId: string) => {
     setSelectedScenario(scenarioId);
     const scenario = getScenarioById(scenarioId);
@@ -332,14 +332,10 @@ export default function PowerCalculator() {
         setDailyEnergy(scenario.dailyEnergy);
         setMaxPower(scenario.maxPower);
       }
-      // Cihaz detay adımına geç
-      setTimeout(() => setCurrentStep('devices'), 200);
     } else {
-      // Özel giriş: enerji adımına
       setDevices([]);
       setDailyEnergy(0);
       setMaxPower(0);
-      setTimeout(() => setCurrentStep('energy'), 200);
     }
   }, []);
 
@@ -940,16 +936,7 @@ export default function PowerCalculator() {
                     <label className="block text-xs text-foreground-muted mb-2">Bulunduğunuz İl</label>
                     <select
                       value={selectedCity}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setSelectedCity(value);
-                        if (value) {
-                          setTimeout(() => {
-                            setCurrentStep('results');
-                            handleCalculate();
-                          }, 300);
-                        }
-                      }}
+                      onChange={(e) => setSelectedCity(e.target.value)}
                       className="pc-mobile-input w-full px-4 py-3 rounded-xl bg-surface-secondary border border-border text-foreground outline-none focus:border-fusion-primary transition-colors"
                     >
                       <option value="">— İl Seçin —</option>

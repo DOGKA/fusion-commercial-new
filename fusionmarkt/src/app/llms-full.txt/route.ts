@@ -184,7 +184,7 @@ Bu dosya, yapay zekâ sistemlerinin ${siteConfig.name} ürünleri hakkında doğ
 - Marka: ${siteConfig.name}
 - Kuruluş: ${company.foundingDate}
 - Adres: ${company.address.streetAddress}, ${company.address.postalCode} ${company.address.addressLocality}/${company.address.addressRegion}, Türkiye
-- Telefon: ${company.phone}
+- İletişim: ${company.contactUrl}
 - E-posta: ${company.email} (genel), ${company.salesEmail} (satış ve toplu alım)
 - Faaliyet alanı: Taşınabilir enerji depolama, güneş enerjisi ve iş güvenliği ürünlerinde yetkili distribütörlük ve perakende satış.
 

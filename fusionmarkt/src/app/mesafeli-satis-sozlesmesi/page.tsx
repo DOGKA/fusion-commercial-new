@@ -16,7 +16,6 @@ import {
   Lock,
   Calendar,
   Mail,
-  Phone,
   MapPin
 } from "lucide-react";
 import {
@@ -93,9 +92,9 @@ export default function MesafeliSatisSozlesmesiPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-[var(--fusion-primary)]" />
-                    <a href="tel:+908508406160" className="text-sm text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
-                      {DISTANCE_CONTRACT_SELLER.phone}
+                    <FileText className="w-5 h-5 text-[var(--fusion-primary)]" />
+                    <a href={DISTANCE_CONTRACT_SELLER.contactUrl} className="text-sm text-[var(--foreground-secondary)] hover:text-[var(--fusion-primary)] transition-colors">
+                      İletişim formu
                     </a>
                   </div>
                   <div className="flex items-center gap-3">

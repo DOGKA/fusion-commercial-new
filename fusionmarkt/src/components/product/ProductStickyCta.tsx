@@ -131,7 +131,7 @@ function ProductStickyCta({
                   style={{
                     fontSize: "10px",
                     fontWeight: 600,
-                    color: "#10B981",
+                    color: "var(--fusion-success-text)",
                   }}
                 >
                   {formatPrice(comparePrice - price)} TL kazanç
@@ -212,7 +212,7 @@ function ProductStickyCta({
             </div>
             {hasDiscount && comparePrice != null && (
               <span
-                className="inline-flex items-center self-start px-2 py-0.5 text-[9px] md:text-xs font-semibold text-emerald-500 bg-emerald-500/20"
+                className="inline-flex items-center self-start px-2 py-0.5 text-[9px] md:text-xs font-semibold text-[color:var(--fusion-success-text)]"
                 style={{ borderRadius: 8 }}
               >
                 Kazanç: {formatPrice(comparePrice - price)} TL

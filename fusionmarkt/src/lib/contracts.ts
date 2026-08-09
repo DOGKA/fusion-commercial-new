@@ -140,8 +140,8 @@ export function generateDistanceSalesContractHTML(
         <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.email}</span>
       </div>
       <div style="display: flex; font-size: 13px;">
-        <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">Telefon:</span>
-        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.phone}</span>
+        <span style="color: rgba(255, 255, 255, 0.5); min-width: 140px;">İletişim:</span>
+        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">${DISTANCE_CONTRACT_SELLER.contactUrl}</span>
       </div>
     </div>
 

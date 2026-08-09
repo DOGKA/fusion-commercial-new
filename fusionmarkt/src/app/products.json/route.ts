@@ -128,7 +128,12 @@ export async function GET() {
       legalName: siteConfig.company.legalName,
       url: BASE_URL,
       email: siteConfig.company.email,
-      telephone: siteConfig.company.phone,
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer service",
+        url: siteConfig.company.contactUrl,
+        email: siteConfig.company.email,
+      },
     },
     inLanguage: siteConfig.language,
     // Kanonik kaynak, güncellik ve alıntı kuralları modeller için burada.

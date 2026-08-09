@@ -661,11 +661,11 @@ export default function PaymentPage() {
                   <Edit2 size={12} /> Düzenle
                 </Link>
               </div>
-              <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px" }}>
+              <div style={{ padding: "16px", backgroundColor: "var(--glass-bg)", border: "1px solid var(--border)", borderRadius: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                   {/* Yeni adres mi kayıtlı adres mi göster */}
                   {deliveryAddress?.id ? (
-                    <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Kayıtlı Adres</span>
+                    <span style={{ fontSize: "10px", fontWeight: "600", color: "var(--fusion-success-text)" }}>Kayıtlı Adres</span>
                   ) : (
                     <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(59,130,246,0.2)", color: "#3b82f6", borderRadius: "999px" }}>Yeni Adres</span>
                   )}
@@ -995,7 +995,7 @@ export default function PaymentPage() {
                         </span>
                         <span className="text-[11px] text-foreground-muted"></span>
                         {item.originalPrice && item.originalPrice > item.price && (
-                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)}  kazanç</span>
+                          <span className="text-[10px] text-[color:var(--fusion-success-text)] font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)}  kazanç</span>
                         )}
                       </div>
                       
@@ -1057,8 +1057,8 @@ export default function PaymentPage() {
               {/* Product Discount */}
               {totalSavings > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "#10b981" }}>Ürün İndirimi</span>
-                  <span style={{ color: "#10b981", fontWeight: "500" }}>-{formatPrice(totalSavings)}</span>
+                  <span style={{ color: "var(--fusion-success-text)" }}>Ürün İndirimi</span>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>-{formatPrice(totalSavings)}</span>
                 </div>
               )}
               
@@ -1073,7 +1073,7 @@ export default function PaymentPage() {
               {/* Shipping */}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                 <span style={{ color: "var(--foreground-tertiary)" }}>Kargo</span>
-                <span style={{ color: shippingCost === 0 ? "#10b981" : "var(--foreground)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
+                <span style={{ color: shippingCost === 0 ? "var(--fusion-success-text)" : "var(--foreground)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
                   {shippingCost === 0 ? "Ücretsiz" : formatPrice(shippingCost)}
                 </span>
               </div>
@@ -1081,11 +1081,11 @@ export default function PaymentPage() {
               {/* Coupon Discount */}
               {appliedCoupon && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ color: "var(--fusion-success-text)", display: "flex", alignItems: "center", gap: "6px" }}>
                     <Tag size={14} />
                     Kupon ({appliedCoupon.code})
                   </span>
-                  <span style={{ color: "#10b981", fontWeight: "500" }}>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>
                     -{formatPrice(couponDiscount)}
                   </span>
                 </div>

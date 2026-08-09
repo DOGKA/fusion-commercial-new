@@ -1017,7 +1017,7 @@ export default function CheckoutPage() {
                 </div>
               )}
               {isAuthenticated && profileLoaded && (
-                <div style={{ padding: "16px", backgroundColor: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px", marginBottom: authMissingFields.length > 0 ? "16px" : 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+                <div style={{ padding: "16px", backgroundColor: "transparent", border: "1px solid var(--fusion-success-border-soft)", borderRadius: "12px", marginBottom: authMissingFields.length > 0 ? "16px" : 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
                   <div>
                     <p style={{ fontSize: "15px", fontWeight: "500", color: "var(--foreground)", margin: "0 0 4px 0" }}>
                       Merhaba {firstName || ""}! 👋
@@ -1026,7 +1026,7 @@ export default function CheckoutPage() {
                       Keyifli alışverişler dileriz.
                     </p>
                   </div>
-                  <Link href="/magaza" className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-foreground bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-500/30 rounded-full transition-all whitespace-nowrap">
+                  <Link href="/magaza" className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-foreground border border-[color:var(--fusion-success-border-soft)] hover:border-[color:var(--fusion-success-border)] rounded-full transition-all whitespace-nowrap">
                     Ürünleri Keşfet
                   </Link>
                 </div>
@@ -1269,7 +1269,7 @@ export default function CheckoutPage() {
                           padding: "16px",
                           borderRadius: "12px",
                           border: selectedAddressId === addr.id ? "1px solid #10b981" : "1px solid var(--border)",
-                          backgroundColor: selectedAddressId === addr.id ? "rgba(16,185,129,0.05)" : "var(--glass-bg)",
+                          backgroundColor: "var(--glass-bg)",
                           cursor: "pointer"
                         }}
                       >
@@ -1285,7 +1285,7 @@ export default function CheckoutPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                               <span style={{ fontSize: "14px", fontWeight: "500", color: "var(--foreground)" }}>{addr.title}</span>
-                              {addr.isDefault && <span style={{ fontSize: "10px", padding: "2px 8px", backgroundColor: "rgba(16,185,129,0.2)", color: "#10b981", borderRadius: "999px" }}>Varsayılan</span>}
+                              {addr.isDefault && <span style={{ fontSize: "10px", fontWeight: "600", color: "var(--fusion-success-text)" }}>Varsayılan</span>}
                             </div>
                             <p style={{ fontSize: "12px", color: "var(--foreground-tertiary)", marginBottom: "4px" }}>
                               {addr.addressLine1}, {addr.district}, {addr.city}
@@ -1659,7 +1659,7 @@ export default function CheckoutPage() {
                         </span>
                         <span className="text-[11px] text-foreground-muted"></span>
                         {item.originalPrice && item.originalPrice > item.price && (
-                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)}  kazanç</span>
+                          <span className="text-[10px] text-[color:var(--fusion-success-text)] font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)}  kazanç</span>
                         )}
                       </div>
                       
@@ -1718,18 +1718,19 @@ export default function CheckoutPage() {
                   display: "flex", 
                   alignItems: "center", 
                   justifyContent: "space-between",
+                  gap: "12px",
                   padding: "12px 16px", 
-                  backgroundColor: "rgba(16,185,129,0.1)", 
-                  border: "1px solid rgba(16,185,129,0.3)", 
+                  backgroundColor: "transparent", 
+                  border: "1px solid var(--fusion-success-border-soft)", 
                   borderRadius: "12px" 
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <Check size={18} style={{ color: "#10b981" }} />
-                    <div>
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#10b981" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0 }}>
+                    <Check size={18} style={{ color: "var(--fusion-success-text)", flexShrink: 0 }} />
+                    <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: "8px", minWidth: 0 }}>
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--fusion-success-text)", overflowWrap: "anywhere" }}>
                         {appliedCoupon.code}
                       </span>
-                      <span style={{ fontSize: "13px", color: "var(--foreground-tertiary)", marginLeft: "8px" }}>
+                      <span style={{ fontSize: "13px", color: "var(--foreground-tertiary)", whiteSpace: "nowrap" }}>
                         -{formatPrice(appliedCoupon.discount)}
                       </span>
                     </div>
@@ -1743,7 +1744,9 @@ export default function CheckoutPage() {
                       borderRadius: "8px", 
                       fontSize: "12px", 
                       color: "var(--foreground-tertiary)", 
-                      cursor: "pointer" 
+                      cursor: "pointer",
+                      flexShrink: 0,
+                      whiteSpace: "nowrap"
                     }}
                   >
                     Kaldır
@@ -1839,7 +1842,7 @@ export default function CheckoutPage() {
                   <span style={{ fontSize: "10px", color: isDark ? "var(--foreground-muted)" : "#111827" }}>
                     {formatPrice(subtotal)}
                   </span>
-                  <span style={{ fontSize: "10px", color: isDark ? "rgba(52,211,153,0.6)" : "#111827" }}>
+                  <span style={{ fontSize: "10px", color: "var(--fusion-success-text)" }}>
                     {formatPrice(freeShippingThreshold)} Ücretsiz Kargo
                   </span>
                 </div>
@@ -1867,11 +1870,9 @@ export default function CheckoutPage() {
                         padding: "15px",
                         borderRadius: "12px",
                         border: selectedShippingId === option.id 
-                          ? option.isFree ? "1px solid #10b981" : "1px solid #f59e0b"
+                          ? option.isFree ? "1px solid var(--fusion-success-text)" : "1px solid #f59e0b"
                           : "1px solid var(--border)",
-                        backgroundColor: selectedShippingId === option.id 
-                          ? option.isFree ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.05)"
-                          : "var(--glass-bg)",
+                        backgroundColor: "var(--glass-bg)",
                         cursor: "pointer"
                       }}
                     >
@@ -1888,7 +1889,7 @@ export default function CheckoutPage() {
                           height: "14px", 
                           borderRadius: "50%", 
                           border: selectedShippingId === option.id 
-                            ? (option.isFree ? "2px solid #10b981" : "2px solid #f59e0b") 
+                            ? (option.isFree ? "2px solid var(--fusion-success-text)" : "2px solid #f59e0b") 
                             : "2px solid var(--border)", 
                           display: "flex", 
                           alignItems: "center", 
@@ -1900,7 +1901,7 @@ export default function CheckoutPage() {
                               width: "6px", 
                               height: "6px", 
                               borderRadius: "50%", 
-                              backgroundColor: option.isFree ? "#10b981" : "#f59e0b" 
+                              backgroundColor: option.isFree ? "var(--fusion-success-text)" : "#f59e0b" 
                             }} />
                           )}
                         </div>
@@ -1914,7 +1915,7 @@ export default function CheckoutPage() {
                         <span className="shipping-option-price" style={{ 
                           fontSize: "11px",
                           fontWeight: "600", 
-                          color: option.isFree ? "#10b981" : "var(--foreground)",
+                          color: option.isFree ? "var(--fusion-success-text)" : "var(--foreground)",
                           flexShrink: 0
                         }}>
                           {option.isFree ? "Ücretsiz" : formatPrice(option.cost)}
@@ -1953,8 +1954,8 @@ export default function CheckoutPage() {
               {/* Product Discount */}
               {totalSavings > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "#10b981" }}>Ürün İndirimi</span>
-                  <span style={{ color: "#10b981", fontWeight: "500" }}>-{formatPrice(totalSavings)}</span>
+                  <span style={{ color: "var(--fusion-success-text)" }}>Ürün İndirimi</span>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>-{formatPrice(totalSavings)}</span>
                 </div>
               )}
               
@@ -1969,7 +1970,7 @@ export default function CheckoutPage() {
               {/* Shipping */}
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                 <span style={{ color: "var(--foreground-tertiary)" }}>Kargo</span>
-                <span style={{ color: shippingCost === 0 ? "#10b981" : "var(--foreground)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
+                <span style={{ color: shippingCost === 0 ? "var(--fusion-success-text)" : "var(--foreground)", fontWeight: shippingCost === 0 ? "500" : "400" }}>
                   {shippingCost === 0 ? "Ücretsiz" : formatPrice(shippingCost)}
                 </span>
               </div>
@@ -1977,11 +1978,11 @@ export default function CheckoutPage() {
               {/* Coupon Discount */}
               {appliedCoupon && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ color: "var(--fusion-success-text)", display: "flex", alignItems: "center", gap: "6px" }}>
                     <Tag size={14} />
                     Kupon ({appliedCoupon.code})
                   </span>
-                  <span style={{ color: "#10b981", fontWeight: "500" }}>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>
                     -{formatPrice(couponDiscount)}
                   </span>
                 </div>
@@ -2093,7 +2094,7 @@ export default function CheckoutPage() {
                 <span style={{ fontSize: "12px", color: "var(--foreground-tertiary)", textDecoration: "line-through" }}>
                   {formatPrice(compactOriginalTotal)}
                 </span>
-                <span style={{ fontSize: "10px", fontWeight: "500", color: "#10b981" }}>
+                <span style={{ fontSize: "10px", fontWeight: "500", color: "var(--fusion-success-text)" }}>
                   {formatPrice(compactSavings)} kazanç
                 </span>
               </div>

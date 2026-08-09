@@ -5,8 +5,8 @@
  * kullanır. Metin değiştiğinde sürüm de değiştirilmelidir; eski siparişlerde
  * saklanan HTML geriye dönük güncellenmez.
  */
-export const DISTANCE_CONTRACT_VERSION = "2026-08-03";
-export const DISTANCE_CONTRACT_VERSION_LABEL = "3 Ağustos 2026";
+export const DISTANCE_CONTRACT_VERSION = "2026-08-09";
+export const DISTANCE_CONTRACT_VERSION_LABEL = "9 Ağustos 2026";
 
 export const DISTANCE_CONTRACT_SELLER = {
   title: "ASDTC MÜHENDİSLİK TİCARET A.Ş. / FUSIONMARKT LLC",
@@ -14,7 +14,8 @@ export const DISTANCE_CONTRACT_SELLER = {
     "Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE",
   returnAddress:
     "Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler, ÇANKAYA, ANKARA, TÜRKİYE",
-  phone: "+90 850 840 6160",
+  /** Telefon hattı yayınlanmıyor; müşteri iletişimi form üzerinden. */
+  contactUrl: "https://fusionmarkt.com/iletisim",
   email: "sales@fusionmarkt.com",
 } as const;
 

@@ -12,7 +12,10 @@
  * `useReorder` içinde üründen taze okunuyor.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+/** `/api/public/wishlist-status` tek istekte bu kadar kalem okuyor. */
+const STOCK_BATCH_LIMIT = 200;
 
 export interface ReorderProduct {
   /** Kalem kimliği — `useReorder` meşguliyet takibi için kullanıyor */
@@ -28,6 +31,8 @@ export interface ReorderProduct {
   variantInfo: { id?: string; name?: string; value?: string } | null;
   lastOrderedAt: string;
   orderNumber: string;
+  /** Güncel stok; okunana kadar `undefined` — o hâlde "Tükendi" basılmaz. */
+  stock?: number;
 }
 
 interface OrdersResponse {
@@ -59,10 +64,60 @@ export function useReorderProducts(enabled = true) {
   const [products, setProducts] = useState<ReorderProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  /** Art arda gelen yüklemelerde geç dönen stok yanıtını yok saymak için. */
+  const loadTicket = useRef(0);
+
+  /**
+   * Stok, sipariş kaleminden değil üründen okunur: kalem satın alma anını
+   * taşıyor, aradan geçen sürede ürün tükenmiş olabilir. Misafir favorilerini
+   * zenginleştiren uç kullanılıyor — varyantlı kalemde varyantın stoğunu
+   * döndürdüğü için burada da doğru sonucu veriyor.
+   */
+  const loadStock = useCallback(async (list: ReorderProduct[], ticket: number) => {
+    if (list.length === 0) return;
+
+    try {
+      const res = await fetch("/api/public/wishlist-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: list.slice(0, STOCK_BATCH_LIMIT).map((product) => ({
+            productId: product.productId,
+            variantId: product.variantInfo?.id,
+          })),
+        }),
+      });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const entries: { productId: string | null; variantId: string | null; stock: number }[] =
+        Array.isArray(data.items) ? data.items : [];
+      const byKey = new Map(
+        entries.map((entry) => [
+          `${entry.productId ?? ""}::${entry.variantId ?? ""}`,
+          entry.stock,
+        ])
+      );
+
+      if (ticket !== loadTicket.current) return;
+      setProducts((current) =>
+        current.map((product) => {
+          const stock = byKey.get(
+            `${product.productId}::${product.variantInfo?.id ?? ""}`
+          );
+          return stock === undefined ? product : { ...product, stock };
+        })
+      );
+    } catch {
+      // Stok okunamazsa kart rozetsiz kalır; tekrar al isteği zaten sunucuda
+      // stok doğrulamasından geçiyor.
+    }
+  }, []);
 
   const load = useCallback(async () => {
     if (!enabled) return;
 
+    const ticket = ++loadTicket.current;
     setLoading(true);
     setError(null);
     try {
@@ -108,17 +163,17 @@ export function useReorderProducts(enabled = true) {
         }
       }
 
-      setProducts(
-        [...byProduct.values()].sort((a, b) =>
-          b.lastOrderedAt.localeCompare(a.lastOrderedAt)
-        )
+      const list = [...byProduct.values()].sort((a, b) =>
+        b.lastOrderedAt.localeCompare(a.lastOrderedAt)
       );
+      setProducts(list);
+      void loadStock(list, ticket);
     } catch {
       setError("Bir hata oluştu. Lütfen tekrar deneyiniz.");
     } finally {
       setLoading(false);
     }
-  }, [enabled]);
+  }, [enabled, loadStock]);
 
   useEffect(() => {
     if (!enabled) return;

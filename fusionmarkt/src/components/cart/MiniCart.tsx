@@ -217,7 +217,7 @@ export default function MiniCart() {
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[13px] text-foreground-muted font-medium">{itemCount} ürün</span>
                 <span className="w-1 h-1 rounded-full bg-foreground/20" />
-                <span className="text-[14px] text-emerald-400 font-semibold tracking-tight">{formatPrice(subtotal)} ₺</span>
+                <span className="text-[14px] text-[color:var(--fusion-success-text)] font-semibold tracking-tight">{formatPrice(subtotal)} ₺</span>
               </div>
             </div>
             
@@ -336,7 +336,7 @@ export default function MiniCart() {
                           <span className="text-[10px] text-foreground-tertiary">İndirimli Fiyat:</span>
                           <span className="text-[11px] text-foreground font-medium">{formatPrice(item.price * item.quantity)} ₺</span>
                           <span className="text-[10px] text-foreground-muted">•</span>
-                          <span className="text-[10px] text-emerald-400 font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
+                          <span className="text-[10px] text-[color:var(--fusion-success-text)] font-medium">{formatPrice((item.originalPrice - item.price) * item.quantity)} ₺ kazanç</span>
                         </div>
                       )}
                       
@@ -416,15 +416,15 @@ export default function MiniCart() {
               ) : shippingInfo.hasFreeShipping ? (
                 // Ücretsiz kargo kazanıldı
                 <div 
-                  className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20"
+                  className="flex items-center gap-3 p-3 border border-[color:var(--fusion-success-border-soft)]"
                   style={{ borderRadius: '12px' }}
                 >
-                  <div className="w-10 h-10 bg-emerald-500/20 flex items-center justify-center" style={{ borderRadius: '10px' }}>
-                    <Gift className="w-5 h-5 text-emerald-400" />
+                  <div className="w-10 h-10 flex items-center justify-center border border-[color:var(--fusion-success-border-soft)]" style={{ borderRadius: '10px' }}>
+                    <Gift className="w-5 h-5 text-[color:var(--fusion-success-text)]" />
                   </div>
                   <div className="flex-1" style={{ lineHeight: 1.2 }}>
-                    <p className="text-[13px] font-semibold text-emerald-400" style={{ margin: 0, padding: 0 }}>Ücretsiz Kargo Kazandınız! 🎉</p>
-                    <p className="text-[11px] text-emerald-400/60" style={{ margin: '2px 0 0 0', padding: 0 }}>Siparişiniz ücretsiz kargo ile gönderilecek</p>
+                    <p className="text-[13px] font-semibold text-[color:var(--fusion-success-text)]" style={{ margin: 0, padding: 0 }}>Ücretsiz Kargo Kazandınız! 🎉</p>
+                    <p className="text-[11px] text-[color:var(--fusion-success-text)] opacity-70" style={{ margin: '2px 0 0 0', padding: 0 }}>Siparişiniz ücretsiz kargo ile gönderilecek</p>
                   </div>
                 </div>
               ) : (
@@ -453,7 +453,7 @@ export default function MiniCart() {
                     <span className={cn("text-[10px]", isDark ? "text-foreground-muted" : "text-slate-900")}>
                       {formatPrice(subtotal)} ₺
                     </span>
-                    <span className={cn("text-[10px]", isDark ? "text-emerald-400/60" : "text-slate-900")}>
+                    <span className="text-[10px] text-[color:var(--fusion-success-text)]">
                       {formatPrice(shippingInfo.freeShippingThreshold)} ₺ Ücretsiz Kargo
                     </span>
                   </div>
@@ -475,8 +475,8 @@ export default function MiniCart() {
                 {/* Total Discount */}
                 {totalSavings > 0 && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-emerald-400">İndirim</span>
-                    <span className="text-sm font-medium text-emerald-400">
+                    <span className="text-sm text-[color:var(--fusion-success-text)]">İndirim</span>
+                    <span className="text-sm font-medium text-[color:var(--fusion-success-text)]">
                       -{formatPrice(totalSavings)} ₺
                     </span>
                   </div>
@@ -550,7 +550,7 @@ export default function MiniCart() {
                     <span className="text-[12px] text-foreground-tertiary line-through">
                       {formatPrice(originalSubtotal)} ₺
                     </span>
-                    <span className="text-[10px] font-medium text-emerald-400">
+                    <span className="text-[10px] font-medium text-[color:var(--fusion-success-text)]">
                       {formatPrice(totalSavings)} ₺ kazanç
                     </span>
                   </div>

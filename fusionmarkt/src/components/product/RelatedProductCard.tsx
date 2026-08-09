@@ -229,7 +229,7 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
           
           {product.freeShipping && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '10px', color: 'var(--fusion-success-text)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Truck size={10} />
                 Ücretsiz Kargo
               </span>
@@ -246,7 +246,7 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
               <span style={{ fontSize: '11px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
                 {formatPrice(product.comparePrice ?? 0)} TL
               </span>
-              <span className="related-savings-badge" style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>
+              <span className="related-savings-badge" style={{ fontSize: '10px', color: 'var(--fusion-success-text)', fontWeight: '600' }}>
                 {formatPrice(savings)} TL kazanç
               </span>
             </>

@@ -24,7 +24,13 @@ export function generateOrganizationSchema() {
     },
     foundingDate: siteConfig.company.foundingDate,
     email: siteConfig.company.email,
-    telephone: siteConfig.company.phone,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: siteConfig.company.email,
+      url: siteConfig.company.contactUrl,
+      availableLanguage: ["Turkish"],
+    },
     address: {
       "@type": "PostalAddress",
       streetAddress: siteConfig.company.address.streetAddress,
@@ -408,7 +414,6 @@ export function generateLocalBusinessSchema() {
     name: siteConfig.company.name,
     image: `${siteConfig.url}/images/logo.svg`,
     url: siteConfig.url,
-    telephone: siteConfig.company.phone,
     email: siteConfig.company.email,
     address: {
       "@type": "PostalAddress",

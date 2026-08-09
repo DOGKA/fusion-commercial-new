@@ -69,7 +69,7 @@ const menuItems: MenuEntry[] = [
     icon: <Zap className="w-[18px] h-[18px]" strokeWidth={1.8} />,
     badge: {
       label: "Enerji Çözümü",
-      className: "text-emerald-400 border border-emerald-500/25",
+      className: "text-[color:var(--fusion-success-text)] border border-[color:var(--fusion-success-border-soft)]",
     },
   },
   {
@@ -199,7 +199,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[13px] text-foreground-muted font-medium">FusionMarkt</span>
                 <span className="w-1 h-1 rounded-full bg-foreground/20" />
-                <span className="text-[13px] text-emerald-400 font-medium tracking-tight">Enerjini keşfet</span>
+                <span className="text-[13px] text-[color:var(--fusion-success-text)] font-medium tracking-tight">Enerjini keşfet</span>
               </div>
             </div>
 
@@ -458,7 +458,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 href="/magaza"
                 prefetch={false}
                 onClick={onClose}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 border border-emerald-500/25 hover:bg-emerald-500/10 hover:border-emerald-500/35 text-emerald-400 text-[14px] font-semibold transition-colors duration-300 no-underline"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 border border-[color:var(--fusion-success-border-soft)] hover:border-[color:var(--fusion-success-border)] text-[color:var(--fusion-success-text)] text-[14px] font-semibold transition-colors duration-300 no-underline"
                 style={{ borderRadius: "14px" }}
               >
                 <Sparkles size={15} />

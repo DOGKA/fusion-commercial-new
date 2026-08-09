@@ -76,6 +76,14 @@
   background: var(--acc-inset-strong, var(--background-secondary));
 }
 
+/* Ürün kartları (favoriler, tekrar al) light temada tek parça beyaz kalır:
+   görsel alanı kart yüzeyinden farklı bir tonda olursa etrafında çerçeve
+   izlenimi doğuyor. Görsel alanı yalnızca kendi radius'uyla ayrışır. */
+.light .account-product-card,
+.light .account-product-card .account-media-well {
+  background: var(--acc-card);
+}
+
 .account-subsection-label {
   color: var(--foreground-tertiary);
   font-size: 0.75rem;

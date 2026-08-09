@@ -138,6 +138,9 @@
      tokenlar rozet/ikon zeminleri için ayarlı; açık zeminde düz yazı olarak
      kullanıldıklarında WCAG AA'nın altında kalıyorlar. */
   --fusion-success-text: #15803D;
+  --fusion-success-border: rgba(21, 128, 61, 0.55);
+  --fusion-success-border-soft: rgba(21, 128, 61, 0.25);
+  --fusion-success-bg: rgba(21, 128, 61, 0.12);
   
   /* SURFACE (Cards, Panels) - Light Theme */
   --surface: #FFFFFF;
@@ -208,8 +211,9 @@
      çok düşürüyor ve erişilebilirlik açısından okunmuyor. Bu yüzden light
      temada daha koyu/doygun ton + daha yüksek opaklık kullanıyoruz. Dark
      temada eski (orijinal) değerler korunuyor. */
-  --pill-border-emerald: rgba(4, 120, 87, 0.55);
-  --pill-accent-emerald: #047857;
+  /* Ücretsiz kargo pill'i kazanç etiketiyle aynı yeşili kullanır. */
+  --pill-border-emerald: var(--fusion-success-border);
+  --pill-accent-emerald: var(--fusion-success-text);
   --pill-border-cyan: rgba(14, 116, 144, 0.55);
   --pill-accent-cyan: #0E7490;
   --pill-border-amber: rgba(251, 191, 36, 0.55);
@@ -240,6 +244,9 @@
   --foreground-disabled: rgba(250, 250, 250, 0.15);
 
   --fusion-success-text: #4ADE80;
+  --fusion-success-border: rgba(74, 222, 128, 0.35);
+  --fusion-success-border-soft: rgba(74, 222, 128, 0.2);
+  --fusion-success-bg: rgba(74, 222, 128, 0.15);
   
   /* SURFACE (Cards, Panels) - Dark Theme */
   --surface: #141414;
@@ -297,9 +304,9 @@
   --badge-error-bg: rgba(239, 68, 68, 0.2);
   --badge-error-text: #F87171;
 
-  /* PRODUCT CARD "PILL" BADGES - Dark Theme (orijinal değerler korunuyor) */
-  --pill-border-emerald: rgba(16, 185, 129, 0.35);
-  --pill-accent-emerald: #10B981;
+  /* PRODUCT CARD "PILL" BADGES - Dark Theme (emerald dışı orijinal değerler korunuyor) */
+  --pill-border-emerald: var(--fusion-success-border);
+  --pill-accent-emerald: var(--fusion-success-text);
   --pill-border-cyan: rgba(34, 211, 238, 0.35);
   --pill-accent-cyan: #22D3EE;
   --pill-border-amber: rgba(251, 191, 36, 0.35);

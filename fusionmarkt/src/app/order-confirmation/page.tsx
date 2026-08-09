@@ -436,17 +436,17 @@ function OrderConfirmationContent() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                 <span style={{ color: "var(--foreground-tertiary)" }}>Kargo</span>
-                <span style={{ color: order.totals.shipping === 0 ? "#10b981" : "var(--foreground)" }}>
+                <span style={{ color: order.totals.shipping === 0 ? "var(--fusion-success-text)" : "var(--foreground)" }}>
                   {order.totals.shipping === 0 ? "Ücretsiz" : formatPrice(order.totals.shipping)}
                 </span>
               </div>
               {order.totals.discount > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
-                  <span style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ color: "var(--fusion-success-text)", display: "flex", alignItems: "center", gap: "6px" }}>
                     <Tag size={14} />
                     {order.couponCode ? `Kupon (${order.couponCode})` : "İndirim"}
                   </span>
-                  <span style={{ color: "#10b981", fontWeight: "500" }}>-{formatPrice(order.totals.discount)}</span>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>-{formatPrice(order.totals.discount)}</span>
                 </div>
               )}
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
@@ -680,11 +680,11 @@ function OrderConfirmationContent() {
                 Sorularınız için bize ulaşın
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: "24px", fontSize: "13px" }}>
+                <a href="/iletisim" style={{ color: "var(--foreground-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Mail size={14} /> İletişim Formu
+                </a>
                 <a href="mailto:info@fusionmarkt.com" style={{ color: "var(--foreground-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
                   <Mail size={14} /> info@fusionmarkt.com
-                </a>
-                <a href="tel:+908508406160" style={{ color: "var(--foreground-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Phone size={14} /> +90 850 840 6160
                 </a>
               </div>
             </div>

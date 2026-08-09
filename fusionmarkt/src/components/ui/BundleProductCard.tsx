@@ -514,7 +514,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                   <span className="text-[13px] text-foreground-muted line-through font-medium">
                     {formatPrice(totalValue)}
                   </span>
-                  <span className="text-[11px] text-emerald-400 font-semibold">
+                  <span className="text-[11px] text-[color:var(--fusion-success-text)] font-semibold">
                     {formatPrice(savings)} kazanç
                   </span>
                 </div>

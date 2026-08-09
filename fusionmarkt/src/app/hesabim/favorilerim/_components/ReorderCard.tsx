@@ -22,10 +22,10 @@ interface ReorderCardProps {
 
 export default function ReorderCard({ product, busy, onReorder }: ReorderCardProps) {
   return (
-    <div className="flex min-w-0 flex-row overflow-hidden rounded-xl border border-border bg-glass-bg transition-colors hover:border-border-hover sm:flex-col">
+    <div className="account-product-card flex min-w-0 flex-row overflow-hidden rounded-xl border border-border bg-glass-bg transition-colors hover:border-border-hover sm:flex-col">
       <Link
         href={`/urun/${product.slug}`}
-        className="account-media-well relative block h-28 w-28 shrink-0 sm:h-auto sm:w-auto sm:aspect-square"
+        className="account-media-well relative block h-28 w-28 shrink-0 overflow-hidden rounded-xl sm:h-auto sm:w-auto sm:aspect-square"
       >
         {product.image ? (
           <Image
@@ -33,7 +33,7 @@ export default function ReorderCard({ product, busy, onReorder }: ReorderCardPro
             alt={product.title}
             fill
             sizes="(max-width: 640px) 112px, 240px"
-            className="object-contain p-1.5 sm:p-0"
+            className="object-cover"
           />
         ) : (
           <span className="absolute inset-0 grid place-items-center text-[11px] text-foreground-disabled">
@@ -63,14 +63,19 @@ export default function ReorderCard({ product, busy, onReorder }: ReorderCardPro
 
         {/* mt-auto: kart yüksekliği ürün adının satır sayısıyla değişse de
             "Tekrar al" butonu ızgarada aynı hizada kalır. */}
-        <span className="mt-auto pt-2 text-[11px] text-foreground-muted">
-          {new Date(product.lastOrderedAt).toLocaleDateString("tr-TR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}{" "}
-          tarihinde sipariş verdiniz
-        </span>
+        <div className="mt-auto pt-2 flex flex-wrap items-baseline gap-x-2">
+          <span className="text-[11px] text-foreground-muted">
+            {new Date(product.lastOrderedAt).toLocaleDateString("tr-TR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}{" "}
+            tarihinde sipariş verdiniz
+          </span>
+          {product.stock === 0 && (
+            <span className="acc-tone-danger text-[11px] font-medium">Tükendi</span>
+          )}
+        </div>
 
         <button
           type="button"

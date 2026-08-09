@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { 
   CreditCard, 
   Building2, 
   Shield, 
   Lock, 
   AlertTriangle,
-  Phone,
   Mail
 } from "lucide-react";
 
@@ -127,19 +127,18 @@ export default function OdemeSecenekleriPage() {
               </p>
 
               <div className="p-5 rounded-xl bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-6">
-                <h4 className="font-semibold mb-1">WhatsApp ile Dekont Gönderin</h4>
+                <h4 className="font-semibold mb-1">Dekontu İletişim Formundan Gönderin</h4>
                 <p className="text-sm text-[var(--foreground-secondary)] mb-2">
-                  İşlemlerin daha hızlı tamamlanabilmesi adına, ödeme dekontunu WhatsApp hattımıza iletmeniz gerekmektedir.
+                  İşlemlerin daha hızlı tamamlanabilmesi için ödeme dekontunu sipariş numaranızla birlikte
+                  iletişim formundan iletin.
                 </p>
-                <a 
-                  href="https://wa.me/908508406160" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] text-white text-sm font-medium hover:bg-[#20BA5C] transition-colors"
+                <Link
+                  href="/iletisim"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--fusion-primary)] text-white text-sm font-medium hover:bg-[var(--fusion-primary-hover)] transition-colors"
                 >
-                  <Phone className="w-4 h-4" />
-                  +90 850 840 6160
-                </a>
+                  <Mail className="w-4 h-4" />
+                  İletişim Formu
+                </Link>
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
@@ -232,13 +231,13 @@ export default function OdemeSecenekleriPage() {
                 Her zaman güvenli ve şeffaf bir alışveriş deneyimi sunmak için çalışıyoruz. Sorularınız için bizimle iletişime geçebilirsiniz.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <a 
-                  href="tel:+908508406160"
+                <Link
+                  href="/iletisim"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--fusion-primary)] text-white font-medium hover:bg-[var(--fusion-primary-hover)] transition-colors"
                 >
-                  <Phone className="w-4 h-4" />
-                  +90 850 840 6160
-                </a>
+                  <Mail className="w-4 h-4" />
+                  İletişim Formu
+                </Link>
                 <a 
                   href="mailto:info@fusionmarkt.com"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] font-medium hover:bg-[var(--glass-bg-hover)] transition-colors"

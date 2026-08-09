@@ -25,7 +25,7 @@ export const siteConfig = {
     foundingDate: "2023",
     email: "info@fusionmarkt.com",
     salesEmail: "sales@fusionmarkt.com",
-    phone: "+90 850 840 6160",
+    contactUrl: "https://fusionmarkt.com/iletisim",
     address: {
       streetAddress: "Turan Güneş Bulvarı, Cezayir Cd. No.6/7, Yıldızevler",
       addressLocality: "Çankaya",

@@ -257,8 +257,8 @@ function DistanceSalesContract({
           <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.returnAddress}</span>
         </div>
         <div style={styles.infoRow(isMobile)}>
-          <span style={styles.infoLabel(isMobile)}>Telefon:</span>
-          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.phone}</span>
+          <span style={styles.infoLabel(isMobile)}>İletişim:</span>
+          <span style={styles.infoValue}>{DISTANCE_CONTRACT_SELLER.contactUrl}</span>
         </div>
         <div style={styles.infoRow(isMobile)}>
           <span style={styles.infoLabel(isMobile)}>E-posta:</span>

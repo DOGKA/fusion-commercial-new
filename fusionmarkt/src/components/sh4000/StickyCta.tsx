@@ -80,7 +80,7 @@ export default function StickyCta() {
           {isLoading ? (
             <span className="h-[14px] md:h-[18px] w-[120px] md:w-[150px] rounded bg-foreground/10" />
           ) : pricing.savings > 0 ? (
-            <span className="inline-flex items-center self-start px-2 py-0.5 text-[9px] md:text-xs font-semibold text-emerald-500 bg-emerald-500/20" style={{ borderRadius: 8 }}>
+            <span className="inline-flex items-center self-start px-2 py-0.5 text-[9px] md:text-xs font-semibold text-[color:var(--fusion-success-text)]" style={{ borderRadius: 8 }}>
               Kazanç: {formatPrice(pricing.savings)} TL
             </span>
           ) : null}
