@@ -1717,24 +1717,20 @@ export default function CheckoutPage() {
                 <div style={{ 
                   display: "flex", 
                   alignItems: "center", 
-                  justifyContent: "space-between",
-                  gap: "12px",
+                  flexWrap: "wrap",
+                  gap: "10px",
                   padding: "12px 16px", 
                   backgroundColor: "transparent", 
                   border: "1px solid var(--fusion-success-border-soft)", 
                   borderRadius: "12px" 
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0 }}>
-                    <Check size={18} style={{ color: "var(--fusion-success-text)", flexShrink: 0 }} />
-                    <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: "8px", minWidth: 0 }}>
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--fusion-success-text)", overflowWrap: "anywhere" }}>
-                        {appliedCoupon.code}
-                      </span>
-                      <span style={{ fontSize: "13px", color: "var(--foreground-tertiary)", whiteSpace: "nowrap" }}>
-                        -{formatPrice(appliedCoupon.discount)}
-                      </span>
-                    </div>
-                  </div>
+                  <Check size={18} style={{ color: "var(--fusion-success-text)", flexShrink: 0 }} />
+                  <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--fusion-success-text)", overflowWrap: "anywhere", minWidth: 0 }}>
+                    {appliedCoupon.code}
+                  </span>
+                  <span style={{ fontSize: "13px", color: "var(--foreground-tertiary)", whiteSpace: "nowrap" }}>
+                    -{formatPrice(appliedCoupon.discount)}
+                  </span>
                   <button 
                     onClick={removeCoupon}
                     style={{ 
