@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from "react";
+import { createContext, useContext, useReducer, useCallback, useEffect, useMemo, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
 import type {
@@ -646,41 +646,50 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
     }).format(price);
   }, []);
 
-  return (
-    <CheckoutContext.Provider
-      value={{
-        state,
-        goToStep,
-        goToPayment,
-        goBack,
-        setBillingAddress,
-        setShippingAddress,
-        setUseDifferentShipping,
-        selectSavedAddress,
-        setInvoiceType,
-        setShippingMethod,
-        applyCoupon,
-        removeCoupon,
-        setPaymentMethod,
-        setCardData,
-        setContractAccepted,
-        setCreateAccount,
-        setAccountPassword,
-        updateItemQuantity,
-        removeItem,
-        validateStep1,
-        validateStep2,
-        canProceedToPayment,
-        canSubmitOrder,
-        submitOrder,
-        resetCheckout,
-        getShippingMessage,
-        formatPrice,
-      }}
-    >
-      {children}
-    </CheckoutContext.Provider>
+  // Callback'ler tek tek useCallback'li ama nesne literali her dispatch'te yeni
+  // kimlik üretiyordu; adres formu her tuşta buraya dispatch ettiği için bu,
+  // checkout ağacının tamamını yeniden render eden asıl kaynaktı.
+  const value = useMemo<CheckoutContextType>(
+    () => ({
+      state,
+      goToStep,
+      goToPayment,
+      goBack,
+      setBillingAddress,
+      setShippingAddress,
+      setUseDifferentShipping,
+      selectSavedAddress,
+      setInvoiceType,
+      setShippingMethod,
+      applyCoupon,
+      removeCoupon,
+      setPaymentMethod,
+      setCardData,
+      setContractAccepted,
+      setCreateAccount,
+      setAccountPassword,
+      updateItemQuantity,
+      removeItem,
+      validateStep1,
+      validateStep2,
+      canProceedToPayment,
+      canSubmitOrder,
+      submitOrder,
+      resetCheckout,
+      getShippingMessage,
+      formatPrice,
+    }),
+    [
+      state, goToStep, goToPayment, goBack, setBillingAddress, setShippingAddress,
+      setUseDifferentShipping, selectSavedAddress, setInvoiceType, setShippingMethod,
+      applyCoupon, removeCoupon, setPaymentMethod, setCardData, setContractAccepted,
+      setCreateAccount, setAccountPassword, updateItemQuantity, removeItem,
+      validateStep1, validateStep2, canProceedToPayment, canSubmitOrder, submitOrder,
+      resetCheckout, getShippingMessage, formatPrice,
+    ]
   );
+
+  return <CheckoutContext.Provider value={value}>{children}</CheckoutContext.Provider>;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

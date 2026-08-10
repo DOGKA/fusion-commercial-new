@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, useCallback, useMemo, ReactNode } from "react";
 import { SessionProvider, useSession, signIn, signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 
@@ -67,21 +67,26 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
   const isLoading = status === "loading";
   const isAuthenticated = status === "authenticated" && !!session?.user;
   
-  const user: AuthUser | null = session?.user
-    ? {
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        image: session.user.image,
-        role: session.user.role || "CUSTOMER",
-        phone: session.user.phone,
-      }
-    : null;
+  const sessionUser = session?.user;
+  const user: AuthUser | null = useMemo(
+    () =>
+      sessionUser
+        ? {
+            id: sessionUser.id,
+            name: sessionUser.name,
+            email: sessionUser.email,
+            image: sessionUser.image,
+            role: sessionUser.role || "CUSTOMER",
+            phone: sessionUser.phone,
+          }
+        : null,
+    [sessionUser]
+  );
 
   // ─────────────────────────────────────────────────────────────────────────
   // Login with credentials
   // ─────────────────────────────────────────────────────────────────────────
-  const login = async (
+  const login = useCallback(async (
     email: string,
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
@@ -105,26 +110,26 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       console.error("Login error:", error);
       return { success: false, error: "Bir hata oluştu. Lütfen tekrar deneyin." };
     }
-  };
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Login with Google
   // ─────────────────────────────────────────────────────────────────────────
-  const loginWithGoogle = async (): Promise<void> => {
+  const loginWithGoogle = useCallback(async (): Promise<void> => {
     await signIn("google", { callbackUrl: "/" });
-  };
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Logout
   // ─────────────────────────────────────────────────────────────────────────
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async (): Promise<void> => {
     await signOut({ callbackUrl: "/" });
-  };
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Register (No auto-login - activation code required first)
   // ─────────────────────────────────────────────────────────────────────────
-  const register = async (
+  const register = useCallback(async (
     data: RegisterData
   ): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -146,23 +151,14 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       console.error("Register error:", error);
       return { success: false, error: "Bir hata oluştu. Lütfen tekrar deneyin." };
     }
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated,
-        isLoading,
-        login,
-        loginWithGoogle,
-        logout,
-        register,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({ user, isAuthenticated, isLoading, login, loginWithGoogle, logout, register }),
+    [user, isAuthenticated, isLoading, login, loginWithGoogle, logout, register]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

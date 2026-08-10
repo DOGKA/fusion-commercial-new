@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -16,7 +17,15 @@ import { useCheckout } from "@/context/CheckoutContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { formatPrice } from "@/lib/utils";
-import ContractModal from "@/components/checkout/ContractModal";
+
+/**
+ * Sözleşme metinleri ~1000 satırlık bir bileşende duruyor ve modal açılana kadar
+ * `null` dönüyor; statik import bu ağırlığı ödeme sayfasının ilk paketine
+ * koyuyordu. `MiniCartLazy` ile aynı kalıp.
+ */
+const ContractModal = dynamic(() => import("@/components/checkout/ContractModal"), {
+  ssr: false,
+});
 
 // Hydration-safe mounted check (same approach as `ThemeToggle`)
 import { useSyncExternalStore } from "react";
@@ -33,25 +42,34 @@ function useIsMounted() {
 
 const CONTAINER_MIN_HEIGHT = "800px";
 
-interface SavedAddress {
-  id: string;
-  title: string;
-  address: string;
-  city: string;
-  district: string;
-  phone: string;
-  isDefault: boolean;
-}
+const EXPIRY_MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(
+  (m) => (<option key={m} value={m}>{m}</option>)
+);
 
-interface AddressApiResponse {
-  id: string;
-  title?: string;
-  addressLine1?: string;
-  address?: string;
-  city?: string;
-  district?: string;
-  phone?: string;
-  isDefault?: boolean;
+/**
+ * Ad/soyad/telefonu profile yazar, ama sonucunu beklemez.
+ *
+ * Hatası zaten yutuluyordu; `await` etmek ödeme onayı ile 3D Secure yönlendirmesi
+ * arasına tam bir gidiş-dönüş koyuyordu. `keepalive`, havale akışındaki tam sayfa
+ * yönlendirmesinde isteğin iptal edilmemesini garantiler.
+ */
+function saveProfileInBackground(billingAddress: { firstName?: string; lastName?: string; phone?: string } | null) {
+  if (!billingAddress) return;
+
+  const profileData: Record<string, string> = {};
+  const fullName = `${billingAddress.firstName || ""} ${billingAddress.lastName || ""}`.trim();
+  if (fullName) profileData.name = fullName;
+  if (billingAddress.phone) profileData.phone = billingAddress.phone;
+  if (Object.keys(profileData).length === 0) return;
+
+  void fetch("/api/user/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profileData),
+    keepalive: true,
+  }).catch((profileError) => {
+    console.error("Profile update failed:", profileError);
+  });
 }
 
 export default function PaymentPage() {
@@ -63,11 +81,6 @@ export default function PaymentPage() {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
   const isDark = mounted && resolvedTheme === "dark";
-
-  // Address state (used for future address selection feature)
-  const [_savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
-  const [_selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [_loadingAddresses, setLoadingAddresses] = useState(false);
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bank">("card");
@@ -116,6 +129,15 @@ export default function PaymentPage() {
     return () => observer.disconnect();
   }, [hasCartItems, isHydrated]);
 
+  // Modül seviyesine alınmadı: yıl listesi build zamanında sabitlenmemeli.
+  const expiryYearOptions = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((y) => (
+        <option key={y} value={String(y).slice(-2)}>{y}</option>
+      )),
+    []
+  );
+
   // Generate order reference number (pre-order reference)
   const orderRefNumber = useMemo(() => {
     const timestamp = Date.now().toString(36).toUpperCase();
@@ -143,36 +165,6 @@ export default function PaymentPage() {
       }
     }
   }, []);
-
-
-  // Fetch saved addresses
-  useEffect(() => {
-    if (isAuthenticated) {
-      setLoadingAddresses(true);
-      fetch("/api/user/addresses")
-        .then(res => res.json())
-        .then(data => {
-          // API { addresses: [...] } şeklinde döndürüyor
-          const addressList = data.addresses || data;
-          if (Array.isArray(addressList) && addressList.length > 0) {
-            const formatted = addressList.map((addr: AddressApiResponse) => ({
-              id: addr.id,
-              title: addr.title || "Adres",
-              address: `${addr.addressLine1 || addr.address || ""}, ${addr.district || ""}, ${addr.city || ""}`,
-              city: addr.city || "",
-              district: addr.district || "",
-              phone: addr.phone || "",
-              isDefault: addr.isDefault || false
-            }));
-            setSavedAddresses(formatted);
-            const defaultAddr = formatted.find((a: SavedAddress) => a.isDefault) || formatted[0];
-            if (defaultAddr) setSelectedAddressId(defaultAddr.id);
-          }
-        })
-        .catch(() => {})
-        .finally(() => setLoadingAddresses(false));
-    }
-  }, [isAuthenticated]);
 
   // Kargo ücretini API'den çek
   const [shippingCost, setShippingCost] = useState(0);
@@ -497,23 +489,8 @@ export default function PaymentPage() {
         }
 
         // Kullanıcı profilini güncelle (ad/soyad/telefon bilgilerini kaydet)
-        if (isAuthenticated && state.billingAddress) {
-          try {
-            const profileData: Record<string, string> = {};
-            const fullName = `${state.billingAddress.firstName || ""} ${state.billingAddress.lastName || ""}`.trim();
-            if (fullName) profileData.name = fullName;
-            if (state.billingAddress.phone) profileData.phone = state.billingAddress.phone;
-            
-            if (Object.keys(profileData).length > 0) {
-              await fetch("/api/user/profile", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(profileData),
-              });
-            }
-          } catch (profileError) {
-            console.error("Profile update failed:", profileError);
-          }
+        if (isAuthenticated) {
+          saveProfileInBackground(state.billingAddress);
         }
 
         // Ödeme işlemi başarılı - redirect'i engelle
@@ -554,25 +531,16 @@ export default function PaymentPage() {
 
       const orderNumber = result.orderNumber;
 
+      // Kart dalındaki ile aynı sebeple ZORUNLU: `clearCart()` yönlendirme
+      // muhafızını tetikliyor ve bayrak olmadan muhafız `/checkout`'a
+      // client-side push yapıyor. O geçiş aşağıdaki tam sayfa yönlendirmesinden
+      // çok daha hızlı bittiği için kullanıcı bir an "Sepetiniz Boş" ekranını
+      // görüyordu.
+      setIsProcessingPayment(true);
+
       // Kullanıcı profilini güncelle (ad/soyad/telefon bilgilerini kaydet)
-      if (isAuthenticated && state.billingAddress) {
-        try {
-          const profileData: Record<string, string> = {};
-          const fullName = `${state.billingAddress.firstName || ""} ${state.billingAddress.lastName || ""}`.trim();
-          if (fullName) profileData.name = fullName;
-          if (state.billingAddress.phone) profileData.phone = state.billingAddress.phone;
-          
-          if (Object.keys(profileData).length > 0) {
-            await fetch("/api/user/profile", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(profileData),
-            });
-          }
-        } catch (profileError) {
-          console.error("Profile update failed:", profileError);
-          // Profil güncelleme başarısız olsa bile devam et
-        }
+      if (isAuthenticated) {
+        saveProfileInBackground(state.billingAddress);
       }
 
       sessionStorage.removeItem("appliedCoupon");
@@ -807,9 +775,7 @@ export default function PaymentPage() {
                       <label style={labelStyle}>Ay *</label>
                       <select value={expiryMonth} onChange={(e) => setExpiryMonth(e.target.value)} style={selectStyle}>
                         <option value="">Ay</option>
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                          <option key={m} value={String(m).padStart(2, "0")}>{String(m).padStart(2, "0")}</option>
-                        ))}
+                        {EXPIRY_MONTH_OPTIONS}
                       </select>
                       <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                     </div>
@@ -817,9 +783,7 @@ export default function PaymentPage() {
                       <label style={labelStyle}>Yıl *</label>
                       <select value={expiryYear} onChange={(e) => setExpiryYear(e.target.value)} style={selectStyle}>
                         <option value="">Yıl</option>
-                        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map(y => (
-                          <option key={y} value={String(y).slice(-2)}>{y}</option>
-                        ))}
+                        {expiryYearOptions}
                       </select>
                       <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                     </div>

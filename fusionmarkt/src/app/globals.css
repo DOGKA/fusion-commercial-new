@@ -1836,3 +1836,26 @@ header.header-slider-light .header-dropdown a:hover {
   display: inline-block;
   animation: pc-wh-pop 0.35s ease-out;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ÇEREZ BANDI GÖRÜNÜRLÜĞÜ
+
+   Bant herkes için ilk HTML'e basılıyor; onay vermiş ziyaretçide gösterilmemesi
+   gerekiyor. Karar, head'deki inline script tarafından boyamadan önce veriliyor:
+   onay yoksa <html>'e `cookie-consent-pending` ekleniyor.
+
+   Kural bilerek globals.css'te, bileşenin kendi <style> bloğunda değil: o blok
+   DOM'da bandın ARKASINDA geliyor ve ayrıştırıcı araya girerse bant bir kare
+   stilsiz görünebilirdi. Harici stil sayfası ilk boyamayı bloklar.
+
+   `display: contents` şart: alt elemanlar position:fixed ve sarmalayıcı kendi
+   kutusunu oluşturmamalı.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.cookie-consent-root {
+  display: none;
+}
+
+.cookie-consent-pending .cookie-consent-root,
+.cookie-consent-root.is-visible {
+  display: contents;
+}

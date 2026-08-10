@@ -41,6 +41,56 @@ const pulseAnimationStyle = `
   }
 `;
 
+/**
+ * Config isteğini örnekler arasında paylaştırır.
+ *
+ * Checkout'ta bu bileşen kargo seçeneklerinin içinde map'leniyor, yani her
+ * seçenek için ayrı bir `no-store` isteği gidiyordu. Kısa TTL tazeliği korur,
+ * aynı anda mount olan örnekler tek isteği paylaşır.
+ */
+const CONFIG_TTL_MS = 60_000;
+let configPromise: Promise<TimerConfig> | null = null;
+let configFetchedAt = 0;
+
+function fetchTimerConfig(): Promise<TimerConfig> {
+  const now = Date.now();
+  if (configPromise && now - configFetchedAt < CONFIG_TTL_MS) return configPromise;
+
+  configFetchedAt = now;
+  configPromise = fetch("/api/public/kargo-timer-config", { cache: "no-store" })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (
+        data &&
+        typeof data.enabled === "boolean" &&
+        data.weekdayCutoff &&
+        Array.isArray(data.holidays)
+      ) {
+        return {
+          enabled: data.enabled,
+          weekdayCutoff: {
+            hour: Number(data.weekdayCutoff.hour) || 14,
+            minute: Number(data.weekdayCutoff.minute) || 0,
+          },
+          saturdayEnabled: Boolean(data.saturdayEnabled),
+          saturdayCutoff: {
+            hour: Number(data.saturdayCutoff?.hour ?? 13),
+            minute: Number(data.saturdayCutoff?.minute ?? 0),
+          },
+          holidays: data.holidays.filter((s: unknown) => typeof s === "string"),
+        } as TimerConfig;
+      }
+      return DEFAULT_CONFIG;
+    })
+    .catch(() => {
+      // Başarısız istek önbellekte kalmasın, sonraki mount tekrar denesin.
+      configPromise = null;
+      return DEFAULT_CONFIG;
+    });
+
+  return configPromise;
+}
+
 // Hydration-safe mounted state
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
@@ -286,36 +336,9 @@ export function KargoTimer(props: KargoTimerProps) {
   useEffect(() => {
     if (!mounted) return;
     let cancelled = false;
-    fetch("/api/public/kargo-timer-config", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled) return;
-        if (
-          data &&
-          typeof data.enabled === "boolean" &&
-          data.weekdayCutoff &&
-          Array.isArray(data.holidays)
-        ) {
-          setConfig({
-            enabled: data.enabled,
-            weekdayCutoff: {
-              hour: Number(data.weekdayCutoff.hour) || 14,
-              minute: Number(data.weekdayCutoff.minute) || 0,
-            },
-            saturdayEnabled: Boolean(data.saturdayEnabled),
-            saturdayCutoff: {
-              hour: Number(data.saturdayCutoff?.hour ?? 13),
-              minute: Number(data.saturdayCutoff?.minute ?? 0),
-            },
-            holidays: data.holidays.filter((s: unknown) => typeof s === "string"),
-          });
-        } else {
-          setConfig(DEFAULT_CONFIG);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setConfig(DEFAULT_CONFIG);
-      });
+    fetchTimerConfig().then((next) => {
+      if (!cancelled) setConfig(next);
+    });
     return () => {
       cancelled = true;
     };

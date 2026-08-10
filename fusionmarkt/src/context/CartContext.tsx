@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode, useRef } from "react";
 
 // Helper to get initial cart from localStorage (client-side only)
 function getStoredCart(): CartItem[] {
@@ -110,15 +110,23 @@ export function CartProvider({ children }: CartProviderProps) {
     localStorage.setItem("fusionmarkt-cart", JSON.stringify(items));
   }, [items]);
 
-  // Calculate derived values
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  // Original subtotal uses originalPrice if available, otherwise falls back to price
-  const originalSubtotal = items.reduce((sum, item) => {
-    const originalPrice = item.originalPrice ?? item.price;
-    return sum + originalPrice * item.quantity;
-  }, 0);
-  const totalSavings = originalSubtotal - subtotal;
+  // Calculate derived values — tek geçişte, yalnızca `items` değişince.
+  const { itemCount, subtotal, originalSubtotal, totalSavings } = useMemo(() => {
+    let count = 0;
+    let sub = 0;
+    let original = 0;
+    for (const item of items) {
+      count += item.quantity;
+      sub += item.price * item.quantity;
+      original += (item.originalPrice ?? item.price) * item.quantity;
+    }
+    return {
+      itemCount: count,
+      subtotal: sub,
+      originalSubtotal: original,
+      totalSavings: original - sub,
+    };
+  }, [items]);
 
   // Add item with animation trigger (supports both products and bundles)
   const addItem = useCallback(async (newItem: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => {
@@ -205,30 +213,36 @@ export function CartProvider({ children }: CartProviderProps) {
   const closeCart = useCallback(() => setIsOpen(false), []);
   const toggleCart = useCallback(() => setIsOpen((prev) => !prev), []);
 
-  return (
-    <CartContext.Provider
-      value={{
-        items,
-        isOpen,
-        itemCount,
-        subtotal,
-        originalSubtotal,
-        totalSavings,
-        isAnimating,
-        isHydrated,
-        addItem,
-        removeItem,
-        updateQuantity,
-        updateItemPrice,
-        clearCart,
-        openCart,
-        closeCart,
-        toggleCart,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  // Değer nesnesi memoize edilmezse her provider render'ı tüm `useCart()`
+  // tüketicilerini (Header, MiniCart, 2200 satırlık checkout sayfası) yeniden
+  // render ettiriyor — adres formunda her tuşa basışta tam sayfa render demek.
+  const value = useMemo<CartContextType>(
+    () => ({
+      items,
+      isOpen,
+      itemCount,
+      subtotal,
+      originalSubtotal,
+      totalSavings,
+      isAnimating,
+      isHydrated,
+      addItem,
+      removeItem,
+      updateQuantity,
+      updateItemPrice,
+      clearCart,
+      openCart,
+      closeCart,
+      toggleCart,
+    }),
+    [
+      items, isOpen, itemCount, subtotal, originalSubtotal, totalSavings,
+      isAnimating, isHydrated, addItem, removeItem, updateQuantity,
+      updateItemPrice, clearCart, openCart, closeCart, toggleCart,
+    ]
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

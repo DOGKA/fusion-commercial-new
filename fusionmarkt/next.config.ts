@@ -268,6 +268,13 @@ const nextConfig: NextConfig = {
     },
   },
 
+  // Production paketinden console çağrılarını atar. `console.error`/`warn` kalır,
+  // böylece gerçek hatalar Sentry benzeri araçlara düşmeye devam eder. Checkout
+  // akışı adres ve sipariş yüklerini konsola basıyordu.
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+  },
+
   // Enable React strict mode for better debugging
   reactStrictMode: true,
   

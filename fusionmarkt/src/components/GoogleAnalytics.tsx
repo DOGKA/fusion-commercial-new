@@ -4,6 +4,7 @@ import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { useCookieConsent } from "@/context/CookieConsentContext";
+import { getPublicSettings } from "@/lib/public-settings-client";
 
 interface TrackingSettings {
   googleAnalyticsId: string | null;
@@ -25,22 +26,13 @@ function GoogleAnalyticsInner() {
 
   useEffect(() => {
     let mounted = true;
-    async function fetchSettings() {
-      try {
-        const res = await fetch("/api/public/settings");
-        if (res.ok) {
-          const data = await res.json();
-          if (!mounted) return;
-          setSettings({
-            googleAnalyticsId: data.googleAnalyticsId,
-            facebookPixelId: data.facebookPixelId,
-          });
-        }
-      } catch (error) {
-        console.error("Failed to fetch tracking settings:", error);
-      }
-    }
-    fetchSettings();
+    getPublicSettings().then((data) => {
+      if (!mounted || !data) return;
+      setSettings({
+        googleAnalyticsId: data.googleAnalyticsId,
+        facebookPixelId: data.facebookPixelId,
+      });
+    });
     return () => {
       mounted = false;
     };

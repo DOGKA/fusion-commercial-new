@@ -117,9 +117,7 @@ function OrderConfirmationContent() {
       try {
         const res = await fetch(`/api/orders/${orderNumber}`);
         if (res.ok) {
-          const data = await res.json();
-          console.log("Order data:", data);
-          setOrder(data);
+          setOrder(await res.json());
         }
       } catch (error) {
         console.error("Failed to fetch order:", error);

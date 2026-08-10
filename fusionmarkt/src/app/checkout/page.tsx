@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -24,6 +24,11 @@ import KargoTimer from "@/components/product/KargoTimer";
 // ═══════════════════════════════════════════════════════════════════════════
 
 const CONTAINER_MIN_HEIGHT = "800px";
+
+// 81 il hiç değişmiyor. Modül seviyesinde bir kez üretilince React, element
+// referansı aynı kaldığı için bu alt ağacı her render'da atlıyor; aksi halde
+// formdaki her tuş vuruşu iki select için 162 <option> uzlaştırıyordu.
+const CITY_OPTIONS = CITIES.map((c) => (<option key={c} value={c}>{c}</option>));
 
 interface SavedAddress {
   id: string;
@@ -210,8 +215,14 @@ export default function CheckoutPage() {
   const [hoverProceed, setHoverProceed] = useState(false);
 
   // Districts based on selected city
-  const districts = city ? getDistricts(city) : [];
-  const billingDistricts = billingCity ? getDistricts(billingCity) : [];
+  const districtOptions = useMemo(
+    () => (city ? getDistricts(city) : []).map((d) => (<option key={d} value={d}>{d}</option>)),
+    [city]
+  );
+  const billingDistrictOptions = useMemo(
+    () => (billingCity ? getDistricts(billingCity) : []).map((d) => (<option key={d} value={d}>{d}</option>)),
+    [billingCity]
+  );
 
   // Kargo seçeneklerini API'den çek
   useEffect(() => {
@@ -578,8 +589,13 @@ export default function CheckoutPage() {
     setShippingAddress(deliveryData as AddressFormData);
   }, [firstName, lastName, phone, email, invoiceType, tcKimlikNo, taxNumber, taxOffice, companyName, city, district, postalCode, addressLine1, addressLine2, orderNotes, selectedAddressId, showNewAddressForm, saveToAddresses, setBillingAddress, separateBilling, billingFirstName, billingLastName, billingPhone, billingCity, billingDistrict, billingPostalCode, billingAddressLine1, billingAddressLine2, billingSelectedAddressId, saveBillingToAddresses, isAuthenticated, setShippingAddress, setUseDifferentShipping]);
 
+  // Debounce şart: `syncFormToContext` bağımlılık listesinde formun tüm alanları
+  // var, yani her tuş vuruşu CheckoutContext'e dispatch edip checkout ağacının
+  // tamamını yeniden render ettiriyordu. Ödemeye geçerken bayat veri riski yok —
+  // `handleProceedToPayment` ilk iş olarak senkron bir flush yapıyor.
   useEffect(() => {
-    syncFormToContext();
+    const timeoutId = setTimeout(syncFormToContext, 250);
+    return () => clearTimeout(timeoutId);
   }, [syncFormToContext]);
 
   // Reset district when city changes (only for new address)
@@ -1354,7 +1370,7 @@ export default function CheckoutPage() {
                       style={{ ...selectStyle, borderColor: errors.city ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                     >
                       <option value="">İl Seçin</option>
-                      {CITIES.map((c) => (<option key={c} value={c}>{c}</option>))}
+                      {CITY_OPTIONS}
                     </select>
                     <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                   </div>
@@ -1367,7 +1383,7 @@ export default function CheckoutPage() {
                       style={{ ...selectStyle, borderColor: errors.district ? "rgba(239,68,68,0.5)" : "var(--input-border)", opacity: !city ? 0.5 : 1 }}
                     >
                       <option value="">İlçe Seçin</option>
-                      {districts.map((d) => (<option key={d} value={d}>{d}</option>))}
+                      {districtOptions}
                     </select>
                     <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                   </div>
@@ -1532,7 +1548,7 @@ export default function CheckoutPage() {
                             style={{ ...selectStyle, borderColor: errors.billingCity ? "rgba(239,68,68,0.5)" : "var(--input-border)" }}
                           >
                             <option value="">İl Seçin</option>
-                            {CITIES.map((c) => (<option key={c} value={c}>{c}</option>))}
+                            {CITY_OPTIONS}
                           </select>
                           <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                         </div>
@@ -1545,7 +1561,7 @@ export default function CheckoutPage() {
                             style={{ ...selectStyle, borderColor: errors.billingDistrict ? "rgba(239,68,68,0.5)" : "var(--input-border)", opacity: !billingCity ? 0.5 : 1 }}
                           >
                             <option value="">İlçe Seçin</option>
-                            {billingDistricts.map((d) => (<option key={d} value={d}>{d}</option>))}
+                            {billingDistrictOptions}
                           </select>
                           <ChevronDown size={16} style={{ position: "absolute", right: "16px", top: "42px", color: "var(--foreground-muted)", pointerEvents: "none" }} />
                         </div>

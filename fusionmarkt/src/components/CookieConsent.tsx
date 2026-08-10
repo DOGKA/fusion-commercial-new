@@ -3,21 +3,52 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Cookie, X, Check, Settings } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useCookieConsent, CookiePreferences } from "@/context/CookieConsentContext";
+import type { CookieBannerConfig } from "@/lib/cookie-banner-settings";
 
-type BannerPosition = "bottom" | "top" | "center";
+/**
+ * Giriş/çıkış animasyonları CSS'e taşındı.
+ *
+ * Bu bileşen framer-motion'ın kök layout'taki tek kullanıcısıydı; `ssr:false`
+ * olduğu için chunk ancak hidrasyondan SONRA iniyor ve banner boyanana kadar
+ * geçen süre her sayfada LCP'yi belirliyordu. Yalnız iki animasyon için ~115 KB
+ * kütüphane taşımanın karşılığı yok — davranış aynı: modalın giriş animasyonu
+ * yok (`initial={false}` idi), yalnızca çıkışta kayarak küçülüyor.
+ */
+const EXIT_DURATION_MS = 220;
 
-interface BannerConfig {
-  enabled: boolean;
-  position: BannerPosition;
-  text: string;
-  defaultAnalytics: boolean;
-  defaultMarketing: boolean;
-  defaultPreferences: boolean;
-}
+const cookieConsentAnimations = `
+  .cookie-consent-backdrop {
+    animation: cookieConsentFadeIn 200ms ease-out;
+  }
+  .cookie-consent-backdrop.is-closing {
+    animation: cookieConsentFadeOut ${EXIT_DURATION_MS}ms ease-in forwards;
+  }
+  .cookie-consent-modal.is-closing {
+    animation: cookieConsentExit ${EXIT_DURATION_MS}ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+  @keyframes cookieConsentFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes cookieConsentFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  @keyframes cookieConsentExit {
+    from { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+    to { transform: translate3d(100px, 100px, 0) scale(0.8); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cookie-consent-backdrop,
+    .cookie-consent-backdrop.is-closing,
+    .cookie-consent-modal.is-closing {
+      animation-duration: 1ms;
+    }
+  }
+`;
 
-export default function CookieConsent() {
+export default function CookieConsent({ config: bannerConfig }: { config: CookieBannerConfig }) {
   const {
     preferences,
     hasConsent,
@@ -26,41 +57,20 @@ export default function CookieConsent() {
     updatePreferences,
   } = useCookieConsent();
 
-  const [bannerConfig, setBannerConfig] = useState<BannerConfig | null>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  // Sunucuda da `true`: bant ilk HTML'e giriyor, görünürlüğünü head'deki inline
+  // script'in eklediği `cookie-consent-pending` sınıfı belirliyor. Eskiden `false`
+  // başlayıp bir effect ile açılıyordu, yani bant ancak hidrasyondan sonra
+  // boyanıyor ve LCP'nin neredeyse tamamını render gecikmesi oluşturuyordu.
+  const [showBanner, setShowBanner] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  // Onay vermiş ziyaretçide `cookie-consent-pending` sınıfı yok, yani CSS bandı
+  // gizli tutuyor. Alt bilgideki "Çerez Ayarları" bağlantısı bandı yeniden
+  // açtığında o gizlemeyi geçersiz kılmak gerekiyor.
+  const [forceVisible, setForceVisible] = useState(false);
   
   // Local prefs için kullanıcı değişikliklerini takip et
   const [userModifiedPrefs, setUserModifiedPrefs] = useState<Partial<CookiePreferences> | null>(null);
-
-  // Load banner config from DB-backed public settings
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        const res = await fetch("/api/public/settings");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!mounted) return;
-        setBannerConfig({
-          enabled: data.cookieBannerEnabled ?? true,
-          position: (data.cookieBannerPosition as BannerPosition) || "bottom",
-          text:
-            data.cookieBannerText ||
-            "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.",
-          defaultAnalytics: data.cookieDefaultAnalytics ?? true,
-          defaultMarketing: data.cookieDefaultMarketing ?? false,
-          defaultPreferences: data.cookieDefaultPreferences ?? true,
-        });
-      } catch {
-        // Ignore – fall back to current UI defaults
-      }
-    }
-    load();
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Derive localPrefs from context/config - no setState in effect
   const localPrefs = useMemo((): CookiePreferences => {
@@ -73,15 +83,12 @@ export default function CookieConsent() {
       return preferences;
     }
     // Yeni kullanıcı - admin varsayılanlarını kullan
-    if (bannerConfig) {
-      return {
-        ...preferences,
-        analytics: bannerConfig.defaultAnalytics,
-        marketing: bannerConfig.defaultMarketing,
-        preferences: bannerConfig.defaultPreferences,
-      };
-    }
-    return preferences;
+    return {
+      ...preferences,
+      analytics: bannerConfig.defaultAnalytics,
+      marketing: bannerConfig.defaultMarketing,
+      preferences: bannerConfig.defaultPreferences,
+    };
   }, [preferences, hasConsent, bannerConfig, userModifiedPrefs]);
 
   // setLocalPrefs yerine userModifiedPrefs'i güncelle
@@ -97,26 +104,17 @@ export default function CookieConsent() {
     }
   }, [preferences]);
 
-  // Show banner for first-time visitors
-  useEffect(() => {
-    if (bannerConfig && !bannerConfig.enabled) return;
-    if (isLoaded && !hasConsent) {
-      try {
-        const stored = window.localStorage.getItem("fusionmarkt-cookie-consent");
-        if (stored && JSON.parse(stored)?.consentVersion === "1.0") return;
-      } catch {
-        // Invalid or unavailable storage should fall through to the banner.
-      }
-      const timer = window.setTimeout(() => setShowBanner(true), 0);
-      return () => window.clearTimeout(timer);
-    }
-  }, [isLoaded, hasConsent, bannerConfig]);
+  // İlk ziyaretçi tespiti artık sunucuda yapılıyor; buradaki localStorage
+  // kontrolü ve `setShowBanner(true)` effect'i gereksizdi. Onay yalnızca
+  // localStorage'da kalmışsa (çerez silinmişse) render koşulundaki `!hasConsent`
+  // bandı hidrasyondan hemen sonra zaten söküyor.
 
   // Allow reopening cookie settings from anywhere (e.g. footer link)
   useEffect(() => {
     const handleOpen = () => {
       setShowSettings(true);
       setShowBanner(true);
+      setForceVisible(true);
     };
     window.addEventListener("openCookieSettings", handleOpen);
     return () => window.removeEventListener("openCookieSettings", handleOpen);
@@ -132,29 +130,37 @@ export default function CookieConsent() {
     });
   }, []);
 
+  // AnimatePresence'in yerini alır: önce çıkış sınıfını basar, animasyon bitince
+  // ağaçtan söker.
+  const closeBanner = useCallback(() => {
+    setIsClosing(true);
+    window.setTimeout(() => {
+      setIsClosing(false);
+      setShowBanner(false);
+      setShowSettings(false);
+    }, EXIT_DURATION_MS);
+  }, []);
+
   const handleAcceptAll = () => {
-    setShowBanner(false);
-    setShowSettings(false);
+    closeBanner();
     // Use admin defaults (stored in localPrefs) instead of accepting everything
     deferConsentWork(() => updatePreferences(localPrefs));
   };
 
   const handleAcceptNecessary = () => {
-    setShowBanner(false);
-    setShowSettings(false);
+    closeBanner();
     deferConsentWork(() => acceptNecessary());
   };
 
   const handleSaveCustom = () => {
-    setShowBanner(false);
-    setShowSettings(false);
+    closeBanner();
     deferConsentWork(() => updatePreferences(localPrefs));
   };
 
   if (!isLoaded) return null;
-  if (bannerConfig && !bannerConfig.enabled) return null;
+  if (!bannerConfig.enabled) return null;
 
-  const position: BannerPosition = bannerConfig?.position || "bottom";
+  const position = bannerConfig.position;
   const modalWrapperClass =
     position === "center"
       ? "fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4"
@@ -167,33 +173,26 @@ export default function CookieConsent() {
       {/* ═══════════════════════════════════════════════════════════════════
           COOKIE MODAL
       ═══════════════════════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {showBanner && (!hasConsent || showSettings) && (
-          <>
+      {/* `isClosing` bilerek diğer koşulları kısa devre ettiriyor: onay kaydedilince
+          `hasConsent` anında true oluyor ve banner çıkış animasyonu oynayamadan
+          sökülüyordu. AnimatePresence bunu kendisi hallediyordu. */}
+      {(isClosing || (showBanner && (!hasConsent || showSettings))) && (
+          <div className={`cookie-consent-root${forceVisible ? " is-visible" : ""}`}>
             {/* Backdrop - sadece koyu overlay, blur yok */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-[9998]"
-              onClick={() => hasConsent && setShowBanner(false)}
+            <div
+              className={`cookie-consent-backdrop fixed inset-0 bg-black/40 z-[9998] ${isClosing ? "is-closing" : ""}`}
+              onClick={() => hasConsent && closeBanner()}
             />
 
             {/* Modal */}
-            <motion.div
-              initial={false}
-              animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-              exit={{ x: 100, y: 100, opacity: 0, scale: 0.8 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={modalWrapperClass}
-            >
+            <div className={`cookie-consent-modal ${modalWrapperClass} ${isClosing ? "is-closing" : ""}`}>
               <div
                 className="relative overflow-hidden rounded-2xl border border-border bg-background-elevated backdrop-blur-2xl shadow-2xl"
               >
                 {/* Close button */}
                 {hasConsent && (
                   <button
-                    onClick={() => setShowBanner(false)}
+                    onClick={closeBanner}
                     className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center text-foreground-muted hover:text-foreground transition-all z-10"
                     aria-label="Çerez bildirimini kapat"
                   >
@@ -216,7 +215,7 @@ export default function CookieConsent() {
                       </div>
 
                       <p className="text-sm text-foreground-secondary leading-relaxed mb-5">
-                        {(bannerConfig?.text || "Size en iyi deneyimi sunmak için çerezler kullanıyoruz.")} Detaylı bilgi için{" "}
+                        {bannerConfig.text} Detaylı bilgi için{" "}
                         {/* Renk `dark:` varyantı yerine token ile veriliyor: projede
                             @custom-variant dark tanımlı olmadığı için dark:text-amber-400
                             .dark class'ıyla tetiklenmiyordu ve link koyu temada
@@ -329,10 +328,11 @@ export default function CookieConsent() {
                   )}
                 </div>
               </div>
-            </motion.div>
-          </>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+
+      <style>{cookieConsentAnimations}</style>
     </>
   );
 }

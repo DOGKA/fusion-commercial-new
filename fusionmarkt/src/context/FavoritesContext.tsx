@@ -534,27 +534,29 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     [visibleItems, addToCartItem, openCart]
   );
 
-  return (
-    <FavoritesContext.Provider
-      value={{
-        items: visibleItems,
-        itemCount,
-        isAnimating,
-        isLoading,
-        isSynced,
-        error,
-        addItem,
-        removeItem,
-        toggleItem,
-        isFavorite,
-        clearFavorites,
-        addToCart,
-        reload,
-      }}
-    >
-      {children}
-    </FavoritesContext.Provider>
+  const value = useMemo<FavoritesContextType>(
+    () => ({
+      items: visibleItems,
+      itemCount,
+      isAnimating,
+      isLoading,
+      isSynced,
+      error,
+      addItem,
+      removeItem,
+      toggleItem,
+      isFavorite,
+      clearFavorites,
+      addToCart,
+      reload,
+    }),
+    [
+      visibleItems, itemCount, isAnimating, isLoading, isSynced, error,
+      addItem, removeItem, toggleItem, isFavorite, clearFavorites, addToCart, reload,
+    ]
   );
+
+  return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

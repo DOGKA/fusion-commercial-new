@@ -1,6 +1,11 @@
 "use client";
 
 import { createContext, useContext, useCallback, ReactNode, useMemo, useSyncExternalStore, useEffect, useRef } from "react";
+import {
+  COOKIE_CONSENT_COOKIE_NAME,
+  COOKIE_CONSENT_STORAGE_KEY,
+  COOKIE_CONSENT_VERSION,
+} from "@/lib/cookie-consent-shared";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -35,8 +40,8 @@ interface CookieConsentContextType {
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════
-const COOKIE_CONSENT_KEY = "fusionmarkt-cookie-consent";
-const CONSENT_VERSION = "1.0";
+const COOKIE_CONSENT_KEY = COOKIE_CONSENT_STORAGE_KEY;
+const CONSENT_VERSION = COOKIE_CONSENT_VERSION;
 const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
 
 const defaultPreferences: CookiePreferences = {
@@ -86,7 +91,7 @@ function getSnapshot(): ConsentState {
   }
   
   // Check cookie as fallback
-  const cookieConsent = getCookieValue("cookie_consent");
+  const cookieConsent = getCookieValue(COOKIE_CONSENT_COOKIE_NAME);
   if (cookieConsent) {
     try {
       const parsed = JSON.parse(decodeURIComponent(cookieConsent)) as CookiePreferences;
@@ -213,7 +218,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     };
     
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(toSave));
-    setCookieValue("cookie_consent", encodeURIComponent(JSON.stringify(toSave)));
+    setCookieValue(COOKIE_CONSENT_COOKIE_NAME, encodeURIComponent(JSON.stringify(toSave)));
     setCookieValue("consent_analytics", toSave.analytics ? "1" : "0");
     setCookieValue("consent_marketing", toSave.marketing ? "1" : "0");
     setCookieValue("consent_preferences", toSave.preferences ? "1" : "0");
@@ -252,7 +257,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
   const resetConsent = useCallback(() => {
     localStorage.removeItem(COOKIE_CONSENT_KEY);
-    deleteCookieValue("cookie_consent");
+    deleteCookieValue(COOKIE_CONSENT_COOKIE_NAME);
     deleteCookieValue("consent_analytics");
     deleteCookieValue("consent_marketing");
     deleteCookieValue("consent_preferences");

@@ -8,7 +8,12 @@ import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import MiniCartLazy from "@/components/cart/MiniCartLazy";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
-import CookieConsentLazy from "@/components/CookieConsentLazy";
+import CookieConsent from "@/components/CookieConsent";
+import { getCookieBannerConfig } from "@/lib/cookie-banner-settings";
+import {
+  COOKIE_CONSENT_STORAGE_KEY,
+  COOKIE_CONSENT_VERSION,
+} from "@/lib/cookie-consent-shared";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import {
   GoogleTagManagerScript,
@@ -107,13 +112,14 @@ export const metadata: Metadata = {
   category: "e-commerce",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const organizationSchema = generateOrganizationSchema();
   const webSiteSchema = generateWebSiteSchema();
+  const cookieBannerConfig = await getCookieBannerConfig();
 
   // GTM ID is no longer read from env — it now comes from the
   // SiteSettings DB row via <GoogleTagManagerScript /> below so
@@ -144,6 +150,27 @@ export default function RootLayout({
                   document.documentElement.classList.add(theme);
                 } catch (e) {
                   document.documentElement.classList.add('light');
+                }
+
+                // Çerez bandı HTML'e herkes için basılıyor ve globals.css onu
+                // varsayılan olarak gizliyor; görünür kılan tek şey aşağıdaki
+                // sınıf. Karar burada, boyamadan önce veriliyor: onay vermiş
+                // ziyaretçi bandı bir kare bile görmüyor, onay vermemiş ziyaretçi
+                // ise bandı ilk boyamada görüyor.
+                //
+                // Bu iş bilerek sunucuya taşınmadı: kök layout'ta cookies()
+                // okumak 26 statik sayfayı istek başına render'a düşürüyor ve
+                // HTML'i kullanıcıya özel yapıp CDN önbelleğini tamamen bozuyordu.
+                try {
+                  var raw = localStorage.getItem(${JSON.stringify(COOKIE_CONSENT_STORAGE_KEY)});
+                  var consented = !!raw && JSON.parse(raw).consentVersion === ${JSON.stringify(COOKIE_CONSENT_VERSION)};
+                  if (!consented) {
+                    document.documentElement.classList.add('cookie-consent-pending');
+                  }
+                } catch (e) {
+                  // Okunamayan depolama onay yok sayılır: bandı göstermek
+                  // göstermemekten güvenli.
+                  document.documentElement.classList.add('cookie-consent-pending');
                 }
               })();
             `,
@@ -206,7 +233,18 @@ export default function RootLayout({
                   </main>
                   <Footer />
                   <MiniCartLazy />
-                  <CookieConsentLazy />
+                  {/* Bilerek `next/dynamic` değil: bant, onay vermemiş
+                      ziyaretçide sayfanın en büyük elementi. `ssr: false` ile
+                      yüklendiğinde ilk HTML'de hiç yer almıyor, ancak
+                      hidrasyondan sonra boyanıyordu ve LCP'nin neredeyse tamamı
+                      render gecikmesiydi. Görünürlüğüne head'deki inline script
+                      karar veriyor.
+
+                      Gövdenin başına almak denendi ve ölçülebilir bir kazanç
+                      vermedi (gözlenen LCP zaten FCP ile aynı ana düşüyor), o
+                      yüzden burada: en sonda durması sabit CTA'larla z-index
+                      eşitliğini DOM sırasıyla kendi lehine çözüyor. */}
+                  <CookieConsent config={cookieBannerConfig} />
                 </FavoritesProvider>
               </CartProvider>
             </AuthProvider>
