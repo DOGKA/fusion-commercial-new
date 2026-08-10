@@ -17,20 +17,38 @@ import Iyzipay from "iyzipay";
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 
+const IYZICO_LIVE_URI = "https://api.iyzipay.com";
+const IYZICO_SANDBOX_URI = "https://sandbox-api.iyzipay.com";
+
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
 // Check if iyzico is configured BEFORE creating instance
 export const IYZICO_ENABLED = !!(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY);
+
+// Canlıda sandbox'a düşmek her zaman hatadır: canlı anahtarlar sandbox'ta
+// tanınmadığı için iyzico "1001 Api bilgileri bulunamadı" döner ve sebebi
+// istek gövdesinden anlaşılmaz. Bu yüzden ortam değişkeni yoksa production'da
+// canlı uca gidiyor, hangi ucun seçildiğini de log'a yazıyoruz.
+const IYZICO_URI =
+  process.env.IYZICO_BASE_URL || (IS_PRODUCTION ? IYZICO_LIVE_URI : IYZICO_SANDBOX_URI);
 
 // Only create iyzipay instance if credentials are available
 const iyzipay = IYZICO_ENABLED 
   ? new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY!,
       secretKey: process.env.IYZICO_SECRET_KEY!,
-      uri: process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com",
+      uri: IYZICO_URI,
     })
   : null;
 
-if (!IYZICO_ENABLED && process.env.NODE_ENV === "production") {
-  console.warn("⚠️  iyzico disabled! Set IYZICO_API_KEY and IYZICO_SECRET_KEY to enable payments.");
+if (IS_PRODUCTION) {
+  if (!IYZICO_ENABLED) {
+    console.warn("⚠️  iyzico disabled! Set IYZICO_API_KEY and IYZICO_SECRET_KEY to enable payments.");
+  } else if (!process.env.IYZICO_BASE_URL) {
+    console.warn(`⚠️  IYZICO_BASE_URL tanımsız; canlı uç varsayıldı: ${IYZICO_URI}`);
+  } else if (IYZICO_URI.includes("sandbox")) {
+    console.warn(`⚠️  iyzico SANDBOX ucuna bağlı (${IYZICO_URI}) — canlı anahtarlarla ödeme alınamaz.`);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
