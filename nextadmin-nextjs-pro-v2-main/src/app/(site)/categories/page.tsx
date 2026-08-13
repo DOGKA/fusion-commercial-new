@@ -36,7 +36,11 @@ export default function CategoriesPage() {
       const res = await fetch("/api/categories?includeAll=true");
       const data = await res.json();
       // API { categories: [...] } veya direkt array dönebilir
-      setCategories(Array.isArray(data) ? data : (data.categories || []));
+      const gelen: Category[] = Array.isArray(data) ? data : (data.categories || []);
+      // Sitedeki menüyle aynı sıralama: önce order, eşitlerde isim.
+      setCategories(
+        [...gelen].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "tr"))
+      );
     } catch (error) {
       console.error("Kategoriler yüklenemedi:", error);
       setCategories([]);
@@ -139,6 +143,45 @@ export default function CategoriesPage() {
 }
   };
 
+  // Kategoriyi listede bir sıra yukarı/aşağı taşır. `order` alanı hem site
+  // menüsünü hem mağaza listelerini besliyor, dolayısıyla buradaki sıra
+  // menüdeki sırayla birebir aynı olur.
+  const [reordering, setReordering] = useState(false);
+
+  const handleMove = async (index: number, yon: -1 | 1) => {
+    const hedef = index + yon;
+    if (hedef < 0 || hedef >= categories.length || reordering) return;
+
+    const yeni = [...categories];
+    [yeni[index], yeni[hedef]] = [yeni[hedef], yeni[index]];
+
+    // Kayıtların çoğu order=0 ile geldiği için tek tek takas yetmiyor;
+    // listenin tamamına 0..N-1 sırası yazılıyor.
+    setCategories(yeni);
+    setReordering(true);
+
+    try {
+      const res = await fetch("/api/categories/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: yeni.map((c, i) => ({ id: c.id, order: i })),
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(error.error || "Sıralama güncellenemedi");
+      }
+      await fetchCategories();
+    } catch (error) {
+      console.error("Sıralama hatası:", error);
+      await fetchCategories();
+    } finally {
+      setReordering(false);
+    }
+  };
+
   // Kart üzerinden menü görünürlüğünü aç/kapa. PUT kısmi güncellemeyi zaten
   // destekliyor, bu yüzden ayrı bir uç gerekmiyor.
   const handleToggleMenu = async (category: Category) => {
@@ -199,7 +242,9 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-dark dark:text-white">Kategoriler</h1>
-          <p className="text-gray-500">Ürün kategorilerini yönetin</p>
+          <p className="text-gray-500">
+            Ürün kategorilerini yönetin — oklarla sıralayın, &quot;Menüye Ekle&quot; ile site menüsünde gösterin
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -247,13 +292,36 @@ export default function CategoriesPage() {
             <p className="text-gray-500">Henüz kategori eklenmemiş</p>
           </div>
         ) : (
-          categories.map((category) => (
+          categories.map((category, index) => (
             <div
               key={category.id}
               className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <button
+                      onClick={() => handleMove(index, -1)}
+                      disabled={index === 0 || reordering}
+                      title="Yukarı taşı"
+                      className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-dark disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-dark-2 dark:hover:text-white"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                    <span className="text-xs font-medium text-gray-400">{index + 1}</span>
+                    <button
+                      onClick={() => handleMove(index, 1)}
+                      disabled={index === categories.length - 1 || reordering}
+                      title="Aşağı taşı"
+                      className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-dark disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-dark-2 dark:hover:text-white"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                   {category.image ? (
                     <Image
                       src={category.image}
