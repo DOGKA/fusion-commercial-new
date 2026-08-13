@@ -578,6 +578,11 @@ export default function EditProductPage() {
         crossSellProducts,
         // Varyantları da gönder (görseller dahil)
         variants: productType === "variable" ? variants : [],
+        // Ürün sayfasında gösterilen öne çıkan özellikler
+        features: features.map((feature) => ({
+          title: feature.title,
+          svg: feature.svg,
+        })),
         // Teknik Özellik Değerleri
         productFeatureValues: technicalFeatureValues
           .filter(fv => fv.value) // Sadece değer girilmiş olanları gönder

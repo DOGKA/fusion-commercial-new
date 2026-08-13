@@ -158,6 +158,29 @@ export async function PUT(
         data: updateData,
       });
 
+      // Ürün sayfasında gösterilen öne çıkan özellikleri güncelle.
+      // Boş dizi gönderilmesi, mevcut özelliklerin tamamının silinmesi anlamına gelir.
+      if (Array.isArray(body.features)) {
+        await tx.keyFeature.deleteMany({
+          where: { productId: id },
+        });
+
+        const keyFeaturesToCreate = body.features
+          .filter((feature: any) => typeof feature.title === "string" && feature.title.trim())
+          .map((feature: any, index: number) => ({
+            productId: id,
+            title: feature.title.trim(),
+            icon: typeof feature.svg === "string" && feature.svg ? feature.svg : null,
+            order: index,
+          }));
+
+        if (keyFeaturesToCreate.length > 0) {
+          await tx.keyFeature.createMany({
+            data: keyFeaturesToCreate,
+          });
+        }
+      }
+
       // Variants güncelleme (variable ürünler için)
       // NOT: Frontend'den variants array gelmezse mevcut varyantlar korunur
       // Boş array gelirse (örn. ürün tipi variable -> simple çevrildiğinde) tüm varyantlar silinir
