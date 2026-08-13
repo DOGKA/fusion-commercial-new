@@ -10,6 +10,7 @@ import MiniCartLazy from "@/components/cart/MiniCartLazy";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import CookieConsent from "@/components/CookieConsent";
 import { getCookieBannerConfig } from "@/lib/cookie-banner-settings";
+import { getMenuCategories } from "@/lib/menu-categories";
 import {
   COOKIE_CONSENT_STORAGE_KEY,
   COOKIE_CONSENT_VERSION,
@@ -119,7 +120,10 @@ export default async function RootLayout({
 }>) {
   const organizationSchema = generateOrganizationSchema();
   const webSiteSchema = generateWebSiteSchema();
-  const cookieBannerConfig = await getCookieBannerConfig();
+  const [cookieBannerConfig, menuCategories] = await Promise.all([
+    getCookieBannerConfig(),
+    getMenuCategories(),
+  ]);
 
   // GTM ID is no longer read from env — it now comes from the
   // SiteSettings DB row via <GoogleTagManagerScript /> below so
@@ -227,7 +231,7 @@ export default async function RootLayout({
             <AuthProvider>
               <CartProvider>
                 <FavoritesProvider>
-                  <Header />
+                  <Header menuCategories={menuCategories} />
                   <main className="min-h-screen">
                     {children}
                   </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import type { MenuCategory } from "@/lib/menu-categories";
 
 // Hydration-safe mounted check (same approach as MiniCart / ThemeToggle)
 const emptySubscribe = () => () => {};
@@ -42,7 +43,8 @@ interface MenuEntry {
   submenu?: { name: string; href: string }[];
 }
 
-const menuItems: MenuEntry[] = [
+function buildMenuItems(menuCategories: MenuCategory[]): MenuEntry[] {
+  return [
   {
     name: "Mağaza",
     href: "/magaza",
@@ -53,16 +55,14 @@ const menuItems: MenuEntry[] = [
     href: "/kategori/bundle-paket-urunler",
     icon: <Sparkles className="w-[18px] h-[18px]" strokeWidth={1.8} />,
   },
-  {
-    name: "Kategoriler",
-    icon: <LayoutGrid className="w-[18px] h-[18px]" strokeWidth={1.8} />,
-    submenu: [
-      { name: "Endüstriyel Eldivenler", href: "/kategori/endustriyel-eldivenler" },
-      { name: "Taşınabilir Güç Kaynakları", href: "/kategori/tasinabilir-guc-kaynaklari" },
-      { name: "Güneş Panelleri", href: "/kategori/gunes-panelleri" },
-      { name: "Teleskopik Merdivenler", href: "/kategori/teleskopik-merdivenler" },
-    ],
-  },
+  // Masaüstü menüyle aynı kural: işaretli kategori yoksa sekme hiç çıkmıyor.
+  ...(menuCategories.length > 0
+    ? [{
+        name: "Kategoriler",
+        icon: <LayoutGrid className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+        submenu: menuCategories,
+      }]
+    : []),
   {
     name: "SH4000",
     href: "/sh4000",
@@ -91,14 +91,17 @@ const menuItems: MenuEntry[] = [
       className: "text-cyan-400 border border-cyan-500/25",
     },
   },
-];
+  ];
+}
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  menuCategories: MenuCategory[];
 }
 
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu({ isOpen, onClose, menuCategories }: MobileMenuProps) {
+  const menuItems = useMemo(() => buildMenuItems(menuCategories), [menuCategories]);
   const panelRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const pathname = usePathname();

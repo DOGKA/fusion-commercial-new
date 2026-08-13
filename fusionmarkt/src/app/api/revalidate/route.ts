@@ -125,6 +125,15 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Revalidated feeds: ${CATALOG_FEED_PATHS.join(", ")}`);
     }
 
+    // Kategori menüsü kök layout'ta duruyor, yani her sayfanın HTML'ine gömülü.
+    // Yalnızca etiketi tazelemek veri önbelleğini yeniliyor ama sayfaların
+    // önceden üretilmiş HTML'i eskisini göstermeye devam ediyor; menü
+    // değişikliğinin görünmesi için rota önbelleğini de düşürmek gerekiyor.
+    if (tagList.includes("categories")) {
+      revalidatePath("/", "layout");
+      console.log("✅ Revalidated root layout (kategori menüsü tüm sayfalarda)");
+    }
+
     // If no path or tags provided, revalidate common paths
     if (!path && !tag && !tags) {
       revalidatePath("/");

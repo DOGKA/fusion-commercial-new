@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,6 +19,7 @@ import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { MobileThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "next-themes";
+import type { MenuCategory } from "@/lib/menu-categories";
 
 /**
  * Mobil menü ilk açılışa kadar indirilmiyor. 520 satırlık bileşen kapalıyken
@@ -52,42 +53,52 @@ interface NavItem {
   submenu?: { name: string; href: string; icon?: React.ReactNode }[];
 }
 
-const navigation: NavItem[] = [
-  { 
-    name: "Mağaza", 
-    href: "/magaza",
-    icon: <Store className="w-4 h-4" />
-  },
-  {
-    name: "Paketler",
-    href: "/kategori/bundle-paket-urunler",
-    icon: <Zap className="w-4 h-4" />,
-  },
-  { 
-    name: "Kategoriler", 
-    icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-    </svg>,
-    submenu: [
-      { name: "Endüstriyel Eldivenler", href: "/kategori/endustriyel-eldivenler" },
-      { name: "Taşınabilir Güç Kaynakları", href: "/kategori/tasinabilir-guc-kaynaklari" },
-      { name: "Güneş Panelleri", href: "/kategori/gunes-panelleri" },
-      { name: "Teleskopik Merdivenler", href: "/kategori/teleskopik-merdivenler" },
-    ]
-  },
-  {
-    name: "SH4000",
-    href: "/sh4000",
-    icon: <Zap className="w-4 h-4" />,
-  },
-  { 
-    name: "Güç Hesaplayıcı", 
-    href: "/guc-hesaplayici",
-    icon: <Calculator className="w-4 h-4" />
-  },
-];
+const CATEGORIES_ICON = (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+  </svg>
+);
 
-export default function Header() {
+function buildNavigation(menuCategories: MenuCategory[]): NavItem[] {
+  return [
+    { 
+      name: "Mağaza", 
+      href: "/magaza",
+      icon: <Store className="w-4 h-4" />
+    },
+    {
+      name: "Paketler",
+      href: "/kategori/bundle-paket-urunler",
+      icon: <Zap className="w-4 h-4" />,
+    },
+    // Menüde işaretli kategori yoksa sekmeyi tamamen gizliyoruz; boş bir
+    // açılır liste bırakmak tıklayan kullanıcıya bozuk his veriyor.
+    ...(menuCategories.length > 0
+      ? [{
+          name: "Kategoriler",
+          icon: CATEGORIES_ICON,
+          submenu: menuCategories,
+        }]
+      : []),
+    {
+      name: "SH4000",
+      href: "/sh4000",
+      icon: <Zap className="w-4 h-4" />,
+    },
+    { 
+      name: "Güç Hesaplayıcı", 
+      href: "/guc-hesaplayici",
+      icon: <Calculator className="w-4 h-4" />
+    },
+  ];
+}
+
+interface HeaderProps {
+  menuCategories: MenuCategory[];
+}
+
+export default function Header({ menuCategories }: HeaderProps) {
+  const navigation = useMemo(() => buildNavigation(menuCategories), [menuCategories]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -429,7 +440,11 @@ export default function Header() {
           döndürüyordu, çıkış animasyonu yok, gövde scroll kilidini de effect
           temizliği geri alıyor. */}
       {isMobileMenuOpen && (
-        <MobileMenu isOpen onClose={() => setIsMobileMenuOpen(false)} />
+        <MobileMenu
+          isOpen
+          onClose={() => setIsMobileMenuOpen(false)}
+          menuCategories={menuCategories}
+        />
       )}
 
       {/* Hesap çekmecesi - mobil menüyle aynı montaj kalıbı */}

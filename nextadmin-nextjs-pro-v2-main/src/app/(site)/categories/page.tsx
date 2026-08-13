@@ -12,6 +12,7 @@ interface Category {
   icon?: string | null;
   themeColor?: string | null;
   isActive: boolean;
+  showInMenu: boolean;
   order: number;
 }
 
@@ -26,6 +27,7 @@ export default function CategoriesPage() {
     description: "",
     themeColor: "#8B5CF6",
     isActive: true,
+    showInMenu: false,
   });
 
   // Fetch categories
@@ -72,7 +74,7 @@ export default function CategoriesPage() {
   // Open modal for new category
   const openNewModal = () => {
     setEditingCategory(null);
-    setFormData({ name: "", slug: "", description: "", themeColor: "#8B5CF6", isActive: true });
+    setFormData({ name: "", slug: "", description: "", themeColor: "#8B5CF6", isActive: true, showInMenu: false });
     setShowModal(true);
   };
 
@@ -85,6 +87,7 @@ export default function CategoriesPage() {
       description: category.description || "",
       themeColor: category.themeColor || "#8B5CF6",
       isActive: category.isActive,
+      showInMenu: category.showInMenu ?? false,
     });
     setShowModal(true);
   };
@@ -134,6 +137,27 @@ export default function CategoriesPage() {
     } catch (error) {
       console.error("Kategori güncelleme hatası:", error);
 }
+  };
+
+  // Kart üzerinden menü görünürlüğünü aç/kapa. PUT kısmi güncellemeyi zaten
+  // destekliyor, bu yüzden ayrı bir uç gerekmiyor.
+  const handleToggleMenu = async (category: Category) => {
+    try {
+      const res = await fetch(`/api/categories/${category.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ showInMenu: !category.showInMenu }),
+      });
+
+      if (res.ok) {
+        fetchCategories();
+      } else {
+        const error = await res.json();
+        alert(error.error || "Menü durumu güncellenemedi");
+      }
+    } catch (error) {
+      console.error("Menü durumu güncelleme hatası:", error);
+    }
   };
 
   // Delete category
@@ -250,9 +274,29 @@ export default function CategoriesPage() {
                     <p className="text-sm text-gray-500">/{category.slug}</p>
                   </div>
                 </div>
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${category.isActive ? "bg-green-100 text-green-600 dark:bg-green-500/10" : "bg-red-100 text-red-600 dark:bg-red-500/10"}`}>
-                  {category.isActive ? "Aktif" : "Pasif"}
-                </span>
+                <div className="flex flex-col items-end gap-1.5">
+                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${category.isActive ? "bg-green-100 text-green-600 dark:bg-green-500/10" : "bg-red-100 text-red-600 dark:bg-red-500/10"}`}>
+                    {category.isActive ? "Aktif" : "Pasif"}
+                  </span>
+                  <button
+                    onClick={() => handleToggleMenu(category)}
+                    title={
+                      category.showInMenu
+                        ? "Menüden çıkar"
+                        : "Site menüsündeki Kategoriler sekmesine ekle"
+                    }
+                    className={`inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors ${
+                      category.showInMenu
+                        ? "bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-500/10"
+                        : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-dark-2 dark:text-gray-400"
+                    }`}
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    {category.showInMenu ? "Menüde" : "Menüye Ekle"}
+                  </button>
+                </div>
               </div>
 
               {category.description && (
@@ -379,6 +423,24 @@ export default function CategoriesPage() {
                 <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">
                   Aktif
                 </label>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="showInMenu"
+                    checked={formData.showInMenu}
+                    onChange={(e) => setFormData({ ...formData, showInMenu: e.target.checked })}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <label htmlFor="showInMenu" className="text-sm text-gray-700 dark:text-gray-300">
+                    Menüde Göster
+                  </label>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Sitedeki üst menüde &quot;Kategoriler&quot; sekmesinin altında listelenir (mobil ve masaüstü)
+                </p>
               </div>
             </div>
 

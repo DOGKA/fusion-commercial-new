@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { revalidateFrontend } from "@/lib/revalidate-frontend";
 
 /**
  * GET /api/categories/[id]
@@ -44,7 +45,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const { name, slug, description, image, icon, parentId, isActive, order, themeColor } = body;
+    const { name, slug, description, image, icon, parentId, isActive, order, themeColor, showInMenu } = body;
 
     const category = await prisma.category.update({
       where: { id },
@@ -58,8 +59,11 @@ export async function PUT(
         ...(themeColor !== undefined && { themeColor }),
         ...(isActive !== undefined && { isActive }),
         ...(order !== undefined && { order }),
+        ...(showInMenu !== undefined && { showInMenu }),
       },
     });
+
+    await revalidateFrontend({ tags: ["categories"] });
 
     return NextResponse.json(category);
   } catch (error: any) {
@@ -121,6 +125,8 @@ export async function DELETE(
     await prisma.category.delete({
       where: { id },
     });
+
+    await revalidateFrontend({ tags: ["categories"] });
 
     return NextResponse.json({ success: true, message: "Kategori silindi" });
   } catch (error: any) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { revalidateFrontend } from "@/lib/revalidate-frontend";
 
 /**
  * GET /api/categories
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    const { name, slug, description, image, icon, parentId, isActive = true, order = 0, themeColor } = body;
+    const { name, slug, description, image, icon, parentId, isActive = true, order = 0, themeColor, showInMenu = false } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Kategori adı gerekli" }, { status: 400 });
@@ -83,8 +84,11 @@ export async function POST(request: NextRequest) {
         themeColor: themeColor || null,
         isActive,
         order,
+        showInMenu,
       },
     });
+
+    await revalidateFrontend({ tags: ["categories"] });
 
     return NextResponse.json(category, { status: 201 });
   } catch (error: any) {
