@@ -464,7 +464,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
           {slide.badge && (
             <div className="h-[24px] md:h-[40px] flex items-center animate-fade-in-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
               <div 
-                className="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm border border-glass-border"
+                className="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-sm max-lg:backdrop-filter-none border border-glass-border"
                 style={{ 
                   backgroundColor: badgeBgColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
                 }}

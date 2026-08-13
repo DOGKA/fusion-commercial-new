@@ -142,7 +142,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
               alt={name}
               fill
               priority={priority}
-              sizes="(max-width: 768px) 100vw, 280px"
+              sizes="280px"
               className="object-cover"
             />
           ) : (
@@ -153,7 +153,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {/* Bundle Badge */}
             <span 
-              className="inline-flex items-center justify-center gap-1 text-[11px] font-bold backdrop-blur-md text-center"
+              className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-center"
               style={{ 
                 minWidth: 75, 
                 height: 28, 
@@ -177,7 +177,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
             {/* Stock Badge - Son 1 adet */}
             {stock === 1 && !isOutOfStock && (
               <span 
-                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
                 style={{ 
                   minWidth: 85, 
                   height: 28, 
@@ -194,7 +194,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
             {/* Stock Badge - Stok Yok */}
             {isOutOfStock && (
               <span 
-                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
                 style={{ 
                   minWidth: 85, 
                   height: 28, 
@@ -212,7 +212,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
             {badges && badges.length > 0 && badges.slice(0, 3).map((badge) => (
               <span 
                 key={badge.id}
-                className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
                 style={{ 
                   minWidth: 75, 
                   height: 28, 
@@ -289,7 +289,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
         {/* CONTENT AREA */}
         <div 
           className={cn(
-            "flex-1 flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
+            "flex-1 flex flex-col p-3 pt-3 border border-border border-t-0 transition-all duration-300",
             "bg-surface/90 dark:bg-surface/90",
             "hover:border-border-hover"
           )}

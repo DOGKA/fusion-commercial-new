@@ -98,7 +98,10 @@ function PartnerCard({ partner }: { partner: Partner }) {
             style={{ backfaceVisibility: "hidden" }}
           >
             {/* Glassmorphism Background with subtle green tint */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] via-foreground/[0.02] to-cyan-500/[0.02] dark:from-emerald-500/[0.05] dark:via-white/[0.04] dark:to-cyan-500/[0.03] backdrop-blur-xl" />
+            {/* Arkadaki dekoratif lekeler zaten blur-3xl; mobilde ikinci bir
+                24px backdrop blur görsel fark yaratmadan kart başına
+                compositing maliyeti ekliyordu. */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] via-foreground/[0.02] to-cyan-500/[0.02] dark:from-emerald-500/[0.05] dark:via-white/[0.04] dark:to-cyan-500/[0.03] backdrop-blur-xl max-lg:backdrop-filter-none" />
             <div className="absolute inset-0 border border-border rounded-2xl" />
             
             {/* Animated Gradient Border */}
@@ -144,7 +147,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
             style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
           >
             {/* Glassmorphism Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 backdrop-blur-xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 backdrop-blur-xl max-lg:backdrop-filter-none" />
             <div className="absolute inset-0 border border-emerald-500/30 rounded-2xl" />
             
             {/* Content */}

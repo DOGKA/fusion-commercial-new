@@ -154,7 +154,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               alt={title}
               fill
               priority={priority}
-              sizes="(max-width: 768px) 100vw, 280px"
+              sizes="280px"
               className="object-cover"
             />
           ) : (
@@ -175,7 +175,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Bundle/Paket Badge - En üstte göster */}
               {product.isBundle && (
                 <span 
-                  className="inline-flex items-center justify-center gap-1 text-[11px] font-bold backdrop-blur-md text-center"
+                  className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-center"
                   style={{ 
                     minWidth: 75, 
                     height: 28, 
@@ -206,7 +206,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 return (
                 <span 
                     key={idx}
-                    className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                    className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
                     style={{ 
                       minWidth: 85, 
                       height: 28, 
@@ -233,7 +233,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Stock Badge - Son 1 adet */}
               {!hasVariants && stockQuantity === 1 && !isOutOfStock && (
                 <span 
-                  className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                  className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
                   style={{ 
                     minWidth: 85, 
                     height: 28, 
@@ -250,7 +250,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Stock Badge - Stok Yok */}
               {!hasVariants && isOutOfStock && (
                 <span 
-                  className="inline-flex items-center justify-center text-[11px] font-semibold backdrop-blur-md text-center"
+                  className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
                   style={{ 
                     minWidth: 85, 
                     height: 28, 
@@ -338,7 +338,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
           {/* CONTENT AREA - Ayrı container, image'ın altında */}
           <div 
             className={cn(
-              "flex flex-col p-3 pt-3 backdrop-blur-sm border border-border border-t-0 transition-all duration-300",
+              "flex flex-col p-3 pt-3 border border-border border-t-0 transition-all duration-300",
               "bg-surface/90 dark:bg-surface/90",
               "hover:border-border-hover"
             )}

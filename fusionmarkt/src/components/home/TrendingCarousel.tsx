@@ -116,12 +116,17 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                         // ekran okuyucuda başlığı iki kez okutuyordu
                         alt=""
                         fill
-                        sizes="(max-width: 768px) 280px, 370px"
+                        // Kart 1023px'te 280px'e düşüyor; sizes bunu birebir
+                        // yansıtmazsa Safari gereğinden büyük dosya indirip
+                        // kaydırma sırasında decode'a takılıyor.
+                        sizes="(max-width: 1023px) 280px, 370px"
                         className="product-card-image"
-                        // Yalnız mobilde hemen görülebilecek ilk kartları erkenden
-                        // getir; kalanları hero/LCP indirmesiyle yarıştırma.
-                        loading={index < 2 ? "eager" : "lazy"}
-                        fetchPriority="low"
+                        // Safari'nin yatay lazy-load ön yükleme mesafesi dar;
+                        // hızlı kaydırmada kart görselden önce ekrana giriyor.
+                        // İlk kartları erkenden getir, kalanları hero/LCP
+                        // indirmesiyle yarıştırma.
+                        loading={index < 3 ? "eager" : "lazy"}
+                        fetchPriority={index < 3 ? "auto" : "low"}
                         draggable={false}
                       />
                     )}

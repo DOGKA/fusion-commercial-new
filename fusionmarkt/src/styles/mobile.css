@@ -705,14 +705,22 @@
 
 .related-product-buttons button {
   border-radius: 16px !important; /* SQUIRCLE */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
 }
 
-.related-product-buttons button:hover {
-  transform: scale(1.02);
-  background-color: var(--glass-bg-hover) !important;
+/* blur ve hover büyümesi yalnızca imleçli cihazlarda. iOS'ta :hover parmak
+   temasıyla tetikleniyor ve backdrop-filter her karede yeniden örnekleniyor;
+   ikisi de dikey kaydırmada gereksiz repaint üretiyordu. */
+@media (hover: hover) and (pointer: fine) {
+  .related-product-buttons button {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  .related-product-buttons button:hover {
+    transform: scale(1.02);
+    background-color: var(--glass-bg-hover) !important;
+  }
 }
 
 .store-search-container input {

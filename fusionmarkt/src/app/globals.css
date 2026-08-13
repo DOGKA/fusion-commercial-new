@@ -427,10 +427,12 @@ label.field-flash p:first-of-type {
 .trending-product-card .product-card-background {
   position: absolute;
   inset: 0;
+  /* Görsel inip decode edilene kadar kart beyaz yerine kendi koyu zeminini
+     gösterir. Kart her zaman koyu temalı olduğu için sabit değer. */
+  background-color: #1a1d21;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: transform 0.4s ease;
 }
 
 .trending-product-card .product-card-image {
@@ -439,8 +441,17 @@ label.field-flash p:first-of-type {
   z-index: 0;
 }
 
-.trending-product-card:hover .product-card-background {
-  transform: scale(1.05);
+/* Hover zoom yalnızca gerçek imleçli cihazlarda çalışır. iOS Safari'de parmak
+   teması :hover tetikliyor, bu da kaydırma sırasında görselin yeniden
+   rasterize edilmesine ve kartların yarım boyanmasına yol açıyordu. */
+@media (hover: hover) and (pointer: fine) {
+  .trending-product-card .product-card-background {
+    transition: transform 0.4s ease;
+  }
+
+  .trending-product-card:hover .product-card-background {
+    transform: scale(1.05);
+  }
 }
 
 /* ===========================================================================
@@ -546,18 +557,28 @@ label.field-flash p:first-of-type {
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* Dokunmatikte blur yerine biraz daha opak düz zemin */
+  background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.trending-product-card .product-card-button:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+/* backdrop-filter iOS Safari'de arkasındaki pikselleri her karede yeniden
+   örneklediği için yatay kaydırmada ekrandaki her kart adına tekrarlanıyor ve
+   kaydırmayı compositor'dan düşürüyordu. Sadece imleçli cihazlarda açık. */
+@media (hover: hover) and (pointer: fine) {
+  .trending-product-card .product-card-button {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  .trending-product-card .product-card-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 /* ===========================================================================
