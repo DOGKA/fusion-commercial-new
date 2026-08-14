@@ -143,7 +143,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
               alt={name}
               fill
               priority={priority}
-              sizes="280px"
+              sizes="(max-width: 1023px) 200px, 280px"
               className="object-cover"
             />
           ) : (
@@ -260,13 +260,12 @@ export default function BundleProductCard({ bundle, className, priority = false 
               onMouseEnter={() => setFavoriteHover(true)}
               onMouseLeave={() => setFavoriteHover(false)}
               title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
+              className="card-glass-button"
               style={{
                 width: 36,
                 height: 36,
                 borderRadius: SQUIRCLE.md,
                 backgroundColor: isProductFavorite ? 'rgba(236, 72, 153, 0.15)' : 'transparent',
-                backdropFilter: favoriteHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
-                WebkitBackdropFilter: favoriteHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
                 border: isProductFavorite 
                   ? '1px solid rgba(236, 72, 153, 0.5)' 
                   : favoriteHover 

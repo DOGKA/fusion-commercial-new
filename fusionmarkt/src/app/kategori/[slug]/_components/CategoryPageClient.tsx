@@ -868,7 +868,7 @@ export default function CategoryPageClient({
                 [...products, ...products].map((product, idx) => (
                   <div 
                     key={`${product.id}-${idx}`} 
-                    className="flex-shrink-0 w-[280px]"
+                    className="store-card-slot"
                   >
                     {isBundleCategory || product.isBundle ? (
                       <BundleProductCard

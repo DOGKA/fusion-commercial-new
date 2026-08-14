@@ -128,6 +128,7 @@ export default function AddToCartButton({
           "transition-all duration-300 ease-out",
           disabled && "cursor-not-allowed",
           buttonState === "success" && "animate-cart-success",
+          !disabled && "card-glass-button-strong",
           className
         )}
         style={{
@@ -141,8 +142,6 @@ export default function AddToCartButton({
             : buttonState === "error"
             ? "rgba(239, 68, 68, 0.95)"
             : "var(--glass-bg)",
-          backdropFilter: disabled ? "none" : "blur(16px)",
-          WebkitBackdropFilter: disabled ? "none" : "blur(16px)",
           border: disabled
             ? "1px solid rgba(251, 191, 36, 0.55)"
             : buttonState === "success"

@@ -908,16 +908,18 @@ function BannerImage({ banner, isDark }: { banner: Banner | null; isDark: boolea
 
       {/* Content */}
       {hasContent && (
-        <div className="absolute inset-0 flex items-end p-4 sm:p-5 lg:p-6">
-          <div className="flex-1">
-            {/* h1'den sonra gelen ilk başlık olduğu için h2: h1 -> h3 atlaması başlık sırasını bozuyordu */}
+        <div className="absolute inset-0 flex items-end gap-3 p-4 sm:p-5 lg:p-6">
+          <div className="min-w-0 flex-1">
+            {/* h1'den sonra gelen ilk başlık olduğu için h2: h1 -> h3 atlaması başlık sırasını bozuyordu.
+                Font boyutlarındaki `!`: mobile.css'teki katmansız `h2 { font-size: clamp(20px,5vw,28px) !important }`
+                kuralı aksi halde başlığı 20px yapıp metni 100px'lik banner'dan taşırıyor. */}
             {banner?.title && (
-              <h2 className={cn("text-sm sm:text-base lg:text-lg font-semibold mb-1 relative", isDark ? "text-white" : "text-gray-900 drop-shadow-sm")}>
+              <h2 className={cn("text-sm! sm:text-base! lg:text-lg! font-semibold mb-1 relative line-clamp-2", isDark ? "text-white" : "text-gray-900 drop-shadow-sm")}>
                 {banner.title}
               </h2>
             )}
             {banner?.subtitle && (
-              <p className={cn("text-xs sm:text-sm mb-2 line-clamp-1 relative", isDark ? "text-white/80" : "text-gray-700")}>
+              <p className={cn("text-xs sm:text-sm line-clamp-1 relative", isDark ? "text-white/80" : "text-gray-700")}>
                 {banner.subtitle}
               </p>
             )}
@@ -925,7 +927,7 @@ function BannerImage({ banner, isDark }: { banner: Banner | null; isDark: boolea
           {banner?.buttonText && (
             <span
               className={cn(
-                "inline-flex items-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium backdrop-blur-sm rounded-xl transition-colors relative",
+                "inline-flex shrink-0 items-center whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium backdrop-blur-sm rounded-xl transition-colors relative",
                 isDark
                   ? "bg-white/10 text-white border border-white/20 hover:bg-white/20"
                   : "bg-white/80 text-gray-900 border border-gray-200 hover:bg-white shadow-sm"
@@ -1019,10 +1021,12 @@ function CategoryCarousel({
   const bannerButtonText = bannerData?.buttonText || "Tümünü Gör";
 
   // Dynamic repeat for 360° infinite scroll - ensures enough items to scroll
-  // Minimum 12 cards to guarantee scrollWidth > containerWidth on all screens
+  // Minimum 12 cards to guarantee scrollWidth > containerWidth on all screens.
+  // Alt sınır 2: her kart ~50 DOM düğümü, kartlar zaten 12'yi geçtiğinde üçüncü
+  // tekrar kaydırma mesafesine bir şey katmadan sayfanın maliyetini büyütüyordu.
   const minCardsNeeded = 12;
   const productCount = category.products.length;
-  const repeatCount = productCount > 0 ? Math.max(3, Math.ceil(minCardsNeeded / productCount)) : 3;
+  const repeatCount = productCount > 0 ? Math.max(2, Math.ceil(minCardsNeeded / productCount)) : 2;
   const displayProducts = Array(repeatCount).fill(category.products).flat();
 
   return (
@@ -1167,7 +1171,7 @@ function CategoryCarousel({
               {displayProducts.map((product: ProductWithCategory, idx: number) => (
                 <div 
                   key={`${product.id}-${idx}`} 
-                  className="flex-shrink-0 w-[280px]"
+                  className="store-card-slot"
                 >
                   {product.isBundle ? (
                     <BundleProductCard 
@@ -1241,7 +1245,9 @@ function StoreFeaturedSection({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const displayProducts = [...products, ...products, ...products];
+  // Kategori carousel'leriyle aynı kural: en az 12 kart, gereksiz tekrar yok.
+  const repeatCount = products.length > 0 ? Math.max(2, Math.ceil(12 / products.length)) : 2;
+  const displayProducts = Array(repeatCount).fill(products).flat() as Product[];
 
   // Vurgu rengi metin olarak kullanıldığında sayfa zemininde okunur olmalı
   const accentTextColor = readableAccentColor(accentColor, isDark);
@@ -1327,7 +1333,7 @@ function StoreFeaturedSection({
               className="flex items-stretch"
             >
               {displayProducts.map((product, idx) => (
-                <div key={`${product.id}-${idx}`} className="flex-shrink-0 w-[280px]">
+                <div key={`${product.id}-${idx}`} className="store-card-slot">
                   {/* LCP fix: ekranda ilk görünen kartların görselleri eager +
                       fetchpriority=high yüklensin */}
                   <ProductCard product={product} priority={priorityImages && idx < 4} />

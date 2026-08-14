@@ -150,12 +150,16 @@ export default function ProductCard({ product, className, priority = false }: Pr
           }}
         >
           {image ? (
+            /* Kart her yerde 280px; mobilde daha küçük bir sizes ipucuyla
+               srcset'ten 1080w yerine 640w seçiliyor. Kaydırma sırasında
+               Safari'nin decode ettiği piksel sayısını üçte birine indiriyor,
+               280px'lik alanda fark görünmüyor. */
             <Image 
               src={image} 
               alt={title}
               fill
               priority={priority}
-              sizes="280px"
+              sizes="(max-width: 1023px) 200px, 280px"
               className="object-cover"
             />
           ) : (
@@ -234,7 +238,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Legacy badge support (fallback for old data without badges array) */}
               {(!badges || badges.length === 0) && badge && typeof badge === 'string' && badge.trim() !== '' && (
                 <span 
-                  className="inline-flex items-center justify-center text-[11px] font-semibold bg-glass-bg backdrop-blur-md border border-glass-border text-foreground text-center"
+                  className="card-glass-button inline-flex items-center justify-center text-[11px] font-semibold bg-glass-bg border border-glass-border text-foreground text-center"
                   style={{ minWidth: 85, height: 28, padding: '0 14px', borderRadius: SQUIRCLE.sm }}
                 >
                   {badge}
@@ -311,13 +315,12 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 onMouseEnter={() => setFavoriteHover(true)}
                 onMouseLeave={() => setFavoriteHover(false)}
                 title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
+                className="card-glass-button"
                 style={{
                   width: 36,
                   height: 36,
                   borderRadius: SQUIRCLE.md,
                   backgroundColor: isProductFavorite ? 'rgba(236, 72, 153, 0.15)' : 'transparent',
-                  backdropFilter: favoriteHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
-                  WebkitBackdropFilter: favoriteHover ? 'blur(16px) saturate(1.2)' : 'blur(12px) saturate(1.1)',
                   border: isProductFavorite 
                     ? '1px solid rgba(236, 72, 153, 0.5)' 
                     : favoriteHover 
@@ -384,16 +387,16 @@ export default function ProductCard({ product, className, priority = false }: Pr
             {/* ORTA KISIM - Variants, Video Label - gap-2 (8px) */}
             <div className="flex flex-col gap-2 mt-2">
 
-              {/* Variants - yatay scroll, taşma yok */}
+              {/* Variants - en fazla 5 kutucuk gösteriliyor, satıra sığıyor.
+                  Kaydırılabilir olduğunda her kart carousel'in içinde ayrı bir
+                  yatay scroll alanı açıyor; parmak buraya denk geldiğinde
+                  carousel yerine bu alan kayıyor ve kaydırma takılıyordu. */}
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: '6px', 
                 minHeight: '32px', 
-                overflowX: 'auto',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                WebkitOverflowScrolling: 'touch',
+                overflow: 'hidden',
                 paddingBottom: '2px',
               }}>
                 {hasVariants ? (
