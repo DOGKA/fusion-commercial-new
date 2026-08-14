@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { X, ChevronDown, ChevronUp, RotateCcw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { readableAccentColor } from "@/lib/color-contrast";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INTERFACES
@@ -66,6 +68,10 @@ export default function FilterSidePanel({
 }: FilterSidePanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const { resolvedTheme } = useTheme();
+
+  // Kategori tema rengi metin olarak panel zemininde okunur olmalı (neon tonlar kayboluyordu)
+  const themeTextColor = readableAccentColor(themeColor, resolvedTheme === "dark");
 
   // Toplam seçili filtre sayısı
   const totalSelectedCount = Object.values(selectedFilters).reduce(
@@ -232,7 +238,7 @@ export default function FilterSidePanel({
                     <span className="w-1 h-1 rounded-full bg-foreground-muted" />
                     <span
                       className="text-[14px] font-semibold tracking-tight"
-                      style={{ color: themeColor }}
+                      style={{ color: themeTextColor }}
                     >
                       {totalSelectedCount} seçili
                     </span>
@@ -327,7 +333,7 @@ export default function FilterSidePanel({
                           className="px-2 py-0.5 text-[11px] font-semibold rounded-full"
                           style={{
                             backgroundColor: `${themeColor}20`,
-                            color: themeColor,
+                            color: themeTextColor,
                           }}
                         >
                           {selectedInGroup.length}

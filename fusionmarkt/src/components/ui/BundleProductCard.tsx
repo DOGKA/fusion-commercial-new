@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, Heart, BadgeCheck, Truck, Play } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
+import { readableBadgeBackground } from "@/lib/color-contrast";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -159,7 +160,8 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 height: 28, 
                 padding: '0 12px', 
                 borderRadius: SQUIRCLE.sm,
-                background: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+                // Gradient'in iki ucu da beyaz metinle 4.5:1 üzerinde kalıyor
+                background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
                 color: '#FFFFFF',
                 border: '1px solid rgba(139, 92, 246, 0.4)',
                 boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
@@ -183,7 +185,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                   height: 28, 
                   padding: '0 14px', 
                   borderRadius: SQUIRCLE.sm,
-                  backgroundColor: '#F97316',
+                  backgroundColor: '#C2410C',
                   color: '#FFFFFF',
                   border: '1px solid rgba(255, 255, 255, 0.2)'
                 }}
@@ -209,7 +211,12 @@ export default function BundleProductCard({ bundle, className, priority = false 
               </span>
             )}
             {/* Custom Badges */}
-            {badges && badges.length > 0 && badges.slice(0, 3).map((badge) => (
+            {badges && badges.length > 0 && badges.slice(0, 3).map((badge) => {
+              // Panelden gelen renk okunamayacak kadar açıksa zemini AA eşiğine kadar koyulaştır
+              const badgeText = badge.textColor || '#FFFFFF';
+              const badgeBackground = readableBadgeBackground(badge.color || '#7C3AED', badgeText);
+
+              return (
               <span 
                 key={badge.id}
                 className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
@@ -218,15 +225,16 @@ export default function BundleProductCard({ bundle, className, priority = false 
                   height: 28, 
                   padding: '0 12px', 
                   borderRadius: SQUIRCLE.sm,
-                  backgroundColor: badge.color || '#8B5CF6',
-                  color: badge.textColor || '#FFFFFF',
+                  backgroundColor: badgeBackground,
+                  color: badgeText,
                   border: '1px solid rgba(255, 255, 255, 0.2)',
-                  boxShadow: `0 2px 10px ${badge.color || '#8B5CF6'}40`,
+                  boxShadow: `0 2px 10px ${badgeBackground}40`,
                 }}
               >
                 {badge.name}
               </span>
-            ))}
+              );
+            })}
           </div>
 
           {/* Action Buttons */}

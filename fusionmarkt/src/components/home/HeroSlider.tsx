@@ -283,8 +283,19 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
     initialMobileSlide?.mobileImage ||
     initialMobileSlide?.desktopImage ||
     initialDesktopImage;
-  const useResponsiveInitialImage =
-    currentSlide === 0 && Boolean(initialDesktopImage && initialMobileImage);
+  // İlk slayt LCP elemanı: mobil/masaüstü görselini <picture> ile ayırıp preload
+  // ediyoruz. currentSlide'a bağlı DEĞİL — aksi halde ilk slayttan çıkınca
+  // <picture> unmount olup yerine boş bir <img> mount ediliyordu (beyaz kare).
+  const hasResponsiveInitialPair = Boolean(initialDesktopImage && initialMobileImage);
+
+  // Aktif slaytın yanında komşularını da mount ediyoruz: görselleri geçişten
+  // önce inip decode edildiği için slayt değişiminde ağ/decode beklenmiyor.
+  const preloadedSlides = new Set<number>([
+    0,
+    currentSlide,
+    (currentSlide + 1) % slides.length,
+    (currentSlide - 1 + slides.length) % slides.length,
+  ]);
   const desktopInitialImageProps = initialDesktopImage
     ? getImageProps({
         src: initialDesktopImage,
@@ -368,7 +379,7 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
 
   return (
     <>
-    {useResponsiveInitialImage && desktopInitialImageProps && mobileInitialImageProps && (
+    {hasResponsiveInitialPair && desktopInitialImageProps && mobileInitialImageProps && (
       <>
         <link
           rel="preload"
@@ -405,34 +416,55 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       {/* Background Image */}
       {backgroundImage && (
         <div className="absolute inset-0">
-          {useResponsiveInitialImage && desktopInitialImageProps && mobileInitialImageProps ? (
-            <picture>
-              <source
-                media="(max-width: 1023px)"
-                srcSet={mobileInitialImageProps.srcSet}
-                sizes="100vw"
-              />
-              <img
-                {...desktopInitialImageProps}
-                alt=""
+          {slides.map((item, index) => {
+            if (!preloadedSlides.has(index)) return null;
+            const layerImage = isMobile
+              ? item.mobileImage || item.desktopImage
+              : item.desktopImage;
+            if (!layerImage) return null;
+            const isActiveLayer = index === currentSlide;
+
+            return (
+              <div
+                key={item.id || index}
+                className="hero-slide-layer"
+                style={{ opacity: isActiveLayer ? 1 : 0 }}
                 aria-hidden="true"
-                fetchPriority="high"
-                className="object-cover object-center"
-              />
-            </picture>
-          ) : (
-            <Image
-              src={backgroundImage}
-              // Başlık/alt başlık zaten metin olarak render ediliyor; görsel dekoratif
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes="100vw"
-              quality={60}
-              className="object-cover object-center"
-              priority
-            />
-          )}
+              >
+                {index === 0 && hasResponsiveInitialPair && desktopInitialImageProps && mobileInitialImageProps ? (
+                  <picture>
+                    <source
+                      media="(max-width: 1023px)"
+                      srcSet={mobileInitialImageProps.srcSet}
+                      sizes="100vw"
+                    />
+                    <img
+                      {...desktopInitialImageProps}
+                      alt=""
+                      aria-hidden="true"
+                      fetchPriority="high"
+                      className="object-cover object-center"
+                    />
+                  </picture>
+                ) : (
+                  <Image
+                    src={layerImage}
+                    // Başlık/alt başlık zaten metin olarak render ediliyor; görsel dekoratif
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    sizes="100vw"
+                    quality={60}
+                    className="object-cover object-center"
+                    // Komşu slaytlar hemen indirilsin ama ilk ekranın LCP
+                    // görseliyle bant genişliği için yarışmasın.
+                    loading="eager"
+                    fetchPriority={isActiveLayer ? "high" : "low"}
+                  />
+                )}
+              </div>
+            );
+          })}
           {/* Dynamic Overlay - Theme-aware (Admin panelden renk ve opaklık ayarlanır) */}
           {overlayColor && overlayOpacity > 0 && (
             <div 
@@ -449,9 +481,11 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
       {/* Grid Pattern Background */}
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
       
-      {/* Animated Gradient Orbs */}
-      <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Animated Gradient Orbs — mobilde kapalı: %5 opaklıkla fotoğraf + overlay
+          altında görünmüyorlar ama blur(64px) + sonsuz pulse animasyonu iOS'ta
+          compositor'u aralıksız meşgul edip tüm sayfanın kaydırmasını yavaşlatıyor. */}
+      <div className="hidden lg:block absolute top-1/4 -left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
+      <div className="hidden lg:block absolute bottom-1/4 -right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       {/* Content */}
       <div className={cn(

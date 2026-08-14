@@ -69,7 +69,11 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    formats: ['image/avif', 'image/webp'],
+    // AVIF daha küçük dosya üretiyor (1920w: 16KB vs 71KB) ama iOS Safari'de
+    // decode'u belirgin şekilde yavaş; carousel'lerde hızlı kaydırırken kartlar
+    // yarım boyanıyordu. Bu ölçekte iki formatın da baytı önemsiz, darboğaz
+    // decode olduğu için WebP tercih ediliyor.
+    formats: ['image/webp'],
     qualities: [60, 75, 85, 90],
   },
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import { useCarouselScroll } from "@/hooks/useCarouselScroll";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
 interface TrendingProduct {
@@ -73,7 +73,41 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
     wrapperStyle,
     handlers,
     scrollBy,
-  } = useTransformCarousel({ friction: 0.95 });
+  } = useCarouselScroll({ friction: 0.95 });
+
+  // Safari'nin yatay lazy-load ön yükleme mesafesi çok dar: parmak hızlıysa kart
+  // görsel inmeden ekrana giriyor ve boş/yarım boyanmış görünüyor. Sayfa
+  // yüklendikten sonra kalan görselleri arka planda indirip decode ediyoruz;
+  // böylece kaydırma anında ne ağ ne decode işi kalıyor. LCP ile yarışmaması
+  // için ilk boyama bitene kadar bekliyor.
+  const [imagesWarmed, setImagesWarmed] = useState(false);
+
+  useEffect(() => {
+    let timer: number | undefined;
+    const schedule = () => {
+      timer = window.setTimeout(() => setImagesWarmed(true), 600);
+    };
+
+    if (document.readyState === "complete") {
+      schedule();
+      return () => window.clearTimeout(timer);
+    }
+
+    window.addEventListener("load", schedule, { once: true });
+    return () => {
+      window.removeEventListener("load", schedule);
+      window.clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!imagesWarmed) return;
+    // loading="lazy" → "eager" geçişi indirmeyi başlatır; decode() ise bitmap'i
+    // kaydırma öncesinde hazırlar (Safari aksi halde ilk boyamada decode eder).
+    wrapperRef.current?.querySelectorAll("img").forEach((img) => {
+      img.decode?.().catch(() => {});
+    });
+  }, [imagesWarmed, wrapperRef, products]);
 
   return (
     <section className="pt-10 lg:pt-12 pb-6 lg:pb-8" aria-labelledby="trending-heading">
@@ -116,16 +150,14 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                         // ekran okuyucuda başlığı iki kez okutuyordu
                         alt=""
                         fill
-                        // Kart 1023px'te 280px'e düşüyor; sizes bunu birebir
-                        // yansıtmazsa Safari gereğinden büyük dosya indirip
-                        // kaydırma sırasında decode'a takılıyor.
-                        sizes="(max-width: 1023px) 280px, 370px"
+                        // Kart mobilde 280px, masaüstünde 370px. Bildirilen
+                        // değeri kasten biraz düşük tutuyoruz: 3x ekranlarda
+                        // srcset 1080w yerine 640w adayını seçiyor. Fotoğraf
+                        // koyu gradient altında olduğu için fark görünmezken
+                        // decode + rasterize maliyeti ~2.5x düşüyor.
+                        sizes="(max-width: 1023px) 210px, 380px"
                         className="product-card-image"
-                        // Safari'nin yatay lazy-load ön yükleme mesafesi dar;
-                        // hızlı kaydırmada kart görselden önce ekrana giriyor.
-                        // İlk kartları erkenden getir, kalanları hero/LCP
-                        // indirmesiyle yarıştırma.
-                        loading={index < 3 ? "eager" : "lazy"}
+                        loading={index < 3 || imagesWarmed ? "eager" : "lazy"}
                         fetchPriority={index < 3 ? "auto" : "low"}
                         draggable={false}
                       />

@@ -33,13 +33,19 @@ export default function BrandProductList({
                 className="flex gap-3 h-full p-3 rounded-2xl border border-border bg-glass-bg transition-colors hover:border-border-secondary"
               >
                 {product.thumbnail && (
-                  <Image
-                    src={product.thumbnail}
-                    alt={product.name}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
-                  />
+                  // Ürün fotoğrafları kare değil: object-cover kenarları kırpıp
+                  // ürünü kutuya sığdırmıyordu. Sabit kareyi kutu veriyor, görsel
+                  // içine oranı korunarak yerleşiyor (projedeki diğer ürün
+                  // görselleriyle aynı kalıp).
+                  <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-background">
+                    <Image
+                      src={product.thumbnail}
+                      alt={product.name}
+                      fill
+                      sizes="64px"
+                      className="object-contain p-1"
+                    />
+                  </div>
                 )}
                 <div className="min-w-0 flex flex-col">
                   <span className="text-xs font-medium text-foreground line-clamp-2">

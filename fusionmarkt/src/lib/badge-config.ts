@@ -36,18 +36,23 @@ export type SystemBadgeType =
 // SYSTEM BADGE STYLES
 // ============================================
 
+/**
+ * Rozet metinleri 11px olduğu için WCAG AA'da 4.5:1 kontrast gerekiyor.
+ * Zemin tonları beyaz metinle bu eşiği geçecek şekilde seçildi
+ * (önceki #EF4444/#F59E0B/#22C55E sırasıyla 3.76/2.15/2.28 ile okunmuyordu).
+ */
 export const SYSTEM_BADGE_STYLES: Record<SystemBadgeType, { color: string; bgColor: string }> = {
   DISCOUNT_PERCENT: {
     color: "#FFFFFF",
-    bgColor: "#EF4444", // Kırmızı - İndirim
+    bgColor: "#DC2626", // Kırmızı - İndirim (4.83:1)
   },
   LOW_STOCK: {
     color: "#FFFFFF", 
-    bgColor: "#F59E0B", // Turuncu - Uyarı
+    bgColor: "#B45309", // Turuncu - Uyarı (5.02:1)
   },
   NEW_PRODUCT: {
     color: "#FFFFFF",
-    bgColor: "#22C55E", // Yeşil - Yeni
+    bgColor: "#15803D", // Yeşil - Yeni (5.02:1)
   },
 };
 

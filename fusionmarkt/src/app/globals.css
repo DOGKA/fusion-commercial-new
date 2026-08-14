@@ -392,8 +392,24 @@ label.field-flash p:first-of-type {
 }
 
 /* ===========================================================================
-   Hero Slider - Mobile
+   Hero Slider
 =========================================================================== */
+/* Slaytlar üst üste duran katmanlar: geçişte yeni görsel decode edilene kadar
+   eski kare ekranda kalıyor, böylece arada beyaz/boş kare oluşmuyor. Opaklık
+   geçişi compositor'da çalıştığı için ek boyama maliyeti yok. */
+.hero-slide-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide-layer {
+    transition: none;
+  }
+}
+
 @media (max-width: 1023px) {
   .hero-slider-mobile {
     height: auto;
@@ -416,6 +432,10 @@ label.field-flash p:first-of-type {
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  /* Kart içeriği kendi dışına hiç taşmıyor; bunu garanti etmek tarayıcının
+     ekran dışındaki kartları boyamayı atlamasına ve görünür olanları tek
+     seferde rasterize etmesine izin veriyor. */
+  contain: paint;
 }
 
 .trending-product-card .product-card-link {
@@ -464,13 +484,17 @@ label.field-flash p:first-of-type {
 .carousel-dragging * {
   transition: none !important;
   box-shadow: none !important;
+  /* Fareyle sürüklerken kart başlıkları metin seçimine dönüşmesin. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .carousel-dragging .trending-product-card:hover .product-card-background {
   transform: none;
 }
 
-/* Native scroll modu (mobil/touch): scrollbar gizle, hizalama kapalı (serbest) */
+/* Tüm carousel'lerin kaydırma konteyneri: scrollbar gizli, yatay uçta sayfa
+   geçmişine (geri jesti) taşmıyor, hizalama serbest. */
 .carousel-native-scroll {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -481,11 +505,17 @@ label.field-flash p:first-of-type {
   display: none;
 }
 
+/* Gradient kartın üst %40'ında tamamen şeffaftı. Tüm kartı kaplamak yerine
+   sadece görünür kısmı kaplıyor (duraklar oranlı taşındı, görünüm birebir aynı);
+   böylece kaydırmada yeniden rasterize edilen alan %40 küçülüyor. */
 .trending-product-card .product-card-background::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.15) 40%, transparent 60%);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.15) 66.7%, transparent 100%);
   pointer-events: none;
   z-index: 2;
 }

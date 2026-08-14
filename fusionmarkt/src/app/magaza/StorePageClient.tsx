@@ -18,7 +18,8 @@ import ParticleField from "@/components/three/ParticleField";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getAllFilters } from "@/lib/filters/category-filters";
 import { isOnSale, isNewProduct } from "@/lib/badge-config";
-import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import { readableAccentColor } from "@/lib/color-contrast";
+import { useCarouselScroll } from "@/hooks/useCarouselScroll";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 
 // Hydration-safe mounted check (same approach as `ThemeToggle`)
@@ -909,10 +910,11 @@ function BannerImage({ banner, isDark }: { banner: Banner | null; isDark: boolea
       {hasContent && (
         <div className="absolute inset-0 flex items-end p-4 sm:p-5 lg:p-6">
           <div className="flex-1">
+            {/* h1'den sonra gelen ilk başlık olduğu için h2: h1 -> h3 atlaması başlık sırasını bozuyordu */}
             {banner?.title && (
-              <h3 className={cn("text-sm sm:text-base lg:text-lg font-semibold mb-1 relative", isDark ? "text-white" : "text-gray-900 drop-shadow-sm")}>
+              <h2 className={cn("text-sm sm:text-base lg:text-lg font-semibold mb-1 relative", isDark ? "text-white" : "text-gray-900 drop-shadow-sm")}>
                 {banner.title}
-              </h3>
+              </h2>
             )}
             {banner?.subtitle && (
               <p className={cn("text-xs sm:text-sm mb-2 line-clamp-1 relative", isDark ? "text-white/80" : "text-gray-700")}>
@@ -989,7 +991,7 @@ function CategoryCarousel({
     wrapperStyle, 
     handlers,
     scrollBy,
-  } = useTransformCarousel({ friction: 0.95 });
+  } = useCarouselScroll({ friction: 0.95 });
 
   // Mobile check
   useEffect(() => {
@@ -1001,6 +1003,10 @@ function CategoryCarousel({
 
   // Tema rengi: Kategori themeColor (veritabanından) veya default
   const themeColor = category.themeColor || DEFAULT_THEME_COLOR;
+
+  // Tema rengi dolgu/gradient olarak sorunsuz; ama metin rengi olarak neon tonlar
+  // sayfa zemininde okunmuyor (örn. #CFFF66 üzerinde 1.06:1). Metin için okunur tonu kullan.
+  const themeTextColor = readableAccentColor(themeColor, isDark);
   
   // Banner renkleri: Banner verisi varsa onu kullan, yoksa themeColor'dan gradient oluştur
   const bannerColors = bannerData?.gradientFrom && bannerData?.gradientTo
@@ -1034,7 +1040,7 @@ function CategoryCarousel({
           <Link 
             href={`/kategori/${category.slug}`}
             className="flex items-center gap-1 text-sm font-medium transition-colors"
-            style={{ color: themeColor }}
+            style={{ color: themeTextColor }}
           >
             <span>Tümünü Gör</span>
             <ChevronRight className="w-4 h-4" />
@@ -1110,7 +1116,7 @@ function CategoryCarousel({
                 className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full text-[11px] font-semibold w-fit"
                 style={{
                   background: `${bannerColors.from}${isDark ? "25" : "20"}`,
-                  color: bannerColors.from,
+                  color: readableAccentColor(bannerColors.from, isDark),
                 }}
               >
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: bannerColors.from }} />
@@ -1226,7 +1232,7 @@ function StoreFeaturedSection({
     wrapperStyle,
     handlers,
     scrollBy,
-  } = useTransformCarousel({ friction: 0.95 });
+  } = useCarouselScroll({ friction: 0.95 });
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -1236,6 +1242,9 @@ function StoreFeaturedSection({
   }, []);
 
   const displayProducts = [...products, ...products, ...products];
+
+  // Vurgu rengi metin olarak kullanıldığında sayfa zemininde okunur olmalı
+  const accentTextColor = readableAccentColor(accentColor, isDark);
 
   return (
     <section style={{ marginTop: "48px" }}>
@@ -1252,7 +1261,7 @@ function StoreFeaturedSection({
                   style={{
                     fontSize: "11px",
                     letterSpacing: "0.2em",
-                    color: accentColor,
+                    color: accentTextColor,
                     marginBottom: "4px",
                   }}
                 >
@@ -1279,7 +1288,7 @@ function StoreFeaturedSection({
                 style={{
                   fontSize: "11px",
                   letterSpacing: "0.2em",
-                  color: accentColor,
+                  color: accentTextColor,
                   marginBottom: "12px",
                 }}
               >

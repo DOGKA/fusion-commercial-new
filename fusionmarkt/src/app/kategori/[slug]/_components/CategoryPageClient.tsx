@@ -19,7 +19,7 @@ import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getFiltersByCategory } from "@/lib/filters/category-filters";
-import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import { useCarouselScroll } from "@/hooks/useCarouselScroll";
 
 // ============================================
 // INTERFACES
@@ -306,7 +306,7 @@ export default function CategoryPageClient({
     containerStyle: mobileContainerStyle, 
     wrapperStyle: mobileWrapperStyle, 
     handlers: mobileScrollHandlers,
-  } = useTransformCarousel({ friction: 0.95 });
+  } = useCarouselScroll({ friction: 0.95 });
 
   // Get theme color only from category (no fallback)
   const themeColor = category?.themeColor ?? "";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransformCarousel } from "@/hooks/useTransformCarousel";
+import { useCarouselScroll } from "@/hooks/useCarouselScroll";
 import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
 import { Truck, ShieldCheck, MessageCircle, CreditCard, PackageCheck } from "lucide-react";
 
@@ -40,7 +40,7 @@ export default function WhyFusionMarkt() {
     wrapperStyle,
     handlers,
     scrollBy,
-  } = useTransformCarousel({ friction: 0.92 });
+  } = useCarouselScroll({ friction: 0.92 });
 
   return (
     <section className="why-fusion-section">

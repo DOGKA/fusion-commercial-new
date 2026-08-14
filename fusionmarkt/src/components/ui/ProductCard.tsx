@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, Heart, Play, BadgeCheck } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
+import { readableBadgeBackground } from "@/lib/color-contrast";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -181,7 +182,8 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     height: 28, 
                     padding: '0 12px', 
                     borderRadius: SQUIRCLE.sm,
-                    background: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+                    // Gradient'in iki ucu da beyaz metinle 4.5:1 üzerinde kalıyor
+                    background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
                     color: '#FFFFFF',
                     border: '1px solid rgba(139, 92, 246, 0.4)',
                     boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
@@ -203,6 +205,14 @@ export default function ProductCard({ product, className, priority = false }: Pr
                   return null;
                 }
                 
+                // Panelden gelen rozet renkleri okunamayacak kadar açık olabiliyor;
+                // metin rengini koruyup zemini AA eşiğine kadar koyulaştırıyoruz.
+                const badgeText = badgeItem.color || '#FFFFFF';
+                const badgeBackground = readableBadgeBackground(
+                  badgeItem.bgColor || '#15803D',
+                  badgeText
+                );
+
                 return (
                 <span 
                     key={idx}
@@ -212,9 +222,9 @@ export default function ProductCard({ product, className, priority = false }: Pr
                       height: 28, 
                       padding: '0 14px', 
                       borderRadius: SQUIRCLE.sm,
-                      backgroundColor: badgeItem.bgColor || '#22C55E',
-                      color: badgeItem.color || '#FFFFFF',
-                      border: `1px solid ${(badgeItem.color || '#FFFFFF')}20`
+                      backgroundColor: badgeBackground,
+                      color: badgeText,
+                      border: `1px solid ${badgeText}20`
                     }}
                   >
                     {badgeItem.label}
@@ -239,7 +249,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     height: 28, 
                     padding: '0 14px', 
                     borderRadius: SQUIRCLE.sm,
-                    backgroundColor: '#F97316',
+                    backgroundColor: '#C2410C',
                     color: '#FFFFFF',
                     border: '1px solid rgba(255, 255, 255, 0.2)'
                   }}
