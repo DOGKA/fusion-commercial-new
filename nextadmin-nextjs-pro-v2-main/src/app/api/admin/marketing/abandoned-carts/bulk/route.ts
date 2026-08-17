@@ -127,6 +127,12 @@ export async function POST(request: NextRequest) {
             data: {
               lastReminderSentAt: new Date(),
               reminderCount: { increment: 1 },
+              // updatedAt korunuyor: terk edilmiş sepet sorgusu bu alana bakıyor
+              // ve @updatedAt her güncellemede onu "şimdi" yapıyor. Hatırlatma
+              // göndermek, sepeti terk edilmiş listesinden 7 gün boyunca
+              // düşürüyordu — üstelik 3 günlük tekrar kuralı da hiç
+              // tetiklenemiyordu.
+              updatedAt: cart.updatedAt,
             } as any,
           });
           sent++;

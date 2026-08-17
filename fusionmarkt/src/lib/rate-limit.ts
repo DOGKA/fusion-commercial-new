@@ -194,6 +194,14 @@ export const RATE_LIMITS = {
     limit: 30,
     windowSeconds: 60, // 30 requests per minute
   },
+
+  // Cart sync - lenient (per user). İstemci tarafında debounce var, ama hızlı
+  // adet değişiklikleri (miktar butonuna üst üste basmak) birden fazla istek
+  // üretebiliyor.
+  cartSync: {
+    limit: 60,
+    windowSeconds: 60, // 60 requests per minute
+  },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════

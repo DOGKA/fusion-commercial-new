@@ -277,6 +277,10 @@ export async function POST(request: NextRequest) {
       data: {
         lastReminderSentAt: new Date(),
         reminderCount: { increment: 1 },
+        // updatedAt korunuyor: yukarıdaki GET sorgusu terk edilmişliği bu alana
+        // göre belirliyor, @updatedAt ise her güncellemede onu "şimdi" yapıyor.
+        // Hatırlatma göndermek sepeti listeden 7 gün boyunca düşürüyordu.
+        updatedAt: cart.updatedAt,
       } as any,
     });
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode, useRef } from "react";
+import { useSession } from "next-auth/react";
+import { trackAddToCartConversion } from "@/lib/ads-conversions";
 
 // Helper to get initial cart from localStorage (client-side only)
 function getStoredCart(): CartItem[] {
@@ -110,6 +112,70 @@ export function CartProvider({ children }: CartProviderProps) {
     localStorage.setItem("fusionmarkt-cart", JSON.stringify(items));
   }, [items]);
 
+  // ═════════════════════════════════════════════════════════════════════════
+  // SUNUCU TARAFI SEPET KOPYASI
+  // ═════════════════════════════════════════════════════════════════════════
+  // Sepetin kaynağı localStorage olmaya devam ediyor. Bu senkron yalnızca
+  // sunucuda bir kopya bırakıyor; admin panelindeki "Terk Edilmiş Sepetler"
+  // ekranı ve hatırlatma e-postaları o kopyayı okuyor. Sunucudan istemciye geri
+  // yükleme (cihazlar arası sepet) YOK — o yüzden bu akış tek yönlü.
+  const { status: sessionStatus } = useSession();
+  const lastSyncedPayloadRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Hidrasyon bitmeden çalışırsa items henüz [] olduğu için sunucudaki kayıt
+    // silinirdi.
+    if (!isHydrated) return;
+    // Misafir sepeti sunucuya yazılmıyor: Cart.userId zorunlu.
+    if (sessionStatus !== "authenticated") return;
+
+    const payload = JSON.stringify({
+      items: items
+        .map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          isBundle: item.isBundle === true,
+          variantLabel: item.variant
+            ? `${item.variant.name}: ${item.variant.value}`
+            : undefined,
+        }))
+        // Sıra sabitleniyor: yalnızca içerik değiştiğinde istek atmak için
+        // yükün karşılaştırılabilir olması gerekiyor.
+        .sort((a, b) => a.productId.localeCompare(b.productId)),
+    });
+
+    if (lastSyncedPayloadRef.current === payload) return;
+
+    // Sepeti boş olan kullanıcı için her sayfa açılışında boşuna istek
+    // atmıyoruz. Sepeti sonradan boşaltmak yine senkronlanıyor, çünkü o anda
+    // referans dolu oluyor.
+    if (items.length === 0 && lastSyncedPayloadRef.current === null) {
+      lastSyncedPayloadRef.current = payload;
+      return;
+    }
+
+    // Adet butonuna üst üste basmak her tıklamada istek üretmesin.
+    const timer = setTimeout(() => {
+      lastSyncedPayloadRef.current = payload;
+      fetch("/api/cart/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        keepalive: true,
+      })
+        .then((res) => {
+          // Başarısızsa işareti geri alıyoruz ki sonraki değişiklikte tekrar
+          // denensin. Sepet deneyimi bu isteğe bağlı değil, sessizce geçiyoruz.
+          if (!res.ok) lastSyncedPayloadRef.current = null;
+        })
+        .catch(() => {
+          lastSyncedPayloadRef.current = null;
+        });
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [items, isHydrated, sessionStatus]);
+
   // Calculate derived values — tek geçişte, yalnızca `items` değişince.
   const { itemCount, subtotal, originalSubtotal, totalSavings } = useMemo(() => {
     let count = 0;
@@ -167,6 +233,22 @@ export function CartProvider({ children }: CartProviderProps) {
       };
 
       return [...prevItems, cartItem];
+    });
+
+    // Sepete eklemenin tek geçiş noktası burası: ürün kartı butonu, güç
+    // hesaplayıcı, favorilerden sepete taşıma ve yeniden sipariş akışlarının
+    // hepsi addItem'ı çağırıyor, dolayısıyla dönüşüm tek yerden ölçülüyor.
+    // Konum bilinçli: sepet güncellendikten SONRA, ama setItems
+    // güncelleyicisinin DIŞINDA. Güncelleyicinin içi StrictMode'da iki kez
+    // çalışıyor ve dönüşüm iki kez sayılırdı.
+    trackAddToCartConversion({
+      productId: newItem.productId,
+      title: newItem.title,
+      price: newItem.price,
+      quantity: newItem.quantity || 1,
+      variantId: newItem.variant?.id,
+      isBundle: newItem.isBundle,
+      bundleId: newItem.bundleId,
     });
 
     // Don't auto-open mini cart - only animate header badge

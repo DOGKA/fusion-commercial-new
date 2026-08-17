@@ -1,196 +1,209 @@
+/**
+ * GET /api/admin/analytics/cart
+ *
+ * Sepet ve sipariş analizleri.
+ *
+ * BU UÇTA TAHMİN/SABİT DEĞER YOK. Önceki sürüm ekranın yarısını uyduruyordu:
+ * ürün dönüşüm oranı `Math.random()` ile üretiliyor, huni basamakları sipariş
+ * sayısının 8 / 2,5 / 1,3 katı olarak hesaplanıyor, cihaz dağılımı ile terk
+ * sebepleri ise kodda sabit yazılıyordu. Hepsi kaldırıldı.
+ *
+ * Ölçülmediği için burada OLMAYAN metrikler: ürün görüntüleme sayısı, sepete
+ * ekleme oranı, ödeme başlatma sayısı, cihaz dağılımı, terk sebebi, saat bazlı
+ * yoğunluk. Bunlar için olay (event) tablosu gerekiyor; sepete ekleme şu anda
+ * yalnızca Google Ads'e gönderiliyor, veritabanına yazılmıyor.
+ *
+ * Sepet sayıları `Cart` tablosundan geliyor ve yalnızca GİRİŞ YAPMIŞ
+ * kullanıcıları kapsıyor — misafir sepetleri sunucuya hiç yazılmıyor.
+ */
+
 import { NextResponse } from "next/server";
-import { prisma } from "@/libs/prismaDb";
+import { prisma } from "@repo/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/libs/auth";
+
+export const dynamic = "force-dynamic";
+
+// abandoned-carts ekranıyla aynı eşik kullanılıyor; iki sayfanın farklı sayı
+// göstermemesi için burada da 7 gün.
+const ABANDONED_DAYS = 7;
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Beklemede",
+  PROCESSING: "Hazırlanıyor",
+  SHIPPED: "Kargoda",
+  DELIVERED: "Teslim Edildi",
+  CANCELLED: "İptal Edildi",
+  REFUNDED: "İade Edildi",
+};
+
+function percentChange(current: number, previous: number): number | null {
+  // Önceki dönem sıfırsa yüzde değişim tanımsız. Eskiden bu durumda 0
+  // gösteriliyordu, "değişim yok" gibi okunuyordu; artık null dönüp arayüzde
+  // tire gösteriliyor.
+  if (previous === 0) return null;
+  return Math.round(((current - previous) / previous) * 100);
+}
 
 export async function GET() {
   try {
-    // Date calculations
+    // Bu uçta oturum kontrolü yoktu: ciro ve sipariş sayıları kimlik
+    // doğrulaması olmadan okunabiliyordu.
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Yetkilendirme gerekli" }, { status: 401 });
+    }
+    const userRole = (session.user as { role?: string }).role;
+    if (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Bu işlem için yetkiniz yok" }, { status: 403 });
+    }
+
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekStart = new Date(todayStart);
     weekStart.setDate(weekStart.getDate() - 7);
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 
-    // Get all order items with product info for analytics
+    const abandonedThreshold = new Date();
+    abandonedThreshold.setDate(abandonedThreshold.getDate() - ABANDONED_DAYS);
+
+    const paidOnly = { paymentStatus: "PAID" as const };
+
     const [
-      // Current month orders
-      currentMonthOrders,
-      // Last month orders (for comparison)
-      lastMonthOrders,
-      // Total orders and revenue
       totalOrders,
-      totalRevenue,
-      // Cancelled orders (for abandonment rate calculation)
       cancelledOrders,
-      // Top products by order frequency
+      paidAllTime,
+      paidCurrentMonth,
+      paidLastMonth,
+      statusGroups,
+      todayOrders,
+      weekOrders,
+      monthOrders,
       topProducts,
-      // Recent orders for conversion tracking
-      recentOrdersCount,
-      todayOrdersCount,
+      activeCarts,
+      abandonedCarts,
     ] = await Promise.all([
-      // Current month order stats
-      prisma.order.aggregate({
-        where: { createdAt: { gte: monthStart } },
-        _sum: { total: true },
-        _count: true,
-      }),
-      // Last month order stats
-      prisma.order.aggregate({
-        where: {
-          createdAt: {
-            gte: lastMonthStart,
-            lte: lastMonthEnd,
-          },
-        },
-        _sum: { total: true },
-        _count: true,
-      }),
-      // Total orders
       prisma.order.count(),
-      // Total revenue (paid orders)
-      prisma.order.aggregate({
-        where: { paymentStatus: "PAID" },
-        _sum: { total: true },
-      }),
-      // Cancelled orders
       prisma.order.count({ where: { status: "CANCELLED" } }),
-      // Top products by quantity sold
+      // Ortalama sipariş değeri ve ciro yalnızca ödenmiş siparişlerden.
+      // ESKİ HATA: pay ödenmiş siparişlerin cirosu, bölen ise TÜM siparişlerdi;
+      // ortalama sistematik olarak düşük çıkıyordu.
+      prisma.order.aggregate({ where: paidOnly, _sum: { total: true }, _count: true }),
+      prisma.order.aggregate({
+        where: { ...paidOnly, createdAt: { gte: monthStart } },
+        _sum: { total: true },
+        _count: true,
+      }),
+      prisma.order.aggregate({
+        where: { ...paidOnly, createdAt: { gte: lastMonthStart, lte: lastMonthEnd } },
+        _sum: { total: true },
+        _count: true,
+      }),
+      prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
+      prisma.order.count({ where: { createdAt: { gte: todayStart } } }),
+      prisma.order.count({ where: { createdAt: { gte: weekStart } } }),
+      prisma.order.count({ where: { createdAt: { gte: monthStart } } }),
       prisma.orderItem.groupBy({
         by: ["productId"],
         _sum: { quantity: true },
-        _count: true,
+        _count: { _all: true },
         orderBy: { _sum: { quantity: "desc" } },
         take: 10,
       }),
-      // Week orders count
-      prisma.order.count({ where: { createdAt: { gte: weekStart } } }),
-      // Today orders count
-      prisma.order.count({ where: { createdAt: { gte: todayStart } } }),
+      prisma.cart.count({
+        where: { items: { some: {} }, updatedAt: { gte: abandonedThreshold } },
+      }),
+      prisma.cart.count({
+        where: { items: { some: {} }, updatedAt: { lt: abandonedThreshold } },
+      }),
     ]);
 
-    // Get product details for top products
-    const productIds = topProducts.map((p) => p.productId).filter((id): id is string => id !== null);
+    const productIds = topProducts
+      .map((p) => p.productId)
+      .filter((id): id is string => Boolean(id));
+
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: {
-        id: true,
-        name: true,
-        thumbnail: true,
-        price: true,
-      },
+      select: { id: true, name: true, thumbnail: true, price: true },
     });
-
     const productMap = new Map(products.map((p) => [p.id, p]));
 
-    // Calculate metrics
-    const currentMonthTotal = Number(currentMonthOrders._sum.total || 0);
-    const lastMonthTotal = Number(lastMonthOrders._sum.total || 0);
-    const currentMonthCount = currentMonthOrders._count || 0;
-    const lastMonthCount = lastMonthOrders._count || 0;
+    const paidCount = paidAllTime._count;
+    const paidRevenue = Number(paidAllTime._sum.total || 0);
+    const currentMonthPaidCount = paidCurrentMonth._count;
+    const currentMonthRevenue = Number(paidCurrentMonth._sum.total || 0);
+    const lastMonthPaidCount = paidLastMonth._count;
+    const lastMonthRevenue = Number(paidLastMonth._sum.total || 0);
 
-    // Average order value
-    const avgOrderValue = totalOrders > 0 
-      ? Number(totalRevenue._sum.total || 0) / totalOrders 
-      : 0;
-    const lastMonthAvgOrderValue = lastMonthCount > 0 
-      ? lastMonthTotal / lastMonthCount 
-      : 0;
+    const avgAllTime = paidCount > 0 ? paidRevenue / paidCount : 0;
+    const avgCurrentMonth =
+      currentMonthPaidCount > 0 ? currentMonthRevenue / currentMonthPaidCount : 0;
+    const avgLastMonth = lastMonthPaidCount > 0 ? lastMonthRevenue / lastMonthPaidCount : 0;
 
-    // Abandonment rate (using cancelled orders as proxy)
-    const abandonmentRate = totalOrders > 0 
-      ? (cancelledOrders / totalOrders) * 100 
-      : 0;
-
-    // Conversion rate improvement (comparing current vs last month)
-    const conversionChange = lastMonthCount > 0
-      ? ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100
-      : 0;
-
-    // Format top products with conversion rates
-    const topProductsFormatted = topProducts.map((item) => {
-      const product = item.productId ? productMap.get(item.productId) : null;
-      const totalSold = item._sum.quantity || 0;
-      // Estimate conversion rate based on order count vs total sold
-      const conversionRate = item._count > 0 ? Math.min(95, 60 + Math.random() * 30) : 0;
-      
-      return {
-        id: item.productId,
-        name: product?.name || "Bilinmeyen Ürün",
-        thumbnail: product?.thumbnail || null,
-        price: Number(product?.price || 0),
-        count: totalSold,
-        orderCount: item._count,
-        conversionRate: Math.round(conversionRate),
-      };
-    });
-
-    // Calculate period comparisons
-    const avgValueChange = lastMonthAvgOrderValue > 0
-      ? ((avgOrderValue - lastMonthAvgOrderValue) / lastMonthAvgOrderValue) * 100
-      : 0;
+    const statusDistribution = statusGroups
+      .map((group) => ({
+        status: group.status,
+        label: STATUS_LABELS[group.status] ?? group.status,
+        count: group._count._all,
+        percent: totalOrders > 0 ? Math.round((group._count._all / totalOrders) * 100) : 0,
+      }))
+      .sort((a, b) => b.count - a.count);
 
     return NextResponse.json({
-      stats: {
-        // Add to cart rate (estimated based on order patterns)
-        addToCartRate: {
-          value: Math.round(20 + (currentMonthCount / Math.max(1, totalOrders)) * 10),
-          change: conversionChange > 0 ? Math.round(conversionChange / 2) : -2,
-        },
-        // Purchase rate (orders completed)
-        purchaseRate: {
-          value: Math.round(100 - abandonmentRate),
-          change: Math.round(conversionChange / 3),
-        },
-        // Abandonment rate
-        abandonmentRate: {
-          value: Math.round(abandonmentRate),
-          change: -Math.round(conversionChange / 4),
-        },
-        // Average cart value
-        avgCartValue: {
-          value: Math.round(avgOrderValue),
-          lastMonth: Math.round(lastMonthAvgOrderValue),
-          change: Math.round(avgValueChange),
-        },
+      generatedAt: now.toISOString(),
+      orders: {
+        total: totalOrders,
+        paid: paidCount,
+        cancelled: cancelledOrders,
       },
-      // Conversion funnel data
-      funnel: {
-        productViews: Math.round(totalOrders * 8), // Estimated
-        addedToCart: Math.round(totalOrders * 2.5), // Estimated
-        checkoutStarted: Math.round(totalOrders * 1.3),
-        purchased: totalOrders - cancelledOrders,
+      rates: {
+        // Ödenmiş sipariş / toplam sipariş. "Satın alma oranı" DEĞİL — ziyaretçi
+        // sayısı ölçülmediği için ziyaretçi bazlı bir oran hesaplanamıyor.
+        paidRate: totalOrders > 0 ? Math.round((paidCount / totalOrders) * 100) : 0,
+        // İptal edilmiş sipariş / toplam sipariş. Eskiden bu değer "Sepet Terk
+        // Oranı" olarak gösteriliyordu; sepet terkiyle ilgisi yok.
+        cancellationRate:
+          totalOrders > 0 ? Math.round((cancelledOrders / totalOrders) * 100) : 0,
       },
-      // Top products
-      topProducts: topProductsFormatted,
-      // Time-based stats
+      avgOrderValue: {
+        allTime: Math.round(avgAllTime),
+        currentMonth: Math.round(avgCurrentMonth),
+        lastMonth: Math.round(avgLastMonth),
+        // Aynı formülün iki dönemi karşılaştırılıyor. Eskiden tüm zamanların
+        // ortalaması geçen ayın ortalamasıyla karşılaştırılıyordu.
+        change: percentChange(avgCurrentMonth, avgLastMonth),
+      },
+      revenue: {
+        paidAllTime: Math.round(paidRevenue),
+        currentMonth: Math.round(currentMonthRevenue),
+        lastMonth: Math.round(lastMonthRevenue),
+        change: percentChange(currentMonthRevenue, lastMonthRevenue),
+      },
+      statusDistribution,
       timeStats: {
-        todayOrders: todayOrdersCount,
-        weekOrders: recentOrdersCount,
-        monthOrders: currentMonthCount,
+        todayOrders,
+        weekOrders,
+        monthOrders,
         totalOrders,
       },
-      // Device distribution (placeholder - would need tracking data)
-      deviceDistribution: {
-        mobile: 62,
-        desktop: 32,
-        tablet: 6,
+      topProducts: topProducts.map((item) => {
+        const product = item.productId ? productMap.get(item.productId) : null;
+        return {
+          id: item.productId,
+          name: product?.name || "Silinmiş ürün",
+          thumbnail: product?.thumbnail || null,
+          price: Number(product?.price || 0),
+          quantitySold: item._sum.quantity || 0,
+          orderCount: item._count._all,
+        };
+      }),
+      carts: {
+        active: activeCarts,
+        abandoned: abandonedCarts,
+        thresholdDays: ABANDONED_DAYS,
       },
-      // Abandonment reasons (placeholder - would need survey/tracking data)
-      abandonmentReasons: [
-        { reason: "Kargo ücreti yüksek", percent: 35 },
-        { reason: "Sadece bakıyordum", percent: 28 },
-        { reason: "Fiyat karşılaştırma", percent: 18 },
-        { reason: "Ödeme problemi", percent: 12 },
-        { reason: "Diğer", percent: 7 },
-      ],
-      // Peak hours (placeholder - would need hourly tracking)
-      peakHours: [
-        { hour: "10:00 - 12:00", value: 85 },
-        { hour: "14:00 - 16:00", value: 72 },
-        { hour: "20:00 - 22:00", value: 95 },
-        { hour: "18:00 - 20:00", value: 68 },
-      ],
     });
   } catch (error) {
     console.error("Error fetching cart analytics:", error);
@@ -200,4 +213,3 @@ export async function GET() {
     );
   }
 }
-

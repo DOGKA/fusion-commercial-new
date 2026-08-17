@@ -1,29 +1,42 @@
 "use client";
 
+/**
+ * Sepet & Sipariş Analizleri.
+ *
+ * Bu ekranda yalnızca veritabanında karşılığı olan sayılar gösteriliyor.
+ * Önceki sürümde ürün dönüşüm oranı her yenilemede rastgele üretiliyor, dönüşüm
+ * hunisi sipariş sayısının katları olarak uyduruluyor, cihaz dağılımı / terk
+ * sebepleri / yoğun saatler ise kodda sabit yazılıyordu. Hepsi kaldırıldı.
+ *
+ * Ölçülmediği için burada yok: ürün görüntüleme, sepete ekleme oranı, ödeme
+ * başlatma, cihaz kırılımı, terk sebebi, saat bazlı yoğunluk.
+ */
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface CartAnalyticsData {
-  stats: {
-    addToCartRate: { value: number; change: number };
-    purchaseRate: { value: number; change: number };
-    abandonmentRate: { value: number; change: number };
-    avgCartValue: { value: number; lastMonth: number; change: number };
+  generatedAt: string;
+  orders: { total: number; paid: number; cancelled: number };
+  rates: { paidRate: number; cancellationRate: number };
+  avgOrderValue: {
+    allTime: number;
+    currentMonth: number;
+    lastMonth: number;
+    change: number | null;
   };
-  funnel: {
-    productViews: number;
-    addedToCart: number;
-    checkoutStarted: number;
-    purchased: number;
+  revenue: {
+    paidAllTime: number;
+    currentMonth: number;
+    lastMonth: number;
+    change: number | null;
   };
-  topProducts: Array<{
-    id: string;
-    name: string;
-    thumbnail: string | null;
-    price: number;
+  statusDistribution: Array<{
+    status: string;
+    label: string;
     count: number;
-    orderCount: number;
-    conversionRate: number;
+    percent: number;
   }>;
   timeStats: {
     todayOrders: number;
@@ -31,13 +44,61 @@ interface CartAnalyticsData {
     monthOrders: number;
     totalOrders: number;
   };
-  deviceDistribution: {
-    mobile: number;
-    desktop: number;
-    tablet: number;
-  };
-  abandonmentReasons: Array<{ reason: string; percent: number }>;
-  peakHours: Array<{ hour: string; value: number }>;
+  topProducts: Array<{
+    id: string | null;
+    name: string;
+    thumbnail: string | null;
+    price: number;
+    quantitySold: number;
+    orderCount: number;
+  }>;
+  carts: { active: number; abandoned: number; thresholdDays: number };
+}
+
+const STATUS_BAR_COLORS: Record<string, string> = {
+  DELIVERED: "bg-green-500",
+  SHIPPED: "bg-blue-500",
+  PROCESSING: "bg-indigo-500",
+  PENDING: "bg-yellow-500",
+  CANCELLED: "bg-red-500",
+  REFUNDED: "bg-orange-500",
+};
+
+function formatTL(value: number): string {
+  return `${value.toLocaleString("tr-TR")} ₺`;
+}
+
+function ChangeBadge({
+  change,
+  lowerIsBetter = false,
+}: {
+  change: number | null;
+  lowerIsBetter?: boolean;
+}) {
+  if (change === null) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded text-gray-500 bg-gray-100 dark:bg-dark-3"
+        title="Karşılaştırılacak önceki dönem verisi yok"
+      >
+        —
+      </span>
+    );
+  }
+
+  const isGood = lowerIsBetter ? change <= 0 : change >= 0;
+  return (
+    <span
+      className={`text-xs px-2 py-1 rounded ${
+        isGood
+          ? "text-green-500 bg-green-100 dark:bg-green-500/10"
+          : "text-red-500 bg-red-100 dark:bg-red-500/10"
+      }`}
+    >
+      {change > 0 ? "+" : ""}
+      {change}%
+    </span>
+  );
 }
 
 export default function CartAnalyticsPage() {
@@ -90,225 +151,195 @@ export default function CartAnalyticsPage() {
 
   if (!data) return null;
 
-  const { stats, funnel, topProducts, deviceDistribution, abandonmentReasons, peakHours } = data;
+  const { orders, rates, avgOrderValue, revenue, statusDistribution, timeStats, topProducts, carts } = data;
+  const maxQuantitySold = Math.max(1, ...topProducts.map((p) => p.quantitySold));
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-dark dark:text-white">Sepet Analizleri</h1>
-          <p className="text-gray-500">Sepet performansını ve dönüşüm oranlarını analiz edin</p>
+          <h1 className="text-2xl font-bold text-dark dark:text-white">
+            Sepet &amp; Sipariş Analizleri
+          </h1>
+          <p className="text-gray-500">
+            Sipariş ve sepet verilerine dayalı ölçümler
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 rounded-full text-sm">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            Canlı Veri
-          </span>
-        </div>
+        <span className="text-sm text-gray-500">
+          Son güncelleme:{" "}
+          {new Date(data.generatedAt).toLocaleString("tr-TR", {
+            dateStyle: "short",
+            timeStyle: "short",
+          })}
+        </span>
       </div>
 
       {/* Main Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">Sepete Ekleme Oranı</p>
-            <span className={`text-xs px-2 py-1 rounded ${
-              stats.addToCartRate.change >= 0 
-                ? "text-green-500 bg-green-100 dark:bg-green-500/10" 
-                : "text-red-500 bg-red-100 dark:bg-red-500/10"
-            }`}>
-              {stats.addToCartRate.change >= 0 ? "+" : ""}{stats.addToCartRate.change}%
-            </span>
-          </div>
-          <p className="text-3xl font-bold text-dark dark:text-white">{stats.addToCartRate.value}%</p>
-          <div className="mt-2 h-2 bg-gray-200 rounded-full dark:bg-dark-3">
-            <div 
-              className="h-full bg-primary rounded-full transition-all duration-500" 
-              style={{ width: `${stats.addToCartRate.value}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">Satın Alma Oranı</p>
-            <span className={`text-xs px-2 py-1 rounded ${
-              stats.purchaseRate.change >= 0 
-                ? "text-green-500 bg-green-100 dark:bg-green-500/10" 
-                : "text-red-500 bg-red-100 dark:bg-red-500/10"
-            }`}>
-              {stats.purchaseRate.change >= 0 ? "+" : ""}{stats.purchaseRate.change}%
-            </span>
-          </div>
-          <p className="text-3xl font-bold text-dark dark:text-white">{stats.purchaseRate.value}%</p>
-          <div className="mt-2 h-2 bg-gray-200 rounded-full dark:bg-dark-3">
-            <div 
-              className="h-full bg-green-500 rounded-full transition-all duration-500" 
-              style={{ width: `${stats.purchaseRate.value}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">Sepet Terk Oranı</p>
-            <span className={`text-xs px-2 py-1 rounded ${
-              stats.abandonmentRate.change <= 0 
-                ? "text-green-500 bg-green-100 dark:bg-green-500/10" 
-                : "text-red-500 bg-red-100 dark:bg-red-500/10"
-            }`}>
-              {stats.abandonmentRate.change >= 0 ? "+" : ""}{stats.abandonmentRate.change}%
-            </span>
-          </div>
-          <p className="text-3xl font-bold text-dark dark:text-white">{stats.abandonmentRate.value}%</p>
-          <div className="mt-2 h-2 bg-gray-200 rounded-full dark:bg-dark-3">
-            <div 
-              className="h-full bg-red-500 rounded-full transition-all duration-500" 
-              style={{ width: `${stats.abandonmentRate.value}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">Ortalama Sepet Değeri</p>
-            <span className={`text-xs px-2 py-1 rounded ${
-              stats.avgCartValue.change >= 0 
-                ? "text-green-500 bg-green-100 dark:bg-green-500/10" 
-                : "text-red-500 bg-red-100 dark:bg-red-500/10"
-            }`}>
-              {stats.avgCartValue.change >= 0 ? "+" : ""}{stats.avgCartValue.change}%
-            </span>
+            <p className="text-sm text-gray-500">Ortalama Sipariş Değeri</p>
+            <ChangeBadge change={avgOrderValue.change} />
           </div>
           <p className="text-3xl font-bold text-dark dark:text-white">
-            {stats.avgCartValue.value.toLocaleString("tr-TR")} ₺
+            {formatTL(avgOrderValue.allTime)}
           </p>
           <p className="mt-2 text-sm text-gray-500">
-            Geçen ay: {stats.avgCartValue.lastMonth.toLocaleString("tr-TR")} ₺
+            Bu ay {formatTL(avgOrderValue.currentMonth)} · geçen ay{" "}
+            {formatTL(avgOrderValue.lastMonth)}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            Yalnızca ödenmiş {orders.paid} sipariş üzerinden
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-gray-500">Ödenmiş Sipariş Oranı</p>
+          </div>
+          <p className="text-3xl font-bold text-dark dark:text-white">{rates.paidRate}%</p>
+          <div className="mt-2 h-2 bg-gray-200 rounded-full dark:bg-dark-3">
+            <div
+              className="h-full bg-green-500 rounded-full transition-all duration-500"
+              style={{ width: `${rates.paidRate}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-xs text-gray-400">
+            {orders.paid} / {orders.total} sipariş ödendi
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-gray-500">Sipariş İptal Oranı</p>
+          </div>
+          <p className="text-3xl font-bold text-dark dark:text-white">
+            {rates.cancellationRate}%
+          </p>
+          <div className="mt-2 h-2 bg-gray-200 rounded-full dark:bg-dark-3">
+            <div
+              className="h-full bg-red-500 rounded-full transition-all duration-500"
+              style={{ width: `${rates.cancellationRate}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-xs text-gray-400">
+            {orders.cancelled} / {orders.total} sipariş iptal edildi
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-gray-500">Bu Ay Ciro</p>
+            <ChangeBadge change={revenue.change} />
+          </div>
+          <p className="text-3xl font-bold text-dark dark:text-white">
+            {formatTL(revenue.currentMonth)}
+          </p>
+          <p className="mt-2 text-sm text-gray-500">
+            Geçen ay: {formatTL(revenue.lastMonth)}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            Tüm zamanlar: {formatTL(revenue.paidAllTime)}
           </p>
         </div>
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Conversion Funnel */}
+        {/* Order Status Distribution */}
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <h2 className="mb-6 text-lg font-semibold text-dark dark:text-white flex items-center gap-2">
             <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m4 10V11m4 6V9M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
-            Dönüşüm Hunisi
+            Sipariş Durumu Dağılımı
           </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Ürün Görüntüleme</span>
-                <span className="text-sm font-medium text-dark dark:text-white">
-                  {funnel.productViews.toLocaleString("tr-TR")}
-                </span>
-              </div>
-              <div className="h-8 bg-blue-500 rounded"></div>
+
+          {statusDistribution.length === 0 ? (
+            <p className="py-8 text-center text-gray-500">Henüz sipariş yok</p>
+          ) : (
+            <div className="space-y-4">
+              {statusDistribution.map((item) => (
+                <div key={item.status}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {item.label}
+                    </span>
+                    <span className="text-sm font-medium text-dark dark:text-white">
+                      {item.count} sipariş ({item.percent}%)
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full dark:bg-dark-3">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        STATUS_BAR_COLORS[item.status] ?? "bg-gray-400"
+                      }`}
+                      style={{ width: `${item.percent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Sepete Ekleme</span>
-                <span className="text-sm font-medium text-dark dark:text-white">
-                  {funnel.addedToCart.toLocaleString("tr-TR")} ({Math.round((funnel.addedToCart / funnel.productViews) * 100)}%)
-                </span>
-              </div>
-              <div 
-                className="h-8 bg-blue-400 rounded" 
-                style={{ width: `${(funnel.addedToCart / funnel.productViews) * 100}%` }}
-              ></div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Ödeme Başlatma</span>
-                <span className="text-sm font-medium text-dark dark:text-white">
-                  {funnel.checkoutStarted.toLocaleString("tr-TR")} ({Math.round((funnel.checkoutStarted / funnel.addedToCart) * 100)}%)
-                </span>
-              </div>
-              <div 
-                className="h-8 bg-blue-300 rounded" 
-                style={{ width: `${(funnel.checkoutStarted / funnel.productViews) * 100}%` }}
-              ></div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Satın Alma</span>
-                <span className="text-sm font-medium text-dark dark:text-white">
-                  {funnel.purchased.toLocaleString("tr-TR")} ({Math.round((funnel.purchased / funnel.checkoutStarted) * 100)}%)
-                </span>
-              </div>
-              <div 
-                className="h-8 bg-green-500 rounded" 
-                style={{ width: `${(funnel.purchased / funnel.productViews) * 100}%` }}
-              ></div>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Top Products in Cart */}
+        {/* Top Products */}
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <h2 className="mb-6 text-lg font-semibold text-dark dark:text-white flex items-center gap-2">
             <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            En Çok Satın Alınan Ürünler
+            En Çok Satılan Ürünler
           </h2>
-          
+
           <div className="space-y-4">
             {topProducts.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
                 <p>Henüz sipariş verisi yok</p>
               </div>
             ) : (
               topProducts.slice(0, 5).map((product, idx) => (
-                <div key={product.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center justify-center w-8 h-8 text-lg font-bold text-gray-300 bg-gray-100 dark:bg-dark-3 rounded-lg">
+                <div key={product.id ?? idx} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="flex items-center justify-center w-8 h-8 shrink-0 text-lg font-bold text-gray-300 bg-gray-100 dark:bg-dark-3 rounded-lg">
                       {idx + 1}
                     </span>
-                    <div className="flex items-center gap-3">
-                      {product.thumbnail ? (
-                        <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-3">
-                          <Image 
-                            src={product.thumbnail} 
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-dark-3 flex items-center justify-center">
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                      <div>
-                        <span className="text-dark dark:text-white font-medium text-sm line-clamp-1">
-                          {product.name}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {product.price.toLocaleString("tr-TR")} ₺
-                        </span>
+                    {product.thumbnail ? (
+                      <div className="relative w-10 h-10 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-3">
+                        <Image
+                          src={product.thumbnail}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
                       </div>
+                    ) : (
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-gray-100 dark:bg-dark-3 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <span className="block text-dark dark:text-white font-medium text-sm line-clamp-1">
+                        {product.name}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatTL(product.price)} · {product.orderCount} siparişte
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500">{product.count} adet</span>
-                    <span className={`text-sm font-medium ${
-                      product.conversionRate >= 80 ? "text-green-500" : 
-                      product.conversionRate >= 70 ? "text-yellow-500" : "text-red-500"
-                    }`}>
-                      %{product.conversionRate}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="hidden sm:block w-20 h-2 bg-gray-200 rounded-full dark:bg-dark-3">
+                      <div
+                        className="h-full bg-green-500 rounded-full"
+                        style={{ width: `${(product.quantitySold / maxQuantitySold) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-dark dark:text-white w-16 text-right">
+                      {product.quantitySold} adet
                     </span>
                   </div>
                 </div>
@@ -318,123 +349,90 @@ export default function CartAnalyticsPage() {
         </div>
       </div>
 
-      {/* Additional Stats */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Cart by Device */}
+      {/* Cart + time based stats */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Cart status */}
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <h2 className="mb-6 text-lg font-semibold text-dark dark:text-white flex items-center gap-2">
             <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            Cihaz Dağılımı
+            Kayıtlı Sepetler
           </h2>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <span className="text-dark dark:text-white">Mobil</span>
-              </div>
-              <span className="font-medium text-dark dark:text-white">{deviceDistribution.mobile}%</span>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-lg bg-gray-50 dark:bg-dark-3 p-4">
+              <p className="text-sm text-gray-500">Aktif sepet</p>
+              <p className="mt-1 text-2xl font-bold text-dark dark:text-white">
+                {carts.active}
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                Son {carts.thresholdDays} gün içinde güncellendi
+              </p>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <span className="text-dark dark:text-white">Masaüstü</span>
-              </div>
-              <span className="font-medium text-dark dark:text-white">{deviceDistribution.desktop}%</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-500/10 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <span className="text-dark dark:text-white">Tablet</span>
-              </div>
-              <span className="font-medium text-dark dark:text-white">{deviceDistribution.tablet}%</span>
+            <div className="rounded-lg bg-gray-50 dark:bg-dark-3 p-4">
+              <p className="text-sm text-gray-500">Terk edilmiş sepet</p>
+              <p className="mt-1 text-2xl font-bold text-dark dark:text-white">
+                {carts.abandoned}
+              </p>
+              <Link
+                href="/marketing/abandoned-carts"
+                className="mt-1 inline-block text-xs text-primary hover:underline"
+              >
+                Listeyi aç →
+              </Link>
             </div>
           </div>
+
+          <p className="mt-4 text-xs text-gray-500">
+            Sepetler yalnızca giriş yapmış kullanıcılar için sunucuya kaydediliyor.
+            Misafir sepetleri tarayıcıda kaldığı için bu sayılara girmiyor.
+          </p>
         </div>
 
-        {/* Abandonment Reasons */}
-        <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-          <h2 className="mb-6 text-lg font-semibold text-dark dark:text-white flex items-center gap-2">
-            <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Terk Edilme Sebepleri
-          </h2>
-          
-          <div className="space-y-3">
-            {abandonmentReasons.map((item, idx) => (
-              <div key={idx}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{item.reason}</span>
-                  <span className="text-sm font-medium text-dark dark:text-white">%{item.percent}</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full dark:bg-dark-3">
-                  <div 
-                    className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${item.percent}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Peak Hours */}
+        {/* Time based order counts */}
         <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
           <h2 className="mb-6 text-lg font-semibold text-dark dark:text-white flex items-center gap-2">
             <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Yoğun Saatler
+            Dönem Bazlı Siparişler
           </h2>
-          
-          <div className="space-y-2">
-            {peakHours.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3">
-                <span className="text-sm text-gray-500 w-24">{item.hour}</span>
-                <div className="flex-1 h-6 bg-gray-200 rounded dark:bg-dark-3">
-                  <div 
-                    className={`h-full rounded transition-all duration-500 ${
-                      item.value >= 90 ? "bg-green-500" : 
-                      item.value >= 70 ? "bg-blue-500" : "bg-yellow-500"
-                    }`}
-                    style={{ width: `${item.value}%` }}
-                  ></div>
-                </div>
-                <span className="text-sm font-medium w-8 text-dark dark:text-white">{item.value}</span>
+
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: "Bugün", value: timeStats.todayOrders },
+              { label: "Son 7 gün", value: timeStats.weekOrders },
+              { label: "Bu ay", value: timeStats.monthOrders },
+              { label: "Toplam", value: timeStats.totalOrders },
+            ].map((item) => (
+              <div key={item.label} className="rounded-lg bg-gray-50 dark:bg-dark-3 p-4">
+                <p className="text-sm text-gray-500">{item.label}</p>
+                <p className="mt-1 text-2xl font-bold text-dark dark:text-white">
+                  {item.value}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Info Note */}
-      <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 p-4">
+      {/* What is not measured */}
+      <div className="rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
           </svg>
           <div>
-            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-              Veriler Hakkında
+            <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+              Bu sayfada henüz olmayan metrikler
             </p>
-            <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
-              Bu veriler sipariş ve ürün bilgilerine dayanmaktadır. Daha detaylı analitik için 
-              kullanıcı davranışı takibi (tracking) ve A/B test araçları entegre edilebilir.
+            <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
+              Ürün görüntüleme sayısı, sepete ekleme oranı, ödeme başlatma sayısı,
+              cihaz kırılımı, terk edilme sebepleri ve saat bazlı yoğunluk
+              ölçülmüyor. Bunlar için ziyaretçi olaylarını veritabanına yazan bir
+              takip altyapısı gerekiyor. Sepete ekleme olayı şu anda yalnızca
+              Google Ads&apos;e gönderiliyor, veritabanına kaydedilmiyor.
             </p>
           </div>
         </div>
