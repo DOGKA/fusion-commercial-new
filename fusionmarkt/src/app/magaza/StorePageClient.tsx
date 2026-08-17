@@ -717,7 +717,14 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
                         isDark ? "text-white/45" : "text-gray-400"
                       )}
                     />
+                    {/* type="search" bilinçli olarak kullanılmıyor: Chrome ve
+                        Safari o türde kendi temizleme düğmesini ekliyor, sağdaki
+                        özel X butonuyla iki buton yan yana çıkıyor. */}
                     <input
+                      id="magaza-urun-arama"
+                      name="magaza-urun-arama"
+                      autoComplete="off"
+                      aria-label="Ürün ara"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setSearchFocused(true)}
