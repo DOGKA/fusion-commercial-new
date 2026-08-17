@@ -91,6 +91,13 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
           {item.title}
         </Link>
 
+        {dropped && (
+          <span className="acc-tone-accent mt-1 inline-flex max-w-full items-center gap-1 self-start text-[10px] font-medium">
+            <TrendingDown size={11} className="shrink-0" aria-hidden="true" />
+            <span className="truncate tabular-nums">{formatPrice(dropped)} düştü</span>
+          </span>
+        )}
+
         {item.variant && (
           <span className="mt-1 truncate text-[11px] text-foreground-muted">
             {item.variant.type ? `${item.variant.type}: ` : ""}
@@ -113,13 +120,6 @@ export default function FavoriteCard({ item, onRemove, onAddToCart }: FavoriteCa
             <span className="acc-tone-danger text-[11px] font-medium">Tükendi</span>
           )}
         </div>
-
-        {dropped && (
-          <span className="acc-chip-accent mt-1.5 inline-flex max-w-full items-center gap-1 self-start px-2 py-0.5 rounded-full text-[10px] font-medium">
-            <TrendingDown size={11} className="shrink-0" aria-hidden="true" />
-            <span className="truncate tabular-nums">{formatPrice(dropped)} düştü</span>
-          </span>
-        )}
 
         {cartBlock ? (
           <Link
