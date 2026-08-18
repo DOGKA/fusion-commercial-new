@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { revalidateProduct } from "@/lib/revalidate-frontend";
 
 // GET - Tüm ürünleri getir
 export async function GET(request: NextRequest) {
@@ -243,6 +244,20 @@ export async function POST(request: NextRequest) {
       }
 
       return product;
+    });
+
+    // Frontend önbelleğini tazele. Beklemek bilinçli: admin listesi yenilendiğinde
+    // mağazanın da güncel olması isteniyor. Hata durumunda revalidateProduct
+    // fırlatmıyor, yalnızca log basıyor — ürün zaten kaydedildi.
+    const category = result.categoryId
+      ? await prisma.category.findUnique({
+          where: { id: result.categoryId },
+          select: { slug: true },
+        })
+      : null;
+    await revalidateProduct({
+      productSlug: result.slug,
+      categorySlug: category?.slug ?? null,
     });
 
     return NextResponse.json(result, { status: 201 });

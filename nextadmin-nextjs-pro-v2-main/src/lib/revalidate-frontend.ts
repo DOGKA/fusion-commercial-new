@@ -24,6 +24,8 @@ export type RevalidateTag = "banners" | "sliders" | "products" | "categories" | 
 interface RevalidateOptions {
   tags?: RevalidateTag[];
   path?: string;
+  /** Birden fazla yolu tek istekte tazelemek için. Frontend `paths` kabul ediyor. */
+  paths?: string[];
 }
 
 interface RevalidateResult {
@@ -62,6 +64,7 @@ export async function revalidateFrontend(options: RevalidateOptions): Promise<Re
       body: JSON.stringify({
         tags: options.tags,
         path: options.path,
+        paths: options.paths,
       }),
       // Don't cache this request
       cache: "no-store",
@@ -116,4 +119,28 @@ export async function revalidateBanners(placement?: string): Promise<RevalidateR
  */
 export async function revalidateSliders(): Promise<RevalidateResult> {
   return revalidateFrontend({ tags: ["sliders", "homepage"] });
+}
+
+/**
+ * Ürün eklendiğinde / güncellendiğinde / silindiğinde frontend'i tazeler.
+ *
+ * NEDEN GEREKLİ: Kategori sayfası 5 dakikalık, ürün akışları 1 saatlik ISR ile
+ * önbelleğe alınıyor. Bu çağrı olmadan yeni ürün kategoride gecikmeli çıkıyor,
+ * fiyat değişikliği de bir süre eski haliyle görünüyordu.
+ *
+ * `products` etiketi frontend tarafında ürün akışlarını (products.json,
+ * merchant-feed.xml, llms.txt) da tazeliyor; yolları ayrıca göndermeye gerek yok.
+ *
+ * Tek istek atılıyor: tazeleme ucunun dakikalık istek sınırı var ve toplu ürün
+ * içe aktarımı bunu yol başına ayrı çağrıyla tüketiyordu.
+ */
+export async function revalidateProduct(input: {
+  productSlug?: string | null;
+  categorySlug?: string | null;
+}): Promise<RevalidateResult> {
+  const paths = ["/", "/magaza"];
+  if (input.productSlug) paths.push(`/urun/${input.productSlug}`);
+  if (input.categorySlug) paths.push(`/kategori/${input.categorySlug}`);
+
+  return revalidateFrontend({ tags: ["products"], paths });
 }

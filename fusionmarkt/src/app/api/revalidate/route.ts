@@ -5,7 +5,14 @@ import { submitIndexNow } from "@/lib/indexnow";
 // Simple in-memory rate limit (per IP per 60s)
 const rateLimitMap = new Map<string, { count: number; ts: number }>();
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 20; // max 20 calls per window
+/**
+ * Sınır, gizli anahtar kontrolünden SONRA uygulanıyor; yani yalnızca doğru
+ * anahtarla gelen admin isteklerini kısıtlıyor, kötü niyetli istekler zaten
+ * öncesinde 401 alıyor. Eski 20 değeri toplu işlemlerde yetersizdi: ürün
+ * listesinden 25 ürünü birlikte silmek ürün başına bir tazeleme isteği
+ * ürettiği için son silmelerin önbelleği temizlenmiyordu.
+ */
+const RATE_LIMIT_MAX = 120;
 
 const ALLOWED_TAGS = new Set([
   "banners",
@@ -75,13 +82,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { path, tag, tags, url, urls } = body as {
+    const { path, paths, tag, tags, url, urls } = body as {
       path?: string;
+      paths?: string[];
       tag?: string;
       tags?: string[];
       url?: string;
       urls?: string[];
     };
+
+    /**
+     * `paths` çoğul biçim: bir ürün kaydedildiğinde ürün sayfası, kategorisi,
+     * mağaza listesi ve anasayfa birlikte tazelenmeli. Tek tek çağırmak
+     * yukarıdaki dakikalık istek sınırını toplu içe aktarımda tüketiyordu.
+     * Tekil `path` geriye dönük uyumluluk için korunuyor.
+     */
+    const pathList = [path, ...(Array.isArray(paths) ? paths : [])].filter(
+      (entry): entry is string => typeof entry === "string" && entry.startsWith("/")
+    );
+    const uniquePaths = [...new Set(pathList)].slice(0, 20);
 
     // Validate tags against whitelist
     const tagList: string[] = [];
@@ -99,11 +118,13 @@ export async function POST(request: NextRequest) {
 
     const indexNowTargets: string[] = [];
 
-    // Revalidate by path
-    if (path) {
-      revalidatePath(path);
-      indexNowTargets.push(path);
-      console.log(`✅ Revalidated path: ${path}`);
+    // Revalidate by path(s)
+    for (const entry of uniquePaths) {
+      revalidatePath(entry);
+      indexNowTargets.push(entry);
+    }
+    if (uniquePaths.length > 0) {
+      console.log(`✅ Revalidated paths: ${uniquePaths.join(", ")}`);
     }
 
     // Revalidate by tag (single)
@@ -135,7 +156,7 @@ export async function POST(request: NextRequest) {
     }
 
     // If no path or tags provided, revalidate common paths
-    if (!path && !tag && !tags) {
+    if (uniquePaths.length === 0 && !tag && !tags) {
       revalidatePath("/");
       revalidatePath("/magaza");
       revalidateTag("banners");
@@ -163,6 +184,7 @@ export async function POST(request: NextRequest) {
         revalidated: true,
         now: Date.now(),
         path,
+        paths: uniquePaths.length ? uniquePaths : undefined,
         tag,
         tags: tagList.length ? tagList : undefined,
         indexNow,

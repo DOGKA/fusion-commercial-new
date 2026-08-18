@@ -2,6 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
+import { revalidateProduct } from "@/lib/revalidate-frontend";
+
+/**
+ * Ürünün frontend'de hangi yolları etkilediğini bulur.
+ *
+ * Silme işleminde kayıt gitmeden ÖNCE, güncellemede ise sonra çağrılıyor.
+ * Kategori değiştiren bir güncellemede eski kategori sayfası da tazelenmeli;
+ * o yüzden PUT içinde hem güncelleme öncesi hem sonrası kategori toplanıyor.
+ */
+async function getProductCachePaths(id: string) {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: { slug: true, category: { select: { slug: true } } },
+  });
+  return {
+    productSlug: product?.slug ?? null,
+    categorySlug: product?.category?.slug ?? null,
+  };
+}
 
 // GET - Tek ürün getir
 export async function GET(
@@ -70,7 +89,11 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    
+
+    // Güncelleme öncesi durum: slug veya kategori değişirse eski sayfaların da
+    // tazelenmesi gerekiyor, yoksa ürün eski kategoride görünmeye devam ediyor.
+    const before = await getProductCachePaths(id);
+
     // IMPORTANT: Badge fields are ignored here
     // Badges must be managed through /api/products/[id]/badges endpoints only
     // This prevents badge manipulation through product update
@@ -407,6 +430,13 @@ export async function PUT(
       return product;
     });
 
+    const after = await getProductCachePaths(id);
+    await revalidateProduct(after);
+    // Slug veya kategori değiştiyse eski yollar da düşürülüyor.
+    if (before.productSlug !== after.productSlug || before.categorySlug !== after.categorySlug) {
+      await revalidateProduct(before);
+    }
+
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Error updating product:", error);
@@ -441,6 +471,9 @@ export async function PATCH(
       },
     });
 
+    // isActive / isFeatured / isNew değişimi de vitrini ve listeleri etkiliyor.
+    await revalidateProduct(await getProductCachePaths(id));
+
     return NextResponse.json(product);
   } catch (error) {
     console.error("Error patching product:", error);
@@ -466,9 +499,14 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    // Yollar silmeden önce okunuyor; sonrasında kaydın slug'ına erişilemez.
+    const cachePaths = await getProductCachePaths(id);
+
     await prisma.product.delete({
       where: { id },
     });
+
+    await revalidateProduct(cachePaths);
 
     return NextResponse.json({ success: true });
   } catch (error) {
