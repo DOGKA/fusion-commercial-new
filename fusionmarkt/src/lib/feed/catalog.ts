@@ -445,14 +445,21 @@ export async function getCatalog(): Promise<Catalog> {
     });
   }
 
+  // Panelde fiyatı boş bırakılan varyant buraya 0 olarak düşüyor. Merchant Center
+  // sıfır fiyatlı kalemi reddediyor ve biriken red sayısı hesap kalitesini
+  // düşürdüğü için diğer ürünlerin gösterimini de etkiliyor. Yayınlanabilir
+  // olmayan kalemi kaynakta ayıklamak, her tüketiciye ayrı kontrol eklemekten
+  // güvenli.
+  const sellableItems = items.filter((item) => item.price > 0);
+
   // Varyantlar aynı ürünü temsil ettiği için kategori sayımında bir kez sayılır.
   const distinctBySlug = new Map<string, string>();
-  for (const item of items) {
+  for (const item of sellableItems) {
     distinctBySlug.set(item.slug, item.categorySlug);
   }
 
   return {
-    items,
+    items: sellableItems,
     categories: categories.map((category) => ({
       name: category.name,
       slug: category.slug,

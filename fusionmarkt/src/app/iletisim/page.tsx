@@ -1,12 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { 
   Send,
   CheckCircle,
   AlertCircle,
-  FileText
+  FileText,
+  Warehouse,
+  CircleAlert
 } from "lucide-react";
 import { getEmailError } from "@/lib/utils";
 
@@ -142,7 +145,7 @@ export default function IletisimPage() {
   // `.contact-page` altında.
   return (
     <div className="contact-page min-h-screen bg-[var(--background)]">
-      {/* Hero + form tek yüzey: dışarıya telefon/e-posta/adres yayınlanmıyor. */}
+      {/* Hero, adres/ziyaret bilgilendirmesi ve iletişim formu */}
       <section className="relative pt-24 lg:pt-[120px] pb-16 md:pb-24 overflow-hidden">
         <div className="absolute inset-0 hidden lg:block pointer-events-none" aria-hidden="true">
           <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[var(--fusion-primary)]/10 rounded-full blur-[150px]" />
@@ -154,7 +157,7 @@ export default function IletisimPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="max-w-2xl mx-auto text-center mb-8 md:mb-12"
+            className="max-w-3xl mx-auto text-center mb-8 md:mb-12"
           >
             <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-5 md:mb-6">
               <span className="text-sm font-medium text-[var(--fusion-primary)]">İletişim Formu</span>
@@ -167,12 +170,81 @@ export default function IletisimPage() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="max-w-2xl mx-auto"
-          >
+          <div className="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
+            <motion.aside
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05, duration: 0.5 }}
+              className="space-y-4"
+              aria-label="Adres ve ziyaret bilgileri"
+            >
+              <div className="glass-card p-5 sm:p-7 rounded-2xl sm:rounded-3xl">
+                <div className="mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold">Kurumsal adreslerimiz</h2>
+                  <p className="mt-1 text-sm text-[var(--foreground-tertiary)]">
+                    Ofis ve depo lokasyon bilgileri
+                  </p>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="flex items-start gap-3">
+                    <Warehouse className="w-5 h-5 mt-0.5 text-[var(--fusion-primary)] flex-shrink-0" aria-hidden="true" />
+                    <div>
+                      <h3 className="font-semibold mb-1">Ofis ve depo</h3>
+                      <address className="not-italic text-sm sm:text-base leading-6 text-[var(--foreground-secondary)]">
+                        Cezayir Caddesi No:6 Kat: 5 Ofis<br />
+                        Kat: -2 Depo<br />
+                        Çankaya / Ankara
+                      </address>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-[var(--glass-border)]" aria-hidden="true" />
+
+                  <div className="flex items-start gap-3">
+                    <Warehouse className="w-5 h-5 mt-0.5 text-[var(--fusion-primary)] flex-shrink-0" aria-hidden="true" />
+                    <div>
+                      <h3 className="font-semibold mb-1">Merkez depo ve servis</h3>
+                      <address className="not-italic text-sm sm:text-base leading-6 text-[var(--foreground-secondary)]">
+                        Gölbaşı / Ankara
+                      </address>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-card rounded-2xl p-5 sm:p-6">
+                <div className="flex items-start gap-3">
+                  <CircleAlert className="w-5 h-5 mt-0.5 text-[var(--foreground-tertiary)] flex-shrink-0" aria-hidden="true" />
+                  <div>
+                    <h2 className="font-semibold text-base sm:text-lg">Adreslerimiz hakkında</h2>
+                    <div className="mt-2 space-y-2 text-sm sm:text-[0.95rem] leading-6 text-[var(--foreground-secondary)]">
+                      <p>
+                        Fusion Markt e-ticaret kanalı üzerinden hizmet vermektedir. Bu nedenle adreslerimizde
+                        fiziki mağaza, showroom veya mağazadan teslim hizmeti sunulmuyor.
+                      </p>
+                      <p>
+                        Teslimat ve iade süreçleri için iletişim formundan bize ulaşabilirsiniz.
+                        Servis talepleriniz için{" "}
+                        <Link
+                          href="/servis-formu"
+                          className="text-[var(--fusion-primary)] hover:underline"
+                        >
+                          servis formunu
+                        </Link>{" "}
+                        kullanabilirsiniz; ekibimiz gerekli yönlendirmeyi sizinle paylaşacaktır.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.aside>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+            >
             <div className="glass-card p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl">
               <div className="flex items-center gap-3 mb-6 md:mb-8">
                 <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--fusion-primary)] flex-shrink-0" />
@@ -310,7 +382,8 @@ export default function IletisimPage() {
                 </form>
               )}
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
     </div>
