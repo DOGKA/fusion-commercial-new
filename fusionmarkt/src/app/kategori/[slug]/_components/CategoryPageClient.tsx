@@ -964,11 +964,16 @@ export default function CategoryPageClient({
         )}
       </div>
 
-      {/* ============================================ */}
-      {/* PAGINATION - Hidden on mobile (dots used instead) */}
+      {/* ============================================ */} q
+      {/* PAGINATION */}
+      {/* Mobilde de görünür: liste sayfa başına 12 ürüne bölünüyor, mobil
+          karusel yalnızca o dilimi gösteriyor. Blok `lg:` ile gizliyken
+          "nokta göstergesi kullanılıyor" notu yazıyordu ama öyle bir gösterge
+          hiç eklenmemişti, dolayısıyla ikinci sayfadaki ürünlere telefondan
+          ulaşmanın hiçbir yolu yoktu. */}
       {/* ============================================ */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="relative z-10 hidden lg:flex items-center justify-center gap-1 sm:gap-2 py-6 sm:py-8 px-4">
+        <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2 py-6 sm:py-8 px-4">
           <button
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
