@@ -221,7 +221,7 @@ export default function IletisimPage() {
                     <div className="mt-2 space-y-2 text-sm sm:text-[0.95rem] leading-6 text-[var(--foreground-secondary)]">
                       <p>
                         Fusion Markt e-ticaret kanalı üzerinden hizmet vermektedir. Bu nedenle adreslerimizde
-                        fiziki mağaza, showroom veya mağazadan teslim hizmeti sunulmuyor.
+                        fiziki mağaza, showroom veya mağazadan teslim hizmeti sunulmamaktadır.
                       </p>
                       <p>
                         Teslimat ve iade süreçleri için iletişim formundan bize ulaşabilirsiniz.
