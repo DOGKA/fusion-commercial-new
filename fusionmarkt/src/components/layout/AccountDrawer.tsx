@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { ACCOUNT_NAV } from "@/app/hesabim/_lib/account-nav";
@@ -111,13 +112,13 @@ export default function AccountDrawer({
     };
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
+
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

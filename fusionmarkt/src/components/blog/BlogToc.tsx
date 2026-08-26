@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { List, X } from "lucide-react";
 import type { BlogHeading } from "@/lib/blog/content";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 const SHEET_ID = "blog-toc-sheet";
 /** blog.css'teki bottom sheet kırılımıyla birebir aynı kalmalı. */
@@ -67,17 +68,16 @@ export default function BlogToc({ headings }: BlogTocProps) {
     }
 
     const trigger = triggerRef.current;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
     closeRef.current?.focus();
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
       trigger?.focus();
     };
   }, [sheetOpen]);
+
+  useBodyScrollLock(sheetOpen, "dark");
 
   // Kilit kalktıktan sonra çalışır: bu effect'in gövdesi, yukarıdaki
   // temizlikten sonraki sırada.

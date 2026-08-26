@@ -109,6 +109,17 @@ export default function CookieConsent({ config: bannerConfig }: { config: Cookie
   // localStorage'da kalmışsa (çerez silinmişse) render koşulundaki `!hasConsent`
   // bandı hidrasyondan hemen sonra zaten söküyor.
 
+  // layout.tsx'teki inline script "Kabul Et" ve "Sadece Gerekli" tıklamalarını
+  // hidrasyondan önce yanıtlıyor. Aşağıdaki handler'lar bağlandığı an script
+  // devri teslim ediyor: bandı alt bilgiden yeniden açan ziyaretçinin mevcut
+  // tercihlerini koruması gerekiyor ve o bilgi yalnızca React tarafında var.
+  useEffect(() => {
+    window.__fmCookieConsentReady = true;
+    return () => {
+      window.__fmCookieConsentReady = false;
+    };
+  }, []);
+
   // Allow reopening cookie settings from anywhere (e.g. footer link)
   useEffect(() => {
     const handleOpen = () => {
@@ -239,7 +250,12 @@ export default function CookieConsent({ config: bannerConfig }: { config: Cookie
                           <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span className="hidden sm:inline">Ayarlar</span>
                         </button>
+                        {/* `data-cc-action`: layout.tsx'teki inline script bu iki butonu
+                            hidrasyondan önce yakalayıp onayı kendisi yazıyor. Bant ilk
+                            HTML'de göründüğü için ilk tıklama React yüklenmeden geliyordu
+                            ve INP'yi tek başına 1s'in üstüne çıkarıyordu. */}
                         <button
+                          data-cc-action="necessary"
                           onClick={handleAcceptNecessary}
                           className="flex items-center justify-center px-2.5 py-2.5 rounded-xl border border-border text-foreground-secondary hover:text-foreground hover:bg-foreground/5 hover:border-border-hover transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
                         >
@@ -247,6 +263,7 @@ export default function CookieConsent({ config: bannerConfig }: { config: Cookie
                           <span className="hidden sm:inline">Sadece Gerekli</span>
                         </button>
                         <button
+                          data-cc-action="accept"
                           onClick={handleAcceptAll}
                           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-white text-xs sm:text-sm font-semibold transition-all hover:brightness-110 whitespace-nowrap"
                           style={{
@@ -391,4 +408,11 @@ function CookieOption({
       />
     </label>
   );
+}
+
+declare global {
+  interface Window {
+    /** layout.tsx'teki hidrasyon öncesi çerez script'i buna bakıp geri çekiliyor. */
+    __fmCookieConsentReady?: boolean;
+  }
 }

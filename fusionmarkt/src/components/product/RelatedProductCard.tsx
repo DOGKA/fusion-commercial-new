@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import { Heart, Truck } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -60,7 +60,7 @@ const isValidColorValue = (value?: string | null) => {
   return namedColors.includes(val.toLowerCase());
 };
 
-export default function RelatedProductCard({ product, cardStyle }: RelatedProductCardProps) {
+function RelatedProductCard({ product, cardStyle }: RelatedProductCardProps) {
   const { isFavorite, toggleItem } = useFavorites();
   const [selectedVariant, setSelectedVariant] = useState<RelatedProductVariant | null>(null);
   const [variantError, setVariantError] = useState(false);
@@ -336,4 +336,9 @@ export default function RelatedProductCard({ product, cardStyle }: RelatedProduc
     </a>
   );
 }
+
+// Ürün sayfasında iki liste hâlinde onlarca kez render ediliyor; memo olmadan
+// galeri veya sekme tıklaması gibi alakasız her state değişimi tüm kartları
+// yeniden render ediyordu.
+export default memo(RelatedProductCard);
 

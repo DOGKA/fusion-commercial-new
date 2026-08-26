@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { X, ChevronDown, ChevronUp, RotateCcw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { readableAccentColor } from "@/lib/color-contrast";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INTERFACES
@@ -119,13 +120,13 @@ export default function FilterSidePanel({
     };
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
+
+  useBodyScrollLock(isOpen, "dark");
 
   // Close on outside click
   useEffect(() => {

@@ -15,6 +15,9 @@ function useIsMounted() {
 
 // SSR'da useLayoutEffect uyarısını önlemek için izomorfik varyant
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+// Yorumlar sekmesinin ilk karesinde kurulacak yorum sayısı.
+const REVIEW_FIRST_PAINT_COUNT = 8;
 import KargoTimer from "@/components/product/KargoTimer";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -382,10 +385,43 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
       .finally(() => setReviewEligibilityChecked(true));
   }, [productData?.id]);
 
-  // Ortalama puan hesapla
-  const averageRating = reviews.length > 0 
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) 
-    : "0.0";
+  // Ortalama puan hesapla.
+  // Bileşende ~30 state var; memo'suz halde bu indirgeme ve aşağıdaki histogram
+  // galeri tıklaması gibi alakasız her güncellemede yeniden koşuyordu.
+  const averageRating = useMemo(
+    () =>
+      reviews.length > 0
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+        : "0.0",
+    [reviews]
+  );
+
+  // Yorumlar sekmesine tıklandığında listenin tamamı tek commit'te kuruluyordu:
+  // yorum başına ~50 DOM düğümü, tıklamayı boyanamayan uzun bir göreve
+  // çeviriyor. İlk parti hemen boyanıyor, kalanı bir sonraki karede ekleniyor;
+  // kullanıcı yine tüm yorumları görüyor.
+  const [reviewRenderLimit, setReviewRenderLimit] = useState(REVIEW_FIRST_PAINT_COUNT);
+
+  useEffect(() => {
+    if (activeTab !== 'Yorumlar') {
+      setReviewRenderLimit(REVIEW_FIRST_PAINT_COUNT);
+      return;
+    }
+    if (reviewRenderLimit >= reviews.length) return;
+
+    const raf = requestAnimationFrame(() => setReviewRenderLimit(reviews.length));
+    return () => cancelAnimationFrame(raf);
+  }, [activeTab, reviews.length, reviewRenderLimit]);
+
+  // Histogram, yıldız başına bir kez `filter` yerine tek geçişte sayılıyor.
+  const ratingCounts = useMemo(() => {
+    const counts = [0, 0, 0, 0, 0];
+    for (const review of reviews) {
+      const index = review.rating - 1;
+      if (index >= 0 && index < 5) counts[index] += 1;
+    }
+    return counts;
+  }, [reviews]);
 
   // Görsel seçme handler
   const handleReviewImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1498,7 +1534,7 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                   </div>
                   <div style={{ flex: 1 }}>
                     {[5, 4, 3, 2, 1].map((rating) => {
-                      const count = reviews.filter(r => r.rating === rating).length;
+                      const count = ratingCounts[rating - 1];
                       const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
                       return (
                         <div key={rating} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -1519,7 +1555,7 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
                   <div style={{ marginBottom: '32px' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '16px' }}>Müşteri Yorumları ({reviews.length})</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {reviews.map((review) => (
+                      {reviews.slice(0, reviewRenderLimit).map((review) => (
                         <div key={review.id} style={{ padding: '20px', backgroundColor: 'var(--glass-bg)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                             {/* Avatar */}

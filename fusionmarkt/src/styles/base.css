@@ -25,6 +25,17 @@ html {
   font-size: 16px;
   /* Smooth theme transition */
   transition: background-color 0.2s ease, color 0.2s ease;
+  /* Aşağıdaki `::-webkit-scrollbar` ve `scrollbar-width: thin` kuralları yer
+     kaplayan klasik bir kaydırma çubuğu seçiyor. Modal açılırken kilit
+     `body`nin overflow'unu `hidden` yapıp o çubuğu kaldırıyor, düzen ~10px
+     genişliyor ve sabit konumlu header dahil her şey yana zıplıyordu. Gutter'ı
+     kalıcı ayırmak dokuz panelin tamamında bu zıplamayı bitiriyor.
+
+     Bildirim `html`de: `html` hiç overflow tanımlamadığı için body'nin
+     `overflow-x: hidden`ı viewport'a propagate ediyor ve `body` scroll
+     container olmaktan çıkıyor — özellik orada sessizce hiçbir şey yapmazdı.
+     `both-edges` de kullanılmıyor, iki yandan 20px ayırırdı. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -38,6 +49,24 @@ body {
   min-height: 100dvh;
   /* Smooth theme transition */
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Kalıcı gutter, panel açıkken backdrop'ın dışında kalan ince bir şerit
+   bırakıyor: sabit konumlu elemanların containing block'u ayrılan kaydırma
+   alanını içermiyor. Sınıfı `useBodyScrollLock` basıyor ve yalnızca koyu
+   backdrop kullanan paneller için geliyor; `html`in kendi zemini o şeridi
+   backdrop tonuna yaklaştırıyor. Yukarıdaki `transition` geçişi yumuşatıyor.
+
+   Değerler `--background`ın siyahla %40 karışımı, yani koyu backdrop'ların
+   (rgba(0,0,0,0.45)–0.85) zemin üzerinde bıraktığı ton. Sabit yazılıyorlar:
+   `color-mix()` içinde `var()` kullanan sürüm derlemede sessizce düşüyor ve
+   kural üretilen CSS'e hiç girmiyordu. */
+html.light.scroll-lock-dark-gutter {
+  background-color: #626263;
+}
+
+html.dark.scroll-lock-dark-gutter {
+  background-color: #040404;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

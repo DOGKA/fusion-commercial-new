@@ -12,6 +12,7 @@ import CookieConsent from "@/components/CookieConsent";
 import { getCookieBannerConfig } from "@/lib/cookie-banner-settings";
 import { getMenuCategories } from "@/lib/menu-categories";
 import {
+  COOKIE_CONSENT_COOKIE_NAME,
   COOKIE_CONSENT_STORAGE_KEY,
   COOKIE_CONSENT_VERSION,
 } from "@/lib/cookie-consent-shared";
@@ -176,6 +177,129 @@ export default async function RootLayout({
                   // göstermemekten güvenli.
                   document.documentElement.classList.add('cookie-consent-pending');
                 }
+              })();
+            `,
+          }}
+        />
+
+        {/* Bandın boyanması hidrasyondan bağımsız, ama tıklamanın yanıtı değildi:
+            bant ilk boyamada hazır göründüğü için ilk ziyaretçinin ilk tıklaması
+            sayfanın en uzun görevine denk geliyor ve INP'yi tek başına 1s'in
+            üstüne çıkarıyordu. Bu blok "Kabul Et" ve "Sadece Gerekli" tıklamalarını
+            React yüklenmeden yanıtlıyor.
+
+            Aşağıdaki yazma mantığı CookieConsentContext'teki savePreferences'ın
+            kopyası. Sabitler paylaşıldığı için sürüm kayması riski yok, ama
+            yazılan çerez setine ileride bir alan eklenirse iki yeri birlikte
+            güncellemek gerekir.
+
+            Hidrasyon tamamlanınca CookieConsent bileşeni window'a hazır işaretini
+            koyuyor ve blok kendini devre dışı bırakıyor: alt bilgideki "Çerez
+            Ayarları" bağlantısıyla bandı yeniden açan akış, kullanıcının mevcut
+            tercihlerini koruması gerektiği için tamamen React'te kalıyor. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var STORAGE_KEY = ${JSON.stringify(COOKIE_CONSENT_STORAGE_KEY)};
+                var CONSENT_VERSION = ${JSON.stringify(COOKIE_CONSENT_VERSION)};
+                var CONSENT_COOKIE = ${JSON.stringify(COOKIE_CONSENT_COOKIE_NAME)};
+                // "Kabul Et" hepsini açmıyor, admin varsayılanlarını kaydediyor.
+                var ACCEPT_DEFAULTS = ${JSON.stringify({
+                  analytics: cookieBannerConfig.defaultAnalytics,
+                  marketing: cookieBannerConfig.defaultMarketing,
+                  preferences: cookieBannerConfig.defaultPreferences,
+                })};
+                var MAX_AGE = 365 * 24 * 60 * 60;
+                var EXIT_DURATION_MS = 220;
+
+                function writeCookie(name, value) {
+                  var secure = location.protocol === 'https:' ? '; Secure' : '';
+                  document.cookie = name + '=' + value + '; path=/; max-age=' + MAX_AGE + '; SameSite=Lax' + secure;
+                }
+
+                function save(acceptAll) {
+                  var prefs = {
+                    necessary: true,
+                    analytics: acceptAll ? ACCEPT_DEFAULTS.analytics : false,
+                    marketing: acceptAll ? ACCEPT_DEFAULTS.marketing : false,
+                    preferences: acceptAll ? ACCEPT_DEFAULTS.preferences : false,
+                    consentDate: new Date().toISOString(),
+                    consentVersion: CONSENT_VERSION
+                  };
+                  var json = JSON.stringify(prefs);
+
+                  try { localStorage.setItem(STORAGE_KEY, json); } catch (e) {}
+                  writeCookie(CONSENT_COOKIE, encodeURIComponent(json));
+                  writeCookie('consent_analytics', prefs.analytics ? '1' : '0');
+                  writeCookie('consent_marketing', prefs.marketing ? '1' : '0');
+                  writeCookie('consent_preferences', prefs.preferences ? '1' : '0');
+
+                  if (typeof window.gtag === 'function') {
+                    window.gtag('consent', 'update', {
+                      analytics_storage: prefs.analytics ? 'granted' : 'denied',
+                      ad_storage: prefs.marketing ? 'granted' : 'denied',
+                      ad_user_data: prefs.marketing ? 'granted' : 'denied',
+                      ad_personalization: prefs.marketing ? 'granted' : 'denied',
+                      functionality_storage: prefs.preferences ? 'granted' : 'denied',
+                      personalization_storage: prefs.preferences ? 'granted' : 'denied',
+                      security_storage: 'granted'
+                    });
+                  }
+
+                  if (!prefs.analytics || !prefs.marketing) {
+                    var ga = ['_ga', '_gid', '_gat', '_gac_'];
+                    for (var i = 0; i < ga.length; i++) {
+                      document.cookie = ga[i] + '=; path=/; max-age=0';
+                      document.cookie = ga[i] + '=; path=/; domain=.' + location.hostname + '; max-age=0';
+                    }
+                    document.cookie = '_fbp=; path=/; max-age=0';
+                    document.cookie = '_fbc=; path=/; max-age=0';
+                  }
+
+                  window.dispatchEvent(new CustomEvent('cookieConsentUpdated', { detail: prefs }));
+                }
+
+                // Bileşenin CSS'iyle aynı çıkış animasyonu, ardından bandı gizleyen
+                // sınıfın kaldırılması. globals.css onay sınıfı gidince
+                // .cookie-consent-root'u display:none yapıyor.
+                function playExit() {
+                  var nodes = document.querySelectorAll('.cookie-consent-backdrop, .cookie-consent-modal');
+                  for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].classList.add('is-closing');
+                  }
+                  window.setTimeout(function() {
+                    document.documentElement.classList.remove('cookie-consent-pending');
+                  }, EXIT_DURATION_MS);
+                }
+
+                // Delegasyon şart: bu script head'de çalışıyor, butonlar henüz
+                // ayrıştırılmadı. Capture fazı ve stopImmediatePropagation da şart:
+                // React 19 hidrasyonda DOM düğümlerini yeniden kullandığı için bu
+                // dinleyici hayatta kalıyor, durdurulmazsa aynı tıklamada hem script
+                // hem React handler'ı çalışıp onayı iki kez yazar ve ikinci bir
+                // cookieConsentUpdated event'i page_view'ı tekrar attırır.
+                document.addEventListener('click', function(event) {
+                  if (window.__fmCookieConsentReady) return;
+                  if (!document.documentElement.classList.contains('cookie-consent-pending')) return;
+
+                  var target = event.target;
+                  var button = target && target.closest ? target.closest('[data-cc-action]') : null;
+                  if (!button) return;
+
+                  var action = button.getAttribute('data-cc-action');
+                  if (action !== 'accept' && action !== 'necessary') return;
+
+                  event.preventDefault();
+                  event.stopImmediatePropagation();
+
+                  playExit();
+                  // Yazma işi ilk boyamadan sonraya bırakılıyor ki tıklamanın next
+                  // paint'i yalnızca kapanış animasyonu olsun.
+                  requestAnimationFrame(function() {
+                    window.setTimeout(function() { save(action === 'accept'); }, 0);
+                  });
+                }, true);
               })();
             `,
           }}

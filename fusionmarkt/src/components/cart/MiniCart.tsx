@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { cn, formatPrice } from "@/lib/utils";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
 // Ücretsiz kargo limiti (varsayılan)
@@ -111,13 +112,13 @@ export default function MiniCart() {
     };
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, closeCart]);
+
+  useBodyScrollLock(isOpen);
 
   // Close on outside click
   useEffect(() => {

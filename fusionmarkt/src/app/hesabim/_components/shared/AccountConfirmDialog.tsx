@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 interface AccountConfirmDialogProps {
   open: boolean;
@@ -58,14 +59,7 @@ export default function AccountConfirmDialog({
   }, [open]);
 
   // Arka planın kaymasını engelle.
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
+  useBodyScrollLock(open, "dark");
 
   // Escape ile kapat, Tab'ı modal içinde tut.
   useEffect(() => {

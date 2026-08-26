@@ -158,7 +158,14 @@ export default function TrendingCarousel({ initialProducts }: TrendingCarouselPr
                         sizes="(max-width: 1023px) 210px, 380px"
                         className="product-card-image"
                         loading={index < 3 || imagesWarmed ? "eager" : "lazy"}
-                        fetchPriority={index < 3 ? "auto" : "low"}
+                        // Mobilde LCP elemanı hero değil bu kart oluyor: kart
+                        // 280x360, hero ise 16/10 oranıyla daha küçük alan
+                        // kaplıyor. `loading="eager"` yalnızca lazy'den çıkarıyor,
+                        // ağ önceliğini yükseltmiyordu; bu yüzden asıl LCP
+                        // görseli hero'nun iki yüksek öncelikli preload'unun
+                        // arkasına kuyruklanıyordu. Yalnızca ilk kart yüksek:
+                        // dosya ~20KB olduğu için hero'yu geciktirmiyor.
+                        fetchPriority={index === 0 ? "high" : index < 3 ? "auto" : "low"}
                         draggable={false}
                       />
                     )}

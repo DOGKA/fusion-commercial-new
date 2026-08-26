@@ -8,6 +8,7 @@ import {
   DISTANCE_CONTRACT_SELLER,
   DISTANCE_CONTRACT_TEXT,
 } from "@/lib/distance-contract-content";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INTERFACES
@@ -701,16 +702,7 @@ export default function ContractModal({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen, "dark");
 
   if (!isOpen) return null;
 

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight, Zap, Star, Flame, Gift, Tag, Percent, Truck, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/Spotlight";
 import Image, { getImageProps } from "next/image";
 import { useTheme } from "next-themes";
+
+// Sunucuda layout effect uyarı veriyor; istemcide boyama öncesi çalışması şart.
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 type Maybe<T> = T | null | undefined;
 
@@ -98,16 +101,22 @@ export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   const sliderRef = useRef<HTMLElement>(null);
   const isAutoPlayingRef = useRef(true);
 
-  // Mobil kontrolu
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+  // Mobil kontrolu.
+  // `isMobile` false ile başlıyor, yani sunucu ve ilk istemci render'ı masaüstü
+  // setini varsayıyor. Bunu normal bir effect'te düzeltmek, telefonda önce
+  // masaüstü slaytının boyanıp ardından mobil slaytla değişmesine yol açıyordu:
+  // preload edilen LCP görseli çöpe gidiyor ve nokta satırı kayıyordu. Layout
+  // effect ölçümü ilk boyamadan önce yapıyor.
+  useIsomorphicLayoutEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   // API'den slider verilerini cek (SSR'dan geldiyse atla)
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (initialSlides?.length) {
       const filteredSlides = initialSlides.filter((slide: Slide) =>
         isMobile ? slide.showOnMobile : slide.showOnDesktop

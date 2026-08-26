@@ -27,14 +27,27 @@ import type { MenuCategory } from "@/lib/menu-categories";
  * sunucu HTML'ine ne de ekrana bir katkısı vardı. `ssr: false` bu yüzden
  * güvenli: kaldırılan çıktı zaten boştu.
  */
-const MobileMenu = dynamic(() => import("@/components/layout/MobileMenu"), {
+const importMobileMenu = () => import("@/components/layout/MobileMenu");
+const MobileMenu = dynamic(importMobileMenu, {
   ssr: false,
 });
 
 /** Hesap çekmecesi de mobil menüyle aynı sebeple ilk açılışa kadar inmiyor. */
-const AccountDrawer = dynamic(() => import("@/components/layout/AccountDrawer"), {
+const importAccountDrawer = () => import("@/components/layout/AccountDrawer");
+const AccountDrawer = dynamic(importAccountDrawer, {
   ssr: false,
 });
+
+// `loading` yedeği olmadığı için ilk tıklamada boyanacak bir şey yok: kullanıcı
+// chunk inip ayrıştırılana kadar bekliyor ve bu süre INP'ye yazılıyor. İşaretçi
+// çekmeceye yaklaşırken indirmeye başlamak bu beklemeyi tıklamadan önceye
+// taşıyor; webpack modülü önbelleklediği için ikinci çağrı bedava.
+const prefetchAccountDrawer = () => {
+  void importAccountDrawer();
+};
+const prefetchMobileMenu = () => {
+  void importMobileMenu();
+};
 
 const FAVORITES_SEEN_AT_KEY = "fusionmarkt-favorites-seen-at";
 
@@ -319,6 +332,8 @@ export default function Header({ menuCategories }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => setIsAccountOpen((open) => !open)}
+                onPointerEnter={prefetchAccountDrawer}
+                onPointerDown={prefetchAccountDrawer}
                 className={cn(
                   "relative hidden lg:flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
@@ -346,6 +361,7 @@ export default function Header({ menuCategories }: HeaderProps) {
                   setIsMobileMenuOpen(false);
                   setIsAccountOpen((open) => !open);
                 }}
+                onPointerDown={prefetchAccountDrawer}
                 className={cn(
                   "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
@@ -414,6 +430,7 @@ export default function Header({ menuCategories }: HeaderProps) {
                   setIsAccountOpen(false);
                   setIsMobileMenuOpen(!isMobileMenuOpen);
                 }}
+                onPointerDown={prefetchMobileMenu}
                 className={cn(
                   "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",

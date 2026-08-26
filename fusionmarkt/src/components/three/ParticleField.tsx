@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import type { ISourceOptions } from "@tsparticles/engine";
@@ -11,7 +11,7 @@ interface ParticleFieldProps {
   particleCount?: number;
 }
 
-export default function ParticleField({ 
+function ParticleField({ 
   className = "", 
   color = "#10B981",
   particleCount = 80
@@ -30,7 +30,12 @@ export default function ParticleField({
     // Particles loaded callback
   }, []);
 
-  const options: ISourceOptions = {
+  // `@tsparticles/react` efektinin bağımlılık listesi props nesnesinin tamamını
+  // içeriyor, yani her render'da motoru destroy + load ediyor. Bu nesne render
+  // gövdesinde üretildiğinde mağaza aramasında her tuş vuruşu canvas'ı sıfırdan
+  // kuruyor: hem animasyon gözle görülür şekilde resetleniyor hem de INP'ye
+  // yüzlerce ms ekleniyor.
+  const options: ISourceOptions = useMemo(() => ({
     background: {
       color: {
         value: "transparent",
@@ -107,7 +112,7 @@ export default function ParticleField({
       },
     },
     detectRetina: true,
-  };
+  }), [color, particleCount]);
 
   if (!init) {
     return null;
@@ -124,3 +129,5 @@ export default function ParticleField({
     </div>
   );
 }
+
+export default memo(ParticleField);

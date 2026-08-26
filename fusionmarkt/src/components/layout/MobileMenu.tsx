@@ -20,6 +20,7 @@ import {
   Moon,
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useCart } from "@/context/CartContext";
 import type { MenuCategory } from "@/lib/menu-categories";
 
@@ -119,13 +120,13 @@ export default function MobileMenu({ isOpen, onClose, menuCategories }: MobileMe
     };
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
+
+  useBodyScrollLock(isOpen);
 
   // Close on outside click
   useEffect(() => {

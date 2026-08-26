@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useSyncExternalStore } from "react";
+import { memo, useCallback, useDeferredValue, useEffect, useState, useRef, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -454,8 +454,6 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
 
-  const sortProducts = (products: ProductWithCategory[]): ProductWithCategory[] => products;
-
   // Filter handlers
   const handleFilterChange = (filterId: string, values: string[]) => {
     setSelectedFilters((prev) => ({
@@ -484,7 +482,16 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
   // ═══════════════════════════════════════════════════════════════════════════
   // FİLTRELEME MANTIĞI - Rozet, Fiyat, Stok
   // ═══════════════════════════════════════════════════════════════════════════
-  const applyFiltersToProducts = (products: ProductWithCategory[]) => {
+  const hasActiveFilters =
+    Boolean(rangeValues.price) ||
+    (selectedFilters.availability?.length ?? 0) > 0 ||
+    (selectedFilters.badges?.length ?? 0) > 0;
+
+  const applyFiltersToProducts = useCallback((products: ProductWithCategory[]) => {
+    // Filtre yokken aynı diziyi döndürmek, aşağıdaki kategori nesnelerinin de
+    // kimliğini koruyor: taşıyıcılar ve kartlar boşuna yeniden render olmuyor.
+    if (!hasActiveFilters) return products;
+
     return products.filter((product: ProductWithCategory & { productBadges?: ApiProductBadge[] }) => {
       // 1. Fiyat Filtresi
       if (rangeValues.price) {
@@ -547,25 +554,21 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
 
       return true;
     });
-  };
+  }, [hasActiveFilters, rangeValues, selectedFilters]);
 
-  // Filter by search, filters, and sort
-  const filteredCategories = categoriesWithProducts
-    .map((cat) => {
-      let products = cat.products;
-
-      // Diğer filtreler (fiyat, stok, rozet)
-      products = applyFiltersToProducts(products);
-
-      // Sıralama
-      products = sortProducts(products);
-
-      return {
-        ...cat,
-        products,
-      };
-    })
-    .filter((cat) => cat.products.length > 0);
+  // Arama sorgusu bu zincirin parçası değil (yalnızca aşağıdaki öneri
+  // listesini besliyor), bu yüzden memo'suz halde her tuş vuruşu tüm
+  // kategorileri boşuna yeniden filtreliyordu.
+  const filteredCategories = useMemo(
+    () =>
+      categoriesWithProducts
+        .map((cat) => {
+          const products = applyFiltersToProducts(cat.products);
+          return products === cat.products ? cat : { ...cat, products };
+        })
+        .filter((cat) => cat.products.length > 0),
+    [categoriesWithProducts, applyFiltersToProducts]
+  );
 
   // Build flat searchable product list from all categories
   const allSearchableProducts = useMemo(() => {
@@ -592,13 +595,28 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
     return results;
   }, [categoriesWithProducts]);
 
+  // `window.innerWidth`'i aşağıdaki useMemo içinde okumak her tuş vuruşunda
+  // render aşamasının ortasında senkron bir layout hesabı zorluyordu.
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsCompactViewport(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // Öneri listesi bir kare gecikmeli hesaplanıyor; girdi kutusu tuşa anında
+  // yanıt veriyor.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
   // Relevance-scored search: title-startsWith > title-includes > content-includes
   const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = deferredSearchQuery.trim().toLowerCase();
     if (q.length < 1) return [];
 
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
-    const limit = isMobile ? 3 : 5;
+    const limit = isCompactViewport ? 3 : 5;
 
     const scored: { product: typeof allSearchableProducts[number]; score: number }[] = [];
 
@@ -623,7 +641,7 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
 
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, limit).map((s) => s.product);
-  }, [searchQuery, allSearchableProducts]);
+  }, [deferredSearchQuery, allSearchableProducts, isCompactViewport]);
 
   // Close search dropdown on click outside
   useEffect(() => {
@@ -979,7 +997,7 @@ const darkenColor = (hex: string, percent: number = 20): string => {
   return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
 };
 
-function CategoryCarousel({ 
+function CategoryCarouselBase({ 
   category, 
   bannerData,
   isDark,
@@ -1353,3 +1371,8 @@ function StoreFeaturedSection({
     </section>
   );
 }
+
+// Props'un tamamı (kategori nesnesi dahil) kimliğini koruyor, bu yüzden memo
+// arama kutusundaki her tuş vuruşunda tüm taşıyıcıların ve kartların yeniden
+// render edilmesini kesiyor.
+const CategoryCarousel = memo(CategoryCarouselBase);

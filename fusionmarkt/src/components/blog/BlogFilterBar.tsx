@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 const SHEET_ID = "blog-filter-sheet";
 const CATEGORY_LABEL_ID = "blog-filter-category-label";
@@ -75,17 +76,16 @@ export default function BlogFilterBar({
     // Tetikleyici hiç sökülmüyor; temizlikte okumak yerine burada yakalamak
     // effect'in kendi anlık görüntüsüyle çalışmasını sağlıyor.
     const trigger = triggerRef.current;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
     closeRef.current?.focus();
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
       trigger?.focus();
     };
   }, [sheetOpen, closeSheet]);
+
+  useBodyScrollLock(sheetOpen, "dark");
 
   // Masaüstü genişliğinde panel zaten satır içi; açık kalması odağı tuzaklardı.
   // Panel yalnızca dar ekranda görünen tetikleyiciyle açıldığı için başlangıç
