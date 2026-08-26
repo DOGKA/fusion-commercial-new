@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { PASSWORD_HINT, isPasswordLongEnough } from "@/lib/password-policy";
+import { trackPurchaseConversion } from "@/lib/ads-conversions";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ORDER CONFIRMATION PAGE - STEP 3
@@ -128,6 +129,25 @@ function OrderConfirmationContent() {
 
     fetchOrder();
   }, [orderNumber]);
+
+  // Ödemesi düşmüş veya havale ile oluşmuş siparişi Ads'e bir kez bildir.
+  // Başarısız ödemede gitmez. Yenilemede sessionStorage tekilleştirir.
+  useEffect(() => {
+    if (!order) return;
+    if (order.paymentStatus === "failed") return;
+
+    trackPurchaseConversion({
+      transactionId: order.orderNumber,
+      value: order.totals.grandTotal,
+      items: order.items.map((item) => ({
+        productId: item.productId,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        variantId: item.variant?.id,
+      })),
+    });
+  }, [order]);
 
   const copyIban = () => {
     navigator.clipboard.writeText("TR79 0006 2000 4080 0006 2907 16");
