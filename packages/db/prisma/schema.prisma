@@ -1968,16 +1968,30 @@ model HomepageCategorySectionProduct {
   @@map("homepage_category_section_products")
 }
 
+model HomepageVideoCategory {
+  id        String          @id @default(cuid())
+  name      String
+  order     Int             @default(0)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  videos    HomepageVideo[]
+
+  @@map("homepage_video_categories")
+}
+
 model HomepageVideo {
-  id         String   @id @default(cuid())
+  id         String                 @id @default(cuid())
   title      String
   youtubeUrl String
   thumbnail  String?
-  order      Int      @default(0)
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  categoryId String?
+  order      Int                    @default(0)
+  isActive   Boolean                @default(true)
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+  category   HomepageVideoCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  @@index([categoryId])
   @@map("homepage_videos")
 }
 

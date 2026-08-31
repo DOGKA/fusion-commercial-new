@@ -1274,29 +1274,45 @@ label.field-flash p:first-of-type {
   padding: 32px 0 48px;
 }
 
+.video-grid-group + .video-grid-group {
+  margin-top: 40px;
+}
+
+.video-grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
 .video-grid-title {
   font-size: clamp(20px, 2vw, 28px);
   font-weight: 700;
   color: var(--foreground);
-  margin: 0 0 24px 0;
+  margin: 0;
   letter-spacing: -0.01em;
 }
 
-.video-grid-layout {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+/* Kaydırma konteyneri, sürükleme ve momentum diğer carousel'lerle aynı yerden
+   (useCarouselScroll) geliyor. Buradaki tek iş, bir kartın satırda ne kadar yer
+   kapladığı: masaüstünde iki video, mobilde tek video. */
+.video-grid-track {
+  align-items: stretch;
+  padding-bottom: 4px;
+}
+
+.video-grid-slot {
+  flex: 0 0 calc((100% - 16px) / 2);
 }
 
 .video-grid-card {
   position: relative;
+  height: 100%;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border);
   background-color: var(--background-tertiary);
-  cursor: pointer;
-  text-decoration: none;
-  display: block;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -1308,7 +1324,7 @@ label.field-flash p:first-of-type {
 .video-grid-thumbnail {
   position: relative;
   width: 100%;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 16 / 9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1376,9 +1392,12 @@ label.field-flash p:first-of-type {
 }
 
 @media (max-width: 1023px) {
-  .video-grid-layout {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .video-grid-slot {
+    flex-basis: 100%;
+  }
+
+  .video-grid-header {
+    margin-bottom: 16px;
   }
 
   .video-grid-overlay {

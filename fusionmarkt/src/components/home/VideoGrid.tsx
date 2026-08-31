@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import CarouselNavButtons from "@/components/ui/CarouselNavButtons";
+import { useCarouselScroll } from "@/hooks/useCarouselScroll";
 
 function ImagePlaceholderIcon({ size = 36 }: { size?: number }) {
   return (
@@ -27,12 +29,54 @@ function getYouTubeId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+/**
+ * Panelde linke eklenen oynatıcı ayarları buradan geçiyor; altyazı ve başlangıç
+ * saniyesi gibi tercihler yönetim panelinden belirlenebiliyor. Liste kapalı
+ * tutuluyor ki `list` gibi parametreler gömme davranışını bozmasın.
+ */
+const FORWARDED_PLAYER_PARAMS = new Set([
+  "cc_load_policy",
+  "cc_lang_pref",
+  "hl",
+  "start",
+  "end",
+  "controls",
+  "modestbranding",
+  "iv_load_policy",
+  "color",
+  "fs",
+  "disablekb",
+]);
+
+function buildEmbedUrl(youtubeUrl: string, videoId: string): string {
+  const params = new URLSearchParams({ autoplay: "1", playsinline: "1", rel: "0" });
+
+  try {
+    const source = new URL(youtubeUrl, "https://www.youtube.com");
+    source.searchParams.forEach((value, key) => {
+      if (FORWARDED_PLAYER_PARAMS.has(key)) params.set(key, value);
+    });
+  } catch {
+    // Bozuk adreste varsayılan ayarlarla oynatılır.
+  }
+
+  return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
+}
+
 interface VideoData {
   id?: string;
   title: string;
   youtubeUrl: string;
   thumbnail: string | null;
+  category?: {
+    id: string;
+    name: string;
+  } | null;
 }
+
+/** wrapperStyle'daki kart arası boşluk; kaydırma adımı hesabında kullanılıyor. */
+const CARD_GAP = 16;
+const AUTO_SCROLL_INTERVAL_MS = 4500;
 
 const MOCK_VIDEOS: VideoData[] = [
   { title: "İnceleme Videosu 1", youtubeUrl: "", thumbnail: null },
@@ -41,7 +85,13 @@ const MOCK_VIDEOS: VideoData[] = [
   { title: "İnceleme Videosu 4", youtubeUrl: "", thumbnail: null },
 ];
 
-function VideoCard({ video }: { video: VideoData }) {
+function VideoCard({
+  video,
+  onPlay,
+}: {
+  video: VideoData;
+  onPlay: () => void;
+}) {
   const [playing, setPlaying] = useState(false);
   const ytId = getYouTubeId(video.youtubeUrl);
 
@@ -49,7 +99,10 @@ function VideoCard({ video }: { video: VideoData }) {
     || (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null);
 
   const handlePlay = () => {
-    if (ytId) setPlaying(true);
+    if (ytId) {
+      onPlay();
+      setPlaying(true);
+    }
   };
 
   return (
@@ -57,7 +110,7 @@ function VideoCard({ video }: { video: VideoData }) {
       <div className="video-grid-thumbnail">
         {playing && ytId ? (
           <iframe
-            src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`}
+            src={buildEmbedUrl(video.youtubeUrl, ytId)}
             allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
             className="video-grid-iframe"
@@ -71,7 +124,7 @@ function VideoCard({ video }: { video: VideoData }) {
                 // Başlık hemen altında h3 olarak görünüyor
                 alt=""
                 fill
-                sizes="(max-width: 768px) 50vw, 300px"
+                sizes="(max-width: 1023px) calc(100vw - 32px), 600px"
                 className="video-grid-thumb-img"
               />
             )}
@@ -79,7 +132,7 @@ function VideoCard({ video }: { video: VideoData }) {
             {!thumb && (
               <>
                 <ImagePlaceholderIcon size={36} />
-                <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--foreground-muted)" }}>310 x 550 px</span>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--foreground-muted)" }}>16:9</span>
                 <span style={{ fontSize: "10px", color: "var(--foreground-disabled)" }}>Video Thumbnail Eklenecek</span>
               </>
             )}
@@ -108,6 +161,109 @@ interface VideoGridProps {
   initialVideos?: VideoData[];
 }
 
+function VideoCarouselRow({ title, videos }: { title: string; videos: VideoData[] }) {
+  const {
+    containerRef,
+    wrapperRef,
+    containerStyle,
+    wrapperStyle,
+    handlers,
+    scrollBy,
+  } = useCarouselScroll({ friction: 0.92 });
+
+  const autoScrollStoppedRef = useRef(false);
+
+  const stopAutoScroll = useCallback(() => {
+    autoScrollStoppedRef.current = true;
+  }, []);
+
+  const getScrollStep = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return 0;
+    const slot = container.querySelector<HTMLElement>(".video-grid-slot");
+    return slot
+      ? slot.getBoundingClientRect().width + CARD_GAP
+      : container.clientWidth;
+  }, [containerRef]);
+
+  const handleNavScroll = useCallback(
+    (amount: number, smooth = true) => {
+      stopAutoScroll();
+      const step = getScrollStep();
+      if (step > 0) scrollBy(amount > 0 ? step : -step, smooth);
+    },
+    [getScrollStep, scrollBy, stopAutoScroll]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || videos.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let isVisible = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0.35 }
+    );
+    observer.observe(container);
+
+    const timer = window.setInterval(() => {
+      if (!isVisible || document.hidden || autoScrollStoppedRef.current) return;
+
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (maxScroll <= 1) return;
+
+      if (container.scrollLeft >= maxScroll - 2) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+        return;
+      }
+
+      container.scrollBy({ left: getScrollStep(), behavior: "smooth" });
+    }, AUTO_SCROLL_INTERVAL_MS);
+
+    return () => {
+      observer.disconnect();
+      window.clearInterval(timer);
+    };
+  }, [containerRef, getScrollStep, videos.length]);
+
+  return (
+    <div className="video-grid-group">
+      <div className="video-grid-header">
+        <h2 className="video-grid-title">{title}</h2>
+        {videos.length > 1 && (
+          <CarouselNavButtons scrollBy={handleNavScroll} theme="neutral" />
+        )}
+      </div>
+
+      <div
+        ref={containerRef}
+        style={containerStyle}
+        aria-label={`${title} videoları`}
+        onPointerDown={stopAutoScroll}
+        onTouchStart={stopAutoScroll}
+        onWheel={stopAutoScroll}
+        onKeyDown={stopAutoScroll}
+      >
+        <div
+          ref={wrapperRef}
+          style={{ ...wrapperStyle, width: "100%" }}
+          {...handlers}
+          className="video-grid-track"
+        >
+          {videos.map((video, idx) => (
+            <div key={video.id || idx} className="video-grid-slot">
+              <VideoCard video={video} onPlay={stopAutoScroll} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function VideoGrid({ initialVideos }: VideoGridProps) {
   const hasInitialData = initialVideos !== undefined;
   const [videos, setVideos] = useState<VideoData[]>(
@@ -130,16 +286,28 @@ export default function VideoGrid({ initialVideos }: VideoGridProps) {
     fetchData();
   }, [hasInitialData]);
 
+  const groups = Array.from(
+    videos.reduce((grouped, video) => {
+      const key = video.category?.id || "uncategorized";
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.videos.push(video);
+      } else {
+        grouped.set(key, {
+          title: video.category?.name || "Sizden Gelenler",
+          videos: [video],
+        });
+      }
+      return grouped;
+    }, new Map<string, { title: string; videos: VideoData[] }>())
+  );
+
   return (
     <section className="video-grid-section">
       <div className="container">
-        <h2 className="video-grid-title">Sizlerden Gelenler</h2>
-
-        <div className="video-grid-layout">
-          {videos.map((video, idx) => (
-            <VideoCard key={video.id || idx} video={video} />
-          ))}
-        </div>
+        {groups.map(([categoryId, group]) => (
+          <VideoCarouselRow key={categoryId} title={group.title} videos={group.videos} />
+        ))}
       </div>
     </section>
   );

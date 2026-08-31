@@ -97,8 +97,15 @@ interface VideoItem {
   title: string;
   youtubeUrl: string;
   thumbnail: string | null;
+  categoryId: string | null;
   order: number;
   isActive: boolean;
+}
+
+interface VideoCategory {
+  id: string;
+  name: string;
+  order: number;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -762,8 +769,9 @@ function CategorySectionForm({ section, saving, onSave, dbProducts, productCateg
 
 function VideoGridTab() {
   const [items, setItems] = useState<VideoItem[]>([]);
+  const [categories, setCategories] = useState<VideoCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const fetchItems = useCallback(async () => {
     try {
@@ -772,29 +780,104 @@ function VideoGridTab() {
     } catch { /* ignore */ } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/homepage/video-categories");
+      if (res.ok) { const data = await res.json(); setCategories(data.items || []); }
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => { fetchItems(); fetchCategories(); }, [fetchItems, fetchCategories]);
+
+  const createCategory = async () => {
+    try {
+      const res = await fetch("/api/admin/homepage/video-categories", { method: "POST" });
+      if (res.ok) {
+        toast.success("Kategori eklendi");
+        fetchCategories();
+      }
+    } catch {
+      toast.error("Kategori eklenemedi");
+    }
+  };
+
+  const deleteCategory = async (category: VideoCategory) => {
+    if (!confirm(`"${category.name}" kategorisini silmek istediğinize emin misiniz? Videolar silinmeyecek.`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/homepage/video-categories/${category.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+
+      setCategories((current) => current.filter((item) => item.id !== category.id));
+      setItems((current) => current.map((item) =>
+        item.categoryId === category.id ? { ...item, categoryId: null } : item
+      ));
+      toast.success("Kategori silindi");
+    } catch {
+      toast.error("Kategori silinemedi");
+    }
+  };
 
   const createItem = async () => {
     try {
       const res = await fetch("/api/admin/homepage/videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: "Yeni Video", youtubeUrl: "", order: items.length }),
+        body: JSON.stringify({
+          title: "Yeni Video",
+          youtubeUrl: "",
+          categoryId: categories[0]?.id || null,
+          order: items.length,
+        }),
       });
       if (res.ok) { toast.success("Video eklendi"); fetchItems(); }
     } catch { toast.error("Hata oluştu"); }
   };
 
-  const updateItem = async (id: string, data: Partial<VideoItem>) => {
-    setSaving(id);
+  const updateItem = (id: string, data: Partial<VideoItem>) => {
+    setItems((current) => current.map((item) => item.id === id ? { ...item, ...data } : item));
+  };
+
+  const updateAllItems = async () => {
+    if (categories.some((category) => !category.name.trim())) {
+      toast.error("Kategori adı boş bırakılamaz");
+      return;
+    }
+
+    setSaving(true);
     try {
-      await fetch(`/api/admin/homepage/videos/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      toast.success("Kaydedildi"); fetchItems();
-    } catch { toast.error("Hata oluştu"); } finally { setSaving(null); }
+      const responses = await Promise.all([
+        fetch("/api/admin/homepage/video-categories", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: categories }),
+        }),
+        ...items.map((item) =>
+          fetch(`/api/admin/homepage/videos/${item.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: item.title,
+              youtubeUrl: item.youtubeUrl,
+              thumbnail: item.thumbnail,
+              categoryId: item.categoryId,
+              order: item.order,
+              isActive: item.isActive,
+            }),
+          })
+        ),
+      ]);
+      if (responses.some((response) => !response.ok)) throw new Error("Update failed");
+      toast.success("Video Grid güncellendi");
+      fetchItems();
+      fetchCategories();
+    } catch {
+      toast.error("Videolar güncellenemedi");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteItem = async (id: string) => {
@@ -809,15 +892,65 @@ function VideoGridTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-gray-500">YouTube inceleme videolarını yönetin.</p>
-        <button onClick={createItem} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:bg-primary/90">
-          <Plus size={16} /> Yeni Video
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={createItem} disabled={saving} className="flex items-center gap-2 rounded-lg border border-stroke px-4 py-2.5 text-sm text-dark hover:bg-gray-50 disabled:opacity-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2">
+            <Plus size={16} /> Yeni Video
+          </button>
+          <button onClick={updateAllItems} disabled={saving || (items.length === 0 && categories.length === 0)} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:bg-primary/90 disabled:opacity-50">
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Tümünü Güncelle
+          </button>
+        </div>
       </div>
 
+      <Card>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-medium text-dark dark:text-white">Carousel Kategorileri</h3>
+            <p className="mt-1 text-xs text-gray-500">Kategori adı mağazadaki carousel başlığıdır.</p>
+          </div>
+          <button onClick={createCategory} disabled={saving} className="flex items-center gap-2 rounded-lg border border-stroke px-3 py-2 text-sm text-dark hover:bg-gray-50 disabled:opacity-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2">
+            <Plus size={15} /> Yeni Kategori
+          </button>
+        </div>
+        {categories.length > 0 ? (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {categories.map((category) => (
+              <div key={category.id} className="flex items-center gap-2">
+                <Input
+                  value={category.name}
+                  onChange={(name) => setCategories((current) =>
+                    current.map((item) => item.id === category.id ? { ...item, name } : item)
+                  )}
+                  placeholder="Kategori adı"
+                />
+                <button
+                  type="button"
+                  onClick={() => deleteCategory(category)}
+                  disabled={saving}
+                  aria-label={`${category.name} kategorisini sil`}
+                  title="Kategoriyi sil"
+                  className="shrink-0 rounded-lg p-2.5 text-red-500 hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-500/10"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">Önce bir carousel kategorisi ekleyin.</p>
+        )}
+      </Card>
+
       {items.map((item) => (
-        <VideoCardForm key={item.id} item={item} saving={saving === item.id} onSave={(data) => updateItem(item.id, data)} onDelete={() => deleteItem(item.id)} />
+        <VideoCardForm
+          key={item.id}
+          item={item}
+          categories={categories}
+          onChange={(data) => updateItem(item.id, data)}
+          onDelete={() => deleteItem(item.id)}
+        />
       ))}
 
       {items.length === 0 && <Card><p className="text-center text-gray-400 py-8">Henüz video eklenmedi</p></Card>}
@@ -825,25 +958,32 @@ function VideoGridTab() {
   );
 }
 
-function VideoCardForm({ item, saving, onSave, onDelete }: {
+function VideoCardForm({ item, categories, onChange, onDelete }: {
   item: VideoItem;
-  saving: boolean;
-  onSave: (data: Partial<VideoItem>) => void;
+  categories: VideoCategory[];
+  onChange: (data: Partial<VideoItem>) => void;
   onDelete: () => void;
 }) {
-  const [form, setForm] = useState(item);
-
   return (
     <Card>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Video Başlığı"><Input value={form.title} onChange={(v) => setForm({ ...form, title: v })} /></FormField>
-        <FormField label="YouTube Linki"><Input value={form.youtubeUrl} onChange={(v) => setForm({ ...form, youtubeUrl: v })} /></FormField>
-        <FormField label="Özel Thumbnail URL" hint="Opsiyonel"><Input value={form.thumbnail || ""} onChange={(v) => setForm({ ...form, thumbnail: v || null })} /></FormField>
+        <FormField label="Video Başlığı"><Input value={item.title} onChange={(v) => onChange({ title: v })} /></FormField>
+        <FormField label="YouTube Linki"><Input value={item.youtubeUrl} onChange={(v) => onChange({ youtubeUrl: v })} /></FormField>
+        <FormField label="Kategori">
+          <select
+            value={item.categoryId || ""}
+            onChange={(event) => onChange({ categoryId: event.target.value || null })}
+            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:text-white dark:focus:border-primary"
+          >
+            <option value="">Kategori seçin</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>{category.name}</option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Özel Thumbnail URL" hint="Opsiyonel"><Input value={item.thumbnail || ""} onChange={(v) => onChange({ thumbnail: v || null })} /></FormField>
         <div className="flex items-end gap-3">
-          <Toggle checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} label="Aktif" />
-          <button onClick={() => onSave(form)} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm text-white hover:bg-primary/90 disabled:opacity-50">
-            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Kaydet
-          </button>
+          <Toggle checked={item.isActive} onChange={(v) => onChange({ isActive: v })} label="Aktif" />
           <button onClick={onDelete} className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg"><Trash2 size={16} /></button>
         </div>
       </div>

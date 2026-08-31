@@ -192,12 +192,18 @@ async function getInitialVideos() {
     const items = await prisma.homepageVideo.findMany({
       where: { isActive: true },
       orderBy: { order: "asc" },
+      include: {
+        category: {
+          select: { id: true, name: true },
+        },
+      },
     });
-    return items.map((v: { id: string; title: string; youtubeUrl: string; thumbnail: string | null }) => ({
+    return items.map((v) => ({
       id: v.id,
       title: v.title,
       youtubeUrl: v.youtubeUrl,
       thumbnail: v.thumbnail,
+      category: v.category,
     }));
   } catch {
     return [];

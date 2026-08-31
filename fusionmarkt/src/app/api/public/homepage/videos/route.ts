@@ -8,6 +8,11 @@ export async function GET() {
     const items = await prisma.homepageVideo.findMany({
       where: { isActive: true },
       orderBy: { order: "asc" },
+      include: {
+        category: {
+          select: { id: true, name: true },
+        },
+      },
     });
     return NextResponse.json({ items });
   } catch {
