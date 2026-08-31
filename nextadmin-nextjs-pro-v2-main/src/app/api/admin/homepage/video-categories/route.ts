@@ -64,7 +64,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const items = Array.isArray(body.items) ? body.items : [];
+    const items: Array<{ id: string; name: string; order?: number }> =
+      Array.isArray(body.items) ? body.items : [];
 
     if (items.some((item) => !item.id || !String(item.name || "").trim())) {
       return NextResponse.json({ error: "Kategori adı boş bırakılamaz" }, { status: 400 });
