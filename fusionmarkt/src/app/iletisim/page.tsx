@@ -165,7 +165,15 @@ export default function IletisimPage() {
               Soru, sorun, görüş ve önerileriniz için formu doldurun. Talepleriniz 24 saat içinde yanıtlanır.
             </p>
             <p className="mt-3 text-sm sm:text-base text-[var(--foreground-secondary)]">
-              FusionMarkt, IEETek ürünlerinin resmî ve yeksek satışlı satıcısıdır: ieetekturkey.com
+              FusionMarkt, IEETek ürünlerinin resmî ve yetkili satıcısıdır:{" "}
+              <a
+                href="https://ieetekturkey.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--fusion-primary)] hover:underline"
+              >
+                ieetekturkey.com
+              </a>
             </p>
           </motion.div>
 
