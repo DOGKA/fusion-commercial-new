@@ -164,17 +164,6 @@ export default function IletisimPage() {
             <p className="text-[0.95rem] sm:text-lg text-[var(--foreground-secondary)]">
               Soru, sorun, görüş ve önerileriniz için formu doldurun. Talepleriniz 24 saat içinde yanıtlanır.
             </p>
-            <p className="mt-3 text-sm sm:text-base text-[var(--foreground-secondary)]">
-              FusionMarkt, IEETek ürünlerinin resmî ve yetkili satıcısıdır:{" "}
-              <a
-                href="https://ieetekturkey.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-[var(--fusion-primary)] hover:underline"
-              >
-                ieetekturkey.com
-              </a>
-            </p>
           </motion.div>
 
           <div className="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
