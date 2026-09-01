@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { 
   Send,
@@ -159,14 +158,22 @@ export default function IletisimPage() {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto text-center mb-8 md:mb-12"
           >
-            <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[var(--fusion-primary)]/10 border border-[var(--fusion-primary)]/20 mb-5 md:mb-6">
-              <span className="text-sm font-medium text-[var(--fusion-primary)]">İletişim Formu</span>
-            </div>
             <h1 className="text-[1.75rem] leading-tight sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
               Bizimle İletişime Geçin
             </h1>
             <p className="text-[0.95rem] sm:text-lg text-[var(--foreground-secondary)]">
               Soru, sorun, görüş ve önerileriniz için formu doldurun. Talepleriniz 24 saat içinde yanıtlanır.
+            </p>
+            <p className="mt-3 text-sm sm:text-base text-[var(--foreground-secondary)]">
+              FusionMarkt,{" "}
+              <a
+                href="https://ieetekturkey.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--fusion-primary)] hover:underline"
+              >
+                IEETek ürünlerinin resmî satıcısıdır.
+              </a>
             </p>
           </motion.div>
 
@@ -224,15 +231,7 @@ export default function IletisimPage() {
                         fiziki mağaza, showroom veya mağazadan teslim hizmeti sunulmamaktadır.
                       </p>
                       <p>
-                        Teslimat ve iade süreçleri için iletişim formundan bize ulaşabilirsiniz.
-                        Servis talepleriniz için{" "}
-                        <Link
-                          href="/servis-formu"
-                          className="text-[var(--fusion-primary)] hover:underline"
-                        >
-                          servis formunu
-                        </Link>{" "}
-                        kullanabilirsiniz; ekibimiz gerekli yönlendirmeyi sizinle paylaşacaktır.
+                        Teslimat ve iade süreçlerini Hesabım menüsünden ilgili sipariş detayından yönetebilirsiniz.
                       </p>
                     </div>
                   </div>
