@@ -165,15 +165,7 @@ export default function IletisimPage() {
               Soru, sorun, görüş ve önerileriniz için formu doldurun. Talepleriniz 24 saat içinde yanıtlanır.
             </p>
             <p className="mt-3 text-sm sm:text-base text-[var(--foreground-secondary)]">
-              FusionMarkt,{" "}
-              <a
-                href="https://ieetekturkey.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-[var(--fusion-primary)] hover:underline"
-              >
-                IEETek ürünlerinin resmî satıcısıdır.
-              </a>
+              FusionMarkt, IEETek ürünlerinin resmî ve yeksek satışlı satıcısıdır: ieetekturkey.com
             </p>
           </motion.div>
 
@@ -211,7 +203,7 @@ export default function IletisimPage() {
                   <div className="flex items-start gap-3">
                     <Warehouse className="w-5 h-5 mt-0.5 text-[var(--fusion-primary)] flex-shrink-0" aria-hidden="true" />
                     <div>
-                      <h3 className="font-semibold mb-1">Merkez depo ve servis</h3>
+                      <h3 className="font-semibold mb-1">Merkez depo</h3>
                       <address className="not-italic text-sm sm:text-base leading-6 text-[var(--foreground-secondary)]">
                         Gölbaşı / Ankara
                       </address>
