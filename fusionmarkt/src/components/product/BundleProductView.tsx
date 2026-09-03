@@ -21,6 +21,7 @@ import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
 import ProductStickyCta from "@/components/product/ProductStickyCta";
+import ProductImageWatermark from "@/components/product/ProductImageWatermark";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useProductTabDeepLink } from "@/components/product/useProductTabDeepLink";
@@ -952,14 +953,17 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                   }} 
                 />
               ) : (variantImage || galleryImages[selectedImage]) ? (
-                <Image 
-                  src={variantImage || galleryImages[selectedImage]} 
-                  alt={product.name} 
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
+                <>
+                  <Image 
+                    src={variantImage || galleryImages[selectedImage]} 
+                    alt={product.name} 
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
+                  />
+                  <ProductImageWatermark />
+                </>
               ) : (
                 <ImagePlaceholder type="product" text="ÜRÜN GÖRSELİ" iconSize="lg" />
               )}

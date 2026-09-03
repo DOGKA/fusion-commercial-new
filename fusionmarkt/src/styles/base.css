@@ -147,6 +147,8 @@ svg {
 img {
   -webkit-user-drag: none;
   user-select: none;
+  /* iOS'ta görsele uzun basınca çıkan "Fotoğrafı Kaydet" menüsünü kapatır */
+  -webkit-touch-callout: none;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

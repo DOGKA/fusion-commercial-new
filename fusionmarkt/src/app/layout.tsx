@@ -17,6 +17,7 @@ import {
   COOKIE_CONSENT_VERSION,
 } from "@/lib/cookie-consent-shared";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import ImageProtection from "@/components/ImageProtection";
 import {
   GoogleTagManagerScript,
   GoogleTagManagerNoScript,
@@ -345,6 +346,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <CookieConsentProvider>
             <GoogleAnalytics />
+            <ImageProtection />
             
             {/*
               Sıra bilinçli: CartProvider DIŞTA. FavoritesProvider "favoriden
