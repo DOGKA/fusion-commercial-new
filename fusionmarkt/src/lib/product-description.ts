@@ -6,8 +6,11 @@
  */
 
 const SIZED_BLOCK_TAGS = 'table|td|th|tr|col|colgroup';
-const DESCRIPTION_IMAGE_WIDTH = 1200;
-const DESCRIPTION_IMAGE_QUALITY = 75;
+// Açıklama görselleri 1920 genişlikte üretiliyor; daha küçük bir değer verilince
+// optimizer görseli küçültüp yeniden kodladığı için infografiklerdeki ince yazılar
+// yumuşuyordu. 1920 `next.config` deviceSizes, 85 ise qualities listesinde olmalı.
+const DESCRIPTION_IMAGE_WIDTH = 1920;
+const DESCRIPTION_IMAGE_QUALITY = 85;
 
 function optimizeDescriptionImageSrc(src: string | undefined): string | undefined {
   if (!src || process.env.NODE_ENV !== 'production') return src;
