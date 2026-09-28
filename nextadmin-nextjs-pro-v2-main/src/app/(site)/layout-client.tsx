@@ -63,20 +63,26 @@ export default function LayoutClient({ children }: LayoutClientProps) {
     <>
       <AdminNotificationsProvider>
         <SidebarProvider>
-          <div className="flex min-h-screen">
-            <Sidebar />
+          <div className="flex min-h-screen print:block">
+            <div className="print:hidden">
+              <Sidebar />
+            </div>
 
-            <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
-              <Header />
+            <div className="w-full bg-gray-2 dark:bg-[#020d1a] print:bg-white">
+              <div className="print:hidden">
+                <Header />
+              </div>
 
-              <main className="mx-auto w-full max-w-screen-2xl overflow-hidden p-4 md:p-6 2xl:p-10">
+              <main className="mx-auto w-full max-w-screen-2xl overflow-hidden p-4 md:p-6 2xl:p-10 print:max-w-none print:overflow-visible print:p-0">
                 {children}
               </main>
             </div>
           </div>
         </SidebarProvider>
 
-        <AdminNotificationPopups />
+        <div className="print:hidden">
+          <AdminNotificationPopups />
+        </div>
       </AdminNotificationsProvider>
       <ToastContext />
     </>

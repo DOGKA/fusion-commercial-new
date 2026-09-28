@@ -8,8 +8,9 @@ import Image from "next/image";
 import {
   ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock,
   RefreshCw, User, MapPin, FileText, Save, Upload, Trash2,
-  Copy, Check, AlertCircle, ChevronDown, ExternalLink, ScrollText, X
+  Copy, Check, AlertCircle, ChevronDown, ExternalLink, ScrollText, X, Printer
 } from "lucide-react";
+import ShippingLabel from "./ShippingLabel";
 
 // Frontend URL for avatar images (cross-app)
 const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3003";
@@ -33,20 +34,23 @@ const getAvatarUrl = (image: string | null | undefined): string | null => {
 type OrderStatus = "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED";
 type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
 
+interface CatalogItem {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail: string | null;
+  images: string[];
+  sku: string | null;
+}
+
 interface OrderItem {
   id: string;
   quantity: number;
   price: number;
   subtotal: number;
   variantInfo: string | null;
-  product: {
-    id: string;
-    name: string;
-    slug: string;
-    thumbnail: string | null;
-    images: string[];
-    sku: string | null;
-  };
+  product: CatalogItem | null;
+  bundle?: CatalogItem | null;
 }
 
 interface Address {
@@ -386,7 +390,8 @@ export default function OrderDetailPage() {
   const paymentConfig = PAYMENT_STATUS_CONFIG[order.paymentStatus];
 
   return (
-    <div className="space-y-6">
+    <>
+    <div className="space-y-6 print:hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -433,6 +438,14 @@ export default function OrderDetailPage() {
               )}
             </label>
           )}
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-dark hover:bg-gray-50 dark:border-dark-3 dark:bg-gray-dark dark:text-white dark:hover:bg-dark-2"
+          >
+            <Printer size={16} />
+            Etiket Yazdır
+          </button>
           <button
             onClick={handleSave}
             disabled={saving}
@@ -672,14 +685,18 @@ export default function OrderDetailPage() {
                 // Eski format: { name: "...", value: "..." }
                 const variant = variantInfo?.variant || (variantInfo?.name ? variantInfo : null);
                 const bundleItemVariants = variantInfo?.bundleItemVariants;
+                const catalog = item.product || item.bundle;
+                const itemTitle = catalog?.name || "Ürün";
+                const itemImage = catalog?.thumbnail || catalog?.images?.[0] || null;
+                const itemSku = catalog?.sku || null;
                 
                 return (
                   <div key={item.id} className="flex items-start gap-4 p-4">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-dark-2">
-                      {item.product.thumbnail || item.product.images?.[0] ? (
+                      {itemImage ? (
                         <Image
-                          src={item.product.thumbnail || item.product.images[0]}
-                          alt={item.product.name}
+                          src={itemImage}
+                          alt=""
                           width={64}
                           height={64}
                           className="h-full w-full object-contain"
@@ -690,9 +707,9 @@ export default function OrderDetailPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-dark dark:text-white line-clamp-1">
-                        {item.product.name}
+                    <div className="min-w-0 flex-1">
+                      <p className="whitespace-normal break-words font-medium leading-snug text-dark dark:text-white">
+                        {itemTitle}
                       </p>
                       {/* Normal ürün varyantı */}
                       {variant && (
@@ -713,8 +730,8 @@ export default function OrderDetailPage() {
                           ))}
                         </div>
                       )}
-                      {item.product.sku && (
-                        <p className="text-xs text-gray-400 mt-1">SKU: {item.product.sku}</p>
+                      {itemSku && (
+                        <p className="text-xs text-gray-400 mt-1">SKU: {itemSku}</p>
                       )}
                     </div>
                     <div className="text-right">
@@ -1034,6 +1051,8 @@ export default function OrderDetailPage() {
         />
       )}
     </div>
+    <ShippingLabel order={order} />
+    </>
   );
 }
 
@@ -1158,8 +1177,8 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
           email: buyerEmail,
         },
         products: order.items.map(item => ({
-          name: item.product.name,
-          sku: item.product.sku || undefined,
+          name: item.product?.name || item.bundle?.name || "Ürün",
+          sku: item.product?.sku || item.bundle?.sku || undefined,
           variant: item.variantInfo ? JSON.parse(item.variantInfo)?.value : undefined,
           price: Number(item.price),
           quantity: item.quantity,

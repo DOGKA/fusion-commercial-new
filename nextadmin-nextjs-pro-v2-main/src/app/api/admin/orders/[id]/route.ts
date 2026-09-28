@@ -177,6 +177,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 sku: true,
               },
             },
+            bundle: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                thumbnail: true,
+                images: true,
+                sku: true,
+              },
+            },
           },
         },
         shippingAddress: true,
