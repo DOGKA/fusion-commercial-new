@@ -31,8 +31,6 @@ type LabelItem = {
 type ShippingLabelOrder = {
   orderNumber: string;
   createdAt: string;
-  trackingNumber: string | null;
-  carrierName: string | null;
   user: {
     name: string | null;
     phone: string | null;
@@ -40,6 +38,32 @@ type ShippingLabelOrder = {
   items: LabelItem[];
   shippingAddress: LabelAddress;
 };
+
+function FusionMarktMark() {
+  return (
+    <svg
+      viewBox="25 230 874 134"
+      height="28"
+      aria-label="FusionMarkt"
+      role="img"
+      style={{ display: "block", width: "auto" }}
+    >
+      <g>
+        <path d="M25.0822 234.364L42.9433 234.364L42.9433 363.74L25.0822 363.74L25.0822 234.364ZM71.2065 292.025L71.2065 306.698L35.0925 306.698L35.0925 292.025L71.2065 292.025ZM78.6643 234.364L78.6643 249.451L34.5037 249.451L34.5037 234.364L78.6643 234.364Z" fill="#000000" />
+        <path d="M130.48 342.659L130.48 234.364L148.341 234.364L148.341 345.553C148.341 351.478 146.869 355.99 143.925 359.09C140.981 362.19 136.304 363.74 129.891 363.74L116.938 363.74L116.938 348.653L124.789 348.653C127.144 348.653 128.681 348.239 129.401 347.413C130.121 346.585 130.48 345.002 130.48 342.659ZM107.516 234.364L107.516 342.659C107.516 345.002 107.909 346.585 108.694 347.413C109.479 348.239 111.049 348.653 113.405 348.653L119.489 348.653L119.489 363.74L108.105 363.74C101.694 363.74 97.0157 362.19 94.0715 359.09C91.1286 355.99 89.6565 351.478 89.6565 345.553L89.6565 234.364L107.516 234.364Z" fill="#000000" />
+        <path d="M203.494 342.659L203.494 311.038C203.494 308.558 203.133 306.94 202.413 306.182C201.694 305.425 200.157 305.045 197.801 305.045L183.277 305.045C176.997 305.045 172.45 303.461 169.637 300.292C166.823 297.123 165.416 292.577 165.416 286.652L165.416 252.551C165.416 246.626 166.888 242.114 169.833 239.014C172.777 235.914 177.389 234.364 183.67 234.364L202.905 234.364C209.316 234.364 213.961 235.914 216.84 239.014C219.718 242.114 221.158 246.626 221.158 252.551L221.158 271.565L203.297 271.565L203.297 255.444C203.297 252.965 202.937 251.346 202.218 250.587C201.498 249.83 199.895 249.451 197.41 249.451L189.166 249.451C186.81 249.451 185.24 249.83 184.455 250.587C183.67 251.346 183.277 252.965 183.277 255.444L183.277 284.172C183.277 286.514 183.67 288.098 184.455 288.925C185.24 289.752 186.81 290.165 189.166 290.165L203.494 290.165C209.774 290.165 214.354 291.715 217.232 294.815C220.111 297.915 221.551 302.427 221.551 308.352L221.551 345.553C221.551 351.478 220.079 355.99 217.135 359.09C214.19 362.19 209.578 363.74 203.297 363.74L184.062 363.74C177.782 363.74 173.17 362.19 170.226 359.09C167.281 355.99 165.809 351.478 165.809 345.553L165.809 326.539L183.67 326.539L183.67 342.659C183.67 345.002 184.062 346.585 184.848 347.413C185.633 348.239 187.203 348.653 189.558 348.653L197.801 348.653C200.157 348.653 201.694 348.239 202.413 347.413C203.133 346.585 203.494 345.002 203.494 342.659Z" fill="#000000" />
+        <path d="M240.786 234.364L258.45 234.364L258.45 363.74L240.786 363.74L240.786 234.364Z" fill="#000000" />
+        <path d="M476.175 230.802L492.718 230.802L492.718 360.121L474.581 360.121L448.271 266.954L448.271 360.121L431.728 360.121L431.728 230.802L450.663 230.802L476.175 321.491L476.175 230.802Z" fill="#000000" />
+        <path d="M562.677 332.026L546.333 332.026L529.192 265.714L529.192 360.121L513.446 360.121L513.446 230.802L533.179 230.802L554.504 310.955L575.831 230.802L595.564 230.802L595.564 360.121L579.818 360.121L579.818 265.508L562.677 332.026Z" fill="#000000" />
+        <path d="M664.526 315.087L664.526 330.168L623.666 330.168L623.666 315.087L664.526 315.087ZM680.271 360.121L662.134 360.121L643.399 246.915L626.457 360.121L608.32 360.121L630.443 230.802L656.553 230.802L680.271 360.121Z" fill="#000000" />
+        <path d="M734.484 286.992L734.484 251.874C734.484 249.394 734.118 247.776 733.388 247.019C732.658 246.262 731.03 245.883 728.505 245.883L695.419 245.883L695.419 230.802L733.886 230.802C740.397 230.802 745.148 232.351 748.138 235.45C751.127 238.548 752.621 243.059 752.621 248.981L752.621 289.472C752.621 295.531 751.127 300.11 748.138 303.208C745.148 306.307 740.397 307.857 733.886 307.857L701.797 307.857L701.797 292.983L728.505 292.983C731.03 292.983 732.658 292.57 733.388 291.744C734.118 290.918 734.484 289.333 734.484 286.992ZM693.028 230.802L710.965 230.802L710.965 360.121L693.028 360.121L693.028 230.802ZM718.14 300.42L736.477 300.42L759 360.121L739.467 360.121L718.14 300.42Z" fill="#000000" />
+        <path d="M791.089 295.669L810.023 295.669L835.935 360.121L816.402 360.121L791.089 295.669ZM810.023 295.669L791.089 295.669L816.8 230.802L836.333 230.802L810.023 295.669ZM771.955 230.802L789.894 230.802L789.894 360.121L771.955 360.121L771.955 230.802Z" fill="#000000" />
+        <path d="M860.052 233.281L877.989 233.281L877.989 360.121L860.052 360.121L860.052 233.281ZM898.918 230.802L898.918 245.883L839.123 245.883L839.123 230.802L898.918 230.802Z" fill="#000000" />
+        <path d="M347.648 285.472L347.648 285.472C354.811 285.472 360.618 291.265 360.618 298.412L360.618 298.473C360.618 305.619 354.811 311.412 347.648 311.412L347.648 311.412C340.484 311.412 334.678 305.619 334.678 298.473L334.678 298.412C334.678 291.265 340.484 285.472 347.648 285.472Z" fill="#000000" />
+      </g>
+    </svg>
+  );
+}
 
 function recipientName(address: LabelAddress, fallback?: string | null) {
   if (!address) return fallback || "-";
@@ -125,13 +149,9 @@ export default function ShippingLabel({ order }: { order: ShippingLabelOrder }) 
 
       <div style={{ border: "2px solid #111", padding: "12px 14px", minHeight: "180mm" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #111", paddingBottom: 10, marginBottom: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo/logo.svg" alt="FusionMarkt" style={{ height: 36, width: "auto" }} />
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: 0.3 }}>FusionMarkt</div>
-              <div style={{ fontSize: 11, color: "#444" }}>ASDTC Mühendislik Ticaret A.Ş.</div>
-            </div>
+          <div>
+            <FusionMarktMark />
+            <div style={{ fontSize: 11, marginTop: 4 }}>ASDTC Mühendislik Ticaret Ltd. Şti.</div>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 12, fontWeight: 700 }}>KARGO ETİKETİ</div>
@@ -143,7 +163,7 @@ export default function ShippingLabel({ order }: { order: ShippingLabelOrder }) 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
           <div style={{ border: "1px solid #111", padding: 10 }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, marginBottom: 6 }}>GÖNDEREN</div>
-            <div style={{ fontSize: 13, fontWeight: 700 }}>FusionMarkt</div>
+            <div style={{ fontSize: 13, fontWeight: 700 }}>ASDTC Mühendislik Ticaret Ltd. Şti.</div>
             <div style={{ fontSize: 11, lineHeight: 1.45 }}>
               Cezayir Caddesi No:6<br />
               Kat: -2 Depo<br />
@@ -180,16 +200,9 @@ export default function ShippingLabel({ order }: { order: ShippingLabelOrder }) 
           })}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12 }}>
-          <div style={{ border: "1px solid #111", padding: 10 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, marginBottom: 6 }}>KARGO</div>
-            <div>Firma: {order.carrierName || "-"}</div>
-            <div>Takip no: {order.trackingNumber || "-"}</div>
-          </div>
-          <div style={{ border: "1px solid #111", padding: 10 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, marginBottom: 6 }}>TESLİMAT NOTU</div>
-            <div>Kırılacak eşya / batarya içeren kargo. Dikkatli taşıyınız.</div>
-          </div>
+        <div style={{ border: "1px solid #111", padding: 10, fontSize: 12 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, marginBottom: 6 }}>TESLİMAT NOTU</div>
+          <div>Kırılacak eşya / batarya içeren kargo. Dikkatli taşıyınız.</div>
         </div>
       </div>
     </div>
