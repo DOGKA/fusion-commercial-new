@@ -2396,25 +2396,23 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
         {/* ONERILEN URUNLER SECTION - Birlikte Sıkça Alınan */}
         {product.frequentlyBought && product.frequentlyBought.length > 0 && (
           <div style={{ marginTop: '48px', marginBottom: '48px' }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: '600', 
-              color: 'var(--foreground)', 
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}>
-              <span>Birlikte Sıkça Alınan Ürünler</span>
-              <span style={{ 
-                fontSize: '11px', 
-                color: 'var(--foreground-muted)', 
-                fontWeight: '400',
-                marginLeft: '8px',
-              }}>
-                Bu ürünle birlikte alınabilir
-              </span>
-            </h2>
+            <div className="flex items-center gap-3 mb-4 lg:mb-6">
+              <div className="w-1 h-8 rounded-full lg:hidden" style={{ backgroundColor: '#6B7280' }} />
+              <div>
+                <p
+                  className="mb-1 lg:mb-3"
+                  style={{ fontSize: '11px', letterSpacing: '0.2em', color: 'var(--foreground-muted)' }}
+                >
+                  SETİNİ TAMAMLA
+                </p>
+                <h2
+                  className="text-[18px]! font-bold lg:text-[32px]! lg:font-semibold lg:tracking-[-0.02em]"
+                  style={{ color: 'var(--foreground)' }}
+                >
+                  Birlikte Sıkça Alınan Ürünler
+                </h2>
+              </div>
+            </div>
 
             <div className="frequently-bought-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {product.frequentlyBought.map((relatedProduct: RelatedProduct) => (
@@ -2430,25 +2428,25 @@ export default function SingleProductView({ slug, initialData }: SingleProductVi
         {/* CROSS-SELL SECTION - Kullanicilar bu urunlere de baktilar */}
         {product.alsoViewed && product.alsoViewed.length > 0 && (
           <div style={{ marginTop: '48px', marginBottom: '64px' }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: '600', 
-              color: 'var(--foreground)', 
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}>
-              <span>Kullanıcılar Bu Ürünlere de Baktı</span>
-              <span style={{ 
-                fontSize: '11px', 
-                color: 'var(--foreground-muted)', 
-                fontWeight: '400',
-                marginLeft: '8px',
-              }}>
-                İlginizi çekebilir
-              </span>
-            </h2>
+            {/* Mağazadaki "Öne Çıkan Ürünler" başlığıyla aynı düzen. Font boyutundaki `!`:
+                mobile.css'teki katmansız `h2 { font-size: clamp(...) !important }` kuralını ezmek için. */}
+            <div className="flex items-center gap-3 mb-4 lg:mb-6">
+              <div className="w-1 h-8 rounded-full lg:hidden" style={{ backgroundColor: '#6B7280' }} />
+              <div>
+                <p
+                  className="mb-1 lg:mb-3"
+                  style={{ fontSize: '11px', letterSpacing: '0.2em', color: 'var(--foreground-muted)' }}
+                >
+                  İLGİNİZİ ÇEKEBİLİR
+                </p>
+                <h2
+                  className="text-[18px]! font-bold lg:text-[32px]! lg:font-semibold lg:tracking-[-0.02em]"
+                  style={{ color: 'var(--foreground)' }}
+                >
+                  Kullanıcılar Bu Ürünlere de Baktı
+                </h2>
+              </div>
+            </div>
 
             <div className="also-viewed-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {product.alsoViewed.map((relatedProduct: RelatedProduct) => (

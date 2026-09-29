@@ -22,6 +22,29 @@ interface AddToCartButtonProps {
   onNeedsVariant?: () => void; // Callback when variant is needed but not selected
 }
 
+function CartPlusIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path
+        d="M8.75 16.25C8.75 15.9048 8.47018 15.625 8.125 15.625M8.75 16.25C8.75 16.5952 8.47018 16.875 8.125 16.875M8.75 16.25H7.5M8.125 15.625C7.77982 15.625 7.5 15.9048 7.5 16.25M8.125 15.625V16.875M7.5 16.25C7.5 16.5952 7.77982 16.875 8.125 16.875M15 16.25C15 15.9048 14.7202 15.625 14.375 15.625M15 16.25C15 16.5952 14.7202 16.875 14.375 16.875M15 16.25H13.75M14.375 15.625C14.0298 15.625 13.75 15.9048 13.75 16.25M14.375 15.625V16.875M13.75 16.25C13.75 16.5952 14.0298 16.875 14.375 16.875M3.125 3.125H3.58252C4.17932 3.125 4.69287 3.54687 4.80874 4.13231L6.09375 10.625M6.09375 10.625L6.38918 12.1177C6.50505 12.7031 7.0186 13.125 7.61539 13.125H15M6.09375 10.625H14.649C15.2226 10.625 15.7226 10.2346 15.8617 9.67817L16.8377 7.17817C17.0349 6.38924 16.4382 5.625 15.625 5.625M10.625 3.4375V5.625M10.625 5.625V7.8125M10.625 5.625H12.8125M10.625 5.625H8.4375"
+        stroke="currentColor"
+        strokeWidth="1.38"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ExclamationIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+      <path d="M12 4v10" />
+      <path d="M12 20h.01" />
+    </svg>
+  );
+}
+
 // iOS-style Squircle border-radius (güncellenmiş değerler)
 const SQUIRCLE = {
   sm: "12px",
@@ -127,7 +150,6 @@ export default function AddToCartButton({
           "relative overflow-hidden",
           "transition-all duration-300 ease-out",
           disabled && "cursor-not-allowed",
-          buttonState === "success" && "animate-cart-success",
           !disabled && "card-glass-button-strong",
           className
         )}
@@ -137,18 +159,10 @@ export default function AddToCartButton({
           borderRadius: SQUIRCLE.lg,
           backgroundColor: disabled
             ? "rgba(251, 191, 36, 0.12)"
-            : buttonState === "success"
-            ? "rgba(16, 185, 129, 0.95)"
-            : buttonState === "error"
-            ? "rgba(239, 68, 68, 0.95)"
             : "var(--glass-bg)",
           border: disabled
             ? "1px solid rgba(251, 191, 36, 0.55)"
-            : buttonState === "success"
-            ? "1px solid rgba(16, 185, 129, 0.6)"
-            : buttonState === "error"
-            ? "1px solid rgba(239, 68, 68, 0.6)"
-            : "1px solid var(--glass-border)",
+            : "1px solid transparent",
           color: "var(--foreground)",
           display: "flex",
           alignItems: "center",
@@ -156,12 +170,8 @@ export default function AddToCartButton({
           cursor: disabled ? "not-allowed" : "pointer",
           boxShadow: disabled
             ? "0 2px 10px rgba(251, 191, 36, 0.20)"
-            : buttonState === "success"
-            ? "0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.2)"
-            : buttonState === "error"
-            ? "0 8px 32px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.2)"
-            : "0 2px 8px rgba(0,0,0,0.1)",
-          transform: buttonState === "success" || buttonState === "error" ? "scale(1.05)" : "scale(1)",
+            : "none",
+          transform: "scale(1)",
         }}
       >
         {/* Icon Container with rotation */}
@@ -172,37 +182,46 @@ export default function AddToCartButton({
           )}
         >
           {disabled ? (
-            <AlertTriangle size={config.icon.iconSize} strokeWidth={2.5} />
+            <ExclamationIcon size={config.icon.iconSize} />
           ) : (
             <>
               {buttonState === "idle" && (
-                <ShoppingBag size={config.icon.iconSize} strokeWidth={2.5} />
+                <CartPlusIcon size={config.icon.iconSize + 6} />
               )}
               {buttonState === "loading" && (
                 <Loader2 size={config.icon.iconSize} strokeWidth={2.5} />
               )}
               {buttonState === "success" && (
-                <Check
-                  size={config.icon.iconSize}
-                  strokeWidth={3}
-                  className="animate-pop-in"
-                />
+                <span
+                  className="animate-cart-check flex items-center justify-center"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 8,
+                    backgroundColor: "rgba(16, 185, 129, 0.95)",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  <Check size={18} strokeWidth={2.5} />
+                </span>
               )}
               {buttonState === "error" && (
-                <AlertCircle
-                  size={config.icon.iconSize}
-                  strokeWidth={2.5}
-                  className="animate-pop-in"
-                />
+                <span
+                  className="animate-cart-check flex items-center justify-center"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 8,
+                    backgroundColor: "rgba(239, 68, 68, 0.95)",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  <AlertCircle size={18} strokeWidth={2.5} />
+                </span>
               )}
             </>
           )}
         </div>
-
-        {/* Success ripple effect */}
-        {!disabled && buttonState === "success" && (
-          <span className="absolute inset-0 rounded-[16px] animate-ping bg-emerald-500/30" />
-        )}
       </button>
     );
   }

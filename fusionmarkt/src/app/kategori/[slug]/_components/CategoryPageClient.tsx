@@ -19,8 +19,6 @@ import { mapApiProductToCard } from "@/lib/mappers";
 import { cn } from "@/lib/utils";
 import FilterSidePanel from "@/components/filters/FilterSidePanel";
 import { getFiltersByCategory } from "@/lib/filters/category-filters";
-import { useCarouselScroll } from "@/hooks/useCarouselScroll";
-
 // ============================================
 // INTERFACES
 // ============================================
@@ -298,15 +296,6 @@ export default function CategoryPageClient({
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const [rangeValues, setRangeValues] = useState<RangeValues>({});
   const [allProducts, setAllProducts] = useState<any[]>(initialData.products);
-
-  // CSS Transform carousel for mobile - manual scroll only
-  const { 
-    containerRef: mobileContainerRef, 
-    wrapperRef: mobileWrapperRef, 
-    containerStyle: mobileContainerStyle, 
-    wrapperStyle: mobileWrapperStyle, 
-    handlers: mobileScrollHandlers,
-  } = useCarouselScroll({ friction: 0.95 });
 
   // Get theme color only from category (no fallback)
   const themeColor = category?.themeColor ?? "";
@@ -840,70 +829,54 @@ export default function CategoryPageClient({
       {/* PRODUCTS */}
       {/* ============================================ */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* MOBILE: 360° Carousel with CSS Transform - always render refs */}
-        <div className="lg:hidden relative">
-          {/* Container - viewport */}
-          <div
-            ref={mobileContainerRef}
-            style={{ ...mobileContainerStyle, paddingLeft: '16px', paddingRight: '16px' }}
-            className="pb-4"
-          >
-            {/* Wrapper - content moves via transform */}
-            <div
-              ref={mobileWrapperRef}
-              style={{ ...mobileWrapperStyle, gap: '16px' }}
-              {...mobileScrollHandlers}
-              className="flex items-stretch"
-            >
-              {loading ? (
-                // CLS fix: kart yüksekliği (640px) kadar alan rezerve et ki
-                // ürünler gelince alttaki içerik aşağı kaymasın
-                <div className="flex items-center justify-center w-full" style={{ minHeight: '640px' }}>
-                  <div
-                    className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
-                    style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}
-                  />
-                </div>
-              ) : products.length > 0 ? (
-                [...products, ...products].map((product, idx) => (
-                  <div 
-                    key={`${product.id}-${idx}`} 
-                    className="store-card-slot"
-                  >
-                    {isBundleCategory || product.isBundle ? (
-                      <BundleProductCard
-                        bundle={{
-                          id: String(product.id),
-                          slug: product.slug,
-                          name: product.title || product.name,
-                          price: Number(product.price) || 0,
-                          totalValue: Number(product.totalValue || product.comparePrice || product.originalPrice || product.price) || 0,
-                          savings: Number(product.savings) || 0,
-                          savingsPercent: Number(product.savingsPercent) || 0,
-                          thumbnail: product.thumbnail || product.image || null,
-                          stock: Number(product.stock || 0),
-                          items: product.items || [],
-                          itemCount: Number(product.itemCount || 0),
-                          ratingAverage: product.ratingAverage,
-                          ratingCount: product.ratingCount,
-                          badges: product.badges || [],
-                          freeShipping: Number(product.price) >= freeShippingThreshold,
-                          videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
-                        } as BundleProduct}
-                        priority={idx < 4}
-                      />
-                    ) : (
-                      <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} priority={idx < 4} />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="flex items-center justify-center py-20 w-full text-foreground-muted">
-                  Bu kategoride ürün bulunmuyor
-                </div>
-              )}
+        {/* MOBILE: 2+ sütunlu ızgara, yalnızca dikey kaydırma */}
+        <div className="lg:hidden relative pb-4">
+          {loading ? (
+            // CLS fix: ilk kart satırı kadar alan rezerve et ki
+            // ürünler gelince alttaki içerik aşağı kaymasın
+            <div className="flex items-center justify-center w-full" style={{ minHeight: '480px' }}>
+              <div
+                className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin"
+                style={hasThemeColor ? { borderColor: `${themeColor}40`, borderTopColor: themeColor } : undefined}
+              />
             </div>
-          </div>
+          ) : products.length > 0 ? (
+            <div className="product-grid-mobile">
+              {products.map((product, idx) => (
+                <div key={product.id} className="product-grid-cell">
+                  {isBundleCategory || product.isBundle ? (
+                    <BundleProductCard
+                      bundle={{
+                        id: String(product.id),
+                        slug: product.slug,
+                        name: product.title || product.name,
+                        price: Number(product.price) || 0,
+                        totalValue: Number(product.totalValue || product.comparePrice || product.originalPrice || product.price) || 0,
+                        savings: Number(product.savings) || 0,
+                        savingsPercent: Number(product.savingsPercent) || 0,
+                        thumbnail: product.thumbnail || product.image || null,
+                        stock: Number(product.stock || 0),
+                        items: product.items || [],
+                        itemCount: Number(product.itemCount || 0),
+                        ratingAverage: product.ratingAverage,
+                        ratingCount: product.ratingCount,
+                        badges: product.badges || [],
+                        freeShipping: Number(product.price) >= freeShippingThreshold,
+                        videoLabel: product.videoUrl ? "Videolu Ürün" : undefined,
+                      } as BundleProduct}
+                      priority={idx < 4}
+                    />
+                  ) : (
+                    <ProductCard product={mapApiProductToCard(product, freeShippingThreshold)} priority={idx < 4} />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-20 w-full text-foreground-muted">
+              Bu kategoride ürün bulunmuyor
+            </div>
+          )}
         </div>
 
         {/* DESKTOP */}

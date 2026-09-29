@@ -26,6 +26,9 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 export default function ImageProtection() {
   useEffect(() => {
+    // Yerel geliştirmede sağ tık, F12 ve inceleme kısayolları açık kalsın.
+    if (process.env.NODE_ENV !== "production") return;
+
     const handleContextMenu = (event: MouseEvent) => {
       if (isEditableTarget(event.target)) return;
       event.preventDefault();

@@ -10,7 +10,6 @@ interface Category {
   description?: string | null;
   image?: string | null;
   icon?: string | null;
-  themeColor?: string | null;
   isActive: boolean;
   showInMenu: boolean;
   order: number;
@@ -25,7 +24,6 @@ export default function CategoriesPage() {
     name: "",
     slug: "",
     description: "",
-    themeColor: "#8B5CF6",
     isActive: true,
     showInMenu: false,
   });
@@ -78,7 +76,7 @@ export default function CategoriesPage() {
   // Open modal for new category
   const openNewModal = () => {
     setEditingCategory(null);
-    setFormData({ name: "", slug: "", description: "", themeColor: "#8B5CF6", isActive: true, showInMenu: false });
+    setFormData({ name: "", slug: "", description: "", isActive: true, showInMenu: false });
     setShowModal(true);
   };
 
@@ -89,7 +87,6 @@ export default function CategoriesPage() {
       name: category.name,
       slug: category.slug,
       description: category.description || "",
-      themeColor: category.themeColor || "#8B5CF6",
       isActive: category.isActive,
       showInMenu: category.showInMenu ?? false,
     });
@@ -248,29 +245,6 @@ export default function CategoriesPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={async () => {
-              try {
-                const res = await fetch("/api/categories/sync-colors", { method: "POST" });
-                if (res.ok) {
-                  const data = await res.json();
-                  alert(`${data.message}\n\nGüncellenen kategoriler:\n${data.results.map((r: any) => `• ${r.category}: ${r.color}`).join('\n')}`);
-                  fetchCategories();
-                } else {
-                  alert("Renkler senkronize edilemedi");
-                }
-              } catch (error) {
-                alert("Hata oluştu");
-              }
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2.5 text-dark hover:bg-gray-50 transition-colors dark:border-dark-3 dark:bg-gray-dark dark:text-white dark:hover:bg-dark-2"
-            title="Shop category banner renklerini kategorilere senkronize et"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Banner Renklerini Senkronize Et
-          </button>
-          <button
             onClick={openNewModal}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-white hover:bg-primary/90 transition-colors"
           >
@@ -373,16 +347,7 @@ export default function CategoriesPage() {
                 </p>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-stroke dark:border-dark-3">
-                {/* Tema Rengi */}
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <span className="text-xs">Tema:</span>
-                  <div 
-                    className="w-6 h-6 rounded-full border-2 border-white shadow-sm" 
-                    style={{ backgroundColor: category.themeColor || '#8B5CF6' }}
-                    title={category.themeColor || '#8B5CF6'}
-                  />
-                </div>
+              <div className="flex items-center justify-end pt-4 border-t border-stroke dark:border-dark-3">
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => openEditModal(category)}
@@ -455,29 +420,6 @@ export default function CategoriesPage() {
                   rows={3}
                   className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
                 />
-              </div>
-
-              {/* Tema Rengi */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Tema Rengi (Shimmer & Banner)
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={formData.themeColor}
-                    onChange={(e) => setFormData({ ...formData, themeColor: e.target.value })}
-                    className="w-12 h-10 rounded-lg border border-stroke cursor-pointer dark:border-dark-3"
-                  />
-                  <input
-                    type="text"
-                    value={formData.themeColor}
-                    onChange={(e) => setFormData({ ...formData, themeColor: e.target.value })}
-                    placeholder="#8B5CF6"
-                    className="flex-1 rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white font-mono text-sm"
-                  />
-                </div>
-                <p className="mt-1 text-xs text-gray-500">Kategori sayfasındaki shimmer ve banner efektleri için</p>
               </div>
 
               <div className="flex items-center gap-2">

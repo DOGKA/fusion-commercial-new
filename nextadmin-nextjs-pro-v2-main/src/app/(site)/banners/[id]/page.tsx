@@ -354,10 +354,10 @@ export default function EditBannerPage() {
               </optgroup>
               <optgroup label="Mağaza">
                 <option value="SHOP_HEADER">Mağaza Üst Banner</option>
-                <option value="SHOP_CATEGORY_TASINABILIR_GUC_KAYNAKLARI">Mağaza - Taşınabilir Güç Kaynakları</option>
-                <option value="SHOP_CATEGORY_GUNES_PANELLERI">Mağaza - Güneş Panelleri</option>
-                <option value="SHOP_CATEGORY_ENDUSTRIYEL_ELDIVENLER">Mağaza - Endüstriyel Eldivenler</option>
-                <option value="SHOP_CATEGORY_TELESKOPIK_MERDIVENLER">Mağaza - Teleskopik Merdivenler</option>
+                <option value="SHOP_CATEGORY_TASINABILIR_GUC_KAYNAKLARI">Mağaza - Taşınabilir Güç Kaynakları (mağazada artık gösterilmiyor)</option>
+                <option value="SHOP_CATEGORY_GUNES_PANELLERI">Mağaza - Güneş Panelleri (mağazada artık gösterilmiyor)</option>
+                <option value="SHOP_CATEGORY_ENDUSTRIYEL_ELDIVENLER">Mağaza - Endüstriyel Eldivenler (mağazada artık gösterilmiyor)</option>
+                <option value="SHOP_CATEGORY_TELESKOPIK_MERDIVENLER">Mağaza - Teleskopik Merdivenler (mağazada artık gösterilmiyor)</option>
               </optgroup>
               <optgroup label="Diğer">
                 <option value="CATEGORY_TOP">Kategori Sayfası Üst</option>

@@ -82,7 +82,6 @@ interface CategoryWithProducts {
   id: string;
   name: string;
   slug: string;
-  themeColor: string | null; // Kategori tema rengi
   products: ProductWithCategory[];
 }
 
@@ -190,14 +189,6 @@ interface ApiBundle {
   ratingCount?: number;
 }
 
-// Kategori slug -> placement mapping
-const CATEGORY_PLACEMENT_MAP: Record<string, string> = {
-  "endustriyel-eldivenler": "SHOP_CATEGORY_ENDUSTRIYEL_ELDIVENLER",
-  "teleskopik-merdivenler": "SHOP_CATEGORY_TELESKOPIK_MERDIVENLER", 
-  "tasinabilir-guc-kaynaklari": "SHOP_CATEGORY_TASINABILIR_GUC_KAYNAKLARI",
-  "gunes-panelleri": "SHOP_CATEGORY_GUNES_PANELLERI",
-};
-
 // Filter types
 interface FilterOption {
   id: string;
@@ -237,21 +228,6 @@ export interface StoreInitialData {
   freeShippingThreshold: number;
 }
 
-// SHOP_CATEGORY_* bannerlarını slug -> banner map'ine dönüştür
-function extractCategoryBanners(banners: Banner[]): Record<string, Banner> {
-  const catBanners: Record<string, Banner> = {};
-  banners.forEach((b) => {
-    if (b.placement.startsWith("SHOP_CATEGORY_")) {
-      Object.entries(CATEGORY_PLACEMENT_MAP).forEach(([slug, placement]) => {
-        if (b.placement === placement) {
-          catBanners[slug] = b;
-        }
-      });
-    }
-  });
-  return catBanners;
-}
-
 // Kategori + ürün + bundle verisinden carousel listesini kur
 // (Hem SSR initial data hem client-side fetch fallback'i bu fonksiyonu kullanır)
 function buildCategoriesWithProducts(
@@ -269,7 +245,6 @@ function buildCategoriesWithProducts(
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
-        themeColor: cat.themeColor || null,
         products: [],
       });
     }
@@ -280,7 +255,6 @@ function buildCategoriesWithProducts(
     const catId = product.categoryId || "uncategorized";
     const catName = product.category?.name || "Diğer";
     const catSlug = product.category?.slug || "diger";
-    const catThemeColor = product.category?.themeColor || null;
 
     const stockQty = product.stock || 0;
     const productPrice = Number(product.price) || 0;
@@ -321,7 +295,6 @@ function buildCategoriesWithProducts(
         id: catId,
         name: catName,
         slug: catSlug,
-        themeColor: catThemeColor,
         products: [],
       });
     }
@@ -382,28 +355,14 @@ function buildCategoriesWithProducts(
         id: catId,
         name: catName,
         slug: catSlug,
-        themeColor: "#8B5CF6", // Purple theme for bundles
         products: [],
       });
     }
     categoryMap.get(catId)!.products.push(bundleAsProduct as ProductWithCategory);
   });
 
-  // Filter out empty categories and sort by custom order
-  const CATEGORY_ORDER: Record<string, number> = {
-    "tasinabilir-guc-kaynaklari": 1,
-    "bundle-paket-urunler": 2,
-    "gunes-panelleri": 3,
-    "endustriyel-eldivenler": 4,
-    "teleskopik-merdivenler": 5,
-  };
-  return Array.from(categoryMap.values())
-    .filter((cat) => cat.products.length > 0)
-    .sort((a, b) => {
-      const orderA = CATEGORY_ORDER[a.slug] ?? 999;
-      const orderB = CATEGORY_ORDER[b.slug] ?? 999;
-      return orderA - orderB;
-    });
+  // Sıra admin panelindeki kategori sırasından geliyor (getStoreCategories order'a göre sıralı)
+  return Array.from(categoryMap.values()).filter((cat) => cat.products.length > 0);
 }
 
 export default function StorePageClient({ initialData }: { initialData: StoreInitialData }) {
@@ -419,10 +378,6 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
   const { freeShippingThreshold } = initialData;
   const banner = useMemo<Banner | null>(
     () => initialData.banners.find((b) => b.placement === "SHOP_HEADER") ?? null,
-    [initialData]
-  );
-  const categoryBanners = useMemo<Record<string, Banner>>(
-    () => extractCategoryBanners(initialData.banners),
     [initialData]
   );
   const categoriesWithProducts = useMemo<CategoryWithProducts[]>(
@@ -659,7 +614,7 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
   void _totalProducts;
 
   // Filtre paneli için aktif kategori tema rengi
-  const filterPanelThemeColor = categoriesWithProducts[0]?.themeColor || "#8b5cf6";
+  const filterPanelThemeColor = DEFAULT_CATEGORY_HEADING.accent;
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -807,7 +762,7 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
       {featuredProducts.length > 0 && (
         <StoreFeaturedSection
           title="Öne Çıkan Ürünler"
-          eyebrow="Seçili Koleksiyon"
+          eyebrow="SEÇİLİ KOLEKSİYON"
           products={featuredProducts}
           isDark={isDark}
           accentColor="#6B7280"
@@ -819,7 +774,7 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
       {bestsellerProducts.length > 0 && (
         <StoreFeaturedSection
           title="Çok Satanlar"
-          eyebrow="Trend Ürünler"
+          eyebrow="TREND ÜRÜNLER"
           products={bestsellerProducts}
           isDark={isDark}
           accentColor="#F59E0B"
@@ -827,22 +782,20 @@ export default function StorePageClient({ initialData }: { initialData: StoreIni
       )}
 
       {/* CATEGORIES WITH CAROUSELS */}
-      <section style={{ marginTop: "48px", paddingBottom: "80px", minHeight: "70vh" }}>
+      <section style={{ paddingBottom: "80px", minHeight: "70vh" }}>
         {filteredCategories.length === 0 ? (
           <div className="container text-center" style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <p className="text-foreground-muted">Ürün bulunamadı.</p>
           </div>
         ) : (
           <div>
-            {filteredCategories.map((category, idx) => (
-              <div key={category.id} style={{ marginTop: idx > 0 ? "100px" : "0" }}>
-                <CategoryCarousel 
-                  category={category} 
-                  bannerData={categoryBanners[category.slug]}
-                  isDark={isDark}
-                  freeShippingThreshold={freeShippingThreshold}
-                />
-              </div>
+            {filteredCategories.map((category) => (
+              <CategoryCarousel
+                key={category.id}
+                category={category}
+                isDark={isDark}
+                freeShippingThreshold={freeShippingThreshold}
+              />
             ))}
           </div>
         )}
@@ -981,225 +934,107 @@ function BannerImage({ banner, isDark }: { banner: Banner | null; isDark: boolea
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CATEGORY CAROUSEL - Her kategori için auto-scroll carousel + sağda banner
+   CATEGORY CAROUSEL - Her kategori için başlık + carousel ("Çok Satanlar" düzeni)
 ───────────────────────────────────────────────────────────────────────────── */
 
-// Default tema rengi (veritabanında themeColor yoksa)
-const DEFAULT_THEME_COLOR = "#8b5cf6"; // Violet
-
-// Helper: Hex renkten daha koyu bir ton oluştur (gradient to için)
-const darkenColor = (hex: string, percent: number = 20): string => {
-  const num = parseInt(hex.replace("#", ""), 16);
-  const amt = Math.round(2.55 * percent);
-  const R = Math.max((num >> 16) - amt, 0);
-  const G = Math.max(((num >> 8) & 0x00ff) - amt, 0);
-  const B = Math.max((num & 0x0000ff) - amt, 0);
-  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+const CATEGORY_HEADINGS: Record<string, { eyebrow: string; accent: string }> = {
+  "tasinabilir-guc-kaynaklari": { eyebrow: "KESİNTİSİZ ENERJİ", accent: "#14B8A6" },
+  "gunes-panelleri": { eyebrow: "GÜNEŞTEN ENERJİ", accent: "#F59E0B" },
+  "endustriyel-eldivenler": { eyebrow: "İŞ GÜVENLİĞİ", accent: "#22C55E" },
+  "teleskopik-merdivenler": { eyebrow: "SAHA EKİPMANI", accent: "#3B82F6" },
+  "bundle-paket-urunler": { eyebrow: "AVANTAJLI PAKETLER", accent: "#EC4899" },
+  "aksesuar": { eyebrow: "TAMAMLAYICI ÜRÜNLER", accent: "#8B5CF6" },
 };
+const DEFAULT_CATEGORY_HEADING = { eyebrow: "KEŞFET", accent: "#6B7280" };
 
-function CategoryCarouselBase({ 
-  category, 
-  bannerData,
+function CategoryCarouselBase({
+  category,
   isDark,
   freeShippingThreshold,
-}: { 
-  category: CategoryWithProducts; 
-  bannerData?: Banner;
+}: {
+  category: CategoryWithProducts;
   isDark: boolean;
   freeShippingThreshold: number;
 }) {
-  const [isMobile, setIsMobile] = useState(false);
-  
-  // CSS Transform carousel - manual scroll only
-  const { 
-    containerRef, 
-    wrapperRef, 
-    containerStyle, 
-    wrapperStyle, 
+  const {
+    containerRef,
+    wrapperRef,
+    containerStyle,
+    wrapperStyle,
     handlers,
     scrollBy,
   } = useCarouselScroll({ friction: 0.95 });
 
-  // Mobile check
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const displayProducts = category.products;
 
-  // Tema rengi: Kategori themeColor (veritabanından) veya default
-  const themeColor = category.themeColor || DEFAULT_THEME_COLOR;
-
-  // Tema rengi dolgu/gradient olarak sorunsuz; ama metin rengi olarak neon tonlar
-  // sayfa zemininde okunmuyor (örn. #CFFF66 üzerinde 1.06:1). Metin için okunur tonu kullan.
-  const themeTextColor = readableAccentColor(themeColor, isDark);
-  
-  // Banner renkleri: Banner verisi varsa onu kullan, yoksa themeColor'dan gradient oluştur
-  const bannerColors = bannerData?.gradientFrom && bannerData?.gradientTo
-    ? { from: bannerData.gradientFrom, to: bannerData.gradientTo }
-    : { from: themeColor, to: darkenColor(themeColor, 15) };
-  
-  // Banner'dan gelen içerik veya default
-  const bannerTitle = bannerData?.title || category.name;
-  const bannerSubtitle = bannerData?.subtitle || "Kaliteli ürünleri keşfedin";
-  const bannerButtonText = bannerData?.buttonText || "Tümünü Gör";
-
-  // Dynamic repeat for 360° infinite scroll - ensures enough items to scroll
-  // Minimum 12 cards to guarantee scrollWidth > containerWidth on all screens.
-  // Alt sınır 2: her kart ~50 DOM düğümü, kartlar zaten 12'yi geçtiğinde üçüncü
-  // tekrar kaydırma mesafesine bir şey katmadan sayfanın maliyetini büyütüyordu.
-  const minCardsNeeded = 12;
-  const productCount = category.products.length;
-  const repeatCount = productCount > 0 ? Math.max(2, Math.ceil(minCardsNeeded / productCount)) : 2;
-  const displayProducts = Array(repeatCount).fill(category.products).flat();
+  const heading = CATEGORY_HEADINGS[category.slug] ?? DEFAULT_CATEGORY_HEADING;
+  const accentTextColor = readableAccentColor(heading.accent, isDark);
 
   return (
-    <div className="container">
-      {/* Mobile Category Header - Only visible on mobile */}
-      {isMobile && (
-        <div className="flex items-center justify-between mb-4 px-0">
+    <section style={{ marginTop: "48px" }}>
+      <div className="container">
+        {/* Başlık: mobilde renk çubuğu + küçük başlık, masaüstünde büyük başlık + ok butonları.
+            Font boyutundaki `!`: mobile.css'teki katmansız `h2 { font-size: clamp(...) !important }` kuralını ezmek için. */}
+        <div className="flex items-center justify-between mb-4 lg:items-end lg:mb-3">
           <div className="flex items-center gap-3">
-            <div 
-              className="w-1 h-8 rounded-full"
-              style={{ backgroundColor: themeColor }}
-            />
-            <h3 className="text-lg font-bold text-foreground">{bannerTitle}</h3>
-          </div>
-          <Link 
-            href={`/kategori/${category.slug}`}
-            className="flex items-center gap-1 text-sm font-medium transition-colors"
-            style={{ color: themeTextColor }}
-          >
-            <span>Tümünü Gör</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-      )}
-
-      {/* Desktop Navigation Buttons - Above carousel, aligned right */}
-      <div className="hidden lg:flex justify-end mb-3">
-        <CarouselNavButtons
-          scrollBy={scrollBy}
-          scrollAmount={296}
-          theme="dynamic"
-          themeColor={themeColor}
-        />
-      </div>
-      
-      {/* Carousel with LEFT Banner - Başlık yok, banner'da var */}
-      <div className="relative flex gap-0">
-        {/* LEFT Banner - Tek Link, içinde Light ve Dark theme versiyonları */}
-        <Link 
-          href={`/kategori/${category.slug}`}
-          className="hidden lg:flex flex-shrink-0 w-[280px] group relative z-20"
-        >
-          <div
-            className="relative w-full h-[640px] rounded-2xl overflow-hidden"
-            style={{
-              border: `1px solid var(--border)`,
-              backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
-            }}
-          >
-            {/* Color gradient overlay (metalik) */}
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: isDark
-                  ? `linear-gradient(145deg, ${bannerColors.from}40 0%, ${bannerColors.from}25 30%, ${bannerColors.from}10 50%, transparent 70%)`
-                  : `linear-gradient(145deg, ${bannerColors.from}50 0%, ${bannerColors.from}35 30%, ${bannerColors.from}18 50%, transparent 70%)`,
-              }}
+              className="w-1 h-8 rounded-full lg:hidden"
+              style={{ backgroundColor: heading.accent }}
             />
-
-            {/* Right-side fade: Light=white, Dark=black */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: isDark
-                  ? "linear-gradient(to left, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.7) 30%, rgba(10,10,10,0.3) 60%, transparent 100%)"
-                  : "linear-gradient(to left, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.3) 60%, transparent 100%)",
-              }}
-            />
-
-            {/* Metallic shine */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: isDark
-                  ? "linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 25%, transparent 50%, rgba(255,255,255,0.08) 75%, transparent 100%)"
-                  : "linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.5) 25%, transparent 50%, rgba(255,255,255,0.3) 75%, transparent 100%)",
-                opacity: isDark ? 0.3 : 0.4,
-              }}
-            />
-
-            {/* Gradient orb */}
-            <div
-              className="absolute -top-20 -right-20 w-48 h-48 rounded-full blur-3xl"
-              style={{ background: bannerColors.from, opacity: isDark ? 0.45 : 0.45 }}
-            />
-
-            {/* Content */}
-            <div className="relative h-full flex flex-col p-6">
-              {/* Badge */}
-              <div
-                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full text-[11px] font-semibold w-fit"
-                style={{
-                  background: `${bannerColors.from}${isDark ? "25" : "20"}`,
-                  color: readableAccentColor(bannerColors.from, isDark),
-                }}
+            <div>
+              <p
+                className="mb-1 lg:mb-3"
+                style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: accentTextColor }}
               >
-                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: bannerColors.from }} />
-                <span>{category.products.length} Ürün</span>
-              </div>
-
-              {/* Title */}
-              <div className="flex-1 flex flex-col justify-center py-4">
-                <h4 className={cn("text-xl font-bold leading-snug mb-2", isDark ? "text-white" : "text-gray-900")}>
-                  {bannerTitle}
-                </h4>
-                <p className={cn("text-xs", isDark ? "text-white/60" : "text-gray-600")}>{bannerSubtitle}</p>
-              </div>
-
-              {/* CTA Button */}
-              <div
-                className={cn(
-                  "flex items-center justify-between px-4 py-3 rounded-xl backdrop-blur-sm transition-all duration-200 group-hover:scale-[1.02]",
-                  isDark ? "border border-white/20 bg-white/10 hover:bg-white/20" : "border border-gray-200 bg-white/70 hover:bg-white/90"
-                )}
+                {heading.eyebrow}
+              </p>
+              <h2
+                className="text-[18px]! font-bold lg:text-[32px]! lg:font-semibold lg:tracking-[-0.02em]"
+                style={{ color: isDark ? "#FAFAFA" : "#0A0A0A" }}
               >
-                <span className={cn("text-xs font-semibold", isDark ? "text-white" : "text-gray-900")}>{bannerButtonText}</span>
-                <ChevronRight className={cn("w-4 h-4", isDark ? "text-white" : "text-gray-900")} />
-              </div>
+                {category.name}
+              </h2>
             </div>
           </div>
-        </Link>
 
-        {/* Carousel Area - 360° infinite scroll with CSS Transform */}
-        <div className="flex-1 relative overflow-hidden" style={{ marginLeft: isMobile ? '0' : '-100px' }}>
-          {/* Container - viewport */}
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/kategori/${category.slug}`}
+              className="flex items-center gap-1 text-sm font-medium transition-colors text-foreground-secondary hover:text-foreground"
+            >
+              <span>Tümünü Gör</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+            <div className="hidden lg:block">
+              <CarouselNavButtons
+                scrollBy={scrollBy}
+                scrollAmount={296}
+                theme="dynamic"
+                themeColor={heading.accent}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
           <div
             ref={containerRef}
-            style={{ 
-              ...containerStyle, 
-              paddingLeft: isMobile ? '16px' : '116px',
-              paddingRight: isMobile ? '16px' : '0',
-            }}
-            className="pb-4 pt-1"
+            style={containerStyle}
+            className="product-rail pb-4"
           >
-            {/* Wrapper - content moves via transform */}
             <div
               ref={wrapperRef}
-              style={{ ...wrapperStyle, gap: '16px' }}
+              style={{ ...wrapperStyle, gap: "16px" }}
               {...handlers}
-              className="flex items-stretch"
+              className="product-rail-track flex items-stretch"
             >
               {displayProducts.map((product: ProductWithCategory, idx: number) => (
-                <div 
-                  key={`${product.id}-${idx}`} 
+                <div
+                  key={`${product.id}-${idx}`}
                   className="store-card-slot"
                 >
                   {product.isBundle ? (
-                    <BundleProductCard 
+                    <BundleProductCard
                       bundle={{
                         id: String(product.id),
                         slug: product.slug,
@@ -1220,8 +1055,8 @@ function CategoryCarouselBase({
                       } as BundleProduct}
                     />
                   ) : (
-                    <ProductCard 
-                      product={mapApiProductToCard(product, freeShippingThreshold)} 
+                    <ProductCard
+                      product={mapApiProductToCard(product, freeShippingThreshold)}
                     />
                   )}
                 </div>
@@ -1230,7 +1065,7 @@ function CategoryCarouselBase({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -1270,9 +1105,7 @@ function StoreFeaturedSection({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Kategori carousel'leriyle aynı kural: en az 12 kart, gereksiz tekrar yok.
-  const repeatCount = products.length > 0 ? Math.max(2, Math.ceil(12 / products.length)) : 2;
-  const displayProducts = Array(repeatCount).fill(products).flat() as Product[];
+  const displayProducts = products;
 
   // Vurgu rengi metin olarak kullanıldığında sayfa zemininde okunur olmalı
   const accentTextColor = readableAccentColor(accentColor, isDark);
@@ -1296,7 +1129,7 @@ function StoreFeaturedSection({
                     marginBottom: "4px",
                   }}
                 >
-                  {eyebrow.toLocaleUpperCase('en-US')}
+                  {eyebrow}
                 </p>
                 <h3
                   style={{
@@ -1323,7 +1156,7 @@ function StoreFeaturedSection({
                   marginBottom: "12px",
                 }}
               >
-                {eyebrow.toLocaleUpperCase('en-US')}
+                {eyebrow}
               </p>
               <h2
                 style={{
@@ -1349,16 +1182,19 @@ function StoreFeaturedSection({
           <div
             ref={containerRef}
             style={containerStyle}
-            className="pb-4"
+            className="product-rail pb-4"
           >
             <div
               ref={wrapperRef}
               style={{ ...wrapperStyle, gap: "16px" }}
               {...handlers}
-              className="flex items-stretch"
+              className="product-rail-track flex items-stretch"
             >
               {displayProducts.map((product, idx) => (
-                <div key={`${product.id}-${idx}`} className="store-card-slot">
+                <div
+                  key={`${product.id}-${idx}`}
+                  className="store-card-slot"
+                >
                   {/* LCP fix: ekranda ilk görünen kartların görselleri eager +
                       fetchpriority=high yüklensin */}
                   <ProductCard product={product} priority={priorityImages && idx < 4} />

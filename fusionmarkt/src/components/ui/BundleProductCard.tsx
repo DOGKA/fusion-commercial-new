@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Heart, BadgeCheck, Truck, Play } from "lucide-react";
+import { Star, Heart, BadgeCheck, Play, Zap } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { readableBadgeBackground } from "@/lib/color-contrast";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
@@ -66,6 +66,11 @@ const SQUIRCLE = {
   xl: '24px',
 };
 
+// Kart kök elemanı bir container; 260px'ten dar yuvalarda (mobil ızgara)
+// `@max-[259px]:` varyantlarıyla kompakt düzene geçiliyor.
+const BADGE_CLASS =
+  "inline-flex items-center justify-center font-semibold text-center h-7 min-w-[75px] px-3 text-[11px] @max-[259px]:h-6 @max-[259px]:min-w-0 @max-[259px]:px-2 @max-[259px]:text-[10px]";
+
 export default function BundleProductCard({ bundle, className, priority = false }: BundleProductCardProps) {
   const [favoriteHover, setFavoriteHover] = useState(false);
   
@@ -83,8 +88,6 @@ export default function BundleProductCard({ bundle, className, priority = false 
     savings,
     thumbnail,
     stock,
-    items,
-    itemCount,
     ratingAverage,
     ratingCount,
     freeShipping,
@@ -95,38 +98,9 @@ export default function BundleProductCard({ bundle, className, priority = false 
 
   const isOutOfStock = stock <= 0;
 
-  // Items'ı productId'ye göre grupla - aynı ürün 1 kere gösterilsin
-  // Varyasyonlu ürünlerde miktar 1 olarak gösterilir (paket 1 ürün içerir, varyant seçimi yapılacak)
-  const groupedItems = useMemo(() => {
-    if (!items || items.length === 0) return [];
-    
-    const groupMap = new Map<string, { productName: string; quantity: number }>();
-    
-    for (const item of items) {
-      if (!item.product) continue;
-      const pid = item.product.id;
-      
-      if (!groupMap.has(pid)) {
-        // İlk item'ın quantity'sini al (varyasyonlar aynı quantity'ye sahip olmalı)
-        groupMap.set(pid, {
-          productName: item.product.name,
-          quantity: item.quantity,
-        });
-      }
-      // Aynı ürünün farklı varyantları için quantity'yi toplamıyoruz
-      // Çünkü paket 1 ürün içeriyor, sadece varyant seçimi yapılacak
-    }
-    
-    return Array.from(groupMap.entries()).map(([id, data]) => ({
-      id,
-      productName: data.productName,
-      quantity: data.quantity,
-    }));
-  }, [items]);
-
   return (
-    <div className={cn("relative", className)} style={{ height: '640px', display: 'flex', flexDirection: 'column' }}>
-      <Link href={`/urun/${slug}`} className="block" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className={cn("@container relative flex flex-col", className)}>
+      <Link href={`/urun/${slug}`} className="flex flex-1 flex-col h-[640px] @max-[259px]:h-auto">
         {/* IMAGE AREA */}
         <div 
           className="relative w-full bg-background overflow-hidden border border-border border-b-0"
@@ -151,14 +125,11 @@ export default function BundleProductCard({ bundle, className, priority = false 
           )}
             
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 @max-[259px]:top-2 @max-[259px]:left-2 @max-[259px]:gap-1">
             {/* Bundle Badge */}
             <span 
-              className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-center"
+              className={cn(BADGE_CLASS, "gap-1 font-bold")}
               style={{ 
-                minWidth: 75, 
-                height: 28, 
-                padding: '0 12px', 
                 borderRadius: SQUIRCLE.sm,
                 // Gradient'in iki ucu da beyaz metinle 4.5:1 üzerinde kalıyor
                 background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
@@ -179,11 +150,8 @@ export default function BundleProductCard({ bundle, className, priority = false 
             {/* Stock Badge - Son 1 adet */}
             {stock === 1 && !isOutOfStock && (
               <span 
-                className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
+                className={cn(BADGE_CLASS, "min-w-[85px] px-3.5")}
                 style={{ 
-                  minWidth: 85, 
-                  height: 28, 
-                  padding: '0 14px', 
                   borderRadius: SQUIRCLE.sm,
                   backgroundColor: '#C2410C',
                   color: '#FFFFFF',
@@ -196,11 +164,8 @@ export default function BundleProductCard({ bundle, className, priority = false 
             {/* Stock Badge - Stok Yok */}
             {isOutOfStock && (
               <span 
-                className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
+                className={cn(BADGE_CLASS, "min-w-[85px] px-3.5")}
                 style={{ 
-                  minWidth: 85, 
-                  height: 28, 
-                  padding: '0 14px', 
                   borderRadius: SQUIRCLE.sm,
                   backgroundColor: '#6B7280',
                   color: '#FFFFFF',
@@ -219,26 +184,37 @@ export default function BundleProductCard({ bundle, className, priority = false 
               return (
               <span 
                 key={badge.id}
-                className="inline-flex items-center justify-center text-[11px] font-semibold text-center"
+                className={BADGE_CLASS}
                 style={{ 
-                  minWidth: 75, 
-                  height: 28, 
-                  padding: '0 12px', 
                   borderRadius: SQUIRCLE.sm,
                   backgroundColor: badgeBackground,
                   color: badgeText,
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  boxShadow: `0 2px 10px ${badgeBackground}40`,
+                  border: `1px solid ${badgeText}20`
                 }}
               >
                 {badge.name}
               </span>
               );
             })}
+            {videoLabel && (
+              <span
+                className={cn(BADGE_CLASS, "gap-1")}
+                style={{
+                  borderRadius: SQUIRCLE.sm,
+                  backgroundColor: '#0E7490',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                }}
+              >
+                <Play size={10} fill="currentColor" />
+                <span className="@max-[259px]:hidden">Videolu Ürün</span>
+                <span className="hidden @max-[259px]:inline">Video</span>
+              </span>
+            )}
           </div>
 
           {/* Action Buttons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+          <div className="absolute top-3 right-3 flex flex-col gap-2 z-10 @max-[259px]:top-2 @max-[259px]:right-2">
             {/* Favorilere Ekle */}
             <button
               type="button"
@@ -260,10 +236,8 @@ export default function BundleProductCard({ bundle, className, priority = false 
               onMouseEnter={() => setFavoriteHover(true)}
               onMouseLeave={() => setFavoriteHover(false)}
               title={isProductFavorite ? "Beğendiklerimden Çıkar" : "Beğendiklerime Ekle"}
-              className="card-glass-button"
+              className="card-glass-button w-9 h-9 @max-[259px]:w-7 @max-[259px]:h-7 @max-[259px]:min-w-0! @max-[259px]:min-h-0! @max-[259px]:rounded-[10px]!"
               style={{
-                width: 36,
-                height: 36,
                 borderRadius: SQUIRCLE.md,
                 backgroundColor: isProductFavorite ? 'rgba(236, 72, 153, 0.15)' : 'transparent',
                 border: isProductFavorite 
@@ -285,7 +259,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 transform: isProductFavorite ? 'scale(1.05)' : 'scale(1)',
               }}
             >
-              <Heart size={15} fill={isProductFavorite ? 'currentColor' : 'none'} />
+              <Heart size={15} className="@max-[259px]:size-3" fill={isProductFavorite ? 'currentColor' : 'none'} />
             </button>
 
           </div>
@@ -296,28 +270,29 @@ export default function BundleProductCard({ bundle, className, priority = false 
         {/* CONTENT AREA */}
         <div 
           className={cn(
-            "flex-1 flex flex-col p-3 pt-3 border border-border border-t-0 transition-all duration-300",
+            "flex flex-col p-3 pt-3 border border-border border-t-0 transition-all duration-300",
             "bg-surface/90 dark:bg-surface/90",
             "hover:border-border-hover"
           )}
           style={{ 
             borderBottomLeftRadius: SQUIRCLE.xl, 
-            borderBottomRightRadius: SQUIRCLE.xl 
+            borderBottomRightRadius: SQUIRCLE.xl,
+            flex: '1 1 auto',
+            minHeight: 0,
           }}
         >
           {/* ÜST KISIM - Brand & Title - ProductCard ile aynı yapı */}
           <div className="flex flex-col gap-1">
             {/* Marka satırı - "Bundle / Paket" */}
-            <p className="text-[10px] text-violet-400/70 uppercase tracking-widest font-medium">
-              Bundle / Paket
+            <p className="text-[9px] text-foreground-muted tracking-widest truncate @max-[259px]:tracking-wider">
+              BUNDLE / PAKET
             </p>
             <h3 
+              className="text-[18px] min-h-[2.8em] @max-[259px]:text-[13px]!"
               style={{ 
-                fontSize: '20px', 
                 fontWeight: 500, 
                 color: 'var(--foreground)', 
                 lineHeight: 1.4, 
-                minHeight: '36px',
                 overflow: 'hidden',
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
@@ -328,121 +303,73 @@ export default function BundleProductCard({ bundle, className, priority = false 
             </h3>
           </div>
 
-          {/* ORTA KISIM - Paket İçeriği KOMPAKT GRİD */}
-          <div className="flex flex-col gap-1.5 mt-2">
-            {/* Paket İçeriği - ürünler productId'ye göre gruplandırılmış */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {groupedItems.length > 0 ? (
-                <>
-                  {groupedItems.slice(0, 4).map((group) => (
-                    <div
-                      key={group.id}
-                      style={{
-                        padding: '4px 6px',
-                        borderRadius: SQUIRCLE.sm,
-                        backgroundColor: 'var(--glass-bg)',
-                        border: '1px solid var(--pill-border-emerald)',
-                        display: 'grid',
-                        gridTemplateColumns: '1fr auto',
-                        columnGap: '8px',
-                        alignItems: 'center',
-                        minWidth: 0,
-                      }}
-                    >
-                      <span style={{ 
-                        fontSize: '10px', 
-                        color: 'var(--foreground-secondary)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        lineHeight: '16px',
-                        minWidth: 0,
-                      }}>
-                        {group.productName}
-                      </span>
-                      <span style={{ 
-                        fontSize: '10px', 
-                        color: 'var(--foreground-muted)', 
-                        fontWeight: 500,
-                        textAlign: 'right',
-                        lineHeight: '16px',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        x{group.quantity}
-                      </span>
-                    </div>
-                  ))}
-                  {groupedItems.length > 4 && (
-                    <div style={{ 
-                      fontSize: '9px', 
-                      color: 'rgba(255,255,255,0.35)',
-                      textAlign: 'center',
-                      paddingTop: '2px',
-                    }}>
-                      +{groupedItems.length - 4} ürün daha
-                    </div>
-                  )}
-                </>
-              ) : (
-                <span style={{ 
-                  fontSize: '10px', 
-                  color: 'rgba(255,255,255,0.4)',
-                  textAlign: 'center',
-                }}>
-                  {itemCount} ürün içerir
-                </span>
-              )}
-            </div>
+          {/* ORTA KISIM - ProductCard'daki varyant satırıyla aynı yükseklik; kompaktta gizli */}
+          <div className="flex flex-col gap-2 mt-2">
+            <div style={{ minHeight: '32px' }} />
           </div>
 
-          {/* Spacer - flex grow */}
-          <div style={{ flex: 1 }} />
+          <div style={{ height: '8px' }} />
 
-          {/* ALT KISIM - Grid Cards: Ücretsiz Kargo/Videolu Ürün, Rating, Yetkili Distribütör, 12 Taksit */}
+          {/* ALT KISIM - Sabit yuvalar: öğe yoksa yeri görünmez tutuluyor, böylece tüm kartların boyu ve iç düzeni aynı kalıyor */}
           <div className="flex flex-col gap-1.5">
-            {/* 1. Ücretsiz Kargo + Videolu Ürün Satırı */}
-            {(freeShipping || videoLabel) && (
-              <div className="flex gap-1.5">
-                {/* Ücretsiz Kargo */}
-                {freeShipping && (
-                  <span 
-                    className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
-                    style={{
-                      height: 28,
-                      padding: '0 14px',
-                      border: '1px solid var(--pill-border-emerald)',
-                      borderRadius: SQUIRCLE.sm,
-                    }}
-                  >
-                    <Truck size={12} style={{ color: 'var(--pill-accent-emerald)' }} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pill-accent-emerald)' }}>
-                      Ücretsiz Kargo
-                    </span>
+            <div className="flex gap-1.5">
+              {freeShipping ? (
+                <span
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 bg-glass-bg"
+                  style={{
+                    height: 28,
+                    padding: '0 8px',
+                    border: '1px solid var(--pill-border-emerald)',
+                    borderRadius: SQUIRCLE.sm,
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--pill-accent-emerald)' }}>
+                    <path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/>
+                    <path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/>
+                    <circle cx="7" cy="18" r="2"/>
+                    <circle cx="17" cy="18" r="2"/>
+                  </svg>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pill-accent-emerald)' }}>
+                    Ücretsiz Kargo
                   </span>
-                )}
-                {/* Videolu Ürün */}
-                {videoLabel && (
-                  <span 
-                    className={`inline-flex items-center justify-center gap-1.5 bg-glass-bg ${freeShipping && videoLabel ? 'flex-1' : 'w-full'}`}
-                    style={{
-                      height: 28,
-                      padding: '0 14px',
-                      border: '1px solid var(--pill-border-cyan)',
-                      borderRadius: SQUIRCLE.sm,
-                    }}
-                  >
-                    <Play size={11} style={{ color: 'var(--pill-accent-cyan)', fill: 'var(--pill-accent-cyan)' }} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pill-accent-cyan)' }}>
-                      Videolu Ürün
-                    </span>
+                </span>
+              ) : (
+                /* Kargo ücretliyse webde Yetkili Distribütör yalnız kalmasın; mobilde yuva görünmez kalıyor */
+                <span
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 bg-glass-bg @max-[259px]:invisible"
+                  style={{
+                    height: 28,
+                    padding: '0 8px',
+                    border: '1px solid var(--pill-border-cyan)',
+                    borderRadius: SQUIRCLE.sm,
+                  }}
+                >
+                  <Zap size={11} style={{ color: 'var(--pill-accent-cyan)' }} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pill-accent-cyan)' }}>
+                    Hızlı Teslimat
                   </span>
-                )}
-              </div>
-            )}
+                </span>
+              )}
 
-            {/* 2. Rating - Yıldızlar */}
-            <span 
-              className="inline-flex items-center justify-center gap-1.5 bg-glass-bg w-full"
+              <span
+                className="inline-flex flex-1 items-center justify-center gap-1 bg-glass-bg @max-[259px]:hidden"
+                style={{
+                  height: 28,
+                  padding: '0 8px',
+                  border: '1px solid var(--pill-border-amber-soft)',
+                  borderRadius: SQUIRCLE.sm,
+                }}
+              >
+                <BadgeCheck size={11} style={{ color: 'var(--pill-accent-amber)' }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
+                  Yetkili Distribütör
+                </span>
+              </span>
+            </div>
+
+            {/* Yorum yoksa puan satırı gizleniyor ama yeri korunuyor */}
+            <span
+              className={cn("inline-flex items-center justify-center gap-1.5 bg-glass-bg w-full", !ratingCount && "invisible")}
               style={{
                 height: 28,
                 padding: '0 14px',
@@ -450,18 +377,14 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 borderRadius: SQUIRCLE.sm,
               }}
             >
-              {/* 5 Yıldız - Sarı */}
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star 
-                    key={star} 
-                    size={11} 
-                    className={star <= Math.round(ratingAverage || 0) 
-                      ? "" 
-                      : "fill-transparent text-foreground-disabled"
-                    }
-                    style={star <= Math.round(ratingAverage || 0) 
-                      ? { fill: 'var(--pill-accent-amber)', color: 'var(--pill-accent-amber)' } 
+                  <Star
+                    key={star}
+                    size={11}
+                    className={star <= Math.round(ratingAverage || 0) ? "" : "fill-transparent text-foreground-disabled"}
+                    style={star <= Math.round(ratingAverage || 0)
+                      ? { fill: 'var(--pill-accent-amber)', color: 'var(--pill-accent-amber)' }
                       : undefined
                     }
                   />
@@ -474,64 +397,29 @@ export default function BundleProductCard({ bundle, className, priority = false 
                 ({ratingCount || 0})
               </span>
             </span>
-
-            {/* 3 & 4. Yetkili Distribütör + 12 Taksit - Yan yana */}
-            <div className="flex gap-1.5">
-              <span 
-                className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
-                style={{
-                  height: 28,
-                  padding: '0 8px',
-                  border: '1px solid var(--pill-border-amber-soft)',
-                  borderRadius: SQUIRCLE.sm,
-                }}
-              >
-                <BadgeCheck size={11} style={{ color: 'var(--pill-accent-amber)' }} />
-                <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
-                  Yetkili Distribütör
-                </span>
-              </span>
-
-              <span 
-                className="inline-flex items-center justify-center gap-1 bg-glass-bg flex-1"
-                style={{
-                  height: 28,
-                  padding: '0 8px',
-                  border: '1px solid var(--pill-border-violet)',
-                  borderRadius: SQUIRCLE.sm,
-                }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--pill-accent-violet)' }}>
-                  <rect width="20" height="14" x="2" y="5" rx="2"/>
-                  <line x1="2" x2="22" y1="10" y2="10"/>
-                </svg>
-                <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--foreground)' }}>
-                  12 Taksit İmkanı
-                </span>
-              </span>
-            </div>
           </div>
 
           {/* PRICE SECTION - ProductCard ile aynı düzen */}
-            <div className="pt-2 mt-1 border-t border-border/60">
+            <div className="pt-2" style={{ marginTop: 'auto' }}>
             {/* Eski fiyat & Kazanç */}
-            <div className="h-[20px]">
+            <div className="h-[20px] @max-[259px]:h-[30px]">
               {totalValue && totalValue > price ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] text-foreground-muted line-through font-medium">
-                    {formatPrice(totalValue)}
+                <div className="flex items-center gap-2 @max-[259px]:flex-wrap @max-[259px]:gap-x-1.5 @max-[259px]:gap-y-0">
+                  <span className="text-[13px] text-foreground-muted line-through font-medium @max-[259px]:text-[11px]">
+                    {formatPrice(totalValue)} ₺
                   </span>
-                  <span className="text-[11px] text-[color:var(--fusion-success-text)] font-semibold">
-                    {formatPrice(savings)} kazanç
+                  <span className="text-[11px] text-[color:var(--fusion-success-text)] font-semibold @max-[259px]:text-[10px]">
+                    {formatPrice(savings)} ₺ kazanç
                   </span>
                 </div>
               ) : null}
             </div>
 
             {/* Güncel fiyat & Sepete Ekle - ProductCard ile AYNI konumda */}
-            <div className="h-[48px] flex items-center justify-between gap-3">
-              <span className="text-xl font-bold text-foreground">
+            <div className="h-[48px] flex items-center justify-between gap-3 @max-[259px]:gap-2">
+              <span className="text-xl font-bold text-foreground @max-[259px]:text-base @max-[259px]:min-w-0 @max-[259px]:truncate">
                 {formatPrice(price)}
+                <span className="text-sm font-normal text-foreground-tertiary ml-1">₺</span>
               </span>
 
               {/* Sepete Ekle veya Varyasyon Seç Button */}

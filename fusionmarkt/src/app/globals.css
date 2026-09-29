@@ -626,6 +626,67 @@ label.field-flash p:first-of-type {
   contain-intrinsic-size: 280px 640px;
 }
 
+/* Mobil ürün ızgarası: yan yana en az 2 kart, yalnızca dikey kaydırma.
+   Kartlar 260px'in altına indiğinde kendi içlerinde kompakt düzene geçiyor
+   (ProductCard / BundleProductCard container query'leri). */
+.product-grid-mobile {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.product-grid-cell {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-grid-cell > *,
+.product-rail-track > .store-card-slot > * {
+  flex: 1 1 auto;
+}
+
+@media (min-width: 640px) {
+  .product-grid-mobile {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+/* Mağaza şeritleri masaüstünde yatay carousel; mobilde aynı DOM ızgaraya
+   dönüşüyor. Konteynerlerin inline padding/overflow değerlerini ezmek için
+   !important gerekli. */
+@media (max-width: 1023px) {
+  .product-rail {
+    overflow: visible !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .product-rail > .product-rail-track {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px !important;
+    width: auto !important;
+    cursor: auto !important;
+  }
+
+  .product-rail-track > .store-card-slot {
+    width: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    contain-intrinsic-size: auto 480px;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .product-rail > .product-rail-track {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px !important;
+  }
+}
+
 /* Kart üzerindeki cam butonlar. backdrop-filter iOS Safari'de arkasındaki
    pikselleri her karede yeniden örneklediği için ekrandaki her kart adına
    tekrarlanıyor ve yatay kaydırmayı compositor'dan düşürüyor. Trending

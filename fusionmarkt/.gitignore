@@ -42,3 +42,9 @@ yarn-error.log*
 # Yan build çıktıları (NEXT_DIST_DIR). Ölçüm ve doğrulama build'leri dev
 # sunucusunun .next'ine yazmasın diye ayrı dizine alınıyor; adları serbest.
 /.next-*/
+
+# TrustMark damgalama araçları. Sanal ortam PyTorch içerdiği için birkaç GB;
+# yedekler ve çalışma dosyaları ise ürün görsellerinin ham kopyaları.
+/.venv-trustmark/
+/.trustmark-tmp/
+/.trustmark-backup/

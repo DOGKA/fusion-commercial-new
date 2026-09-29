@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest) {
       )
     );
 
-    await revalidateFrontend({ tags: ["categories"] });
+    await revalidateFrontend({ tags: ["categories"], paths: ["/magaza"] });
 
     return NextResponse.json({ success: true, updated: gecerli.length });
   } catch (error: any) {
