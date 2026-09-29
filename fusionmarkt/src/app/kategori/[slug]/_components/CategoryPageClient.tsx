@@ -937,7 +937,7 @@ export default function CategoryPageClient({
         )}
       </div>
 
-      {/* ============================================ */} q
+      {/* ============================================ */}
       {/* PAGINATION */}
       {/* Mobilde de görünür: liste sayfa başına 12 ürüne bölünüyor, mobil
           karusel yalnızca o dilimi gösteriyor. Blok `lg:` ile gizliyken
