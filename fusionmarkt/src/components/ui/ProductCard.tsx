@@ -696,9 +696,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     } : undefined,
                   }}
                   variant="icon"
-                  disabled={cartDisabled}
-                  className={cartDisabled ? "@max-[259px]:size-6! @max-[259px]:min-w-0! @max-[259px]:min-h-0! @max-[259px]:rounded-[6px]!" : undefined}
-                  size="md"
+                  disabled={cartDisabled}                  size="md"
                   requiresVariant={hasVariants}
                   onNeedsVariant={() => {
                     setVariantError(true);

@@ -715,6 +715,11 @@ label.field-flash p:first-of-type {
   }
 }
 
+/* Açık temada --glass-bg beyaz kart üzerinde kayboluyor; inline zemini ezmek için !important. */
+.light .cart-icon-btn {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
 /* ===========================================================================
    Promo Banner - Homepage
 =========================================================================== */

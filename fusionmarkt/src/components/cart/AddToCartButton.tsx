@@ -38,7 +38,7 @@ function CartPlusIcon({ size }: { size: number }) {
 
 function ExclamationIcon({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
       <path d="M12 4v10" />
       <path d="M12 20h.01" />
     </svg>
@@ -149,8 +149,9 @@ export default function AddToCartButton({
         className={cn(
           "relative overflow-hidden",
           "transition-all duration-300 ease-out",
+          "card-glass-button-strong",
           disabled && "cursor-not-allowed",
-          !disabled && "card-glass-button-strong",
+          !disabled && buttonState !== "success" && buttonState !== "error" && "cart-icon-btn",
           className
         )}
         style={{
@@ -158,19 +159,19 @@ export default function AddToCartButton({
           height: config.icon.height,
           borderRadius: SQUIRCLE.lg,
           backgroundColor: disabled
-            ? "rgba(251, 191, 36, 0.12)"
+            ? "rgba(239, 68, 68, 0.08)"
+            : buttonState === "success"
+            ? "rgba(16, 185, 129, 0.95)"
+            : buttonState === "error"
+            ? "rgba(239, 68, 68, 0.95)"
             : "var(--glass-bg)",
-          border: disabled
-            ? "1px solid rgba(251, 191, 36, 0.55)"
-            : "1px solid transparent",
-          color: "var(--foreground)",
+          border: "1px solid transparent",
+          color: buttonState === "success" || buttonState === "error" ? "#FFFFFF" : "var(--foreground)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: disabled ? "not-allowed" : "pointer",
-          boxShadow: disabled
-            ? "0 2px 10px rgba(251, 191, 36, 0.20)"
-            : "none",
+          boxShadow: "none",
           transform: "scale(1)",
         }}
       >
@@ -192,30 +193,12 @@ export default function AddToCartButton({
                 <Loader2 size={config.icon.iconSize} strokeWidth={2.5} />
               )}
               {buttonState === "success" && (
-                <span
-                  className="animate-cart-check flex items-center justify-center"
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 8,
-                    backgroundColor: "rgba(16, 185, 129, 0.95)",
-                    color: "#FFFFFF",
-                  }}
-                >
+                <span className="animate-cart-check flex items-center justify-center">
                   <Check size={18} strokeWidth={2.5} />
                 </span>
               )}
               {buttonState === "error" && (
-                <span
-                  className="animate-cart-check flex items-center justify-center"
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 8,
-                    backgroundColor: "rgba(239, 68, 68, 0.95)",
-                    color: "#FFFFFF",
-                  }}
-                >
+                <span className="animate-cart-check flex items-center justify-center">
                   <AlertCircle size={18} strokeWidth={2.5} />
                 </span>
               )}
