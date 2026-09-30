@@ -66,6 +66,11 @@ const SQUIRCLE = {
   xl: '24px',
 };
 
+/** "%22 İndirim" gibi oran rozeti. Kartta gösterilmiyor. */
+function isDiscountRateBadge(label: string) {
+  return /^%\s*\d+\s*[İI]ndirim$/i.test(label.trim());
+}
+
 // Kart kök elemanı bir container; 260px'ten dar yuvalarda (mobil ızgara)
 // `@max-[259px]:` varyantlarıyla kompakt düzene geçiliyor.
 const BADGE_CLASS =
@@ -176,7 +181,7 @@ export default function BundleProductCard({ bundle, className, priority = false 
               </span>
             )}
             {/* Custom Badges */}
-            {badges && badges.length > 0 && badges.slice(0, 3).map((badge) => {
+            {badges && badges.length > 0 && badges.filter((badge) => badge.name && !isDiscountRateBadge(badge.name)).slice(0, 3).map((badge) => {
               // Panelden gelen renk okunamayacak kadar açıksa zemini AA eşiğine kadar koyulaştır
               const badgeText = badge.textColor || '#FFFFFF';
               const badgeBackground = readableBadgeBackground(badge.color || '#7C3AED', badgeText);

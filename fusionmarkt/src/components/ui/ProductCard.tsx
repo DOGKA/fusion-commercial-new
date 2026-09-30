@@ -62,6 +62,11 @@ interface ProductCardProps {
 
 // formatPrice is imported from @/lib/utils
 
+/** "%22 İndirim" gibi oran rozeti. Kartta gösterilmiyor. */
+function isDiscountRateBadge(label: string) {
+  return /^%\s*\d+\s*[İI]ndirim$/i.test(label.trim());
+}
+
 // iOS-style Squircle border-radius
 const SQUIRCLE = {
   sm: '10px',   // Badges, pills
@@ -171,7 +176,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
             {/* Badges - Squircle */}
             {/* 
               Yeni sistem: Tüm rozetler (sistem + manuel) badges array'de geliyor.
-              Sistem rozetleri: İndirim yüzdesi, Düşük stok, Yeni ürün
+              Sistem rozetleri: Düşük stok, Yeni ürün. İndirim oranı rozeti kartta gösterilmiyor.
               Manuel rozetler: Admin tarafından atanan rozetler
               Bundle/Paket rozeti: isBundle=true olan ürünler için
               
@@ -204,7 +209,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
               {/* Badges array system - tüm rozetler burada */}
               {badges && badges.length > 0 && badges.map((badgeItem, idx) => {
                 // Badge label'ın geçerli olduğunu kontrol et
-                if (!badgeItem.label || typeof badgeItem.label !== 'string' || badgeItem.label.trim() === '') {
+                if (!badgeItem.label || typeof badgeItem.label !== 'string' || badgeItem.label.trim() === '' || isDiscountRateBadge(badgeItem.label)) {
                   return null;
                 }
                 
@@ -232,7 +237,7 @@ export default function ProductCard({ product, className, priority = false }: Pr
                 );
               })}
               {/* Legacy badge support (fallback for old data without badges array) */}
-              {(!badges || badges.length === 0) && badge && typeof badge === 'string' && badge.trim() !== '' && (
+              {(!badges || badges.length === 0) && badge && typeof badge === 'string' && badge.trim() !== '' && !isDiscountRateBadge(badge) && (
                 <span 
                   className={cn(BADGE_CLASS, "card-glass-button bg-glass-bg border border-glass-border text-foreground")}
                   style={{ borderRadius: SQUIRCLE.sm }}
@@ -541,14 +546,34 @@ export default function ProductCard({ product, className, priority = false }: Pr
                     );
                   })
                 ) : (
-                  <span>&nbsp;</span>
+                  /* Varyant yok: masaüstünde yuva boş kalıyor, rozet alttaki satırda.
+                     Mobilde alttaki satır puana ayrıldığı için rozet bu yuvada gösteriliyor.
+                     Yorum da yoksa rozet zaten puan satırında, burada tekrar etmiyor. */
+                  <span
+                    className={cn(
+                      "inline-flex flex-1 items-center justify-center gap-1 bg-glass-bg w-full",
+                      ratingCount ? "invisible @max-[259px]:visible" : "invisible"
+                    )}
+                    style={{
+                      height: 28,
+                      padding: '0 8px',
+                      border: '1px solid var(--pill-border-amber-soft)',
+                      borderRadius: SQUIRCLE.sm,
+                    }}
+                  >
+                    <BadgeCheck size={11} style={{ color: 'var(--pill-accent-amber)' }} />
+                    <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
+                      Yetkili Distribütör
+                    </span>
+                  </span>
                 )}
               </div>
 
             </div>
 
-            {/* Spacer - küçük */}
-            <div style={{ height: '8px' }} />
+            {/* Spacer - küçük. Mobilde varyant yuvasındaki rozetle alttaki rozetler arası
+                6px kalsın: yuvanın altta bıraktığı 3px + 3px. */}
+            <div className={cn("h-2", !hasVariants && "@max-[259px]:h-[3px]")} />
 
             {/* ALT KISIM - Sabit yuvalar: öğe yoksa yeri görünmez tutuluyor, böylece tüm kartların boyu ve iç düzeni aynı kalıyor */}
             <div className="flex flex-col gap-1.5">
