@@ -201,6 +201,7 @@ export async function GET(
         subtotal: Number(order.subtotal),
         shipping: Number(order.shippingCost),
         discount: Number(order.discount),
+        bankTransferDiscount: Number(order.bankTransferDiscount),
         grandTotal: Number(order.total),
       },
       couponCode: order.couponCode || null,

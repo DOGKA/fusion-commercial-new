@@ -21,6 +21,7 @@ import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import RelatedProductCard from "@/components/product/RelatedProductCard";
 import ProductStickyCta from "@/components/product/ProductStickyCta";
+import BankTransferBadge from "@/components/product/BankTransferBadge";
 import ProductImageWatermark from "@/components/product/ProductImageWatermark";
 import { formatPrice } from "@/lib/utils";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -1512,25 +1513,27 @@ export default function BundleProductView({ slug, initialData }: BundleProductVi
                 
                 return (
                   <>
-                    {/* Mobil: Discount row ayrı kalacak */}
-                    {hasDiscount && displayComparePrice != null && (
-                      <div className="product-discount-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                        <span className="product-original-price" style={{ fontSize: '14px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
-                          {formatPrice(displayComparePrice)} TL
-                        </span>
-                        <span className="product-savings" style={{ fontSize: '12px', color: 'var(--fusion-success-text)', fontWeight: '600' }}>
-                          {formatPrice(displayComparePrice - displayPrice)} TL kazanç
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Mobilde: Price + CTA aynı satırda olacak */}
                     <div className="product-price-cta-wrapper">
-                      <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                        <span className="product-main-price" style={{ fontSize: '30px', fontWeight: 'bold', color: 'var(--foreground)' }}>{formatPrice(displayPrice)}</span>
-                        <span className="product-price-currency" style={{ fontSize: '16px', color: 'var(--foreground-tertiary)' }}>TL</span>
-                        <span className="product-kdv-text" style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>KDV Dahil</span>
-                    </div>
+                      <div className="product-price-head">
+                        <div className="product-price-head__prices">
+                          {hasDiscount && displayComparePrice != null && (
+                            <div className="product-discount-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                              <span className="product-original-price" style={{ fontSize: '14px', color: 'var(--foreground-muted)', textDecoration: 'line-through' }}>
+                                {formatPrice(displayComparePrice)} TL
+                              </span>
+                              <span className="product-savings" style={{ fontSize: '12px', color: 'var(--fusion-success-text)', fontWeight: '600' }}>
+                                {formatPrice(displayComparePrice - displayPrice)} TL kazanç
+                              </span>
+                            </div>
+                          )}
+                          <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                            <span className="product-main-price" style={{ fontSize: '30px', fontWeight: 'bold', color: 'var(--foreground)' }}>{formatPrice(displayPrice)}</span>
+                            <span className="product-price-currency" style={{ fontSize: '16px', color: 'var(--foreground-tertiary)' }}>TL</span>
+                            <span className="product-kdv-text" style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>KDV Dahil</span>
+                          </div>
+                        </div>
+                        <BankTransferBadge />
+                      </div>
 
                     {/* CTA Buttons */}
                       <div className="product-cta-row" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

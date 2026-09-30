@@ -9,6 +9,7 @@ import {
   DISTANCE_CONTRACT_TEXT,
 } from "@/lib/distance-contract-content";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { BANK_TRANSFER_DISCOUNT_LABEL } from "@/lib/bank-transfer-discount";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INTERFACES
@@ -30,7 +31,10 @@ interface ContractModalProps {
   totals: {
     subtotal: number;
     shipping: number;
+    /** Toplam indirim (kupon + havale). */
     discount: number;
+    /** `discount` içindeki havale payı. */
+    bankTransferDiscount?: number;
     grandTotal: number;
   };
   orderRefNumber: string;
@@ -208,7 +212,7 @@ function DistanceSalesContract({
 }: {
   buyer: { fullName: string; tcKimlikNo?: string; address: string; phone: string; email: string };
   items: { title: string; variant?: { value?: string }; price: number; quantity: number }[];
-  totals: { subtotal: number; shipping: number; discount: number; grandTotal: number };
+  totals: ContractModalProps["totals"];
   orderRefNumber: string;
   contractDate: string;
   isMobile: boolean;
@@ -346,10 +350,16 @@ function DistanceSalesContract({
             {totals.shipping === 0 ? "Ücretsiz" : formatPrice(totals.shipping)}
           </span>
         </div>
-        {totals.discount > 0 && (
+        {totals.discount - (totals.bankTransferDiscount ?? 0) > 0 && (
           <div style={{ ...styles.summaryRow(isMobile), color: "#f87171" }}>
             <span>İndirim:</span>
-            <span style={{ fontWeight: "500" }}>-{formatPrice(totals.discount)}</span>
+            <span style={{ fontWeight: "500" }}>-{formatPrice(totals.discount - (totals.bankTransferDiscount ?? 0))}</span>
+          </div>
+        )}
+        {(totals.bankTransferDiscount ?? 0) > 0 && (
+          <div style={{ ...styles.summaryRow(isMobile), color: "#f87171" }}>
+            <span>{BANK_TRANSFER_DISCOUNT_LABEL}:</span>
+            <span style={{ fontWeight: "500" }}>-{formatPrice(totals.bankTransferDiscount ?? 0)}</span>
           </div>
         )}
         <div style={styles.summaryTotal(isMobile)}>

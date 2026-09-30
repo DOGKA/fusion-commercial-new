@@ -391,6 +391,29 @@
     margin-left: 8px !important;
     color: var(--foreground-muted) !important;
   }
+
+  /* Sarmalayıcı zaten 8px boşluk veriyor */
+  .product-price-head {
+    margin-bottom: 0 !important;
+  }
+
+  .product-bank-transfer-badge {
+    padding: 6px 10px !important;
+    gap: 3px !important;
+    border-radius: 10px !important;
+  }
+
+  .product-bank-transfer-badge__method {
+    font-size: 10px !important;
+  }
+
+  .product-bank-transfer-badge__offer {
+    font-size: 11px !important;
+  }
+
+  .product-bank-transfer-badge__rate {
+    font-size: 15px !important;
+  }
   
   /* CTA Row - yatay, tam genişlik */
   .product-cta-row {

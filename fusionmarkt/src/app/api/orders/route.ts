@@ -170,10 +170,13 @@ export async function POST(request: NextRequest) {
     // açıldıktan sonra gelen zam demek, ikisinde de müşteriden gördüğünden
     // fazlasını tahsil etmemek gerekiyor.
     // ─────────────────────────────────────────────────────────────────────────
+    const isBankTransfer = paymentMethod !== "credit_card" && paymentMethod !== "card_sipay";
+
     const pricingResult = await computeOrderPricing({
       items,
       couponId: directCouponId || null,
       claimedDiscount,
+      bankTransfer: isBankTransfer,
     });
 
     if (!pricingResult.ok) {
@@ -187,6 +190,7 @@ export async function POST(request: NextRequest) {
       subtotal: orderSubtotal,
       shipping: orderShipping,
       discount: orderDiscount,
+      bankTransferDiscount: orderBankTransferDiscount,
       total: orderTotal,
       lines: pricedLines,
     } = pricingResult.pricing;
@@ -393,6 +397,7 @@ export async function POST(request: NextRequest) {
       subtotal: orderSubtotal,
       shipping: orderShipping,
       discount: orderDiscount,
+      bankTransferDiscount: orderBankTransferDiscount,
       grandTotal: orderTotal,
     };
     
@@ -435,8 +440,6 @@ export async function POST(request: NextRequest) {
         note: "Sözleşmeler elektronik ortamda onaylandı",
       },
     ];
-
-    const isBankTransfer = paymentMethod !== "credit_card" && paymentMethod !== "card_sipay";
 
     // ─────────────────────────────────────────────────────────────────────────
     // ATOMIC TRANSACTION: stock check + decrement + order create + coupon update
@@ -517,6 +520,7 @@ export async function POST(request: NextRequest) {
           subtotal: orderSubtotal,
           shippingCost: orderShipping,
           discount: orderDiscount,
+          bankTransferDiscount: orderBankTransferDiscount,
           tax: totals?.taxIncluded || 0,
           total: orderTotal,
           couponId: finalCouponId,

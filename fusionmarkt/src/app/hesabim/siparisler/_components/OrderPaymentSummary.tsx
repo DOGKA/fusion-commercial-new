@@ -12,6 +12,7 @@
  * (`api/payment/callback/route.ts`). Yerine sade ödeme yöntemi metni.
  */
 
+import { BANK_TRANSFER_DISCOUNT_LABEL } from "@/lib/bank-transfer-discount";
 import { formatPrice } from "../../_lib/format";
 import type { OrderDetail } from "../_lib/detail-types";
 
@@ -36,7 +37,8 @@ interface OrderPaymentSummaryProps {
 }
 
 export default function OrderPaymentSummary({ order }: OrderPaymentSummaryProps) {
-  const { subtotal, shippingCost, discount, total, refundedAmount } = order.totals;
+  const { subtotal, shippingCost, discount, bankTransferDiscount, total, refundedAmount } = order.totals;
+  const couponDiscount = discount - bankTransferDiscount;
   const paid = order.paymentStatus === "PAID";
 
   /**
@@ -80,13 +82,22 @@ export default function OrderPaymentSummary({ order }: OrderPaymentSummaryProps)
           </span>
         </div>
 
-        {discount > 0 && (
+        {couponDiscount > 0 && (
           <div className="flex justify-between gap-2 text-[12px]">
             <span className="min-w-0 break-words text-foreground-muted">
               İndirim{order.couponCode ? ` (${order.couponCode})` : ""}
             </span>
             <span className="acc-tone-success shrink-0 tabular-nums">
-              -{formatPrice(discount)}
+              -{formatPrice(couponDiscount)}
+            </span>
+          </div>
+        )}
+
+        {bankTransferDiscount > 0 && (
+          <div className="flex justify-between gap-2 text-[12px]">
+            <span className="min-w-0 text-foreground-muted">{BANK_TRANSFER_DISCOUNT_LABEL}</span>
+            <span className="acc-tone-success shrink-0 tabular-nums">
+              -{formatPrice(bankTransferDiscount)}
             </span>
           </div>
         )}

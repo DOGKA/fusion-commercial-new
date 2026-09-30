@@ -75,7 +75,10 @@ interface Order {
   paymentMethod: string | null;
   subtotal: number;
   shippingCost: number;
+  /** Toplam indirim (kupon + havale). */
   discount: number;
+  /** `discount` içindeki havale payı. */
+  bankTransferDiscount?: number;
   tax: number;
   total: number;
   trackingNumber: string | null;
@@ -760,12 +763,20 @@ export default function OrderDetailPage() {
                     {Number(order.shippingCost) === 0 ? "Ücretsiz" : formatPrice(Number(order.shippingCost))}
                   </span>
                 </div>
-                {Number(order.discount) > 0 && (
+                {Number(order.discount) - Number(order.bankTransferDiscount ?? 0) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">
                       İndirim {order.coupon && `(${order.coupon.code})`}
                     </span>
-                    <span className="text-green-500">-{formatPrice(Number(order.discount))}</span>
+                    <span className="text-green-500">
+                      -{formatPrice(Number(order.discount) - Number(order.bankTransferDiscount ?? 0))}
+                    </span>
+                  </div>
+                )}
+                {Number(order.bankTransferDiscount ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Havale İndirimi (%5)</span>
+                    <span className="text-green-500">-{formatPrice(Number(order.bankTransferDiscount))}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-stroke pt-2 dark:border-dark-3">
@@ -1187,6 +1198,7 @@ function ContractViewModal({ isOpen, onClose, contractType, order, formatPrice, 
           subtotal: Number(order.subtotal),
           shipping: Number(order.shippingCost),
           discount: Number(order.discount),
+          bankTransferDiscount: Number(order.bankTransferDiscount ?? 0),
           total: Number(order.total),
         },
         formatPrice,
@@ -1305,7 +1317,10 @@ interface DistanceSalesContractData {
   totals: {
     subtotal: number;
     shipping: number;
+    /** Toplam indirim (kupon + havale). */
     discount: number;
+    /** `discount` içindeki havale payı. */
+    bankTransferDiscount: number;
     total: number;
   };
   formatPrice: (price: number) => string;
@@ -1372,7 +1387,8 @@ ${productRows}
 ────────────────────────────────────────────────────────────────────────
 Ara Toplam        : ${formatPrice(totals.subtotal)}
 Kargo Ücreti      : ${totals.shipping === 0 ? "Ücretsiz" : formatPrice(totals.shipping)}
-${totals.discount > 0 ? `İndirim           : -${formatPrice(totals.discount)}` : ""}
+${totals.discount - totals.bankTransferDiscount > 0 ? `İndirim           : -${formatPrice(totals.discount - totals.bankTransferDiscount)}` : ""}
+${totals.bankTransferDiscount > 0 ? `Havale İndirimi   : -${formatPrice(totals.bankTransferDiscount)}` : ""}
 ────────────────────────────────────────────────────────────────────────
 TOPLAM (KDV Dahil): ${formatPrice(totals.total)}
 ════════════════════════════════════════════════════════════════════════

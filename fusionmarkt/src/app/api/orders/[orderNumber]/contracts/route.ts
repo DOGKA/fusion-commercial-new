@@ -54,6 +54,7 @@ export async function GET(
         subtotal: true,
         shippingCost: true,
         discount: true,
+        bankTransferDiscount: true,
         total: true,
         billingAddress: true,
         user: {
@@ -146,6 +147,7 @@ export async function GET(
         subtotal: Number(order.subtotal),
         shipping: Number(order.shippingCost),
         discount: Number(order.discount),
+        bankTransferDiscount: Number(order.bankTransferDiscount),
         grandTotal: Number(order.total),
       };
 

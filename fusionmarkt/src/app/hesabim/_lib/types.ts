@@ -82,7 +82,10 @@ export interface Order {
   paymentMethod: string | null;
   subtotal: number;
   shippingCost: number;
+  /** Toplam indirim (kupon + havale). */
   discount: number;
+  /** `discount` içindeki havale payı. */
+  bankTransferDiscount: number;
   tax: number;
   total: number;
   trackingNumber: string | null;

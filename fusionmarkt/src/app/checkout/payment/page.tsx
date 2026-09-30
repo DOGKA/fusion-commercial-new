@@ -17,6 +17,7 @@ import { useCheckout } from "@/context/CheckoutContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { formatPrice } from "@/lib/utils";
+import { BANK_TRANSFER_DISCOUNT_LABEL, bankTransferDiscount } from "@/lib/bank-transfer-discount";
 
 /**
  * Sözleşme metinleri ~1000 satırlık bir bileşende duruyor ve modal açılana kadar
@@ -308,7 +309,8 @@ export default function PaymentPage() {
   }
 
   const couponDiscount = appliedCoupon?.discount || 0;
-  const total = subtotal + shippingCost - couponDiscount;
+  const bankDiscount = paymentMethod === "bank" ? bankTransferDiscount(subtotal, couponDiscount) : 0;
+  const total = Math.round((subtotal + shippingCost - couponDiscount - bankDiscount) * 100) / 100;
 
   // Özet bloğu için: fatura adresi ayrıldıysa teslimat `shippingAddress`'te,
   // ayrılmadıysa tek adres `billingAddress`'te durur.
@@ -1054,6 +1056,18 @@ export default function PaymentPage() {
                   </span>
                 </div>
               )}
+
+              {bankDiscount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "var(--fusion-success-text)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Building2 size={14} />
+                    {BANK_TRANSFER_DISCOUNT_LABEL}
+                  </span>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>
+                    -{formatPrice(bankDiscount)}
+                  </span>
+                </div>
+              )}
               
               {/* Grand Total */}
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
@@ -1398,7 +1412,8 @@ export default function PaymentPage() {
         totals={{
           subtotal,
           shipping: shippingCost,
-          discount: couponDiscount,
+          discount: couponDiscount + bankDiscount,
+          bankTransferDiscount: bankDiscount,
           grandTotal: total
         }}
         orderRefNumber={orderRefNumber}

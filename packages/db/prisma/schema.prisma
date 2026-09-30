@@ -455,6 +455,8 @@ model Order {
   shippingCost              Decimal              @default(0) @db.Decimal(10, 2)
   tax                       Decimal              @default(0) @db.Decimal(10, 2)
   discount                  Decimal              @default(0) @db.Decimal(10, 2)
+  /// `discount` içindeki havale/EFT indirimi payı (kupon payı = discount - bu alan)
+  bankTransferDiscount      Decimal              @default(0) @db.Decimal(10, 2)
   total                     Decimal              @db.Decimal(10, 2)
   status                    OrderStatus          @default(PENDING)
   paymentStatus             PaymentStatus        @default(PENDING)

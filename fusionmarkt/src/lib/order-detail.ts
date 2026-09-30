@@ -367,6 +367,7 @@ export async function getOrderDetail(
         subtotal: Number(order.subtotal),
         shippingCost: Number(order.shippingCost),
         discount: Number(order.discount),
+        bankTransferDiscount: Number(order.bankTransferDiscount),
         tax: Number(order.tax),
         total: Number(order.total),
         /**

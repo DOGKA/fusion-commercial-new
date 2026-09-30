@@ -153,7 +153,10 @@ export interface OrderDetail {
   totals: {
     subtotal: number;
     shippingCost: number;
+    /** Toplam indirim (kupon + havale). */
     discount: number;
+    /** `discount` içindeki havale payı. */
+    bankTransferDiscount: number;
     tax: number;
     total: number;
     /**

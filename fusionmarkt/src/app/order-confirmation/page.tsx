@@ -11,6 +11,7 @@ import {
   Phone, Mail, ShoppingBag, Check, Lock, Eye, EyeOff, Loader2, Tag
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { BANK_TRANSFER_DISCOUNT_LABEL } from "@/lib/bank-transfer-discount";
 import { PASSWORD_HINT, isPasswordLongEnough } from "@/lib/password-policy";
 import { trackPurchaseConversion } from "@/lib/ads-conversions";
 
@@ -41,7 +42,9 @@ interface OrderData {
   totals: {
     subtotal: number;
     shipping: number;
+    /** Toplam indirim (kupon + havale). */
     discount: number;
+    bankTransferDiscount?: number;
     grandTotal: number;
   };
   couponCode?: string;
@@ -230,6 +233,8 @@ function OrderConfirmationContent() {
   const isFailed = order.paymentStatus === "failed";
   const isSuccess = order.paymentStatus === "paid";
   const isBankTransfer = order.paymentMethod === "bank_transfer";
+  const bankDiscount = order.totals.bankTransferDiscount ?? 0;
+  const couponDiscount = order.totals.discount - bankDiscount;
 
   const containerStyle: React.CSSProperties = {
     backgroundColor: "var(--background-secondary)",
@@ -458,13 +463,22 @@ function OrderConfirmationContent() {
                   {order.totals.shipping === 0 ? "Ücretsiz" : formatPrice(order.totals.shipping)}
                 </span>
               </div>
-              {order.totals.discount > 0 && (
+              {couponDiscount > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
                   <span style={{ color: "var(--fusion-success-text)", display: "flex", alignItems: "center", gap: "6px" }}>
                     <Tag size={14} />
                     {order.couponCode ? `Kupon (${order.couponCode})` : "İndirim"}
                   </span>
-                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>-{formatPrice(order.totals.discount)}</span>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>-{formatPrice(couponDiscount)}</span>
+                </div>
+              )}
+              {bankDiscount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", marginBottom: "12px" }}>
+                  <span style={{ color: "var(--fusion-success-text)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Building2 size={14} />
+                    {BANK_TRANSFER_DISCOUNT_LABEL}
+                  </span>
+                  <span style={{ color: "var(--fusion-success-text)", fontWeight: "500" }}>-{formatPrice(bankDiscount)}</span>
                 </div>
               )}
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>

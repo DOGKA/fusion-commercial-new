@@ -9,6 +9,7 @@ import {
   DISTANCE_CONTRACT_TEXT,
   DISTANCE_CONTRACT_VERSION,
 } from "@/lib/distance-contract-content";
+import { BANK_TRANSFER_DISCOUNT_LABEL } from "@/lib/bank-transfer-discount";
 
 interface BuyerInfo {
   fullName: string;
@@ -28,7 +29,10 @@ interface OrderItem {
 interface OrderTotals {
   subtotal: number;
   shipping: number;
+  /** Toplam indirim (kupon + havale). */
   discount: number;
+  /** `discount` içindeki havale payı. */
+  bankTransferDiscount?: number;
   grandTotal: number;
 }
 
@@ -69,6 +73,8 @@ export function generateDistanceSalesContractHTML(
   contractDate: Date
 ): string {
   const formattedDate = formatDate(contractDate);
+  const bankDiscount = totals.bankTransferDiscount ?? 0;
+  const couponDiscount = totals.discount - bankDiscount;
   
   const itemsHTML = items
     .map(
@@ -209,10 +215,16 @@ export function generateDistanceSalesContractHTML(
         <span>Kargo:</span>
         <span style="font-weight: 500; color: ${totals.shipping === 0 ? "#10b981" : "inherit"};">${totals.shipping === 0 ? "Ücretsiz" : formatCurrency(totals.shipping)}</span>
       </div>
-      ${totals.discount > 0 ? `
+      ${couponDiscount > 0 ? `
       <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #f87171;">
         <span>İndirim:</span>
-        <span style="font-weight: 500;">-${formatCurrency(totals.discount)}</span>
+        <span style="font-weight: 500;">-${formatCurrency(couponDiscount)}</span>
+      </div>
+      ` : ""}
+      ${bankDiscount > 0 ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #f87171;">
+        <span>${BANK_TRANSFER_DISCOUNT_LABEL}:</span>
+        <span style="font-weight: 500;">-${formatCurrency(bankDiscount)}</span>
       </div>
       ` : ""}
       <div style="display: flex; justify-content: space-between; padding-top: 12px; margin-top: 12px; border-top: 2px solid rgba(16, 185, 129, 0.3); font-size: 16px; font-weight: 700; color: #10b981;">

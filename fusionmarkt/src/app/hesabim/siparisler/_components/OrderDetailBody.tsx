@@ -25,6 +25,7 @@ import {
   invoiceRowState,
   isOpenRequestStatus,
 } from "@/lib/orders";
+import { BANK_TRANSFER_DISCOUNT_LABEL } from "@/lib/bank-transfer-discount";
 import { formatPrice, formatDate } from "../../_lib/format";
 import type { Order } from "../../_lib/types";
 import { buildOrderTimeline } from "../_lib/timeline";
@@ -151,13 +152,21 @@ export default function OrderDetailBody({
             {order.shippingCost === 0 ? "Ücretsiz" : formatPrice(order.shippingCost)}
           </span>
         </div>
-        {order.discount > 0 && (
+        {order.discount - order.bankTransferDiscount > 0 && (
           <div className="flex justify-between gap-2 text-[12px]">
             <span className="min-w-0 break-words text-foreground-muted">
               İndirim{order.couponCode ? ` (${order.couponCode})` : ""}
             </span>
             <span className={`${toneClass("success")} shrink-0 tabular-nums`}>
-              -{formatPrice(order.discount)}
+              -{formatPrice(order.discount - order.bankTransferDiscount)}
+            </span>
+          </div>
+        )}
+        {order.bankTransferDiscount > 0 && (
+          <div className="flex justify-between gap-2 text-[12px]">
+            <span className="min-w-0 text-foreground-muted">{BANK_TRANSFER_DISCOUNT_LABEL}</span>
+            <span className={`${toneClass("success")} shrink-0 tabular-nums`}>
+              -{formatPrice(order.bankTransferDiscount)}
             </span>
           </div>
         )}

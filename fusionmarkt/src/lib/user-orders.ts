@@ -165,6 +165,7 @@ export async function getUserOrders(
     subtotal: Number(order.subtotal),
     shippingCost: Number(order.shippingCost),
     discount: Number(order.discount),
+    bankTransferDiscount: Number(order.bankTransferDiscount),
     tax: Number(order.tax),
     total: Number(order.total),
     couponCode: order.couponCode,

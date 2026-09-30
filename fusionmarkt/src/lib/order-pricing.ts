@@ -27,6 +27,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { bankTransferDiscount } from "@/lib/bank-transfer-discount";
 
 /** Kuruş farklarını yok saymak için eşik. */
 const EPSILON = 0.01;
@@ -60,7 +61,10 @@ export interface OrderPricing {
   lines: PricedLine[];
   subtotal: number;
   shipping: number;
+  /** Toplam indirim: kupon + havale. `total = subtotal + shipping - discount`. */
   discount: number;
+  /** `discount` içindeki havale payı; kart ödemesinde 0. */
+  bankTransferDiscount: number;
   total: number;
 }
 
@@ -308,11 +312,15 @@ async function couponDiscountCap(couponId: string | null, subtotal: number): Pro
  *
  * `claimedDiscount` istemcinin uyguladığı indirim; üst sınırı aşarsa sınıra
  * çekiliyor (istek reddedilmiyor, çünkü fazlası zaten uygulanmayacak).
+ *
+ * `bankTransfer` doğruysa kupon sonrası ürün tutarına havale indirimi eklenir;
+ * ödeme ekranı aynı `bankTransferDiscount` fonksiyonunu kullanıyor.
  */
 export async function computeOrderPricing(options: {
   items: CartLineInput[];
   couponId?: string | null;
   claimedDiscount?: unknown;
+  bankTransfer?: boolean;
 }): Promise<PricingResult> {
   const priced = await priceLines(options.items);
   if (!priced.ok) return priced;
@@ -329,15 +337,24 @@ export async function computeOrderPricing(options: {
   ]);
 
   const claimed = Number(options.claimedDiscount);
-  const discount = round2(
+  const couponDiscount = round2(
     Math.max(0, Math.min(Number.isFinite(claimed) ? claimed : 0, cap))
   );
+  const bankDiscount = options.bankTransfer ? bankTransferDiscount(subtotal, couponDiscount) : 0;
+  const discount = round2(couponDiscount + bankDiscount);
 
   const total = round2(subtotal - discount + shipping);
 
   return {
     ok: true,
-    pricing: { lines: priced.lines, subtotal, shipping, discount, total },
+    pricing: {
+      lines: priced.lines,
+      subtotal,
+      shipping,
+      discount,
+      bankTransferDiscount: bankDiscount,
+      total,
+    },
   };
 }
 
