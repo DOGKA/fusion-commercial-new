@@ -13,7 +13,16 @@ import {
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcrypt";
+import { timingSafeEqual } from "crypto";
 import type { User as PrismaUser } from "@prisma/client";
+
+/**
+ * Checkout'ta e-posta koduyla doğrulanan kullanıcının tek kullanımlık giriş
+ * anahtarı. `User.activationCode` alanında tutuluyor; e-postayla giden kodlar
+ * "F-" ile başladığı için karışmıyor.
+ */
+export const CHECKOUT_LOGIN_TOKEN_PREFIX = "L-";
+export const CHECKOUT_LOGIN_TOKEN_TTL_MS = 2 * 60 * 1000;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPE EXTENSIONS
@@ -120,6 +129,51 @@ export const authOptions: NextAuthOptions = {
         if (!isValid) {
           throw new Error("Parola hatalı");
         }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          role: user.role,
+          phone: user.phone,
+        };
+      },
+    }),
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Checkout: e-posta koduyla doğrulama sonrası giriş
+    // ─────────────────────────────────────────────────────────────────────────
+    CredentialsProvider({
+      id: "checkout-otp",
+      name: "checkout-otp",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        token: { label: "Token", type: "text" },
+      },
+
+      async authorize(credentials) {
+        const email = credentials?.email?.toLowerCase().trim();
+        const token = credentials?.token;
+        if (!email || !token?.startsWith(CHECKOUT_LOGIN_TOKEN_PREFIX)) return null;
+
+        const user = await prisma.user.findUnique({ where: { email } });
+        const stored = user?.activationCode;
+        if (!user || !stored?.startsWith(CHECKOUT_LOGIN_TOKEN_PREFIX) || !user.activationCodeExp) {
+          return null;
+        }
+        if (Date.now() > user.activationCodeExp.getTime()) return null;
+
+        const a = Buffer.from(stored);
+        const b = Buffer.from(token);
+        if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+
+        // Tek kullanımlık: aynı anahtarla ikinci giriş olmasın.
+        const consumed = await prisma.user.updateMany({
+          where: { id: user.id, activationCode: stored },
+          data: { activationCode: null, activationCodeExp: null },
+        });
+        if (consumed.count === 0) return null;
 
         return {
           id: user.id,

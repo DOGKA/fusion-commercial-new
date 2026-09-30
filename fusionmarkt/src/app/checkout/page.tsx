@@ -728,6 +728,19 @@ export default function CheckoutPage() {
         setOtpError(data.error || "Doğrulama başarısız");
       } else if (data.verified) {
         sessionStorage.setItem("otpVerifiedEmail", email.trim().toLowerCase());
+        if (data.loginToken) {
+          const { signIn } = await import("next-auth/react");
+          const result = await signIn("checkout-otp", {
+            email: email.trim(),
+            token: data.loginToken,
+            redirect: false,
+          });
+          if (result?.ok && !result.error) {
+            window.location.reload();
+            return;
+          }
+        }
+        // Giriş olmazsa doğrulanmış e-postayla misafir olarak devam edilir.
         setEmailRegistered(false);
         setShowLoginForm(false);
         setEmailAction(null);

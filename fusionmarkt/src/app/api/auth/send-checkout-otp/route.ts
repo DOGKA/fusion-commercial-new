@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     // Reuse the existing code if it's still valid (at least 2 minutes left),
     // so a resend doesn't invalidate the code in the previous email.
     const hasValidCode =
-      user.activationCode &&
+      user.activationCode?.startsWith("F-") &&
       user.activationCodeExp &&
       new Date(user.activationCodeExp).getTime() - Date.now() > 2 * 60 * 1000;
 

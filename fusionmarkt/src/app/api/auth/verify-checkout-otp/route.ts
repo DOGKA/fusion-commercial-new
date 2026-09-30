@@ -1,5 +1,7 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/db";
+import { CHECKOUT_LOGIN_TOKEN_PREFIX, CHECKOUT_LOGIN_TOKEN_TTL_MS } from "@/lib/auth";
 import { checkRateLimit, getClientIP, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
     }
 
-    if (!user.activationCode || !user.activationCodeExp) {
+    if (!user.activationCode?.startsWith("F-") || !user.activationCodeExp) {
       return NextResponse.json({ error: "Doğrulama kodu bulunamadı. Lütfen yeni kod isteyin." }, { status: 400 });
     }
 
@@ -53,19 +55,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Geçersiz kod" }, { status: 400 });
     }
 
-    // Clear the OTP code
+    // Kod tek kullanımlık giriş anahtarıyla değiştiriliyor; istemci bunu
+    // `signIn("checkout-otp")` ile harcıyor (bkz. `lib/auth.ts`).
+    const loginToken = `${CHECKOUT_LOGIN_TOKEN_PREFIX}${randomBytes(24).toString("hex")}`;
     await prisma.user.update({
       where: { id: user.id },
-      data: { activationCode: null, activationCodeExp: null },
+      data: {
+        activationCode: loginToken,
+        activationCodeExp: new Date(Date.now() + CHECKOUT_LOGIN_TOKEN_TTL_MS),
+      },
     });
 
-    // Return verified: true so the client can call signIn("credentials") or use the session
-    // The client will trigger auto-login using NextAuth signIn
     return NextResponse.json({
       success: true,
       verified: true,
-      userId: user.id,
       userName: user.name,
+      loginToken,
     });
   } catch (error) {
     console.error("Verify checkout OTP error:", error);
