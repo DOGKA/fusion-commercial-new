@@ -133,6 +133,7 @@ export default function AddToCartButton({
         type="button"
         disabled={disabled}
         onClick={handleClick}
+        data-state={buttonState}
         title={
           disabled
             ? "Yakında stoklarda"
@@ -148,7 +149,8 @@ export default function AddToCartButton({
         }
         className={cn(
           "relative overflow-hidden",
-          "transition-all duration-300 ease-out",
+          // Yalnız ölçek: renk geçişi tiki önce siyah gösterip sonra beyaza çeviriyordu.
+          "transition-transform duration-300 ease-out",
           "card-glass-button-strong",
           disabled && "cursor-not-allowed",
           !disabled && buttonState !== "success" && buttonState !== "error" && "cart-icon-btn",
@@ -178,7 +180,7 @@ export default function AddToCartButton({
         {/* Icon Container with rotation */}
         <div
           className={cn(
-            "flex items-center justify-center transition-all duration-300",
+            "flex items-center justify-center",
             buttonState === "loading" && !disabled && "animate-spin"
           )}
         >
@@ -217,10 +219,12 @@ export default function AddToCartButton({
       type="button"
       disabled={disabled}
       onClick={handleClick}
+      data-state={buttonState}
       title={disabled ? "Yakında stoklarda" : undefined}
       className={cn(
         "relative overflow-hidden group",
-        "transition-all duration-300 ease-out",
+        // Yalnız ölçek: renk geçişi "Eklendi"yi önce siyah gösterip sonra yeşile çeviriyordu.
+        "transition-transform duration-300 ease-out",
         disabled && "cursor-not-allowed",
         buttonState === "success" && "animate-cart-success",
         className
@@ -250,7 +254,7 @@ export default function AddToCartButton({
         color: disabled
           ? "var(--foreground)"
           : buttonState === "success"
-          ? "#34d399"
+          ? "var(--fusion-success-text)"
           : buttonState === "error"
           ? "#f87171"
           : "var(--foreground)",
@@ -265,7 +269,7 @@ export default function AddToCartButton({
       {/* Icon */}
       <span
         className={cn(
-          "flex items-center justify-center transition-all duration-300",
+          "flex items-center justify-center",
           buttonState === "loading" && !disabled && "animate-spin"
         )}
       >
@@ -298,7 +302,7 @@ export default function AddToCartButton({
       </span>
 
       {/* Text */}
-      <span className="transition-all duration-200">
+      <span>
         {disabled
           ? "Yakında stoklarda"
           : buttonState === "idle"
