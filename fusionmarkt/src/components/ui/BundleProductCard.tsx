@@ -8,6 +8,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { readableBadgeBackground } from "@/lib/color-contrast";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import BankTransferHint, { BankTransferMiniBadge } from "@/components/ui/BankTransferHint";
 import { useFavorites } from "@/context/FavoritesContext";
 
 export interface BundleItem {
@@ -308,12 +309,28 @@ export default function BundleProductCard({ bundle, className, priority = false 
             </h3>
           </div>
 
-          {/* ORTA KISIM - ProductCard'daki varyant satırıyla aynı yükseklik; kompaktta gizli */}
+          {/* ORTA KISIM - ProductCard'daki varyant satırıyla aynı yükseklik. Webde boş;
+              mobilde alttaki satıra sığmayan Yetkili Distribütör burada gösteriliyor. */}
           <div className="flex flex-col gap-2 mt-2">
-            <div style={{ minHeight: '32px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', minHeight: '32px', paddingBottom: '2px' }}>
+              <span
+                className="inline-flex flex-1 items-center justify-center gap-1 bg-glass-bg w-full invisible @max-[259px]:visible"
+                style={{
+                  height: 28,
+                  padding: '0 8px',
+                  border: '1px solid var(--pill-border-amber-soft)',
+                  borderRadius: SQUIRCLE.sm,
+                }}
+              >
+                <BadgeCheck size={11} style={{ color: 'var(--pill-accent-amber)' }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--foreground)' }}>
+                  Yetkili Distribütör
+                </span>
+              </span>
+            </div>
           </div>
 
-          <div style={{ height: '8px' }} />
+          <div className="h-2 @max-[259px]:h-[3px]" />
 
           {/* ALT KISIM - Sabit yuvalar: öğe yoksa yeri görünmez tutuluyor, böylece tüm kartların boyu ve iç düzeni aynı kalıyor */}
           <div className="flex flex-col gap-1.5">
@@ -407,13 +424,13 @@ export default function BundleProductCard({ bundle, className, priority = false 
           {/* PRICE SECTION - ProductCard ile aynı düzen */}
             <div className="pt-2" style={{ marginTop: 'auto' }}>
             {/* Eski fiyat & Kazanç */}
-            <div className="h-[20px] @max-[259px]:h-[30px]">
+            <div className="h-[20px]">
               {totalValue && totalValue > price ? (
-                <div className="flex items-center gap-2 @max-[259px]:flex-wrap @max-[259px]:gap-x-1.5 @max-[259px]:gap-y-0">
-                  <span className="text-[13px] text-foreground-muted line-through font-medium @max-[259px]:text-[11px]">
+                <div className="flex items-center gap-2 whitespace-nowrap @max-[259px]:gap-1 @max-[259px]:tracking-tight">
+                  <span className="text-[13px] text-foreground-muted line-through font-medium @max-[259px]:text-[10px]">
                     {formatPrice(totalValue)} ₺
                   </span>
-                  <span className="text-[11px] text-[color:var(--fusion-success-text)] font-semibold @max-[259px]:text-[10px]">
+                  <span className="text-[11px] text-[color:var(--fusion-success-text)] font-semibold @max-[259px]:text-[9.5px]">
                     {formatPrice(savings)} ₺ kazanç
                   </span>
                 </div>
@@ -422,10 +439,16 @@ export default function BundleProductCard({ bundle, className, priority = false 
 
             {/* Güncel fiyat & Sepete Ekle - ProductCard ile AYNI konumda */}
             <div className="h-[48px] flex items-center justify-between gap-3 @max-[259px]:gap-2">
-              <span className="text-xl font-bold text-foreground @max-[259px]:text-base @max-[259px]:min-w-0 @max-[259px]:truncate">
-                {formatPrice(price)}
-                <span className="text-sm font-normal text-foreground-tertiary ml-1">₺</span>
-              </span>
+              <div className="flex min-w-0 items-center gap-2.5">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="text-xl font-bold leading-none text-foreground @max-[259px]:text-base @max-[259px]:min-w-0 @max-[259px]:truncate">
+                    {formatPrice(price)}
+                    <span className="text-sm font-normal text-foreground-tertiary ml-1">₺</span>
+                  </span>
+                  <BankTransferHint />
+                </div>
+                <BankTransferMiniBadge />
+              </div>
 
               {/* Sepete Ekle veya Varyasyon Seç Button */}
               {hasVariants ? (

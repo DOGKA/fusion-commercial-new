@@ -363,9 +363,7 @@ export default function Header({ menuCategories }: HeaderProps) {
                 }}
                 onPointerDown={prefetchAccountDrawer}
                 className={cn(
-                  "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
-                  "hover:before:bg-foreground/[0.05]",
+                  "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl [-webkit-tap-highlight-color:transparent] text-foreground/60 hover:text-foreground transition-colors duration-300",
                   unseenFavoritesCount > 0 && "text-emerald-400",
                   favoritesAnimating && unseenFavoritesCount > 0 && "animate-wiggle"
                 )}
@@ -392,9 +390,9 @@ export default function Header({ menuCategories }: HeaderProps) {
                   openCart();
                 }}
                 className={cn(
-                  "relative flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-1.5 px-2 py-1.5 lg:px-3 lg:py-2.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
+                  "relative flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-1.5 px-2 py-1.5 lg:px-3 lg:py-2.5 rounded-xl [-webkit-tap-highlight-color:transparent] text-foreground/60 hover:text-foreground transition-colors duration-300",
                   "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
-                  "hover:before:bg-foreground/[0.05]",
+                  "lg:hover:before:bg-foreground/[0.05]",
                   isAnimating && "animate-wiggle"
                 )}
                 aria-label="Sepetim"
@@ -432,9 +430,7 @@ export default function Header({ menuCategories }: HeaderProps) {
                 }}
                 onPointerDown={prefetchMobileMenu}
                 className={cn(
-                  "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl text-foreground/60 hover:text-foreground transition-colors duration-300",
-                  "before:absolute before:inset-0 before:rounded-xl before:bg-foreground/0 before:transition-[background-color] before:duration-300",
-                  "hover:before:bg-foreground/[0.05]"
+                  "relative hidden max-lg:flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl [-webkit-tap-highlight-color:transparent] text-foreground/60 hover:text-foreground transition-colors duration-300"
                 )}
                 aria-label="Menü"
               >
