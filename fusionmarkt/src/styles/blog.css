@@ -109,6 +109,89 @@
   border-top: 1px solid var(--glass-border);
 }
 
+.blog-index__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.blog-skeleton {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--background-secondary) 0%,
+    color-mix(in srgb, var(--background-secondary) 88%, var(--foreground)) 50%,
+    var(--background-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: blog-skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes blog-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Dar ekranda gerçek filtre çubuğu tek satır ve en üstte, liste altta
+   "en çok okunanlar" ile biter; iskelet de aynı sırayı izler. */
+.blog-skeleton--filters {
+  order: 1;
+  height: 56px;
+  margin-bottom: var(--space-6);
+}
+
+.blog-skeleton--popular {
+  order: 3;
+  height: 280px;
+  margin-top: var(--space-12);
+}
+
+@media (min-width: 1024px) {
+  .blog-skeleton--filters {
+    height: 220px;
+    margin-bottom: 0;
+  }
+
+  .blog-skeleton--popular {
+    margin-top: 0;
+  }
+}
+
+.blog-skeleton--featured {
+  height: 220px;
+  margin-bottom: var(--space-8);
+}
+
+.blog-skeleton-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.blog-skeleton--row {
+  height: 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-skeleton {
+    animation: none;
+  }
+}
+
+.blog-empty--error {
+  margin-top: var(--space-8);
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    FILTER BAR - arama + kategori çipleri + sıralama
 ───────────────────────────────────────────────────────────────────────── */
@@ -880,6 +963,7 @@
   gap: 4px;
   margin-left: auto;
   font-weight: 600;
+  white-space: nowrap;
   color: var(--foreground-secondary);
   transition: color 0.2s ease, gap 0.2s ease;
 }
@@ -966,6 +1050,99 @@
   margin-bottom: var(--space-2);
 }
 
+/* Kapaklı satır: solda satır yüksekliğini dolduran görsel, sağda başlık,
+   iki satırlık özet ve en alta yaslanan meta. */
+.blog-row__link--cover {
+  display: grid;
+  grid-template-columns: clamp(180px, 34%, 280px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: stretch;
+}
+
+.blog-row__media {
+  position: relative;
+  display: block;
+  min-height: 150px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--background-secondary);
+  isolation: isolate;
+}
+
+.blog-row__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+}
+
+.blog-row__cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.blog-row__link--cover:hover .blog-row__cover {
+  transform: scale(1.04);
+}
+
+.blog-row__body {
+  min-width: 0;
+}
+
+.blog-row__link--cover .blog-row__body {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--space-1);
+}
+
+.blog-row__link--cover .blog-row__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-row__link--cover .blog-row__meta {
+  margin-top: auto;
+}
+
+.blog-rows--compact .blog-row__link--cover {
+  grid-template-columns: clamp(120px, 26%, 180px) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.blog-rows--compact .blog-row__media {
+  min-height: 96px;
+}
+
+/* Öne çıkan kartta görsel üstte, kart kenarına taşar. */
+.blog-row--featured .blog-row__link--cover {
+  display: block;
+  padding-top: 0;
+}
+
+.blog-row--featured .blog-row__media {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  margin: 0 calc(var(--space-8) * -1) var(--space-6);
+  border-radius: 0;
+}
+
+.blog-row--featured .blog-row__media::after {
+  display: none;
+}
+
+.blog-row--featured .blog-row__link--cover .blog-row__title {
+  display: block;
+}
+
 .blog-mark {
   background: var(--cat-soft, rgba(var(--fusion-primary-rgb), 0.16));
   color: inherit;
@@ -1004,6 +1181,72 @@
 
   .blog-row--featured .blog-row__excerpt {
     font-size: 1rem;
+  }
+
+  .blog-row--featured .blog-row__meta {
+    flex-wrap: wrap;
+    row-gap: var(--space-4);
+  }
+
+  .blog-row--featured .blog-row__cta {
+    flex-basis: 100%;
+    justify-content: center;
+    margin-left: 0;
+    padding-block: 12px;
+    font-size: 0.875rem;
+  }
+
+  .blog-row__link--cover,
+  .blog-rows--compact .blog-row__link--cover {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+
+  .blog-row__media,
+  .blog-rows--compact .blog-row__media {
+    min-height: 0;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+  }
+
+  .blog-row__link--cover .blog-row__excerpt {
+    display: none;
+  }
+
+  .blog-row__link--cover .blog-row__body {
+    padding-block: 0;
+  }
+
+  .blog-row__link--cover .blog-row__title {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .blog-row__link--cover .blog-row__meta {
+    gap: var(--space-3);
+  }
+
+  .blog-row__link--cover .blog-row__meta-item {
+    white-space: nowrap;
+  }
+
+  .blog-row--default .blog-row__link--cover .blog-row__cta {
+    display: none;
+  }
+
+  .blog-row--featured .blog-row__link--cover {
+    padding-top: 0;
+  }
+
+  .blog-row--featured .blog-row__media {
+    aspect-ratio: 16 / 9;
+    margin: 0 calc(var(--space-6) * -1) var(--space-5);
+    border-radius: 0;
+  }
+
+  .blog-row--featured .blog-row__link--cover .blog-row__excerpt {
+    display: -webkit-box;
   }
 }
 
@@ -1098,6 +1341,51 @@
 .blog-popular__views svg {
   width: 12px;
   height: 12px;
+}
+
+/* Görselli öğe üç sütunlu grid: numara görselin dikey ortasında, görselin
+   üst kenarı başlığın ilk satırıyla aynı hizada. */
+.blog-popular__item:has(.blog-popular__thumb) {
+  --thumb: 64px;
+  display: grid;
+  grid-template-columns: 16px var(--thumb) minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--space-3);
+}
+
+.blog-popular__thumb {
+  display: block;
+  width: var(--thumb, 64px);
+  height: var(--thumb, 64px);
+  margin-top: 3px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--background-secondary);
+}
+
+.blog-popular__item:has(.blog-popular__thumb) .blog-popular__rank {
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: var(--thumb);
+  margin-top: 3px;
+  line-height: 1;
+}
+
+.blog-popular__item:has(.blog-popular__thumb) .blog-popular__meta {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+.blog-popular__category,
+.blog-popular__views {
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .blog-popular__item:has(.blog-popular__thumb) {
+    --thumb: 56px;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1232,8 +1520,7 @@
 
   .blog-article__header,
   .blog-postnav,
-  .blog-related,
-  .blog-detail__popular {
+  .blog-related {
     max-width: var(--blog-measure);
   }
 
@@ -1257,12 +1544,6 @@
   .blog-article__rail::before {
     display: none;
   }
-}
-
-.blog-detail__popular {
-  margin-top: var(--space-12);
-  padding-top: var(--space-8);
-  border-top: 1px solid var(--glass-border);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1546,6 +1827,21 @@
   border-bottom: 1px solid var(--glass-border);
 }
 
+.blog-article__cover-wrap {
+  position: relative;
+  margin-bottom: var(--space-8);
+}
+
+.blog-article__cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  background: var(--background-secondary);
+}
+
 .blog-crumbs {
   display: flex;
   align-items: center;
@@ -1739,6 +2035,11 @@
   margin-bottom: var(--space-4);
 }
 
+.blog-content__empty {
+  color: var(--foreground-tertiary);
+  font-style: italic;
+}
+
 .blog-content a:not(.blog-content__anchor) {
   color: var(--fusion-primary);
   text-decoration: underline;
@@ -1779,6 +2080,19 @@
 
 .blog-content li::marker {
   color: var(--foreground-muted);
+}
+
+/* Panel editörü liste ve tablo hücrelerini <p> ile sarar. */
+.blog-content li > p,
+.blog-content td > p,
+.blog-content th > p {
+  margin: 0;
+}
+
+.blog-content li > p + p,
+.blog-content td > p + p,
+.blog-content th > p + p {
+  margin-top: var(--space-2);
 }
 
 /* Alıntı - görsel yerine geçen nefes alanı */
@@ -2117,6 +2431,16 @@
   background: var(--fusion-primary-dark);
   border-color: var(--fusion-primary-dark);
   color: #fff;
+}
+
+.blog-share__button svg,
+.blog-pagination__arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.blog-share__button.is-copied {
+  color: var(--fusion-success);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

@@ -34,7 +34,7 @@ export default function BlogHeader({
 
   return (
     <header className="blog-article__header">
-      <nav className="blog-crumbs" aria-label="Breadcrumb">
+      <nav className="blog-crumbs" aria-label="Sayfa yolu">
         <Link href="/">Ana Sayfa</Link>
         <span aria-hidden="true">/</span>
         <Link href="/blog">Blog</Link>

@@ -7,9 +7,7 @@ export default function BlogContent({ html }: BlogContentProps) {
   if (!html) {
     return (
       <div className="blog-content">
-        <p className="text-[var(--foreground-tertiary)] italic">
-          Bu yazının içeriği henüz eklenmemiş.
-        </p>
+        <p className="blog-content__empty">Bu yazının içeriği henüz eklenmemiş.</p>
       </div>
     );
   }

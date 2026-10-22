@@ -1,4 +1,7 @@
+import { Suspense } from "react";
+import Link from "next/link";
 import BlogPageClient from "@/components/blog/BlogPageClient";
+import BlogIndexSkeleton from "@/components/blog/BlogIndexSkeleton";
 import { staticPageMetadata, generateBreadcrumbSchema, generateItemListSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo";
 import { calculateReadingTime, createExcerpt } from "@/lib/blog/content";
@@ -14,9 +17,11 @@ interface BlogPost {
   publishedAt: Date | null;
   category: string | null;
   viewCount: number;
+  featuredImage: string | null;
 }
 
-async function getBlogPosts(): Promise<BlogPost[]> {
+/** `null`: sorgu başarısız; boş dizi: henüz yayımlanmış yazı yok. */
+async function getBlogPosts(): Promise<BlogPost[] | null> {
   try {
     const { prisma } = await import("@/lib/prisma");
     if (typeof prisma.blogPost === "undefined") return [];
@@ -27,21 +32,43 @@ async function getBlogPosts(): Promise<BlogPost[]> {
       select: {
         id: true, slug: true, title: true, content: true,
         excerpt: true, publishedAt: true, category: true, viewCount: true,
+        featuredImage: true,
       },
     }) as unknown as BlogPost[];
     return posts;
   } catch (error) {
-    console.log("Blog posts table may not exist yet:", error);
-    return [];
+    console.error("Blog yazıları alınamadı:", error);
+    return null;
   }
 }
 
+type BlogSearchParams = { cat?: string; page?: string; q?: string; sort?: string };
+
 type BlogPageProps = {
-  searchParams: Promise<{ cat?: string; page?: string; q?: string; sort?: string }>;
+  searchParams: Promise<BlogSearchParams>;
 };
 
-export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const posts = await getBlogPosts();
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: "Ana Sayfa", url: "/" },
+  { name: "Blog", url: "/blog" },
+]);
+
+async function BlogIndex({ searchParams }: BlogPageProps) {
+  const [posts, sp] = await Promise.all([getBlogPosts(), searchParams]);
+
+  if (!posts) {
+    return (
+      <>
+        <JsonLd data={breadcrumbSchema} />
+        <div className="blog-empty blog-empty--error" role="alert">
+          <h2 className="blog-empty__title">Yazılar yüklenemedi, yeniden deneyin.</h2>
+          <Link href="/blog" prefetch={false} className="blog-empty__reset">
+            Yeniden dene
+          </Link>
+        </div>
+      </>
+    );
+  }
 
   // Categories with counts
   const categoryMap = new Map<string, number>();
@@ -52,7 +79,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
-  const sp = await searchParams;
   const rawCat = typeof sp.cat === "string" ? sp.cat : null;
   const decodedCat = rawCat ? decodeURIComponent(rawCat) : null;
   const initialCategory =
@@ -74,28 +100,42 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     category: p.category,
     readingTime: calculateReadingTime(p.content),
     viewCount: p.viewCount,
+    featuredImage: p.featuredImage,
   }));
 
-  // SEO schemas
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "Ana Sayfa", url: "/" },
-    { name: "Blog", url: "/blog" },
-  ]);
   const schemas: Record<string, unknown>[] = [breadcrumbSchema];
-  if (posts.length > 0) {
+  if (clientPosts.length > 0) {
     schemas.push(generateItemListSchema({
       name: "FusionMarkt Blog Yazıları",
       url: "/blog",
-      items: posts.map((post) => ({
+      itemType: "BlogPosting",
+      items: clientPosts.map((post) => ({
         name: post.title,
         url: `/blog/${post.slug}`,
+        image: post.featuredImage ?? undefined,
+        description: post.excerpt,
       })),
     }));
   }
 
   return (
-    <div data-page-root className="min-h-screen bg-[var(--background)]">
+    <>
       <JsonLd data={schemas} />
+      <BlogPageClient
+        posts={clientPosts}
+        categories={categories}
+        initialCategory={initialCategory}
+        initialQuery={initialQuery}
+        initialSort={initialSort}
+        initialPage={initialPage}
+      />
+    </>
+  );
+}
+
+export default function BlogPage({ searchParams }: BlogPageProps) {
+  return (
+    <div data-page-root className="min-h-screen bg-[var(--background)]">
       <div className="container px-4 md:px-6 lg:px-8 pt-[110px] pb-16 md:pb-24">
         <header className="blog-masthead">
           <span className="blog-masthead__eyebrow">FusionMarkt Blog</span>
@@ -108,14 +148,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </p>
         </header>
 
-        <BlogPageClient
-          posts={clientPosts}
-          categories={categories}
-          initialCategory={initialCategory}
-          initialQuery={initialQuery}
-          initialSort={initialSort}
-          initialPage={initialPage}
-        />
+        <Suspense fallback={<BlogIndexSkeleton />}>
+          <BlogIndex searchParams={searchParams} />
+        </Suspense>
       </div>
     </div>
   );

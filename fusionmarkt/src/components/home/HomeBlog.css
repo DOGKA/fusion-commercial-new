@@ -1,0 +1,225 @@
+.home-blog {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 0;
+}
+
+.home-blog__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(6, 182, 212, 0.03) 100%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.home-blog__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.home-blog__header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.home-blog__header .text-eyebrow {
+  color: #0d9488;
+}
+
+.home-blog__accent {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.home-blog__row + .home-blog__row {
+  margin-top: 40px;
+}
+
+.home-blog__row-title {
+  margin: 0 0 16px;
+  color: var(--foreground);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* --- kartlar --- */
+.home-blog__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-blog__grid > li {
+  display: flex;
+}
+
+.home-blog__card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  text-decoration: none;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.home-blog__card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+}
+
+.home-blog__media {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--background-secondary);
+}
+
+.home-blog__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.home-blog__card:hover .home-blog__media img {
+  transform: scale(1.04);
+}
+
+.home-blog__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 18px;
+}
+
+.home-blog__category {
+  color: var(--foreground-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-blog__card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.home-blog__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--foreground-muted);
+  font-size: 12px;
+}
+
+.home-blog__meta svg {
+  width: 13px;
+  height: 13px;
+}
+
+.home-blog__footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.home-blog__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0d9488;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: gap 0.2s ease;
+}
+
+.home-blog__all:hover {
+  gap: 10px;
+}
+
+.home-blog__all svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 1100px) {
+  .home-blog__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .home-blog__grid > li:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+/* Dar ekranda kartlar yatay kaydırılır; bir sonraki kartın kenarı görünür. */
+@media (max-width: 900px) {
+  .home-blog__grid {
+    display: flex;
+    gap: 12px;
+    margin-inline: -16px;
+    padding: 2px 16px 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 16px;
+    scrollbar-width: none;
+  }
+
+  .home-blog__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-blog__grid > li,
+  .home-blog__grid > li:nth-child(n + 4) {
+    display: flex;
+    flex: 0 0 min(78%, 300px);
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 1024px) {
+  .home-blog {
+    padding: 48px 0;
+  }
+
+  .home-blog__header {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-blog__card-title {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-blog__card,
+  .home-blog__media img {
+    transition: none;
+  }
+}

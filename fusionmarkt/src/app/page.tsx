@@ -14,6 +14,9 @@ const CategoryShowcase = dynamic(() => import("@/components/home/CategoryShowcas
 const CategoryBento = dynamic(() => import("@/components/home/CategoryBento"));
 const WhyFusionMarkt = dynamic(() => import("@/components/home/WhyFusionMarkt"));
 const PartnerLogos = dynamic(() => import("@/components/home/PartnerLogos"));
+const HomeBlog = dynamic(() => import("@/components/home/HomeBlog"));
+import type { HomeBlogCard } from "@/components/home/HomeBlog";
+import { calculateReadingTime } from "@/lib/blog/content";
 import { staticPageMetadata } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
 import { applyLiveShowcasePrices } from "@/server/showcase-live-prices";
@@ -210,6 +213,49 @@ async function getInitialVideos() {
   }
 }
 
+const HOME_BLOG_LIMIT = 4;
+
+async function getHomeBlog(): Promise<{ recent: HomeBlogCard[]; popular: HomeBlogCard[] }> {
+  try {
+    const select = {
+      slug: true,
+      title: true,
+      category: true,
+      content: true,
+      featuredImage: true,
+    } as const;
+    const [recent, popular] = await Promise.all([
+      prisma.blogPost.findMany({
+        where: { status: "PUBLISHED" },
+        orderBy: { publishedAt: "desc" },
+        take: HOME_BLOG_LIMIT,
+        select,
+      }),
+      prisma.blogPost.findMany({
+        where: { status: "PUBLISHED", viewCount: { gt: 0 } },
+        orderBy: { viewCount: "desc" },
+        // İki satır alt alta durduğu için en yenilerde çıkan yazı burada tekrar etmemeli.
+        take: HOME_BLOG_LIMIT * 2,
+        select,
+      }),
+    ]);
+    const recentSlugs = new Set(recent.map((post) => post.slug));
+    const popularOnly = popular
+      .filter((post) => !recentSlugs.has(post.slug))
+      .slice(0, HOME_BLOG_LIMIT);
+    const toCard = (post: (typeof recent)[number]): HomeBlogCard => ({
+      slug: post.slug,
+      title: post.title,
+      category: post.category,
+      readingTime: calculateReadingTime(post.content),
+      featuredImage: post.featuredImage,
+    });
+    return { recent: recent.map(toCard), popular: popularOnly.map(toCard) };
+  } catch {
+    return { recent: [], popular: [] };
+  }
+}
+
 export default async function Home() {
   const [
     initialSlides,
@@ -219,6 +265,7 @@ export default async function Home() {
     initialPromo,
     initialVideoBanner,
     initialVideos,
+    homeBlog,
   ] = await Promise.all([
     getInitialSliders(),
     getInitialTrending(),
@@ -227,6 +274,7 @@ export default async function Home() {
     getInitialPromo(),
     getInitialVideoBanner(),
     getInitialVideos(),
+    getHomeBlog(),
   ]);
 
   return (
@@ -249,9 +297,10 @@ export default async function Home() {
 
       <CategoryShowcase index={1} initialSection={initialCategorySections[1] || null} />
       
-      <CategoryBento initialCategories={initialCategoryCards} />
+      <HomeBlog recent={homeBlog.recent} popular={homeBlog.popular} />
 
       <VideoGrid initialVideos={initialVideos} />
+      <CategoryBento initialCategories={initialCategoryCards} />
       <WhyFusionMarkt />
       
       <PartnerLogos />

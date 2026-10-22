@@ -8,8 +8,10 @@ import type { CSSProperties } from "react";
  * de Google Merchant Center ürün görsellerinde logo bindirmesini yasaklıyor —
  * feed ham CDN adresini verdiği için dosyaya gömmek feed'i riske atardı.
  *
- * Bu yüzden yalnızca SingleProductView ve BundleProductView'daki ana görselde
- * kullanılıyor, başka yere eklenmemeli.
+ * Bu yüzden yalnızca büyük gösterilen görsellerde kullanılıyor:
+ * SingleProductView ve BundleProductView'daki ana görsel, blog detayındaki
+ * kapak ve blog listesindeki öne çıkan yazının kapağı. Kartlara ve
+ * thumbnail'lere eklenmemeli.
  *
  * Şekil `public/favicon.svg` ile aynı, tek farkı marka renkleri yerine tek
  * renge (`currentColor`) indirilmiş olması.

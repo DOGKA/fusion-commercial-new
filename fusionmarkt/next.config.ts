@@ -221,16 +221,29 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Next.js static assets - 1 yıl cache
-      {
-        source: "/_next/static/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
+      // Next.js static assets - 1 yıl cache. Dev'de chunk adları hash'siz
+      // (`app/page.js`); immutable verilirse tarayıcı eski chunk'ı kullanır.
+      ...(process.env.NODE_ENV === "production"
+        ? [
+            {
+              source: "/_next/static/:path*",
+              headers: [
+                {
+                  key: "Cache-Control",
+                  value: "public, max-age=31536000, immutable",
+                },
+              ],
+            },
+          ]
+        : [
+            // Daha önce immutable alınmış dev chunk'ları tarayıcıdan silinmeden
+            // yenilenmez; tam sayfa yüklemesinde HTTP önbelleği temizlenir.
+            {
+              source: "/:path*",
+              has: [{ type: "header" as const, key: "sec-fetch-dest", value: "document" }],
+              headers: [{ key: "Clear-Site-Data", value: '"cache"' }],
+            },
+          ]),
       // Slider görselleri - içerik değişirse dosya adı da değişiyor, 30 gün güvenli
       {
         source: "/sliders/:path*",

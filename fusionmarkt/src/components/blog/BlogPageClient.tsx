@@ -19,6 +19,7 @@ interface BlogPost {
   category: string | null;
   readingTime: number;
   viewCount: number;
+  featuredImage: string | null;
 }
 
 interface BlogPageClientProps {
@@ -181,8 +182,8 @@ export default function BlogPageClient({
     listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [currentPage]);
 
-  // En çok okunanlar da seçili kategoriyi izler; arama terimi burayı etkilemez.
-  const popularPosts = useMemo(() => {
+  // Yan liste seçili kategoriyi izler; arama terimi burayı etkilemez.
+  const asidePosts = useMemo(() => {
     const scope = activeCategory
       ? posts.filter((post) => post.category === activeCategory)
       : posts;
@@ -192,8 +193,13 @@ export default function BlogPageClient({
       title: post.title,
       category: post.category,
       viewCount: post.viewCount,
+      featuredImage: post.featuredImage,
+      publishedAt: post.publishedAt,
     }));
   }, [posts, activeCategory]);
+  // Ana liste en çok okunana göre sıralıyken yan liste aynı yazıları
+  // tekrarlamasın diye tamamlayıcı sıralamayı gösterir.
+  const asideMode = sort === "popular" ? "recent" : "popular";
 
   return (
     <div className="blog-index">
@@ -212,7 +218,11 @@ export default function BlogPageClient({
           resultCount={filteredPosts.length}
         />
 
-        <BlogPopularList posts={popularPosts} className="blog-index__popular" />
+        <BlogPopularList
+          posts={asidePosts}
+          mode={asideMode}
+          className="blog-index__popular"
+        />
       </aside>
 
       <div className="blog-index__list" ref={listRef}>
@@ -248,6 +258,7 @@ export default function BlogPageClient({
                   category={featuredPost.category}
                   readingTime={featuredPost.readingTime}
                   viewCount={featuredPost.viewCount}
+                  featuredImage={featuredPost.featuredImage}
                   variant="featured"
                   flag={featuredLabel}
                 />
@@ -265,6 +276,7 @@ export default function BlogPageClient({
                   category={post.category}
                   readingTime={post.readingTime}
                   viewCount={post.viewCount}
+                  featuredImage={post.featuredImage}
                   query={query}
                 />
               ))}

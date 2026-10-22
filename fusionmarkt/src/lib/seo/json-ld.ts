@@ -364,6 +364,9 @@ export interface ArticleSchemaParams {
   publishedAt: string;
   updatedAt?: string;
   url: string;
+  section?: string;
+  keywords?: string[];
+  readingMinutes?: number;
 }
 
 export function generateArticleSchema({
@@ -374,6 +377,9 @@ export function generateArticleSchema({
   publishedAt,
   updatedAt,
   url,
+  section,
+  keywords,
+  readingMinutes,
 }: ArticleSchemaParams) {
   return {
     "@context": "https://schema.org",
@@ -381,9 +387,12 @@ export function generateArticleSchema({
     "@id": `${siteConfig.url}${url}#article`,
     headline: title,
     description,
-    image: image ? `${siteConfig.url}${image}` : undefined,
+    image: image ? (/^https?:\/\//i.test(image) ? image : `${siteConfig.url}${image}`) : undefined,
     datePublished: publishedAt,
     dateModified: updatedAt || publishedAt,
+    ...(section ? { articleSection: section } : {}),
+    ...(keywords?.length ? { keywords: keywords.join(", ") } : {}),
+    ...(readingMinutes ? { timeRequired: `PT${readingMinutes}M` } : {}),
     author: {
       "@type": "Person",
       name: author,
@@ -462,9 +471,17 @@ export interface ItemListParams {
   }>;
   url: string;
   description?: string;
+  /** Blog dizini ürün değil yazı listeler; "Product" teklifsiz kalınca hata verir. */
+  itemType?: "Product" | "BlogPosting";
 }
 
-export function generateItemListSchema({ name, items, url, description }: ItemListParams) {
+export function generateItemListSchema({
+  name,
+  items,
+  url,
+  description,
+  itemType = "Product",
+}: ItemListParams) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -475,7 +492,13 @@ export function generateItemListSchema({ name, items, url, description }: ItemLi
     itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      item: {
+      item: itemType === "BlogPosting" ? {
+        "@type": "BlogPosting",
+        headline: item.name,
+        url: `${siteConfig.url}${item.url}`,
+        ...(item.image ? { image: item.image } : {}),
+        ...(item.description ? { description: item.description } : {}),
+      } : {
         "@type": "Product",
         name: item.name,
         url: `${siteConfig.url}${item.url}`,

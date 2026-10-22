@@ -52,12 +52,12 @@ export default function BlogPagination({
           rel="prev"
           aria-label="Önceki sayfa"
         >
-          <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+          <ChevronLeft aria-hidden="true" />
           <span className="blog-pagination__arrow-text">Önceki</span>
         </Link>
       ) : (
         <span className="blog-pagination__arrow blog-pagination__arrow--disabled" aria-hidden="true">
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft />
           <span className="blog-pagination__arrow-text">Önceki</span>
         </span>
       )}
@@ -94,12 +94,12 @@ export default function BlogPagination({
           aria-label="Sonraki sayfa"
         >
           <span className="blog-pagination__arrow-text">Sonraki</span>
-          <ChevronRight className="w-4 h-4" aria-hidden="true" />
+          <ChevronRight aria-hidden="true" />
         </Link>
       ) : (
         <span className="blog-pagination__arrow blog-pagination__arrow--disabled" aria-hidden="true">
           <span className="blog-pagination__arrow-text">Sonraki</span>
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight />
         </span>
       )}
     </nav>

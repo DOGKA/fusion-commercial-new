@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { Fragment, useMemo } from "react";
 import { ArrowRight, Clock, Eye } from "lucide-react";
+import { blogCover } from "@/lib/blog/cover";
+import ProductImageWatermark from "@/components/product/ProductImageWatermark";
 
 type RowVariant = "default" | "featured" | "compact";
 
@@ -19,6 +21,7 @@ interface BlogPostRowProps {
   flag?: string;
   /** Arama terimi verilirse başlık ve özette eşleşen parça vurgulanır. */
   query?: string;
+  featuredImage?: string | null;
 }
 
 const DATE_FORMAT: Intl.DateTimeFormatOptions = {
@@ -73,6 +76,7 @@ export default function BlogPostRow({
   variant = "default",
   flag,
   query,
+  featuredImage,
 }: BlogPostRowProps) {
   const formattedDate = useMemo(
     () => new Date(publishedAt).toLocaleDateString("tr-TR", DATE_FORMAT),
@@ -80,47 +84,71 @@ export default function BlogPostRow({
   );
 
   const showExcerpt = variant !== "compact" && !!excerpt;
+  const cover = blogCover(featuredImage);
+  const featured = variant === "featured";
 
   return (
     <article className={`blog-row blog-row--${variant}`}>
-      <Link href={`/blog/${slug}`} className="blog-row__link">
-        <div className="blog-row__head">
-          {flag && <span className="blog-row__flag">{flag}</span>}
-          {variant !== "featured" && category && (
-            <span className="blog-row__category">{category}</span>
-          )}
-          {variant !== "featured" && (
-            <time className="blog-row__date" dateTime={publishedAt}>
-              {formattedDate}
-            </time>
-          )}
-        </div>
-
-        <h2 className="blog-row__title">{highlight(title, query)}</h2>
-
-        {showExcerpt && (
-          <p className="blog-row__excerpt">{highlight(excerpt!, query)}</p>
-        )}
-
-        <div className="blog-row__meta">
-          {readingTime ? (
-            <span className="blog-row__meta-item">
-              <Clock aria-hidden="true" />
-              {readingTime} dk okuma
-            </span>
-          ) : null}
-
-          {viewCount > 0 && (
-            <span className="blog-row__meta-item">
-              <Eye aria-hidden="true" />
-              {viewCount.toLocaleString("tr-TR")}
-            </span>
-          )}
-
-          <span className="blog-row__cta">
-            {variant === "featured" ? "Yazıyı oku" : "Oku"}
-            <ArrowRight aria-hidden="true" />
+      <Link
+        href={`/blog/${slug}`}
+        className={cover ? "blog-row__link blog-row__link--cover" : "blog-row__link"}
+      >
+        {cover && (
+          <span className="blog-row__media">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="blog-row__cover"
+              src={cover.src}
+              srcSet={cover.srcSet}
+              sizes={featured ? "(max-width: 900px) 100vw, 760px" : "(max-width: 640px) 112px, 280px"}
+              width={800}
+              height={450}
+              alt=""
+              loading={featured ? "eager" : "lazy"}
+              decoding="async"
+            />
+            {featured && <ProductImageWatermark />}
           </span>
+        )}
+        <div className="blog-row__body">
+          <div className="blog-row__head">
+            {flag && <span className="blog-row__flag">{flag}</span>}
+            {!featured && category && (
+              <span className="blog-row__category">{category}</span>
+            )}
+            {!featured && (
+              <time className="blog-row__date" dateTime={publishedAt}>
+                {formattedDate}
+              </time>
+            )}
+          </div>
+
+          <h2 className="blog-row__title">{highlight(title, query)}</h2>
+
+          {showExcerpt && (
+            <p className="blog-row__excerpt">{highlight(excerpt!, query)}</p>
+          )}
+
+          <div className="blog-row__meta">
+            {readingTime ? (
+              <span className="blog-row__meta-item">
+                <Clock aria-hidden="true" />
+                {readingTime} dk okuma
+              </span>
+            ) : null}
+
+            {viewCount > 0 && (
+              <span className="blog-row__meta-item">
+                <Eye aria-hidden="true" />
+                {viewCount.toLocaleString("tr-TR")} görüntülenme
+              </span>
+            )}
+
+            <span className="blog-row__cta">
+              {featured ? "Yazıyı oku" : "Oku"}
+              <ArrowRight aria-hidden="true" />
+            </span>
+          </div>
         </div>
       </Link>
     </article>
