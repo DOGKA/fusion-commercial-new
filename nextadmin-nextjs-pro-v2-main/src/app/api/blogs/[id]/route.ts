@@ -1,116 +1,118 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/libs/auth";
 import { prisma } from "@/libs/prismaDb";
+import { blogDbError, plainText, validatePost } from "@/lib/blog/server";
+import { BLOG_STATUSES, type BlogStatus } from "@/lib/blog/shared";
+import { revalidateBlog } from "@/lib/revalidate-frontend";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    
-    const blog = await prisma.blogPost.findUnique({
-      where: { id },
-    });
+type Context = { params: Promise<{ id: string }> };
 
-    if (!blog) {
-      return NextResponse.json(
-        { error: "Blog bulunamadı" },
-        { status: 404 }
-      );
-    }
+const POST_SELECT = {
+  id: true,
+  slug: true,
+  title: true,
+  category: true,
+  status: true,
+  featuredImage: true,
+  viewCount: true,
+  publishedAt: true,
+  updatedAt: true,
+  content: true,
+  excerpt: true,
+  metaTitle: true,
+  metaDescription: true,
+} as const;
 
-    return NextResponse.json({ blog });
-  } catch (error) {
-    console.error("Error fetching blog:", error);
-    return NextResponse.json(
-      { error: "Blog yüklenirken hata oluştu" },
-      { status: 500 }
-    );
-  }
+async function unauthorized() {
+  const session = await getServerSession(authOptions);
+  return session?.user ? null : NextResponse.json({ error: "Oturum bulunamadı." }, { status: 401 });
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+const notFound = () => NextResponse.json({ error: "Yazı bulunamadı." }, { status: 404 });
+
+export async function GET(_request: Request, context: Context) {
+  const denied = await unauthorized();
+  if (denied) return denied;
+
+  const { id } = await context.params;
+  const post = await prisma.blogPost.findUnique({ where: { id }, select: POST_SELECT });
+  return post ? NextResponse.json({ post }) : notFound();
+}
+
+export async function PUT(request: Request, context: Context) {
+  const denied = await unauthorized();
+  if (denied) return denied;
+
   try {
-    const { id } = await params;
-    const body = await request.json();
-    const { title, slug, content, excerpt, category, status } = body;
-
-    if (!title || !slug || !content) {
-      return NextResponse.json(
-        { error: "Başlık, slug ve içerik zorunludur" },
-        { status: 400 }
-      );
-    }
-
-    // Check if slug exists for another blog
-    const existingBlog = await prisma.blogPost.findFirst({
-      where: {
-        slug,
-        NOT: { id },
-      },
+    const { id } = await context.params;
+    const input = validatePost(await request.json());
+    const current = await prisma.blogPost.findUnique({
+      where: { id },
+      select: { slug: true, status: true, publishedAt: true },
     });
+    if (!current) return notFound();
 
-    if (existingBlog) {
-      return NextResponse.json(
-        { error: "Bu slug başka bir blog tarafından kullanılıyor" },
-        { status: 400 }
-      );
-    }
-
-    // Status değerini enum'a çevir
-    const statusEnum = status === "published" ? "PUBLISHED" : status === "draft" ? "DRAFT" : status;
-    
-    // Eğer yayınlanıyorsa ve publishedAt yoksa, şimdi ayarla
-    const currentBlog = await prisma.blogPost.findUnique({ where: { id } });
-    const publishedAt = statusEnum === "PUBLISHED" && !currentBlog?.publishedAt 
-      ? new Date() 
-      : currentBlog?.publishedAt;
-    
-    const blog = await prisma.blogPost.update({
+    await prisma.blogPost.update({
       where: { id },
       data: {
-        title,
-        slug,
-        content,
-        excerpt,
-        category,
-        status: statusEnum,
-        publishedAt,
-        updatedAt: new Date(),
+        ...input,
+        ...(input.status === "PUBLISHED" && !current.publishedAt ? { publishedAt: new Date() } : {}),
       },
     });
-
-    return NextResponse.json({ blog });
+    if (input.status === "PUBLISHED" || current.status === "PUBLISHED") {
+      await revalidateBlog([input.slug, current.slug]);
+    }
+    return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Error updating blog:", error);
-    return NextResponse.json(
-      { error: "Blog güncellenirken hata oluştu" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: blogDbError(error).message }, { status: 400 });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+/** Listedeki hızlı yayınla / yayından kaldır. */
+export async function PATCH(request: Request, context: Context) {
+  const denied = await unauthorized();
+  if (denied) return denied;
+
   try {
-    const { id } = await params;
-    
-    await prisma.blogPost.delete({
-      where: { id },
-    });
+    const { id } = await context.params;
+    const { status } = (await request.json()) as { status?: BlogStatus };
+    if (!status || !BLOG_STATUSES.includes(status)) throw new Error("Durum geçersiz.");
 
-    return NextResponse.json({ success: true });
+    const current = await prisma.blogPost.findUnique({
+      where: { id },
+      select: { slug: true, category: true, content: true, publishedAt: true },
+    });
+    if (!current) return notFound();
+    if (status === "PUBLISHED") {
+      if (!current.category) throw new Error("Yayınlamak için önce kategori seçin.");
+      if (!plainText(current.content)) throw new Error("Yayınlamak için önce içerik girin.");
+    }
+
+    await prisma.blogPost.update({
+      where: { id },
+      data: {
+        status,
+        ...(status === "PUBLISHED" && !current.publishedAt ? { publishedAt: new Date() } : {}),
+      },
+    });
+    await revalidateBlog([current.slug]);
+    return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Error deleting blog:", error);
-    return NextResponse.json(
-      { error: "Blog silinirken hata oluştu" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: blogDbError(error).message }, { status: 400 });
   }
 }
 
+export async function DELETE(_request: Request, context: Context) {
+  const denied = await unauthorized();
+  if (denied) return denied;
+
+  try {
+    const { id } = await context.params;
+    const post = await prisma.blogPost.delete({ where: { id }, select: { slug: true, status: true } });
+    if (post.status === "PUBLISHED") await revalidateBlog([post.slug]);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return NextResponse.json({ error: blogDbError(error).message }, { status: 400 });
+  }
+}

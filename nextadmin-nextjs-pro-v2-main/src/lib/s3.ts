@@ -17,6 +17,7 @@ const S3_PUBLIC_BASE_URL = process.env.S3_PUBLIC_BASE_URL;
 
 /** Yükleme yapan rotaların kendi istemcisini kurmaması için dışa açıldı. */
 export const STORAGE_BUCKET = BUCKET_NAME;
+export const STORAGE_PREFIX = S3_PREFIX;
 
 let cachedClient: S3Client | null = null;
 

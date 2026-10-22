@@ -144,3 +144,14 @@ export async function revalidateProduct(input: {
 
   return revalidateFrontend({ tags: ["products"], paths });
 }
+
+/**
+ * Blog yazısı kaydedildiğinde liste, yazı ve ana sayfadaki blog bölümü
+ * tazelenir. Adres değiştiyse eski yol da gönderilir; aksi halde eski adres
+ * önbellekten yayında kalır.
+ */
+export async function revalidateBlog(slugs: (string | null | undefined)[]): Promise<RevalidateResult> {
+  const paths = ["/", "/blog"];
+  for (const slug of new Set(slugs)) if (slug) paths.push(`/blog/${slug}`);
+  return revalidateFrontend({ paths });
+}

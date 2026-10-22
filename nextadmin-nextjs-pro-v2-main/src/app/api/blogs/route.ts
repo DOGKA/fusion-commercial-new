@@ -1,78 +1,61 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/libs/auth";
 import { prisma } from "@/libs/prismaDb";
+import { blogDbError, validatePost } from "@/lib/blog/server";
+import { revalidateBlog } from "@/lib/revalidate-frontend";
+
+const LIST_SELECT = {
+  id: true,
+  slug: true,
+  title: true,
+  category: true,
+  status: true,
+  featuredImage: true,
+  viewCount: true,
+  publishedAt: true,
+  updatedAt: true,
+} as const;
 
 export async function GET() {
-  try {
-    const blogs = await prisma.blogPost.findMany({
-      orderBy: { publishedAt: "desc" },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        excerpt: true,
-        category: true,
-        status: true,
-        publishedAt: true,
-        updatedAt: true,
-      },
-    });
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "Oturum bulunamadı." }, { status: 401 });
 
-    return NextResponse.json({ blogs });
+  try {
+    const [posts, categories] = await Promise.all([
+      prisma.blogPost.findMany({ select: LIST_SELECT, orderBy: { updatedAt: "desc" } }),
+      prisma.blogPost.findMany({
+        where: { category: { not: null } },
+        distinct: ["category"],
+        select: { category: true },
+      }),
+    ]);
+    return NextResponse.json({
+      posts,
+      categories: categories.map((row) => row.category).filter(Boolean),
+    });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
-    return NextResponse.json(
-      { error: "Bloglar yüklenirken hata oluştu" },
-      { status: 500 }
-    );
+    console.error("Blog listesi alınamadı:", error);
+    return NextResponse.json({ error: "Yazılar alınamadı." }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "Oturum bulunamadı." }, { status: 401 });
+
   try {
-    const body = await request.json();
-    const { title, slug, content, excerpt, category, status } = body;
-
-    if (!title || !slug || !content) {
-      return NextResponse.json(
-        { error: "Başlık, slug ve içerik zorunludur" },
-        { status: 400 }
-      );
-    }
-
-    // Check if slug exists
-    const existingBlog = await prisma.blogPost.findUnique({
-      where: { slug },
-    });
-
-    if (existingBlog) {
-      return NextResponse.json(
-        { error: "Bu slug zaten kullanılıyor" },
-        { status: 400 }
-      );
-    }
-
-    // Status değerini enum'a çevir
-    const statusEnum = status === "published" ? "PUBLISHED" : "DRAFT";
-    
-    const blog = await prisma.blogPost.create({
+    const input = validatePost(await request.json());
+    const post = await prisma.blogPost.create({
       data: {
-        title,
-        slug,
-        content,
-        excerpt,
-        category,
-        status: statusEnum,
-        publishedAt: statusEnum === "PUBLISHED" ? new Date() : null,
+        ...input,
+        publishedAt: input.status === "PUBLISHED" ? new Date() : null,
       },
+      select: { id: true },
     });
-
-    return NextResponse.json({ blog }, { status: 201 });
+    if (input.status === "PUBLISHED") await revalidateBlog([input.slug]);
+    return NextResponse.json({ id: post.id }, { status: 201 });
   } catch (error) {
-    console.error("Error creating blog:", error);
-    return NextResponse.json(
-      { error: "Blog oluşturulurken hata oluştu" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: blogDbError(error).message }, { status: 400 });
   }
 }
-
